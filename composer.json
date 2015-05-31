@@ -1,0 +1,27 @@
+{
+    "require": {
+        "codeception/codeception": "*",
+        "fzaninotto/faker": "*",
+        "yiisoft/yii2": "*",
+        "yiisoft/yii2-gii": "*",
+        "netwing/selenium-server-standalone": "*",
+        "yiisoft/yii2-debug": "*",
+        "yiisoft/yii2-swiftmailer": "*",
+        "yiisoft/yii2-jui": "*",
+        "league/factory-muffin": "*",
+        "kartik-v/yii2-widgets": "*",
+        "kartik-v/yii2-datecontrol": "*",
+        "kartik-v/yii2-krajee-base": "*",
+        "kartik-v/Yii2-detail-view": "*",
+        "kartik-v/yii2-grid": "*",
+        "kartik-v/yii2-mpdf": "*",
+        "wbraganca/yii2-dynamicform": "*",
+        "kartik-v/yii2-dropdown-x": "*"
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    }
+}
