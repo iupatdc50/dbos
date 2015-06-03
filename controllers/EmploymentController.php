@@ -22,6 +22,24 @@ class EmploymentController extends SummaryController
 		throw new NotFoundHttpException('Non-supported feature.  Cannot update employment this way.');
 	}
 	
+	/**
+	 * Replaces the inherited controller actionDelete with a different signature
+	 * 
+	 * @param string $member_id
+	 * @param string $effective_dt
+	 * @throws NotFoundHttpException  If the model is not found
+	 * @return \yii\web\Response
+	 */
+	public function actionRemove($member_id, $effective_dt)
+	{
+		$model = Employment::findOne(['member_id' => $member_id, 'effective_dt' => $effective_dt]);
+		if ($model !== null) {
+			$model->delete();
+			return $this->goBack();
+		}
+		throw new NotFoundHttpException('Unable to locate employment record.');
+	}
+	
 	public function actionLoan($relation_id)
 	{
 		/** @var ActiveRecord $model */

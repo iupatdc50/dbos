@@ -65,6 +65,25 @@ use kartik\grid\GridView;
 							return $result;
 						},
 				],
+				[
+						'class' => 'kartik\grid\ActionColumn',
+						 'template' => '{remove}',
+						 'buttons' => [
+						 		'remove' => function ($url, $model) {
+						        		return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+						                'title' => Yii::t('app', 'Remove'),
+						        		'data-confirm' => 'Are you sure you want to delete this item?',
+						        ]);
+						    }
+						  ],
+						  'urlCreator' => function ($action, $model, $key, $index) {
+						    	if ($action === 'remove') {
+						        	$url ='/employment/remove?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
+						        	return $url;
+						    	}
+						  }
+				],
+				
 				
 		],
 ]);
