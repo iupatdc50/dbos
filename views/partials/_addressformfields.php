@@ -17,6 +17,7 @@ use app\helpers\OptionHelper;
     		'hideSearch' => true,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select Address Type...'],
+    		
     ]) ?>
 
     <?= $form->field($address, 'address_ln1')->textInput(['maxlength' => 30])->label('Address Line 1') ?>

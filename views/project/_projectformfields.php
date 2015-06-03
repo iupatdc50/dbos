@@ -26,7 +26,7 @@ use app\helpers\OptionHelper;
 
 <div class="project-fields">
 
-    <?= $form->field($model, 'project_nm')->textInput(['maxlength' => 100]) ?>
+	<?= $form->field($model, 'project_nm')->textInput(['maxlength' => 100]) ?>
 
     <?= $form->field($model, 'general_contractor')->textInput(['maxlength' => 100]) ?>
 
@@ -53,7 +53,7 @@ use app\helpers\OptionHelper;
 	<?php endif ?>
     
     <?php if ($model->isNewRecord): ?>
-    	<?= $this->render('../partials/_addressformfields',
+    <?= $this->render('../partials/_addressformfields',
     			[
     				'form'	=> $form,
     				'address' => $address,

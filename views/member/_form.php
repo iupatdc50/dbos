@@ -27,9 +27,11 @@ use app\helpers\OptionHelper;
 
     <?php $form = ActiveForm::begin([
     		'options' => ['enctype' => 'multipart/form-data'], // ** Must have for file uploads **
-    		'type' => ActiveForm::TYPE_HORIZONTAL
+//    		'type' => ActiveForm::TYPE_HORIZONTAL
     		
     ]); ?>
+    
+    <div class="leftside fortyfive-pct">
 
     <?php if ($model->isNewRecord): ?>
     
@@ -92,24 +94,31 @@ use app\helpers\OptionHelper;
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
+    	<hr>
+	    <div class="form-group">
+	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+	    </div>
+    
+    </div>
+
     <?php if ($model->isNewRecord): ?>
+    	<div class="rightside fifty-pct">
+    	<hr>
     	<?= $this->render('../partials/_addressformfields',
     			[
     				'form'	=> $form,
     				'address' => $modelAddress,
     			]
     	) ?>
+    	<hr>
     	<?= $this->render('../partials/_phoneformfields',
     			[
     				'form'	=> $form,
     				'phone' => $modelPhone,
     			]
     	) ?>
+    	</div>
 	<?php endif ?>
-    
-    <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-    </div>
 
     <?php ActiveForm::end(); ?>
 
@@ -117,7 +126,8 @@ use app\helpers\OptionHelper;
 
     <?php if (!$model->isNewRecord): ?>
 <hr>
-	    <?= $this->render(
+    	<div class="rightside fifty-pct">
+		<?= $this->render(
 	    		'../partials/_addressgrid',
 	    		[
 	    			'modelsAddress' => $modelsAddress,
@@ -133,6 +143,7 @@ use app\helpers\OptionHelper;
 	    			'relation_id' => $model->member_id,	
 	    		]
 	    ) ?>
+	    </div>
 	<?php endif ?>
     
     <?= $this->render('../partials/_modal') ?>

@@ -9,8 +9,6 @@ use kartik\grid\GridView;
 ?>
 
         <div class="form-group">
-        	<div class="col-md-2"></div>
-        	<div class="col-md-10">
 				<?= GridView::widget([
 			        'dataProvider' => new \yii\data\ActiveDataProvider([
 			       		'query' => $modelsAddress,
@@ -43,6 +41,5 @@ use kartik\grid\GridView;
 							],
 					],
 				]);?>
-	    	</div>
 	    </div>
 			

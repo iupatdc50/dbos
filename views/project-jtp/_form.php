@@ -43,7 +43,7 @@ SCRIPT;
 
     <?php $form = ActiveForm::begin([
     		'options' => ['enctype' => 'multipart/form-data'], // ** Must have for file uploads **
-    		'type' => ActiveForm::TYPE_HORIZONTAL,
+//    		'type' => ActiveForm::TYPE_HORIZONTAL,
     		'id' => 'dynamic-form'
     ]); ?>
     
@@ -52,8 +52,20 @@ SCRIPT;
     	if ($model->isNewRecord)
     		$config['address'] = $modelAddress; 
     ?>
+    <div class="leftside fortyfive-pct">
+    
     <?= $this->render('../project/_projectformfields', $config); ?>
-
+    <hr>
+    
+    <div class="form-group">
+        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+    </div>
+    
+    </div>
+    
+    <div class="rightside fifty-pct">
+    
+    
     <?php if($model->isNewRecord): ?>
 	    <div class="panel panel-default">
 	        <div class="panel-heading"><h4 class="panel-title"><i class="glyphicon glyphicon-user"></i> Registration</h4></div>
@@ -63,18 +75,17 @@ SCRIPT;
 	    	</div>
 	    </div>
 	<?php endif; ?>
+	</div>
     
-    <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-    </div>
-
     <?php ActiveForm::end(); ?>
 
 </div>
 
     <?php if (!$model->isNewRecord): ?>
 <hr>    
-	    <?= $this->render(
+
+    	<div class="rightside fifty-pct">
+		<?= $this->render(
 	    		'../partials/_addressgrid',
 	    		[
 	    			'modelsAddress' => $modelsAddress,
@@ -82,6 +93,7 @@ SCRIPT;
 	    			'relation_id' => $model->project_id,	
 	    		]
 	    ) ?>
+	    </div>
 	    
     <?= $this->render('../partials/_modal') ?>
 	<?php endif; ?>

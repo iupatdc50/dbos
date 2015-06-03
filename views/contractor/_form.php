@@ -23,8 +23,12 @@ use app\helpers\OptionHelper;
 
 <div class="contractor-form">
 
-    <?php $form = ActiveForm::begin(['type' => ActiveForm::TYPE_HORIZONTAL]); ?>
+    <?php $form = ActiveForm::begin([
+//    		'type' => ActiveForm::TYPE_HORIZONTAL,
+    ]); ?>
 
+    <div class="leftside fortyfive-pct">
+    
     <?= $form->field($model, 'license_nbr')->textInput(['maxlength' => 8]) ?>
 
     <?= $form->field($model, 'contractor')->textInput(['maxlength' => 60]) ?>
@@ -46,31 +50,42 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'cba_dt')->widget(DateControl::className(), [
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
+
+    <hr>
+	    <div class="form-group">
+	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+	    </div>
+        
+    </div>
+    
     <?php if ($model->isNewRecord): ?>
+    	<div class="rightside fifty-pct">
+    	<hr>
     	<?= $this->render('../partials/_addressformfields',
     			[
     				'form'	=> $form,
     				'address' => $modelAddress,
     			]
     	) ?>
+    	<hr>
     	<?= $this->render('../partials/_phoneformfields',
     			[
     				'form'	=> $form,
     				'phone' => $modelPhone,
     			]
     	) ?>
+    	</div>
 	<?php endif ?>
     	
-	    <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-    </div>
 
     <?php ActiveForm::end(); ?>
 </div>
 
     <?php if (!$model->isNewRecord): ?>
-<hr>    
-    <?= $this->render(
+	<hr>    
+    <div class="rightside fifty-pct">
+
+    	<?= $this->render(
 	    		'../partials/_addressgrid',
 	    		[
 	    			'modelsAddress' => $modelsAddress,
@@ -87,6 +102,8 @@ use app\helpers\OptionHelper;
 	    			'relation_id' => $model->license_nbr,	
 	    		]
 	    ) ?>
+	    
+	</div>
 	<?php endif ?>
     
     <?= $this->render('../partials/_modal') ?>
