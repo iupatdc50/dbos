@@ -46,7 +46,7 @@ class SummaryController extends SubmodelController
 				'sort' => false,
 		]);
 		
-		echo Json::encode($this->renderPartial('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
+		echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
 	}
 
 	

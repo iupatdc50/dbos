@@ -2,16 +2,25 @@
 
 use kartik\grid\GridView;
 use yii\helpers\Html;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 
-echo GridView::widget([
+$heading = 'Active Projects';
+
+?>
+<div id="special-projects">
+
+<?php
+Pjax::begin(['id' => 'active-projects', 'enablePushState' => false]);
+echo  GridView::widget([
+		'id' => 'active-projects',
 		'dataProvider' => $dataProvider,
 		'floatHeader' => true,
 		'panel'=>[
 		        'type'=>GridView::TYPE_DEFAULT,
-		        'heading'=>'Active Projects',
+		        'heading'=> $heading,
 		        'before' => false,
 		        'after' => false,
 		],
@@ -48,3 +57,9 @@ echo GridView::widget([
 				],
 		],
 ]);
+?>
+</div>
+<?php
+
+Pjax::end();
+

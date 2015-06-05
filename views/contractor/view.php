@@ -54,7 +54,8 @@ $this->params['breadcrumbs'][] = $this->title;
  	$registrationUrl = Yii::$app->urlManager->createUrl(['registration/summary-json', 'id' => $model->license_nbr]);
  	
 ?>
-    
+
+
 <?=
 	Accordion::widget([
 		'items' => [
