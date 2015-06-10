@@ -12,13 +12,17 @@ use app\models\member\Employment;
  */
 class EmploymentSearch extends Employment
 {
+	// Search place holder
+	public $fullName;
+	public $employer_search;
+	
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['member_id', 'effective_dt', 'end_dt', 'employer', 'dues_payor'], 'safe'],
+            [['member_id', 'fullName', 'effective_dt', 'end_dt', 'employer', 'dues_payor', 'is_loaned'], 'safe'],
         ];
     }
 
@@ -40,29 +44,34 @@ class EmploymentSearch extends Employment
      */
     public function search($params)
     {
-        $query = Employment::find();
-
+        $query = Employment::find()->joinWith(['member'])->where(['end_dt' => null]);
+        
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+     		'sort'=> ['defaultOrder' => ['fullName' =>SORT_ASC]],
+    		'pagination' => ['pageSize' => 15],
         ]);
 
-        $this->load($params);
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to any records when validation fails
-            // $query->where('0=1');
+        $dataProvider->sort->attributes['fullName'] = [
+        		'asc' => ['last_nm' => SORT_ASC, 'first_nm' => SORT_ASC], 
+        		'desc' => ['last_nm' => SORT_DESC, 'first_nm' => SORT_DESC],
+        		'default' => SORT_ASC,
+        ];
+        
+        if (isset($this->employer_search)) {
+        	$query->andFilterWhere(['or',
+        		['and', ['is_loaned' => 'F', 'employer' => $this->employer_search]],	
+        		['and', ['is_loaned' => 'T', 'dues_payor' => $this->employer_search]],	
+        	]);
+        }
+        
+        if (!($this->load($params) && $this->validate())) {
             return $dataProvider;
         }
-
-        $query->andFilterWhere([
-            'effective_dt' => $this->effective_dt,
-            'end_dt' => $this->end_dt,
-        ]);
-
-        $query->andFilterWhere(['like', 'member_id', $this->member_id])
-            ->andFilterWhere(['like', 'employer', $this->employer])
-            ->andFilterWhere(['like', 'dues_payor', $this->dues_payor]);
-
+        
+        $query->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]]);
+        $query->andFilterWhere(['is_loaned' => $this->is_loaned]);
+        
         return $dataProvider;
     }
 }

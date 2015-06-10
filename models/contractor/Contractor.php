@@ -8,6 +8,7 @@ use app\models\member\Member;
 use app\helpers\OptionHelper;
 use yii\helpers\ArrayHelper;
 use app\models\project\BaseRegistration;
+use app\models\member\Employment;
 
 /**
  * This is the model class for table "Contractors".
@@ -19,6 +20,7 @@ use app\models\project\BaseRegistration;
  * @property string $url
  * @property string $pdca_member
  * @property string $cba_dt
+ * @property string $is_active
  * @property UnionContractor $currentSignatory
  * @property Address[] $addresses
  * @property Phone[] $phones
@@ -26,6 +28,9 @@ use app\models\project\BaseRegistration;
  */
 class Contractor extends \yii\db\ActiveRecord
 {
+	CONST STATUS_ACTIVE = 'T';
+	CONST STATUS_INACTIVE = 'F';
+	
     /**
      * @inheritdoc
      */
@@ -67,7 +72,7 @@ class Contractor extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['license_nbr', 'contractor'], 'required'],
+            [['license_nbr', 'contractor', 'is_active'], 'required'],
             [['license_nbr'], 'string', 'max' => 8],
             [['contractor'], 'string', 'max' => 60],
             [['contact_nm'], 'string', 'max' => 30],
@@ -76,6 +81,7 @@ class Contractor extends \yii\db\ActiveRecord
         	[['pdca_member'], 'in', 'range' => OptionHelper::getAllowedTF()],
         	[['cba_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['email', 'url', 'pdca_member', 'cba_dt'], 'default'],
+        	[['is_active'], 'in', 'range' => OptionHelper::getAllowedTF()]
         ];
     }
 
@@ -94,6 +100,7 @@ class Contractor extends \yii\db\ActiveRecord
             'url' => 'Website',
         	'pdca_member' => 'PDCA Member',
         	'cba_dt' => 'Signed CBA',
+        	'is_active' => 'Status',
         ];
     }
     
@@ -152,14 +159,6 @@ class Contractor extends \yii\db\ActiveRecord
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }
     
-    public function getEmployees()
-    {
-    	return $this->hasMany(Member::className(), ['member_id' => 'member_id'])
-    	         ->viaTable('CurrentEmployees', ['employer' => 'license_nbr'])
-    	         ->orderBy('last_nm, first_nm, middle_inits, suffix')
-    	;
-    }
-    
     /**
      * Serves as a getter for ContractorSearch::employeeCount
      */
@@ -176,5 +175,17 @@ class Contractor extends \yii\db\ActiveRecord
     	return OptionHelper::getTFText($this->pdca_member);
     }
     
-    
+   	public function getStatusOptions()
+   	{
+   		return [
+   				self::STATUS_ACTIVE => 'Active', 
+   				self::STATUS_INACTIVE => 'Inactive'
+   		];
+   	} 
+   
+   	public function getStatusText()
+   	{
+   		$options = $this->statusOptions;
+		return (isset($options[$this->is_active])) ? $options[$this->is_active] : 'Unknown active status ' . $this->is_active;
+   	}
 }

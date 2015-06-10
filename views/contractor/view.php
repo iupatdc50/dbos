@@ -1,13 +1,13 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
-use kartik\grid\GridView;
+use kartik\detail\DetailView;
 use yii\jui\Accordion;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\contractor\Contractor */
 /* @var $employeeProvider yii\data\ActiveDataProvider */
+/* @var $employeeSearchModel app\models\member\MemberSearch */
 /* @var $signatoryModel app\models\contractor\Signatory */
 
 $this->title = $model->contractor;
@@ -34,7 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
         'attributes' => [
-            'license_nbr',
+	        [
+	        	'attribute' => 'is_active', 
+	        	'value' => Html::encode($model->statusText),
+	        	'rowOptions' => $model->is_active == 'T' ? ['class' => 'success'] : ['class' => 'default'],
+	        ],
+	        'license_nbr',
             'contact_nm',
             'addressTexts:ntext',
             'phoneTexts:ntext',
@@ -85,33 +90,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
     
    
-   </div><div class="rightside thirtyfive-pct"> 
-    <?= GridView::widget([
-        'dataProvider' => $employeeProvider,
-		'panel'=>[
-	        'type'=>GridView::TYPE_DEFAULT,
-	        'heading'=>'Current Employees',
-	        'before' => false,
-	        'after' => false,
-	    ],
-        'columns' => [
-        	[
-        		'label' => 'Name',
-        		'format' => 'raw',
-        		'value' => function($data) {
-        			return Html::a(Html::encode($data->fullName), ['member/view', 'id' => $data->member_id]);
-        		},
-        	],
-        	[
-        		'attribute' => 'special',
-        		'format' => 'raw',
-        		'value' => function($data) {
-	        		return (isset($data->worksFor) && ($data->worksFor->is_loaned == 'T')) ?
-    	    			Html::tag('span', ' On Loan', ['class' => 'label label-success']) : '';
-        		},
-        	],
-        ],
-    ]) ?>
+   	</div><div class="rightside thirtyfive-pct"> 
+   		<?= $this->render('_employee', ['provider' => $employeeProvider, 'searchModel' => $employeeSearchModel]); ?> 	
 	</div>
 </div>
 <?= $this->render('../partials/_modal') ?>

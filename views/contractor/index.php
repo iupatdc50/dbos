@@ -26,11 +26,26 @@ $this->params['breadcrumbs'][] = $this->title;
         'rowOptions' => function($model) {
         					if(!isset($model->currentSignatory)) {
         						return ['class' => 'warning'];
+        					} elseif ($model->is_active == 'F') {
+        						return ['class' => 'text-muted'];
         					}
     					},
         'columns' => [
 //            ['class' => 'yii\grid\SerialColumn'],
 
+        	[
+        		'attribute' => 'is_active',
+				'vAlign' => 'middle',
+    			'width' => '110px',
+    			'value' => 'statusText',
+            	'filterType' => GridView::FILTER_SELECT2,
+            	'filter' => array_merge(["" => ""], $searchModel->statusOptions),
+            	'filterWidgetOptions' => [
+            			'size' => \kartik\widgets\Select2::SMALL,
+            			'hideSearch' => true,
+            			'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
+            	],
+        	],
     		[
     			'attribute' => 'lobs',
     			'value' => 'currentSignatory.lobs',

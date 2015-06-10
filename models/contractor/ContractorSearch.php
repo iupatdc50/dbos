@@ -24,7 +24,7 @@ class ContractorSearch extends Contractor
     public function rules()
     {
         return [
-            [['lobs', 'license_nbr', 'contractor', 'contact_nm', 'email', 'employeeCount'], 'safe'],
+            [['lobs', 'license_nbr', 'contractor', 'contact_nm', 'email', 'is_active', 'employeeCount'], 'safe'],
         ];
     }
 
@@ -57,6 +57,10 @@ class ContractorSearch extends Contractor
         	'sort' => ['defaultOrder' => ['contractor' => SORT_ASC]],
         ]);
         
+        // Default set to active
+		if (!isset($params['ContractorSearch']['is_active']))
+			$params['ContractorSearch']['is_active'] = 'T';
+        
         if (!($this->load($params) && $this->validate())) {
             return $dataProvider;
         }
@@ -72,6 +76,8 @@ class ContractorSearch extends Contractor
             ->andFilterWhere(['like', 'contact_nm', $this->contact_nm])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'lobs', $this->lobs])
+            ->andFilterWhere(['like', 'lobs', $this->lobs])
+            ->andFilterWhere(['is_active' => $this->is_active])
         ;
         $criteria = CriteriaHelper::parseMixed('employee_count', $this->employeeCount);
         $query->andFilterWhere($criteria);

@@ -16,6 +16,7 @@ class MemberSearch extends Member
 	public $lob_cd;
 	public $status;
 	public $home_island;
+	public $fullName;
 	
 	/**
      * @inheritdoc
@@ -23,7 +24,7 @@ class MemberSearch extends Member
     public function rules()
     {
         return [
-            [['member_id', 'ssnumber', 'report_id', 'last_nm', 'first_nm', 'middle_inits', 
+            [['member_id', 'ssnumber', 'report_id', 'fullName', 'middle_inits', 
             		'suffix', 'birth_dt', 'gender', 
             		'shirt_size', 'local_pac', 'hq_pac', 'remarks', 
             		'lob_cd', 'status', 'home_island',], 'safe'],
@@ -57,6 +58,7 @@ class MemberSearch extends Member
         
         $dataProvider->sort->attributes['lob_cd'] = ['asc' => ['lob_cd' => SORT_ASC], 'desc' => ['lob_cd' => SORT_DESC]];
         $dataProvider->sort->attributes['awarded_contractor'] = ['asc' => ['contractor' => SORT_ASC], 'desc' => ['contractor' => SORT_DESC]];
+        $dataProvider->sort->attributes['fullName'] = ['asc' => ['last_nm' => SORT_ASC, 'first_nm' => SORT_ASC], 'desc' => ['last_nm' => SORT_DESC, 'first_nm' => SORT_DESC]];
         
         // Default set to active
 		if (!isset($params['MemberSearch']['status']))
@@ -86,15 +88,14 @@ class MemberSearch extends Member
         
         $query->andFilterWhere(['like', 'ssnumber', $this->ssnumber])
             ->andFilterWhere(['like', 'report_id', $this->report_id])
-            ->andFilterWhere(['like', 'last_nm', $this->last_nm])
-            ->andFilterWhere(['like', 'first_nm', $this->first_nm])
-            ->andFilterWhere(['like', 'middle_inits', $this->middle_inits])
-            ->andFilterWhere(['like', 'suffix', $this->suffix])
             ->andFilterWhere(['like', 'gender', $this->gender])
             ->andFilterWhere(['like', 'shirt_size', $this->shirt_size])
             ->andFilterWhere(['like', 'local_pac', $this->local_pac])
             ->andFilterWhere(['like', 'hq_pac', $this->hq_pac])
-            ->andFilterWhere(['like', 'remarks', $this->remarks]);
+            ->andFilterWhere(['like', 'remarks', $this->remarks])
+        	->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]])
+        	;
+        
         return $dataProvider;
     }
 }

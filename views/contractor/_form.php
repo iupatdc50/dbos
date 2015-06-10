@@ -29,6 +29,13 @@ use app\helpers\OptionHelper;
 
     <div class="leftside fortyfive-pct">
     
+    <?= $form->field($model, 'is_active')->widget(Select2::className(), [
+    		'data' => $model->statusOptions,	
+    		'hideSearch' => true,
+    		'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select active status...'],
+    ]) ?>
+
     <?= $form->field($model, 'license_nbr')->textInput(['maxlength' => 8]) ?>
 
     <?= $form->field($model, 'contractor')->textInput(['maxlength' => 60]) ?>
@@ -50,7 +57,7 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'cba_dt')->widget(DateControl::className(), [
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
-
+    
     <hr>
 	    <div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

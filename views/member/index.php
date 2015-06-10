@@ -7,6 +7,7 @@ use app\helpers\OptionHelper;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\member\MemberSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $statusPickList array */
 
 $this->title = 'Members';
 $this->params['breadcrumbs'][] = $this->title;
@@ -33,7 +34,6 @@ $this->params['breadcrumbs'][] = $this->title;
         					}
     					},
         'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
 
     		[
     			'attribute' => 'lob_cd',
@@ -59,24 +59,10 @@ $this->params['breadcrumbs'][] = $this->title;
     		'member_id',
     		
             'ssnumber',
-            // 'report_id',
             [
-            	'attribute' => 'last_nm',
+            	'attribute' => 'fullName',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
             ],
-            [
-            	'attribute' => 'first_nm',
-            	'contentOptions' => ['style' => 'white-space: nowrap;'],
-            ],
-            // 'middle_inits',
-            // 'suffix',
-    		// 'birth_dt',
-            // 'age',
-            // 'gender',
-            // 'shirt_size',
-            // 'local_pac',
-            // 'hq_pac',
-            // 'remarks:ntext',
             [
             		'attribute' => 'home_island',
             		'label' => 'Island',

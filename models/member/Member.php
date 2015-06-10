@@ -103,6 +103,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	'emailTexts' => 'Email(s)',
         	'lob_cd' => 'Local',
         	'status' => 'Status',
+        	'fullName' => 'Name',
         ];
     }
     

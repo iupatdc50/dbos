@@ -9,6 +9,7 @@ use app\models\contractor\Address;
 use app\models\contractor\Phone;
 use app\models\contractor\ContractorSearch;
 use app\models\contractor\Signatory;
+use app\models\member\EmploymentSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -57,16 +58,16 @@ class ContractorController extends RootController
     	parent::actionView($id);
     	 
     	$model = $this->findModel($id);
-    	/** @var $model Contractor */ 
-    	$employeeProvider = new ActiveDataProvider([
-    			'query' => $model->getEmployees(),
-    			'pagination' => [
-    					'pageSize' => 15,
-    			],
-    	]);
+
+    	$employeeSearchModel = new EmploymentSearch();
+    	$employeeSearchModel->employer_search = $id;
+    	
+    	$employeeProvider = $employeeSearchModel->search(Yii::$app->request->queryParams);
+    	
     	return $this->render('view', [
             'model' => $model,
             'employeeProvider' => $employeeProvider,
+    		'employeeSearchModel' => $employeeSearchModel,
         ]);
     }
 

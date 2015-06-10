@@ -15,6 +15,7 @@ use app\components\utilities\OpDate;
  * @property string $end_dt
  * @property string $employer
  * @property string $dues_payor
+ * @property string $is_loaned
  *
  * @property Member $member
  * @property Contractor $contractor
