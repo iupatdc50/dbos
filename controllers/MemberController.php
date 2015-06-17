@@ -147,9 +147,10 @@ class MemberController extends RootController
         } 
         return $this->render('update', [
         	'model' => $model,
-        	// Addresses and phones are updated in their own controllers
+        	// Addresses, phones and specialties are updated in their own controllers
             'modelsAddress' => $model->getAddresses(),
         	'modelsPhone' => $model->getPhones(),
+        	'modelsSpecialty' => $model->getSpecialties(),
         ]);
     }
     

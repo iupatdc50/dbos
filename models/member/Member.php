@@ -28,10 +28,12 @@ use app\models\base\iNotableInterface;
  * @property string $hq_pac
  * @property string $remarks
  * @property string $photo_id Stored the generated filename
+ * @property string $imse_id
  * 
  * @property Phone[] $phones
  * @property Address[] $addresses
  * @property Email[] $emails
+ * @property Specialty[] $specialties
  * @property Status[] $statuses
  * @property Status $currentStatus
  * @property MemberClass[] $classes
@@ -73,7 +75,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	[['shirt_size'], 'exist', 'targetClass' => Size::className(), 'targetAttribute' => 'size_cd'],
             [['photo_id'], 'string', 'max' => 20],
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
-        	[['middle_inits', 'suffix', 'photo_id'], 'default'],
+        	[['middle_inits', 'suffix', 'photo_id', 'imse_id'], 'default'],
         ];
     }
 
@@ -97,10 +99,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
             'hq_pac' => 'HQ PAC',
             'remarks' => 'Remarks',
             'photo_file' => 'Photo',
+        	'imse_id' => 'IUPAT ID',
             'age' => 'Age',
             'addressTexts' => 'Address(es)',
         	'phoneTexts' => 'Phone(s)',
         	'emailTexts' => 'Email(s)',
+        	'specialtyTexts' => 'Specialties',
         	'lob_cd' => 'Local',
         	'status' => 'Status',
         	'fullName' => 'Name',
@@ -171,6 +175,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getEmails()
     {
     	return $this->hasMany(Email::className(), ['member_id' => 'member_id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSpecialties()
+    {
+    	return $this->hasMany(Specialty::className(), ['member_id' => 'member_id']);
     }
     
     /**
@@ -276,6 +288,15 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$texts = [];
     	foreach ($this->emails as $email) {
     		$texts[] = $email->email;
+    	}
+    	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
+    }
+    
+    public function getSpecialtyTexts()
+    {
+    	$texts = [];
+    	foreach ($this->specialties as $specialty) {
+    		$texts[] = $specialty->specialty;
     	}
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }

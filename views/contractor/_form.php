@@ -8,8 +8,6 @@
 
 use yii\helpers\Html;
 use kartik\form\ActiveForm;
-use kartik\datecontrol\DateControl;
-use kartik\widgets\Select2;
 use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
@@ -29,13 +27,6 @@ use app\helpers\OptionHelper;
 
     <div class="leftside fortyfive-pct">
     
-    <?= $form->field($model, 'is_active')->widget(Select2::className(), [
-    		'data' => $model->statusOptions,	
-    		'hideSearch' => true,
-    		'size' => Select2::SMALL,
-    		'options' => ['placeholder' => 'Select active status...'],
-    ]) ?>
-
     <?= $form->field($model, 'license_nbr')->textInput(['maxlength' => 8]) ?>
 
     <?= $form->field($model, 'contractor')->textInput(['maxlength' => 60]) ?>
@@ -45,18 +36,6 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'email')->textInput(['maxlength' => 50]) ?>
 
     <?= $form->field($model, 'url')->textInput(['maxlength' => 100]) ?>
-    
-    <?= $form->field($model, 'pdca_member')->widget(Select2::className(), [
-    		'data' => OptionHelper::getTFOptions(), 
-    		'hideSearch' => true,
-			'size' => Select2::SMALL,
-    		'options' => ['placeholder' => 'Select...'],
-    		'pluginOptions' => ['allowClear' => true],
-    ]) ?>
-
-    <?= $form->field($model, 'cba_dt')->widget(DateControl::className(), [
-    		'type' => DateControl::FORMAT_DATE,
-    ])  ?>
     
     <hr>
 	    <div class="form-group">

@@ -17,7 +17,7 @@ class ContractorSearch extends Contractor
 	// Search place holders
 	public $lobs;
 	public $employeeCount;
-	
+		
     /**
      * @inheritdoc
      */
@@ -60,7 +60,7 @@ class ContractorSearch extends Contractor
         // Default set to active
 		if (!isset($params['ContractorSearch']['is_active']))
 			$params['ContractorSearch']['is_active'] = 'T';
-        
+		
         if (!($this->load($params) && $this->validate())) {
             return $dataProvider;
         }
@@ -76,9 +76,9 @@ class ContractorSearch extends Contractor
             ->andFilterWhere(['like', 'contact_nm', $this->contact_nm])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'lobs', $this->lobs])
-            ->andFilterWhere(['like', 'lobs', $this->lobs])
             ->andFilterWhere(['is_active' => $this->is_active])
         ;
+        
         $criteria = CriteriaHelper::parseMixed('employee_count', $this->employeeCount);
         $query->andFilterWhere($criteria);
         

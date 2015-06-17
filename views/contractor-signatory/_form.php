@@ -5,6 +5,7 @@ use kartik\form\ActiveForm;
 use kartik\datecontrol\DateControl;
 use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
+use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\contractor\Signatory */
@@ -15,7 +16,7 @@ use kartik\widgets\Select2;
 
     <?php $form = ActiveForm::begin([
     		'options' => ['enctype' => 'multipart/form-data'], // ** Must have for file uploads **
-    		'type' => ActiveForm::TYPE_HORIZONTAL,
+    		'type' => $model->isNewRecord ? ActiveForm::TYPE_VERTICAL : ActiveForm::TYPE_HORIZONTAL,
     		'id' => 'signatory-form',
     		'enableClientValidation' => true,
     ]); ?>
@@ -25,6 +26,20 @@ use kartik\widgets\Select2;
     		'hideSearch' => true,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select Local...'],
+    ]) ?>
+
+    <?= $form->field($model, 'is_pla')->widget(Select2::className(), [
+    		'data' => OptionHelper::getTFOptions(), 
+    		'hideSearch' => true,
+			'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select...'],
+    ]) ?>
+
+    <?= $form->field($model, 'assoc')->widget(Select2::className(), [
+    		'data' => OptionHelper::getTFOptions(), 
+    		'hideSearch' => true,
+			'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
     <?= $form->field($model, 'signed_dt')->widget(DateControl::className(), [

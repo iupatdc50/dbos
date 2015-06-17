@@ -13,6 +13,15 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4 Notes
+
+. Contractor status is now automatically set, based on the existence of active signatory
+. Added retail market agreement as an ancillary
+. Added project labor agreement as an option on the signatory
+. PDCA is now called "Association Member" and is specific to trade agreements
+. CBA was removed
+. Added IUPAT membership ID
+
 0.9.3 Notes
 
 . Added active/inactive status to contractor. Index display defaults to active only. 

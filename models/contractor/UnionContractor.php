@@ -5,7 +5,8 @@ namespace app\models\contractor;
 use Yii;
 
 /**
- * This is the model class for table "UnionContractors".
+ * This is the model class for view UnionContractors, which flattens all active signatories
+ * for a contractor into a single row with a comma separated list of LOB codes.
  *
  * @property string $license_nbr
  * @property string $lobs

@@ -59,6 +59,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'shirt_size',
             ['attribute' => 'local_pac', 'value' => Html::encode($model->localPacText)],
             ['attribute' => 'hq_pac', 'value' => Html::encode($model->hqPacText)],
+            'imse_id',
+            'specialtyTexts:ntext',
         ],
     ]) ?>
 </td></tr>

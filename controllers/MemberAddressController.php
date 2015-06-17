@@ -11,7 +11,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * ContractorAddressController implements the CRUD actions for ContractorAddress model.
+ * MemberAddressController implements the CRUD actions for member\Address model.
  */
 class MemberAddressController extends SubmodelController
 {

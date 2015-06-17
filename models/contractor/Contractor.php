@@ -18,8 +18,6 @@ use app\models\member\Employment;
  * @property string $contact_nm
  * @property string $email
  * @property string $url
- * @property string $pdca_member
- * @property string $cba_dt
  * @property string $is_active
  * @property UnionContractor $currentSignatory
  * @property Address[] $addresses
@@ -72,16 +70,15 @@ class Contractor extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['license_nbr', 'contractor', 'is_active'], 'required'],
+            [['license_nbr', 'contractor'], 'required'],
             [['license_nbr'], 'string', 'max' => 8],
             [['contractor'], 'string', 'max' => 60],
             [['contact_nm'], 'string', 'max' => 30],
             [['email'], 'email'],
         	[['url'], 'url'],
-        	[['pdca_member'], 'in', 'range' => OptionHelper::getAllowedTF()],
-        	[['cba_dt'], 'date', 'format' => 'php:Y-m-d'],
-            [['email', 'url', 'pdca_member', 'cba_dt'], 'default'],
-        	[['is_active'], 'in', 'range' => OptionHelper::getAllowedTF()]
+            [['email', 'url'], 'default'],
+        	[['is_active'], 'in', 'range' => OptionHelper::getAllowedTF()],
+        	[['is_active'], 'default', 'value' => 'F'],
         ];
     }
 
@@ -98,8 +95,6 @@ class Contractor extends \yii\db\ActiveRecord
         	'phoneTexts' => 'Phone(s)',
         	'email' => 'Email',
             'url' => 'Website',
-        	'pdca_member' => 'PDCA Member',
-        	'cba_dt' => 'Signed CBA',
         	'is_active' => 'Status',
         ];
     }
@@ -170,9 +165,21 @@ class Contractor extends \yii\db\ActiveRecord
     	; 
     }
     
-    public function getPdcaText()
+    /**
+     * Status is held in the $this->is_active column, based on whether there
+     * is at least one active signatory
+     */
+    public function setStatus($override = NULL)
     {
-    	return OptionHelper::getTFText($this->pdca_member);
+    	if (isset($override)) {
+    		$options = $this->statusOptions;
+    		if (!isset($options[$override])) {
+    			throw new InvalidParamException("Invalid override `{$override}` passed in parameter"); 
+    		}
+    		$this->is_active = $override;
+    	} else {
+    		$this->is_active = (isset($this->currentSignatory)) ? 'T' : 'F';
+    	}
     }
     
    	public function getStatusOptions()
@@ -186,6 +193,6 @@ class Contractor extends \yii\db\ActiveRecord
    	public function getStatusText()
    	{
    		$options = $this->statusOptions;
-		return (isset($options[$this->is_active])) ? $options[$this->is_active] : 'Unknown active status ' . $this->is_active;
+   		return (isset($options[$this->is_active])) ? $options[$this->is_active] : 'Unknown active status ' . $this->is_active;
    	}
 }

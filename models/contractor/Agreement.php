@@ -15,7 +15,7 @@ use yii\helpers\ArrayHelper;
  * @property string $term_dt
  * @property string $doc_id
  *
- * @property Contractor $licenseNbr
+ * @property Contractor $contractor
  */
 class Agreement extends \yii\db\ActiveRecord
 {
@@ -72,7 +72,7 @@ class Agreement extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getLicenseNbr()
+    public function getContractor()
     {
         return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
     }

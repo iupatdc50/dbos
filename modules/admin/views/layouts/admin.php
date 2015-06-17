@@ -90,6 +90,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 								['label' => 'Agreement Types', 'url'=>'#'],
 								['label' => 'Phone Types', 'url'=>'#'],
 								['label' => 'Shirt Sizes', 'url'=>'#'],
+								['label' => 'Trade Specialties', 'url' => '/admin/trade-specialty'],
 								['label' => 'Zip Codes', 'url'=>'/admin/zip-code'],
 							],
 						],

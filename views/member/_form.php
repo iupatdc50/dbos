@@ -20,6 +20,7 @@ use app\helpers\OptionHelper;
 /* @var $modelsAddress \yii\db\ActiveQuery */
 /* @var $modelPhone app\models\member\Phone */
 /* @var $modelsPhone \yii\db\ActiveQuery */
+/* @var $modelsSpecialty \yii\db\ActiveQuery */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -94,7 +95,9 @@ use app\helpers\OptionHelper;
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
-    	<hr>
+    <?= $form->field($model, 'imse_id')->textInput(['maxlength' => 20]) ?>
+    
+    <hr>
 	    <div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
 	    </div>
@@ -141,6 +144,13 @@ use app\helpers\OptionHelper;
 	    			'modelsPhone' => $modelsPhone,
 	    			'controller' => 'member-phone',
 	    			'relation_id' => $model->member_id,	
+	    		]
+	    ) ?>
+	    <?= $this->render(
+	    		'../member-specialty/_grid',
+	    		[
+	    			'modelsSpecialty' => $modelsSpecialty,	
+	    			'relation_id' => $model->member_id,
 	    		]
 	    ) ?>
 	    </div>

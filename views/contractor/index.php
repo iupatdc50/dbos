@@ -24,18 +24,14 @@ $this->params['breadcrumbs'][] = $this->title;
 			'content' => Html::a('Create Contractor', ['create'], ['class' => 'btn btn-success']),
 		],
         'rowOptions' => function($model) {
-        					if(!isset($model->currentSignatory)) {
-        						return ['class' => 'warning'];
-        					} elseif ($model->is_active == 'F') {
+        					if($model->is_active == 'F') {
         						return ['class' => 'text-muted'];
         					}
     					},
         'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
-
         	[
         		'attribute' => 'is_active',
-				'vAlign' => 'middle',
+        		'vAlign' => 'middle',
     			'width' => '110px',
     			'value' => 'statusText',
             	'filterType' => GridView::FILTER_SELECT2,

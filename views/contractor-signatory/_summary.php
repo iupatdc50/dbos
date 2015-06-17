@@ -24,6 +24,24 @@ echo GridView::widget([
 						'label' => 'Local',
 						'value' => 'lob.short_descrip',
 				],
+				[
+						'class'=>'kartik\grid\BooleanColumn',
+						'falseIcon' => '<span></span>',
+						'attribute' => 'is_pla',
+						'label' => 'PLA',
+						'value' => function($model) {
+							return ($model->is_pla == 'T') ? true : false;
+						}
+				],
+				[
+						'class'=>'kartik\grid\BooleanColumn',
+						'falseIcon' => '<span></span>',
+						'attribute' => 'assoc',
+						'label' => 'Assoc',
+						'value' => function($model) {
+							return ($model->assoc == 'T') ? true : false;
+						}
+				],
 				'signed_dt:date',
 				'term_dt:date',
 				[

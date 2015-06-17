@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	        [
 	        	'attribute' => 'is_active', 
 	        	'value' => Html::encode($model->statusText),
-	        	'rowOptions' => $model->is_active == 'T' ? ['class' => 'success'] : ['class' => 'default'],
+	        	'rowOptions' => ($model->is_active == 'T') ? ['class' => 'success'] : ['class' => 'default'],
 	        ],
 	        'license_nbr',
             'contact_nm',
@@ -45,8 +45,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'phoneTexts:ntext',
             'email:email',
             'url:url',
-            ['attribute' => 'pdca_member', 'value' => is_null($model->pdca_member) ? null : Html::encode($model->pdcaText)],
-            'cba_dt:date',
         ],
     ]) ?>
     
