@@ -1,19 +1,26 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
+use kartik\form\ActiveForm;
 use kartik\widgets\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\value\TradeSpecialty */
-/* @var $form yii\widgets\ActiveForm */
+/* @var $form kartik\form\ActiveForm */
 ?>
 
 <div class="trade-specialty-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+    		'type' => ActiveForm::TYPE_HORIZONTAL,
+    ]); ?>
 
-    <?= $form->field($model, 'lob_cd')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'lob_cd')->widget(Select2::className(), [
+    		'data' => $model->lobOptions, 
+    		'hideSearch' => true,
+			'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select Local...'],
+    ]) ?>
 
     <?= $form->field($model, 'specialty')->textInput(['maxlength' => true]) ?>
 

@@ -2,33 +2,60 @@
 
 namespace app\controllers;
 
-use app\controllers\base\SubmodelController;
-use app\models\value\TradeSpecialty;
 use Yii;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
+use yii\web\Controller;
+use app\models\member\Specialty;
+use app\models\member\Member;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
 /**
  * MemberSpecialtyController implements the CRUD actions for member\Specialty model
  */
-class MemberSpecialtyController extends SubmodelController
+class MemberSpecialtyController extends Controller
 {
-	public $recordClass = 'app\models\member\Specialty';
-	public $relationAttribute = 'member_id';
 	
-	public function actionSpecialty() {
-		$out = [];
-		if (isset($_POST['depdrop_parents'])) {
-			$parents = $_POST['depdrop_parents'];
-			if ($parents != null) {
-				$lob_cd = $parents[0];
-				$out = ArrayHelper::map(TradeSpecialty::find()->where(['lob_cd' => $lob_cd])->orderBy('specialty')->all(), 'specialty', 'specialty');
-				echo Json::encode(['output'=>$out, 'selected'=>'']);
-				return;
+	public function behaviors()
+    {
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['post'],
+                ],
+            ],
+        ];
+    }
+
+	public function actionCreate($relation_id)
+	{
+		if (($member = Member::findOne($relation_id)) == null)
+			throw new \InvalidArgumentException('Invalid member ID passed: ' . $relation_id);
+		/** @var ActiveRecord $model */
+		$model = new Specialty(['member' => $member]);
+	
+		if ($model->load(Yii::$app->request->post())) {
+			if ($model->save()) {
+				return $this->goBack();
 			}
+			throw new \Exception ('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
-		echo Json::encode(['output'=>'', 'selected'=>'']);
+		return $this->renderAjax('create', compact('model'));
+	
 	}
 	
+	/**
+	 * Deletes an existing ActiveRecord model.
+	 * If deletion is successful, the browser will be redirected to the 'index' page.
+	 * @param integer $id
+	 * @return mixed
+	 */
+	public function actionDelete($id)
+	{
+		if (($model = Specialty::findOne($id)) == null) 
+			throw new NotFoundHttpException('The requested page does not exist');
+		$model->delete();
+		return $this->goBack();
+	}
 	
 }

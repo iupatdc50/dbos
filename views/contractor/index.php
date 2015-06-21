@@ -31,7 +31,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
         	[
         		'attribute' => 'is_active',
-        		'vAlign' => 'middle',
     			'width' => '110px',
     			'value' => 'statusText',
             	'filterType' => GridView::FILTER_SELECT2,
@@ -52,7 +51,10 @@ $this->params['breadcrumbs'][] = $this->title;
             	'attribute' => 'contractor',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
             ],
-            'contact_nm',
+        	[
+            	'attribute' => 'contact_nm',
+            	'contentOptions' => ['style' => 'white-space: nowrap;'],
+        	],
             'email:email',
             [
             	'attribute' => 'employeeCount',
@@ -64,8 +66,6 @@ $this->params['breadcrumbs'][] = $this->title;
 			        					}
 			    					},
             ],
-//            'url:url',
-
             [
             	'class' => 'yii\grid\ActionColumn',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],

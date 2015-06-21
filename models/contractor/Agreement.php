@@ -3,8 +3,6 @@
 namespace app\models\contractor;
 
 use Yii;
-use app\models\value\Lob;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for both agreements tables

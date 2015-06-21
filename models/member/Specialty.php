@@ -19,9 +19,9 @@ use app\models\value\TradeSpecialty;
 class Specialty extends \yii\db\ActiveRecord
 {
 	/*
-	 * Holds trade for dependent dropdown
+	 * Injected Member object, used for creating new entries
 	 */
-	public $trade;
+	public $member;
 	
     /**
      * @inheritdoc
@@ -31,17 +31,18 @@ class Specialty extends \yii\db\ActiveRecord
         return 'MemberSpecialties';
     }
     
+    public function init()
+    {
+    }
+    
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['member_id', 'specialty'], 'required'],
-            [['member_id'], 'string', 'max' => 11],
 			// Allows for client validation, 'exist' core validator does not
         	[['specialty'], 'in', 'range' => TradeSpecialty::find()->select('specialty')->asArray()->column()],
-        	[['trade'], 'safe'],
             [['member_id', 'specialty'], 'unique', 'targetAttribute' => ['member_id', 'specialty'], 'message' => 'The combination of Member ID and Specialty has already been taken.']
         ];
     }
@@ -58,14 +59,21 @@ class Specialty extends \yii\db\ActiveRecord
         ];
     }
     
-    public function getTradeOptions()
+    public function beforeSave($insert)
     {
-    	return ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'short_descrip');
+    	if (parent::beforeSave($insert)) {
+	    	if (!(isset($this->member) && ($this->member instanceof Member)))
+	    		throw new InvalidConfigException('No member object injected');
+    		if ($insert) 
+    			$this->member_id = $this->member->member_id;
+    		return true;
+    	}
+    	return false;
     }
     
     public function getSpecialtyOptions()
     {
-    	return ArrayHelper::map(TradeSpecialty::find()->all(), 'specialty', 'specialty');
+    	return ArrayHelper::map($this->member->availableSpecialties, 'specialty', 'specialty');
     }
-
+    
 }

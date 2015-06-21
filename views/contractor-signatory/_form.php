@@ -9,7 +9,7 @@ use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\contractor\Signatory */
-/* @var $form yii\widgets\ActiveForm */
+/* @var $form kartik\form\ActiveForm */
 ?>
 
 <div class="signatory-form">

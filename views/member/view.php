@@ -5,12 +5,12 @@ use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
 
-
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
 /* @var $statusModel app\models\member\Status */
 /* @var $classModel app\models\member\MemberClass */
 /* @var $employerModel app\models\member\Employment */
+/* @var $docModel app\models\member\Document */
 
 $this->title = $model->fullName;
 $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
@@ -95,6 +95,8 @@ $this->params['breadcrumbs'][] = $this->title;
 	} 
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);
 
+	$docUrl = Yii::$app->urlManager->createUrl(['member-document/summary-json', 'id' => $model->member_id]);
+	
 ?>
 
 
@@ -112,26 +114,22 @@ $this->params['breadcrumbs'][] = $this->title;
 				'content' => '<div data-url='.$classUrl.'>loading...</div>',
 			],
 			[
-				'header' => Html::tag('span', 'Initiation Balance: ') ,
-				'content' => 'Feature not yet supported',
-			],
-			[
 				'header' => Html::tag('span', 'Compliance: '),
 				'content' => 'Feature not yet supported',
 			],
-		[
-				'header' => Html::tag('span', 'Paid Thru: ')  ,
-				'content' => 'Feature not yet supported',
-			],
 			[
-				'header' => Html::tag('span', 'Miscellaneous') ,
+				'header' => Html::tag('span', 'Paid Thru: ')  ,
 				'content' => 'Feature not yet supported',
 			],
 			[
 				'header' => Html::tag('span', 'Employer: ') . $employer,
 				'content' => '<div data-url='.$employerUrl.'>loading...</div>',
 			],
+			[
+				'header' => Html::tag('span', 'Source Documents') ,
+				'content' => '<div data-url='.$docUrl.'>loading...</div>',
 			],
+		],
 	    'options' => ['tag' => 'div'],
 	    'headerOptions' => ['tag' => 'div'],
 	    'itemOptions' => ['tag' => 'div'],

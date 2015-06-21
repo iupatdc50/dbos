@@ -8,8 +8,8 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="site-about">
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p><span class="label label-warning">Version </span><span class="label label-primary">0.9.4.001 (Beta 1)</span> Committed to GitHub repository</p>
-    <p><span class="label label-warning">Release Date </span><span class="label label-primary">June 17, 2015</span></p>
+    <p><span class="label label-warning">Version </span><span class="label label-primary">0.9.4.201 (Beta 1)</span> Committed to GitHub repository</p>
+    <p><span class="label label-warning">Release Date </span><span class="label label-primary">June 19, 2015</span></p>
     
 	    <div class="panel panel-warning">
 	        <div class="panel-heading"><h4 class="panel-title"><i class="glyphicon glyphicon-tags"></i>&nbsp;Current Issues</h4></div>

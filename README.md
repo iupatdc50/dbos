@@ -13,6 +13,13 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4.201 Notes
+
+. Cleaned up member search
+. Added island to sortable member index columns
+. Added trade specialties to membership
+. Added document filing features to membership
+
 0.9.4 Notes
 
 . Contractor status is now automatically set, based on the existence of active signatory

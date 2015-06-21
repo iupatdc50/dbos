@@ -10,6 +10,8 @@ use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
 use app\models\base\iIdGeneratedInterface;
 use app\models\base\iNotableInterface;
+use app\models\value\TradeSpecialty;
+use app\models\value\DocumentType;
 
 /**
  * This is the model class for table "Members".
@@ -183,6 +185,38 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getSpecialties()
     {
     	return $this->hasMany(Specialty::className(), ['member_id' => 'member_id']);
+    }
+    
+    public function getAvailableSpecialties()
+    {
+    	$sql = "SELECT specialty "
+    		   . "  FROM " . TradeSpecialty::tableName()
+    		   . "  WHERE lob_cd = :lob_cd "
+    		   . "    AND specialty NOT IN (SELECT specialty FROM " . Specialty::tableName()
+    		   . "                            WHERE member_id = :member_id) "
+    		   . "  ORDER BY specialty "
+    	;
+    	$cmd = Yii::$app->db->createCommand($sql);
+    	$cmd->bindValues([
+    			':lob_cd' => $this->currentStatus->lob_cd,
+    			':member_id' => $this->member_id,
+    	]);
+    	return $cmd->queryAll();
+    }
+    
+    public function getUnfiledDocs()
+    {
+    	$sql = "SELECT doc_type "
+    			. "  FROM " . DocumentType::tableName()
+    			. "  WHERE doc_type NOT IN (SELECT doc_type FROM " . Document::tableName()
+    			. "                            WHERE member_id = :member_id) "
+    			. "  ORDER BY doc_type "
+    	;
+    	$cmd = Yii::$app->db->createCommand($sql);
+    	$cmd->bindValues([
+    			':member_id' => $this->member_id,
+    	]);
+    	return $cmd->queryAll();
     }
     
     /**

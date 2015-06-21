@@ -29,9 +29,12 @@ $this->params['breadcrumbs'][] = $this->title;
 			'content' => Html::a('Create Member', ['create'], ['class' => 'btn btn-success']),
 		],
 		'rowOptions' => function($model) {
+							$css = ['verticalAlign' => 'middle'];
         					if(!isset($model->currentStatus) || ($model->currentStatus->member_status == 'I')) {
-        						return ['class' => 'text-muted'];
+//        						return ['class' => 'text-muted'];
+								$css['class'] = 'text-muted';
         					}
+        					return $css;
     					},
         'columns' => [
 
@@ -44,7 +47,6 @@ $this->params['breadcrumbs'][] = $this->title;
     		
     		[
 				'attribute' => 'status',
-				'vAlign' => 'middle',
     			'width' => '140px',
     			'value' => 'currentStatus.status.descrip',
             	'filterType' => GridView::FILTER_SELECT2,
@@ -68,8 +70,12 @@ $this->params['breadcrumbs'][] = $this->title;
             		'label' => 'Island',
             		'value' => 'homeAddress.zipCode.island',
     		],
-            
-            
+        	[
+            		'attribute' => 'specialties',
+        			'value' => 'specialtyTexts',
+        			'format' => 'ntext',
+        			'contentOptions' => ['style' => 'white-space: nowrap;'],
+        	],
             [
             	'class' => 'yii\grid\ActionColumn',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],

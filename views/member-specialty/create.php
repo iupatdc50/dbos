@@ -4,7 +4,6 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 use kartik\widgets\Select2;
-use kartik\depdrop\DepDrop;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Specialty */
@@ -20,26 +19,11 @@ use kartik\depdrop\DepDrop;
     		'enableClientValidation' => true,
     ]); ?>
 
-    <?= $form->field($model, 'trade')->widget(Select2::className(), [
-    		'data' => $model->tradeOptions, 
+    <?= $form->field($model, 'specialty')->widget(Select2::className(), [
+    		'data' => $model->specialtyOptions, 
     		'hideSearch' => true,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select...'],
-    		
-    ]) ?>
-
-    
-    <?= $form->field($model, 'specialty')->widget(DepDrop::className(), [
-    		'type' => DepDrop::TYPE_SELECT2,
-       		'select2Options' => [
-    				'size' => Select2::SMALL,
-    				'hideSearch' => true,
-   			 ],
-    		'pluginOptions' => [
-    				'depends' => ['specialty-trade'], 
-    				'placeholder' => 'Select...',
-    				'url' => Url::to(['/member-specialty/specialty']),
-    		],
     		
     ]) ?>
 

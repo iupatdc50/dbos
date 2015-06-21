@@ -3,6 +3,10 @@
 namespace app\models\value;
 
 use Yii;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
+use app\models\member\Specialty;
+use app\models\value\Lob;
 
 /**
  * This is the model class for table "TradeSpecialties".
@@ -21,7 +25,7 @@ class TradeSpecialty extends \yii\db\ActiveRecord
     {
         return 'TradeSpecialties';
     }
-
+    
     /**
      * @inheritdoc
      */
@@ -53,4 +57,10 @@ class TradeSpecialty extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Lob::className(), ['lob_cd' => 'lob_cd']);
     }
+    
+    public function getLobOptions()
+    {
+    	return ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'short_descrip');
+    }
+    
 }

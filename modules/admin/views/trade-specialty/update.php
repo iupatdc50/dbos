@@ -5,9 +5,9 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\value\TradeSpecialty */
 
-$this->title = 'Update Trade Specialty: ' . ' ' . $model->id;
+$this->title = 'Update Trade Specialty: ' . ' ' . $model->specialty;
 $this->params['breadcrumbs'][] = ['label' => 'Trade Specialties', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $model->specialty, 'url' => ['view', 'id' => $model->specialty]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
 <div class="trade-specialty-update">
