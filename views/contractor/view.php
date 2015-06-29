@@ -18,18 +18,20 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->license_nbr], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->license_nbr], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
-
-   <div class= "leftside sixty-pct" >
+    <div class="sixty-pct">
+		<?= $this->render('../partials/_quicksearch', ['className' => 'contractor']); ?>
+    	<div><p>
+	        <?= Html::a('Update', ['update', 'id' => $model->license_nbr], ['class' => 'btn btn-primary']) ?>
+	        <?= Html::a('Delete', ['delete', 'id' => $model->license_nbr], [
+	            'class' => 'btn btn-danger',
+	            'data' => [
+	                'confirm' => 'Are you sure you want to delete this item?',
+	                'method' => 'post',
+	            ],
+	        ]) ?>
+    	</p></div>
+	</div>
+   	<div class= "leftside sixty-pct" >
     <?= DetailView::widget([
         'model' => $model,
         'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],

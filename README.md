@@ -13,6 +13,18 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4.301 Notes
+
+. Added focus on current menu item in sidenav on admin page
+. Improved member accordion status, class & employer title access (removed static "current" row functions) 
+. Revised member general search: removed member ID and island; added employer and sortable class; status is sortable
+. Revised government ID to mask display in index and view record
+. Added quick search by name for members, contractors
+. Added ability to enter signatory on contractor create screen
+. Revised member address types: 'M' Mailing (default in create), 'L' Location
+. Revised contractor address types: 'M' Mailing (default in create), 'L' Location, 'O' Other
+. Revised address lines 1 and 2 to accept 50 characters
+
 0.9.4.201 Notes
 
 . Cleaned up member search

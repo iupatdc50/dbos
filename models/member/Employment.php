@@ -33,15 +33,6 @@ class Employment extends \yii\db\ActiveRecord
         return 'Employment';
     }
     
-    public static function findCurrent($member_id)
-    {
-    	// static::find() Creates an object of this class
-    	$query = static::find()
-    		->from('CurrentEmployment')
-    		->where('member_id=:member_id', [':member_id' => $member_id]);
-    	return $query->one();
-    }
-
     /**
      * @inheritdoc
      */
@@ -109,6 +100,16 @@ class Employment extends \yii\db\ActiveRecord
     public function getDuesPayor()
     {
         return $this->hasOne(Contractor::className(), ['license_nbr' => 'dues_payor']);
+    }
+    
+    public function getDescrip()
+    {
+    	if (is_null($this->end_dt)) {
+    		$employer = ($this->is_loaned == 'T') ? $this->duesPayor->contractor . ' [On Loan]' : $this->contractor->contractor;
+    	} else {
+    		$employer = 'Unemployed ('. $this->end_dt .')';
+    	}
+    	return $employer;
     }
     
     protected function closePrevious()

@@ -7,7 +7,7 @@ use kartik\dropdown\DropdownX;
 	<div>
 		<h3><i class="glyphicon glyphicon-play-circle"></i> Start Here</h3>
 		<p>Welcome to the DC50 Business Office Support portal.  By using this page,
-            you are agreeing to <?= Html::a('these terms', 'site/terms'); ?>.
+            you are agreeing to <?= Html::a('these terms', '/site/terms'); ?>.
         </p>
         <?php if (Yii::$app->user->isGuest): ?>
             <p>Access requires a login.  If you don't have a username, you can 

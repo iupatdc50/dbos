@@ -13,9 +13,8 @@ class OptionHelper
 	CONST TF_TRUE = 'T';
 	
 	CONST ADDRESS_MAILING = 'M';
-	CONST ADDRESS_BILLING = 'B';
 	CONST ADDRESS_LOCATION = 'L';
-	CONST ADDRESS_HOME = 'H';
+	CONST ADDRESS_OTHER = 'O';
 	
 	CONST DISP_APPROVED = 'A';
 	CONST DISP_DENIED = 'D';
@@ -66,16 +65,15 @@ class OptionHelper
 	
 	public static function getAllowedAddressTypes()
 	{
-		return [self::ADDRESS_MAILING, self::ADDRESS_BILLING, self::ADDRESS_LOCATION, self::ADDRESS_HOME];
+		return [self::ADDRESS_MAILING, self::ADDRESS_LOCATION, self::ADDRESS_OTHER];
 	}
 	
 	public static function getAddressTypeOptions()
 	{
 		return [
 				self::ADDRESS_MAILING => 'Mailing',
-				self::ADDRESS_BILLING => 'Billing',
 				self::ADDRESS_LOCATION => 'Location',
-				self::ADDRESS_HOME => 'Home',
+				self::ADDRESS_OTHER => 'Other',
 		];
 	}
 	

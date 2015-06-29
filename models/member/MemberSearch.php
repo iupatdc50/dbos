@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\member\Member;
+use app\models\member\Specialty;
 
 /**
  * MemberSearch represents the model behind the search form about `app\models\member\Member`.
@@ -15,9 +16,10 @@ class MemberSearch extends Member
 	// Search place holders
 	public $lob_cd;
 	public $status;
-	public $home_island;
+	public $class;
 	public $fullName;
 	public $specialties;
+	public $employer;
 	
 	/**
      * @inheritdoc
@@ -28,7 +30,7 @@ class MemberSearch extends Member
             [['member_id', 'ssnumber', 'report_id', 'fullName', 'middle_inits', 
             		'suffix', 'birth_dt', 'gender', 
             		'shirt_size', 'local_pac', 'hq_pac', 'remarks', 
-            		'lob_cd', 'status', 'home_island', 'specialties'], 'safe'],
+            		'lob_cd', 'status', 'class', 'specialties', 'employer'], 'safe'],
         ];
     }
 
@@ -58,7 +60,15 @@ class MemberSearch extends Member
         ]);
         
         $dataProvider->sort->attributes['lob_cd'] = ['asc' => ['lob_cd' => SORT_ASC], 'desc' => ['lob_cd' => SORT_DESC]];
-        $dataProvider->sort->attributes['fullName'] = ['asc' => ['last_nm' => SORT_ASC, 'first_nm' => SORT_ASC], 'desc' => ['last_nm' => SORT_DESC, 'first_nm' => SORT_DESC]];
+        $dataProvider->sort->attributes['status'] = ['asc' => ['member_status' => SORT_ASC], 'desc' => ['member_status' => SORT_DESC]];
+        $dataProvider->sort->attributes['fullName'] = [
+        		'asc' => ['last_nm' => SORT_ASC, 'first_nm' => SORT_ASC], 
+        		'desc' => ['last_nm' => SORT_DESC, 'first_nm' => SORT_DESC],
+        ];
+        $dataProvider->sort->attributes['class'] = [
+        		'asc' => ['member_class' => SORT_ASC, 'wage_percent' => SORT_ASC], 
+        		'desc' => ['member_class' => SORT_DESC, 'wage_percent' => SORT_DESC],
+        ];
         
         // Default set to active
 		if (!isset($params['MemberSearch']['status']))
@@ -68,20 +78,15 @@ class MemberSearch extends Member
             return $dataProvider;
         }
         
-        $query->joinWith(['currentStatus', 'homeAddress.zipCode', 'specialties']);
-
-        $dataProvider->sort->attributes['home_island'] = [
-        		'asc' => ['ZipCodes.island' => SORT_ASC],
-        		'desc' => ['ZipCodes.island' => SORT_DESC],
-        ];
+        $query->joinWith(['currentStatus', 'currentClass', 'specialties', 'employer.duesPayor']);
 
         $query->andFilterWhere(['lob_cd' => $this->lob_cd])
         	->andFilterWhere(['member_status' => $this->status])
-        	->andFilterWhere(['Members.member_id' => $this->member_id])
+        	->andFilterWhere(['member_class' => $this->class])
         	->andFilterWhere(['like', 'ssnumber', $this->ssnumber])
         	->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]])
-        	->andFilterWhere(['island' => $this->home_island])
-        	->andFilterWhere(['like', 'MemberSpecialties.specialty', $this->specialties])
+        	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
+        	->andFilterWhere(['like', 'contractor', $this->employer])
         ;
 
         

@@ -1,16 +1,16 @@
 <?php
 
-use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
+use kartik\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
 /* @var $statusModel app\models\member\Status */
 /* @var $classModel app\models\member\MemberClass */
 /* @var $employerModel app\models\member\Employment */
-/* @var $docModel app\models\member\Document */
+/* @var $noteModel app\models\member\Note */
 
 $this->title = $model->fullName;
 $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
@@ -33,23 +33,24 @@ $this->params['breadcrumbs'][] = $this->title;
 		?>
     </p>
     </td><td class="seventyfive-pct">
-<p>
-        <?= Html::a('Update', ['update', 'id' => $model->member_id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->member_id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
+		<?= $this->render('../partials/_quicksearch', ['className' => 'member']); ?>
+        <div><p>
+			<?= Html::a('Update', ['update', 'id' => $model->member_id], ['class' => 'btn btn-primary']) ?>
+	        <?= Html::a('Delete', ['delete', 'id' => $model->member_id], [
+	            'class' => 'btn btn-danger',
+	            'data' => [
+	                'confirm' => 'Are you sure you want to delete this item?',
+	                'method' => 'post',
+	            ],
+	        ]) ?>
+        </p></div>
 
     <?= DetailView::widget([
         'model' => $model,
         'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
         'attributes' => [
             'member_id',
-            'ssnumber',
+            'report_id',
             'addressTexts:ntext',
             'phoneTexts:ntext',
             'emailTexts:ntext',
@@ -68,31 +69,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php 
 
-    $status = 'Inactive';
-    if (isset($statusModel) && is_null($statusModel->end_dt)) {
-    	$status = $statusModel->status->descrip;
-    }
+    $status = isset($model->currentStatus) ? $model->currentStatus->status->descrip : 'Inactive';
     $statusUrl = Yii::$app->urlManager->createUrl(['member-status/summary-json', 'id' => $model->member_id]); 
     
-    $class = 'Unknown';
-    if (isset($classModel)) {
-    	$class = $classModel->mClass->descrip . (($classModel->wage_percent < 100) ? ' [' . $classModel->wage_percent . '%]' : '');
-    }
+    $class = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
     $classUrl = Yii::$app->urlManager->createUrl(['member-class/summary-json', 'id' => $model->member_id]);
     
-	$employer = 'Unemployed';
-	if (isset($employerModel)) { 
-		if (is_null($employerModel->end_dt)) {
-			$employer = Html::a($employerModel->contractor->contractor, ['/contractor/view', 'id' => $employerModel->employer]);
-			if ($employerModel->is_loaned == 'T') {
-				$loanedTo = Html::a($employerModel->duesPayor->contractor, ['/contractor/view', 'id' => $employerModel->dues_payor]);
-				$employer .= ' [Loaned to ' . $loanedTo . ']';
-			} 
-		} else {
-			$employer = Html::encode('Unemployed ('. $employerModel->end_dt .')');
-		}
-			
-	} 
+    $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);
 
 	$docUrl = Yii::$app->urlManager->createUrl(['member-document/summary-json', 'id' => $model->member_id]);
