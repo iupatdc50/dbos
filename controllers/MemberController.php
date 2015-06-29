@@ -13,12 +13,11 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
-use app\models\member\Status;
-use app\models\member\MemberClass;
 use app\models\member\Employment;
 use app\models\member\Note;
 use app\models\member\StatusCode;
 use yii\helpers\ArrayHelper;
+use app\helpers\OptionHelper;
 
 /**
  * MemberController implements the CRUD actions for Member model.
@@ -65,17 +64,9 @@ class MemberController extends RootController
     	
     	$model = $this->findModel($id);
 
-    	$statusModel = Status::findCurrent($id);
-    	$classModel = MemberClass::findCurrent($id);
-    	$employerModel = Employment::findCurrent($id);
-    	$noteModel = $this->createNote($model);
-
         return $this->render('view', [
             'model' => $model,
-            'statusModel' => $statusModel,
-            'classModel' => $classModel,
-        	'employerModel' => $employerModel,
-        	'noteModel' => $noteModel,
+        	'noteModel' => $this->createNote($model),
         ]);
     }
 
@@ -122,7 +113,8 @@ class MemberController extends RootController
         	/* should not reach this */
         	$errors = print_r($model->errors, true) . print_r($modelAddress->errors, true) . print_r($modelPhone->errors, true);
         	throw new \Exception('Uncaught validation exception: ' . $errors);
-        } 
+        }
+        $modelAddress->address_type = OptionHelper::ADDRESS_MAILING; 
         return $this->render('create', [
                 'model' => $model,
             	'modelAddress' => $modelAddress,
@@ -194,6 +186,28 @@ class MemberController extends RootController
         		Yii::$app->session->setFlash('error', 'Could not delete image');
         }
         return $this->redirect(['index']);
+    }
+
+    /**
+     * List builder for member pickllist.  Builds JSON encoded array:
+     * ['results'] key provides progressive results. If a member ID is provided,
+     * 			   then this key provides the member_id and full_name 	
+     * 
+     * @param string|array $search Criteria used. 
+     * @param string $member_id Selected member's ID
+     */
+    public function actionMemberList($search = null, $member_id = null) 
+    {
+    	\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    	$out = ['results' => ['id' => '', 'text' => '']];
+    	if (!is_null($search)) {
+    		$data = Member::listAll($search);
+    		$out['results'] = array_values($data);
+    	}
+    	elseif (!is_null($member_id) && ($member_id <> '0')) {
+    		$out['results'] = ['member_id' => $member_id, 'text' => Member::findOne($member_id)->fullName];
+    	}
+    	return $out;    	
     }
 
     /**

@@ -12,6 +12,7 @@ use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\contractor\Contractor */
+/* @var $modelSig app\models\contractor\Signatory */
 /* @var $modelAddress app\models\contractor\Address */
 /* @var $modelsAddress \yii\db\ActiveQuery */
 /* @var $modelPhone app\models\contractor\Phone */
@@ -22,6 +23,7 @@ use app\helpers\OptionHelper;
 <div class="contractor-form">
 
     <?php $form = ActiveForm::begin([
+    		'options' => ['enctype' => 'multipart/form-data'], // ** Must have for file uploads **
 //    		'type' => ActiveForm::TYPE_HORIZONTAL,
     ]); ?>
 
@@ -36,6 +38,10 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'email')->textInput(['maxlength' => 50]) ?>
 
     <?= $form->field($model, 'url')->textInput(['maxlength' => 100]) ?>
+    
+    <?php if ($model->isNewRecord): ?>
+    	<?= $this->render('../contractor-signatory/_formfields', ['modelSig' => $modelSig, 'form' => $form]); ?>
+	<?php endif ?>
     
     <hr>
 	    <div class="form-group">

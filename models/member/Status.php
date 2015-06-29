@@ -32,22 +32,6 @@ class Status extends \yii\db\ActiveRecord
     }
 
     /**
-     * Uses the view CurrentMemberStatuses to build AR of most recent
-     * entry
-     * 
-     * @param string $member_id
-     * @return \yii\db\ActiveRecord	of this class
-     */
-    public static function findCurrent($member_id)
-    {
-    	// static::find() Creates an object of this class
-    	$query = static::find()
-    		->from('CurrentMemberStatuses')
-    		->where('member_id=:member_id', [':member_id' => $member_id]);
-    	return $query->one();
-    }
-    
-    /**
      * @inheritdoc
      */
     public function rules()

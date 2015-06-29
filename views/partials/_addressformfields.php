@@ -20,9 +20,9 @@ use app\helpers\OptionHelper;
     		
     ]) ?>
 
-    <?= $form->field($address, 'address_ln1')->textInput(['maxlength' => 30])->label('Address Line 1') ?>
+    <?= $form->field($address, 'address_ln1')->textInput(['maxlength' => 50])->label('Address Line 1') ?>
 
-    <?= $form->field($address, 'address_ln2')->textInput(['maxlength' => 30])->label('Address Line 2') ?>
+    <?= $form->field($address, 'address_ln2')->textInput(['maxlength' => 50])->label('Address Line 2') ?>
 
     <?= $form->field($address, 'zip_cd')->textInput(['maxlength' => 5])->label('Zip Code') ?>
     

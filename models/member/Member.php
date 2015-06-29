@@ -3,6 +3,7 @@
 namespace app\models\member;
 
 use Yii;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 use app\models\value\Size;
@@ -34,11 +35,14 @@ use app\models\value\DocumentType;
  * 
  * @property Phone[] $phones
  * @property Address[] $addresses
+ * @property Address $mailingAddress
  * @property Email[] $emails
  * @property Specialty[] $specialties
  * @property Status[] $statuses
  * @property Status $currentStatus
  * @property MemberClass[] $classes
+ * @property MemberClass $currentClass
+ * @property CurrentEmployment $employer
  * @property Note[] $notes
  */
 class Member extends \yii\db\ActiveRecord implements iNotableInterface
@@ -61,6 +65,33 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         return 'Members';
     }
     
+    /**
+     * Returns a set of members for Select2 picklist. Full name
+     * is returned as text (id, text are required columns for Select2)
+     * 
+     * @param string|array $search Criteria used for partial member list. If an array, then member
+     * 							   key will be a like search
+     */
+    public static function listAll($search)
+    {
+    	/* @var Query $query */
+    	$query = new Query;
+    	$query->select('member_id as id, full_nm as text')
+    		->from('MemberPickList')
+    		->limit(10)
+    		->distinct();
+    	if (ArrayHelper::isAssociative($search)) { 
+    		if (isset($search['full_nm'])) {
+    			$query->where(['like', 'full_nm', $search['full_nm']]);
+    			unset($search['full_nm']);
+    		}
+    		$query->andWhere($search);
+    	} elseif (!is_null($search)) 
+    		$query->where(['like', 'full_nm', $search]);
+    	$command = $query->createCommand();
+    	return $command->queryAll();
+    }
+
     /**
      * @inheritdoc
      */
@@ -88,8 +119,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return [
             'member_id' => 'Member ID',
-            'ssnumber' => 'Government ID',
-            'report_id' => 'Report ID',
+            'ssnumber' => 'SSN',
+            'report_id' => 'Government ID',
             'last_nm' => 'Last Name',
             'first_nm' => 'First Name',
             'middle_inits' => 'Middle Inits',
@@ -158,9 +189,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getHomeAddress()
+    public function getMailingAddress()
     {
-    	return $this->hasOne(Address::className(), ['member_id' => 'member_id'])->where("address_type = 'H'");
+    	return $this->hasOne(Address::className(), ['member_id' => 'member_id'])->where("address_type = 'M'");
     }
     
     /**
@@ -232,7 +263,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      */
     public function getCurrentStatus()
     {
-    	return $this->hasOne(Status::className(), ['member_id' => 'member_id'])->where('end_dt IS NULL');
+    	return $this->hasOne(Status::className(), ['member_id' => 'member_id'])
+    		->from(Status::tableName() . ' St')
+    		->where('St.end_dt IS NULL');
     }
     
     /**
@@ -248,7 +281,18 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      */
     public function getWorksFor()
     {
-    	return $this->hasOne(Employment::className(), ['member_id' => 'member_id'])->where('end_dt IS NULL');
+    	return $this->hasOne(Employment::className(), ['member_id' => 'member_id'])
+    		->where('end_dt IS NULL');
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrentClass()
+    {
+    	return $this->hasOne(MemberClass::className(), ['member_id' => 'member_id'])
+    		->from(MemberClass::tableName() . ' MC')
+    		->where('MC.end_dt IS NULL');
     }
     
     /**
@@ -257,6 +301,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getClasses()
     {
         return $this->hasMany(MemberClass::className(), ['member_id' => 'member_id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEmployer()
+    {
+    	return $this->hasOne(CurrentEmployment::className(), ['member_id' => 'member_id']);
     }
     
     /**

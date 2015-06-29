@@ -57,23 +57,25 @@ $this->params['breadcrumbs'][] = $this->title;
             			'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
             	],
     		],
-    		
-    		'member_id',
-    		
-            'ssnumber',
+        	[
+        		'attribute' => 'class',
+        		'value' => 'currentClass.mClassDescrip',
+        		'label' => 'Class',
+        	],
+			'report_id',
             [
             	'attribute' => 'fullName',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
             ],
-            [
-            		'attribute' => 'home_island',
-            		'label' => 'Island',
-            		'value' => 'homeAddress.zipCode.island',
-    		],
         	[
             		'attribute' => 'specialties',
         			'value' => 'specialtyTexts',
         			'format' => 'ntext',
+        			'contentOptions' => ['style' => 'white-space: nowrap;'],
+        	],
+        	[
+        			'attribute' => 'employer', 
+        			'value' => 'employer.descrip',
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
             [

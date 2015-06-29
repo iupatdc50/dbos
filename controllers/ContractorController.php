@@ -15,6 +15,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
+use app\helpers\OptionHelper;
 
 /**
  * ContractorController implements the CRUD actions for Contractor model.
@@ -80,21 +81,29 @@ class ContractorController extends RootController
      */
     public function actionCreate()
     {
-        $model = new Contractor();
+        $model = new Contractor;
+        $modelSig = new Signatory;
         $modelAddress = new Address;
         $modelPhone = new Phone;
         
         if ($model->load(Yii::$app->request->post()) 
+        		&& $modelSig->load(Yii::$app->request->post())
         		&& $modelAddress->load(Yii::$app->request->post()) 
         		&& $modelPhone->load(Yii::$app->request->post())) {
         				 
-        	if ($model->validate() && $modelAddress->validate() && $modelPhone->validate()) {
+        	if ($model->validate() && $modelSig->validate() && $modelAddress->validate() && $modelPhone->validate()) {
         		$transaction = \Yii::$app->db->beginTransaction();
         		try {
         			if ($model->save(false)) {
+        				$modelSig->license_nbr = $model->license_nbr;
+        				$image = $modelSig->uploadImage();
         				$modelAddress->license_nbr = $model->license_nbr;
         				$modelPhone->license_nbr = $model->license_nbr;
-        				if ($modelAddress->save(false) && $modelPhone->save(false)) {
+        				if ($modelSig->save(false) && $modelAddress->save(false) && $modelPhone->save(false)) {
+        					if ($image !== false) {
+        						$path = $modelSig->imagePath;
+        						$image->saveAs($path);
+        					}
         					$transaction->commit();
         					return $this->redirect(['view', 'id' => $model->license_nbr]);
         				}
@@ -106,9 +115,11 @@ class ContractorController extends RootController
         	}
         }
         
+        $modelAddress->address_type = OptionHelper::ADDRESS_MAILING;
         return $this->render('create', [
                 'model' => $model,
-            	'modelAddress' => $modelAddress,
+            	'modelSig' => $modelSig,
+        		'modelAddress' => $modelAddress,
             	'modelPhone' => $modelPhone,
         ]);
     }

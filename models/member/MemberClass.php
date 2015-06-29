@@ -31,12 +31,6 @@ class MemberClass extends \yii\db\ActiveRecord
         return 'MemberClasses';
     }
 
-    public static function findCurrent($member_id)
-    {
-    	$query = static::findOne(['member_id' => $member_id, 'end_dt' => null]);
-    	return $query;
-    }
-
     /**
      * @inheritdoc
      */
@@ -75,6 +69,11 @@ class MemberClass extends \yii\db\ActiveRecord
     public function getMClass()
     {
         return $this->hasOne(ClassCode::className(), ['member_class_cd' => 'member_class']);
+    }
+    
+    public function getMClassDescrip()
+    {
+    	return $this->mClass->descrip . ($this->member_class == 'A' ? ' [' . $this->wage_percent . '%]' : '');
     }
     
     /**

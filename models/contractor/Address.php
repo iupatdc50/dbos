@@ -32,8 +32,8 @@ class Address extends BaseAddress
         $this->_validationRules = [
         	[['address_type'], 'in', 'range' => [
     			OptionHelper::ADDRESS_MAILING,
-    			OptionHelper::ADDRESS_BILLING,
     			OptionHelper::ADDRESS_LOCATION,
+    			OptionHelper::ADDRESS_OTHER,
         	]],
         ];
         return parent::rules();
@@ -62,8 +62,8 @@ class Address extends BaseAddress
     {
     	return [
     			OptionHelper::ADDRESS_MAILING => 'Mailing',
-    			OptionHelper::ADDRESS_BILLING => 'Billing',
     			OptionHelper::ADDRESS_LOCATION => 'Location',
+    			OptionHelper::ADDRESS_OTHER => 'Other',
     	];
     }
     

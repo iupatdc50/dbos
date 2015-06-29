@@ -29,7 +29,7 @@ class BaseAddress extends \yii\db\ActiveRecord
     {
         $common_rules = [
             [['address_type', 'address_ln1', 'zip_cd'], 'required'],
-            [['address_ln1', 'address_ln2'], 'string', 'max' => 30],
+            [['address_ln1', 'address_ln2'], 'string', 'max' => 50],
         	[['address_ln2'], 'default'],
 			// Allows for client validation, 'exist' core validator does not
             [['zip_cd'], 'in', 'range' => ZipCode::find()->select('zip_cd')->asArray()->column()],

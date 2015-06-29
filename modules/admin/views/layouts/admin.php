@@ -90,20 +90,34 @@ app\assets\ApplicationUiAssetBundle::register($this);
 								['label' => 'Agreement Types', 'url'=>'#'],
 								['label' => 'Phone Types', 'url'=>'#'],
 								['label' => 'Shirt Sizes', 'url'=>'#'],
-								['label' => 'Trade Specialties', 'url' => '/admin/trade-specialty'],
-								['label' => 'Zip Codes', 'url'=>'/admin/zip-code'],
+								[
+										'label' => 'Trade Specialties', 
+										'url' => '/admin/trade-specialty',
+										'active' => (yii::$app->requestedRoute == 'admin/trade-specialty'),
+								],
+								[
+										'label' => 'Zip Codes', 
+										'url'=>'/admin/zip-code',
+										'active' => (yii::$app->requestedRoute == 'admin/zip-code'),
+								],
 							],
 						],
 						[
 							'label' => 'Help',
 							'icon' => 'question-sign',
 							'items' => [
-								['label' => 'About', 'icon'=>'info-sign', 'url'=>'/admin/default/about'],
+								[
+										'label' => 'About', 
+										'icon'=>'info-sign', 
+										'url'=>'/admin/default/about',
+										'active' => (yii::$app->requestedRoute == 'admin/default/about'),
+								],
 								['label' => 'Contact', 'icon'=>'phone', 'url'=>'#'],
 								[
 										'label' => 'Environment', 
 										'icon' => 'cog', 
 										'url'=>'/admin/default/info',
+										'active' => (yii::$app->requestedRoute == 'admin/default/info'),
 								],
 							],
 						],
