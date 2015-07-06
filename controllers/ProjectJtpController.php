@@ -12,10 +12,7 @@ use yii\data\ActiveDataProvider;
  */
 class ProjectJtpController extends \app\controllers\project\BaseController
 {
-	public $recordClass = 'app\models\project\jtp\Project';
-	public $recordSearchClass = 'app\models\project\jtp\ProjectSearch';
-	public $registrationClass = 'app\models\project\jtp\Registration';
-
+	
 	protected $type = 'JTP';
 	
 

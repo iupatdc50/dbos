@@ -2,27 +2,42 @@
 
 use kartik\grid\GridView;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $id string license_nbr */
+/* @var $awarded_only boolean */
 
-$heading = 'Active Projects';
+$heading = 'Bid Projects';
 
 ?>
 <div id="special-projects">
 
 <?php
-Pjax::begin(['id' => 'active-projects', 'enablePushState' => false]);
+// 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
+Pjax::begin(['id' => 'bid-projects', 'enablePushState' => false]);
+
+$show_class = $awarded_only ? 'glyphicon glyphicon-expand' : 'glyphicon glyphicon-certificate';
+$show_label = $awarded_only ? 'All' : 'Awarded Only';
+$toggle_awarded_only = !$awarded_only;
+
 echo  GridView::widget([
-		'id' => 'active-projects',
+		'id' => 'bid-projects',
 		'dataProvider' => $dataProvider,
 		'floatHeader' => true,
 		'panel'=>[
 		        'type'=>GridView::TYPE_DEFAULT,
 		        'heading'=> $heading,
-		        'before' => false,
 		        'after' => false,
+		],
+		'toolbar' => [
+				'options' => ['class' => 'pull-left'],
+				'content' =>
+					Html::a(Html::tag('span', '', ['class' => $show_class]) . '&nbsp;Show ' . $show_label, 
+							['registration/summary-json', 'id' => $id, 'awarded_only' => $toggle_awarded_only],
+							['class' => 'btn btn-default'])
 		],
 		'columns' => [
 				[
@@ -62,4 +77,3 @@ echo  GridView::widget([
 <?php
 
 Pjax::end();
-

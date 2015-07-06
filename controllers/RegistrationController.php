@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\controllers\basedoc\SubmodelController;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
@@ -16,17 +17,31 @@ class RegistrationController extends SubmodelController
 	public $recordClass = 'app\models\project\BaseRegistration';
 	public $relationAttribute = 'bidder';
 	
-	public $summOrder = 'bid_dt desc';
+	public $summOrder = 'project_nm asc';
 	public $summPageSize = 15;
 	
-	public function actionSummaryJson($id, $awarded_only = true)
+	/**
+	 * Provide summary of active special projects for a bidder.  If $awarded_only param
+	 * is passed, it is retained for the session and assumed subsequent calls.
+	 * 
+	 * @param string $id Bidder's license number
+	 * @param boolean $awarded_only True means show only projects awarded to bidder
+	 */
+	public function actionSummaryJson($id, $awarded_only = null)
 	{
+		if (isset($awarded_only)) 
+			Yii::$app->session['awarded_only'] = $awarded_only;
+		elseif (isset(Yii::$app->session['awarded_only'])) 
+			$awarded_only = Yii::$app->session['awarded_only'];
+		else  // Parameter not passed or previously saved
+			$awarded_only = true;
+		
 		$query = call_user_func([$this->recordClass, 'find'])
 					->where([$this->relationAttribute => $id])
 					->andWhere(['project_status' => 'A'])
 					->joinWith(['project', 'isAwarded'])
 					->orderBy($this->summOrder);
-	
+		
 		if ($awarded_only)
 			$query->andWhere(['not', ['start_dt' => null]]);
 			
@@ -36,7 +51,7 @@ class RegistrationController extends SubmodelController
 				'sort' => false,
 		]);
 	
-		echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
+		echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id, 'awarded_only' => $awarded_only]));
 	}
 	
 }

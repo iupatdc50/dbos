@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4.311 Notes
+
+. Simplified signature for type-specific project controllers
+. Revised Special Projects summary order by to project name
+. Revised contractor's Special Projects summary to allow show-all option toggle
+
 0.9.4.301 Notes
 
 . Added focus on current menu item in sidenav on admin page

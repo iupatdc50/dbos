@@ -11,9 +11,6 @@ use app\models\project\lma\ProjectSearch;
  */
 class ProjectLmaController extends \app\controllers\project\BaseController
 {
-	public $recordClass = 'app\models\project\lma\Project';
-	public $recordSearchClass = 'app\models\project\lma\ProjectSearch';
-	public $registrationClass = 'app\models\project\lma\Registration';
 	
 	protected $type = 'LMA';
 	

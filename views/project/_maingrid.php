@@ -11,7 +11,6 @@ use kartik\grid\GridViewAsset;
 use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\project\jtp\ProjectSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $heading {$this->title} from calling view */
 /* @var $specialColumns columns specific to calling view */

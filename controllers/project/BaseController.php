@@ -20,18 +20,22 @@ use app\models\project\jtp\Registration;
  */
 class BaseController extends RootController
 {
-	/** @var string Name of the class to be manipulated */
-	public $recordClass;
-	/** @var string Name of the search class */
-	public $recordSearchClass;
-	/** @var string Name of the registration class to be manipulated */
-	public $registrationClass;
+	private $_recordClass;
+	private $_recordSearchClass;
+	private $_registrationClass;
 	
 	protected $model;
 	protected $otherProviders = [];
 	/** @var string Agreement type */
 	protected $type;
 	
+	public function init()
+	{
+		// Use agreement type to build specific model names
+		$this->_recordClass = 'app\models\project\\' . strtolower($this->type) . '\Project';
+		$this->_recordSearchClass = 'app\models\project\\' . strtolower($this->type) . '\ProjectSearch';
+		$this->_registrationClass = 'app\models\project\\' . strtolower($this->type) . '\Registration';
+	}
 	
 	public function behaviors()
     {
@@ -51,7 +55,7 @@ class BaseController extends RootController
      */
     public function actionIndex()
     {
-        $searchModel = new $this->recordSearchClass();
+        $searchModel = new $this->_recordSearchClass();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -95,9 +99,9 @@ class BaseController extends RootController
     public function actionCreate()
     {
         $idGenerator = new ProjectId();
-    	$model = new $this->recordClass(['idGenerator' => $idGenerator]);
+    	$model = new $this->_recordClass(['idGenerator' => $idGenerator]);
         $modelAddress = new Address;
-        $modelRegistration = new $this->registrationClass;
+        $modelRegistration = new $this->_registrationClass;
  
         if ($model->load(Yii::$app->request->post()) 
         		&& $modelAddress->load(Yii::$app->request->post())
@@ -204,7 +208,7 @@ class BaseController extends RootController
      */
     protected function findModel($id)
     {
-        $model = call_user_func([$this->recordClass, 'findOne'], $id);
+        $model = call_user_func([$this->_recordClass, 'findOne'], $id);
         if (!$model) {
         	throw new NotFoundHttpException('The requested page does not exist.');
         }
@@ -213,7 +217,7 @@ class BaseController extends RootController
     
     protected function createNote($project)
     {
-    	if (!($project instanceof $this->recordClass))
+    	if (!($project instanceof $this->_recordClass))
     		throw new \BadMethodCallException('Not an instance of Project');
     	$note = new Note;
     	if (isset($_POST['Note'])) {
