@@ -14,6 +14,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
 use app\models\project\jtp\Registration;
+use app\helpers\OptionHelper;
 
 /**
  * Implements the CRUD actions for a Project model.
@@ -25,6 +26,7 @@ class BaseController extends RootController
 	private $_registrationClass;
 	
 	protected $model;
+	/** @var array Supplemental data providers in agreement type classes */
 	protected $otherProviders = [];
 	/** @var string Agreement type */
 	protected $type;
@@ -57,11 +59,15 @@ class BaseController extends RootController
     {
         $searchModel = new $this->_recordSearchClass();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        
+        $config = [
+        	'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider, 
+        ];
+        foreach ($this->otherProviders as $label => $provider)
+        	$config[$label] = $provider;
+        
+        return $this->render('index', $config);
     }
 
     /**
@@ -140,6 +146,8 @@ class BaseController extends RootController
 	        		. PHP_EOL . '$modelRegistration: ' . print_r($modelRegistration->errors, true);
 	        throw new \Exception('Models did not validate' . $errors);
         }
+        
+        $modelAddress->address_type = OptionHelper::ADDRESS_MAILING; 
         return $this->render('create', [
                 'model' => $model,
         		'modelAddress' => $modelAddress,

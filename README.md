@@ -13,6 +13,15 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4.321 Notes
+
+. Enabled cookie-based user identity
+. Revised project disposition denied to force close date
+. Fixed crash caused when opening LMA document
+. Added total JTP hold amount on index grid
+. Revised 1st address data entry to hide type (defaulted as mailing)
+. Fixed crash caused by zero JTP registrations on a project 
+
 0.9.4.311 Notes
 
 . Simplified signature for type-specific project controllers

@@ -3,6 +3,7 @@
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\project\jtp\ProjectSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $total_hold number */
 
 $this->title = 'JTP Projects';
 $this->params['breadcrumbs'][] = $this->title;
@@ -27,6 +28,7 @@ $specialColumns = [
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
     	'heading' => $this->title,
+    	'before' => 'Total Hold Amount: $' . number_format($total_hold, 2),
     	'specialColumns' => $specialColumns,
     ]); ?>
 

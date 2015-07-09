@@ -8,8 +8,8 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="site-about">
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p><span class="label label-warning">Version </span><span class="label label-primary">0.9.4.311 (Beta 1)</span> Committed to GitHub repository</p>
-    <p><span class="label label-warning">Release Date </span><span class="label label-primary">July 5, 2015</span></p>
+    <p><span class="label label-warning">Version </span><span class="label label-primary">0.9.4.321 (Beta 1)</span> Committed to GitHub repository</p>
+    <p><span class="label label-warning">Release Date </span><span class="label label-primary">July 9, 2015</span></p>
     
 	    <div class="panel panel-warning">
 	        <div class="panel-heading"><h4 class="panel-title"><i class="glyphicon glyphicon-tags"></i>&nbsp;Current Issues</h4></div>
@@ -21,6 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
 		        </ul>
 		        <h5 class="text-warning">Navigation</h5>
 		        <ul>
+		        	<li><span class="label label-primary">New</span> Safari browser does not properly render certain accordions (multipage and show all toggle).</li>
 		        	<li>Database caching not yet implemented.</li>
 	  	        	<li>Some breadcrumbs in sub-window updates are incorrect.</li>
 		        	<li>Agreements accordion closes after a panel content update.</li>

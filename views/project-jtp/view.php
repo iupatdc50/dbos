@@ -52,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ['attribute' => 'agreement_type', 'value' => Html::encode($model->agreementType->descrip)],
             [
             	'label' => 'Hold Amount ($)',
-            	'value' => $model->holdAmount->hold_amt,
+            	'value' => isset($model->holdAmount) ? $model->holdAmount->hold_amt : null,
             	'format' => ['decimal', 2],
             ],
             [

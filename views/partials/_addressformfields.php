@@ -8,10 +8,14 @@ use app\helpers\OptionHelper;
 /* @var $this yii\web\View */
 /* @var $address app\models\base\BaseAddress */
 /* @var $form kartik\form\ActiveForm */
+/* @var $addressForm boolean If this variable exists, then these fields are displayed as part of
+ *                           a standalone address form
+ */
 ?>
 
 <div class="address-fields">
 
+	<?php if (isset($addressForm)): ?>
     <?= $form->field($address, 'address_type')->widget(Select2::className(), [
     		'data' => $address->addressTypeOptions, 
     		'hideSearch' => true,
@@ -19,6 +23,9 @@ use app\helpers\OptionHelper;
     		'options' => ['placeholder' => 'Select Address Type...'],
     		
     ]) ?>
+    <?php else: ?>
+    <?= $form->field($address, 'address_type')->hiddenInput()->label(false); ?>
+    <?php endif; ?>
 
     <?= $form->field($address, 'address_ln1')->textInput(['maxlength' => 50])->label('Address Line 1') ?>
 

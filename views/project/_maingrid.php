@@ -13,6 +13,7 @@ use app\helpers\OptionHelper;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $heading {$this->title} from calling view */
+/* @var $before string
 /* @var $specialColumns columns specific to calling view */
 
 $baseColumns = [
@@ -72,6 +73,7 @@ $actionColumn = [
 	'panel'=>[
 		'type'=>GridView::TYPE_PRIMARY,
 	    'heading'=> $heading,
+	    'before' => isset($before) ? Html::tag('span', $before, ['class' => 'btn pull-right']) : null,
 		'after' => false,
 	],
 	'toolbar' => [

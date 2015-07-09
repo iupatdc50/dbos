@@ -144,7 +144,7 @@ $this->params['breadcrumbs'][] = $this->title;
 						'value' => function($model) {
 							return (isset($model->doc_id)) ?
 								Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show original agreement']),
-										["/registration/show-pdf", 'id'  => $model->id]): '';
+									$model->imageUrl, ['target' => '_blank']) : '';
 							},
             			'contentOptions' => ['style' => 'white-space: nowrap;'],
 				],

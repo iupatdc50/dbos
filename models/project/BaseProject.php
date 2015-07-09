@@ -60,6 +60,9 @@ class BaseProject extends \yii\db\ActiveRecord implements iNotableInterface
             [['disposition'], 'in', 'range' => OptionHelper::getAllowedDisp()],
             [['project_status'], 'in', 'range' => OptionHelper::getAllowedStatus()],
         	[['close_dt'], 'date', 'format' => 'php:Y-m-d'],
+        	['close_dt', 'required', 'when' => function($model) {
+        		return $model->disposition == OptionHelper::DISP_DENIED;
+        	}, 'enableClientValidation' => false],
             [['project_nm', 'general_contractor'], 'string', 'max' => 100],
             [['agreement_type'], 'exist', 'targetClass' => AgreementType::className()],
         	[['close_dt', 'general_contractor'], 'default'],

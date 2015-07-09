@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\project\jtp\Project;
 use app\models\project\jtp\ProjectSearch;
+use app\models\project\jtp\HoldAmount;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -15,6 +16,19 @@ class ProjectJtpController extends \app\controllers\project\BaseController
 	
 	protected $type = 'JTP';
 	
+	public function actionIndex()
+	{
+		
+		$total_hold = HoldAmount::find()
+				->joinWith(['project'])
+				->where(['project_status' => 'A'])
+				->sum('hold_amt')
+		;
+		$this->otherProviders['total_hold'] = $total_hold;
+		
+		return parent::actionIndex();
+		
+	}
 
     /**
      * Displays a single Project model.

@@ -17,7 +17,7 @@ use yii\bootstrap\ActiveForm;
     		'enableClientValidation' => true,
     ]); ?>
 
-    <?= $this->render('_addressformfields', ['form' => $form, 'address' => $model]); ?>
+    <?= $this->render('_addressformfields', ['form' => $form, 'address' => $model, 'addressForm' => true]); ?>
         
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
