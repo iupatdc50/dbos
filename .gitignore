@@ -34,7 +34,7 @@ codeception.yml
 composer.json
 composer.lock
 /config/db.php
-/config/web.php
+/config/host-env.php
 /migrations
 /runtime/*
 /tests

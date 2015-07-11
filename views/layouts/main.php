@@ -26,10 +26,10 @@ app\assets\ApplicationUiAssetBundle::register($this);
 			<div class="header">
 			<?php if (MenuHelper::isItemActive(yii::$app->requestedRoute, 'site') || (yii::$app->requestedRoute == '')): ?>
 				<div class="logo"></div>
-				<div class="title">DC50 Business Office Support </div>	
+				<div class="title"><?= Yii::$app->name ?> </div>	
 			<?php else: ?>
 				<div id="logo-nothome" class="logo"></div>
-				<div id="title-nothome" class="title">DC50 Business Office Support </div>	
+				<div id="title-nothome" class="title"><?= Yii::$app->name ?></div>	
 			<?php endif; ?>			
 			</div>
 		

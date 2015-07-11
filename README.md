@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4.325 Notes
+
+. Revised user models names to match standard of other models
+. Revised config files to formalize production/development environments
+
 0.9.4.321 Notes
 
 . Enabled cookie-based user identity

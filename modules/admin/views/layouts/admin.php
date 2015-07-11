@@ -27,7 +27,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	    <div class="wrap">   
 			<div class="header">
 				<div id="logo-nothome" class="logo"></div>
-				<div id="title-nothome" class="title">DC50 Business Office Support </div>	
+				<div id="title-nothome" class="title"><?= Yii::$app->name ?> </div>	
 			</div>
 		
 	        <?php
