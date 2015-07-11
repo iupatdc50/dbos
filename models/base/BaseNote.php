@@ -3,7 +3,7 @@
 namespace app\models\base;
 
 use Yii;
-use app\models\user\UserRecord;
+use app\models\user\User;
 
 /**
  * This is the model class for table "MemberNotes".
@@ -13,7 +13,7 @@ use app\models\user\UserRecord;
  * @property integer $created_at
  * @property integer $created_by
  *
- * @property UserRecord $author
+ * @property User $author
  */
 class BaseNote extends \yii\db\ActiveRecord
 {
@@ -60,6 +60,6 @@ class BaseNote extends \yii\db\ActiveRecord
      */
     public function getAuthor()
     {
-        return $this->hasOne(UserRecord::className(), ['id' => 'created_by']);
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
 }

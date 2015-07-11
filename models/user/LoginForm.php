@@ -10,7 +10,7 @@ class LoginForm extends Model
 	public $password;
 	public $rememberMe;
 
-	/** @var UserRecord */
+	/** @var User */
 	public $user;
 
 	public function rules()
@@ -42,7 +42,7 @@ class LoginForm extends Model
 
 	private function fetchUser($username)
 	{
-		return UserRecord::findOne(compact('username'));
+		return User::findOne(compact('username'));
 	}
 
 	private function isCorrectHash($plaintext, $hash)

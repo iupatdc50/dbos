@@ -5,12 +5,12 @@ namespace app\models\user;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\user\UserRecord;
+use app\models\user\User;
 
 /**
- * UserSearchModel represents the model behind the search form about `app\models\user\UserRecord`.
+ * UserSearchModel represents the model behind the search form about `app\models\user\User`.
  */
-class UserSearchModel extends UserRecord
+class UserSearch extends User
 {
     /**
      * @inheritdoc
@@ -41,7 +41,7 @@ class UserSearchModel extends UserRecord
      */
     public function search($params)
     {
-        $query = UserRecord::find();
+        $query = User::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

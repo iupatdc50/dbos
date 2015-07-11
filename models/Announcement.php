@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii;
-use app\models\user\UserRecord;
+use app\models\user\User;
 
 /**
  * This is the model class for table "Announcements".
@@ -61,7 +61,7 @@ class Announcement extends \yii\db\ActiveRecord
      */
     public function getAuthor()
     {
-        return $this->hasOne(UserRecord::className(), ['id' => 'created_by']);
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
 
 }

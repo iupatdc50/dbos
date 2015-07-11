@@ -21,7 +21,7 @@ use yii\web\IdentityInterface;
  * @property integer $updated_at
  * @property string $last_login
  */
-class UserRecord extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord
 				 implements IdentityInterface
 {
     /**
