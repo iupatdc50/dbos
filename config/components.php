@@ -1,7 +1,7 @@
 <?php
 return [
 		
-				'db' => require(__DIR__ . '/db.php'),
+				'db' => require(__DIR__ . (YII_ENV_TEST ? '/db-test.php' : '/db.php')),
 				'urlManager' => [
 						'enablePrettyUrl' => true,
 						'showScriptName' => false,

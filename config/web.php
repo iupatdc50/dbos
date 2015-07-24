@@ -1,8 +1,10 @@
 <?php
 use kartik\datecontrol\Module;
+
+$env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
-		'name' => 'DC50 Business Office Support',
+		'name' => 'DC50 Business Office Support' . $env,
 		'version' => '0.9.4.325',
 		'basePath' => realpath ( __DIR__ . '/../' ),
 		'modules' => [ 

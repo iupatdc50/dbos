@@ -34,6 +34,7 @@ codeception.yml
 composer.json
 composer.lock
 /config/db.php
+/config/db-test.php
 /config/host-env.php
 /migrations
 /runtime/*
@@ -41,3 +42,4 @@ composer.lock
 /web/saa/*
 /web/idc/*
 /web/assets/*
+/web/index-test.php

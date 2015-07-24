@@ -85,7 +85,7 @@ class User extends \yii\db\ActiveRecord
 
         return $return;
     }
-
+    
     // 5 methods that need to be implemented by IdentityInterface and used internally by Yii
     
     public function getId()
@@ -113,5 +113,27 @@ class User extends \yii\db\ActiveRecord
     	throw new NotSupportedException('You can only login by username/password pair for now.');
     }
     
+    // Methods for LoginForm
     
+    /**
+     * Find by username column
+     * 
+     * @param string $username
+     * @return \yii\db\static|NULL
+     */
+    public static function findByUsername($username)
+    {
+    	return self::findOne(['username' => $username]);
+    }
+    
+    /**
+     * Validates password against stored hash
+     * 
+     * @param string $password
+     * @return boolean
+     */
+    public function validatePassword($password)
+    {
+    	return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
 }
