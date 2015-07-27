@@ -10,10 +10,13 @@ use app\helpers\OptionHelper;
  *
  * @property string $is_maint
  * @property string $estimate
+ * @property string $estimated_hrs_to
+ * @property string $estimate_to
  *
  */
 class Registration extends \app\models\project\BaseRegistration
 {
+	public $is_maint = false;
 
     /**
      * @inheritdoc
@@ -22,7 +25,8 @@ class Registration extends \app\models\project\BaseRegistration
     {
         $this->_validationRules = [
             [['estimate'], 'required'],
-        	[['estimate'], 'number'],
+        	[['estimated_hrs_to'], 'integer'],
+        	[['estimate', 'estimate_to'], 'number'],
         ];
         return parent::rules();
     }
@@ -36,6 +40,12 @@ class Registration extends \app\models\project\BaseRegistration
             'estimate' => 'Estimate',
         ];
         return parent::attributeLabels();
+    }
+    
+    public function afterFind()
+    {
+    	parent::afterFind();
+    	$this->is_maint = ($this->project->is_maint == 'T');
     }
 
 }

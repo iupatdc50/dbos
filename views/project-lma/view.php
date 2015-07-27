@@ -35,6 +35,10 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php endif; ?>
     </p>
 
+<?php 
+$is_maint = ($model->is_maint == 'T');
+?>
+
 <table class="hundred-pct table">
 <tr><td class="sixty-pct datatop">
     <?= DetailView::widget([
@@ -60,8 +64,8 @@ $this->params['breadcrumbs'][] = $this->title;
             	'attribute' => 'is_maint',
             	'format' => 'raw',
             	'label' => 'Job Type',
-            	'value' => ($model->is_maint == 'T') ? '<span class="label label-warning">Maintenance</span>'
-	        										 : 'Project',
+            	'value' => $is_maint ? '<span class="label label-warning">Maintenance</span>'
+	        						 : 'Project',
             ],
             [
             	'label' => 'Start Date',
@@ -75,7 +79,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php 
     $awarded = '<span class="glyphicon glyphicon-asterisk text-success"></span>';
     $pending = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
-    $est_visible = ($model->is_maint == 'F');
     $controller = 'registration-lma';
     ?>
     
@@ -125,16 +128,13 @@ $this->params['breadcrumbs'][] = $this->title;
     			],
     			'bid_dt:date',
     			[ 
-    					'attribute' => 'estimated_hrs', 
+    					'attribute' => 'hourRange', 
     					'label' => 'Hours',
     					'hAlign' => 'right',
-        				'format' => ['decimal', 0],
     			],
     			[
-    					'attribute' => 'estimate',
-    					'visible' => $est_visible,
+    					'attribute' => 'amountRange',
     					'label' => 'Estimate',
-    					'format' => ['decimal', 2],
     					'hAlign' => 'right',
     			], 
     			[
@@ -153,7 +153,7 @@ $this->params['breadcrumbs'][] = $this->title;
 					'controller' => $controller,
 					'template' => '{update}{delete}',
 					'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
-						['value' => Url::to(["/{$controller}/create", 'relation_id'  => $model->project_id]),
+						['value' => Url::to(["/{$controller}/create" . ($is_maint ? '-maint' : ''), 'relation_id'  => $model->project_id]),
 						'id' => 'registrationCreateButton',
 						'class' => 'btn btn-default btn-modal btn-embedded',
 						'data-title' => 'Registration',

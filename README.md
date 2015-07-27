@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.4.331 Notes
+
+. Added conditional Close Date to Create Project Screen
+. Added range hours and amounts for LMA maintenance projects
+
 0.9.4.325 Notes
 
 . Revised user models names to match standard of other models

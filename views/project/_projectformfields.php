@@ -46,11 +46,9 @@ use app\helpers\OptionHelper;
 	    ]) ?>
 	<?php endif ?>
 
-	<?php if(!$model->isNewRecord): ?>
-	    <?= $form->field($model, 'close_dt')->widget(DateControl::className(), [
-	    		'type' => DateControl::FORMAT_DATE,
-	    ])   ?>
-	<?php endif ?>
+	<?= $form->field($model, 'close_dt')->widget(DateControl::className(), [
+			'type' => DateControl::FORMAT_DATE,
+	])   ?>
     
     <?php if ($model->isNewRecord): ?>
     <?= $this->render('../partials/_addressformfields',

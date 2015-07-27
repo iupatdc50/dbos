@@ -62,7 +62,9 @@ class BaseProject extends \yii\db\ActiveRecord implements iNotableInterface
         	[['close_dt'], 'date', 'format' => 'php:Y-m-d'],
         	['close_dt', 'required', 'when' => function($model) {
         		return $model->disposition == OptionHelper::DISP_DENIED;
-        	}, 'enableClientValidation' => false],
+        	}, 'whenClient' => "function (attribute, value) {
+        		return $('#project-disposition').val() =='" . OptionHelper::DISP_DENIED. "';
+    		}"],
             [['project_nm', 'general_contractor'], 'string', 'max' => 100],
             [['agreement_type'], 'exist', 'targetClass' => AgreementType::className()],
         	[['close_dt', 'general_contractor'], 'default'],
@@ -100,7 +102,7 @@ class BaseProject extends \yii\db\ActiveRecord implements iNotableInterface
     		}
     		if ((!isset($this->close_dt) || trim($this->close_dt)==='') && ($this->project_status != OptionHelper::STATUS_ACTIVE)) {
     			$this->project_status = OptionHelper::STATUS_ACTIVE;
-    		} elseif ((isset($this->close_dt)) && ($this->project_status == OptionHelper::STATUS_ACTIVE)) {
+    		} elseif ((isset($this->close_dt)) && ($this->project_status != OptionHelper::STATUS_CLOSED)) { 
     			$this->project_status = OptionHelper::STATUS_CLOSED;
     		}
     			

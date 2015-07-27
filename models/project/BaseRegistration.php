@@ -101,5 +101,16 @@ class BaseRegistration extends \yii\db\ActiveRecord
     {
     	return $this->hasOne(Project::className(), ['project_id' => 'project_id']);
     }
+
+
+    public function getHourRange()
+    {
+    	return isset($this->estimated_hrs_to) ? $this->estimated_hrs . '-' . $this->estimated_hrs_to : $this->estimated_hrs;
+    }
+    
+    public function getAmountRange()
+    {
+    	return isset($this->estimate_to) ? $this->estimate . '-' . $this->estimate_to : $this->estimate;
+    }
     
 }
