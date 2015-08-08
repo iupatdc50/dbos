@@ -24,6 +24,10 @@ use yii\web\IdentityInterface;
 class User extends \yii\db\ActiveRecord
 				 implements IdentityInterface
 {
+	const SCENARIO_CREATE = 'create';
+	
+	public $password_clear = null;
+	
     /**
      * @inheritdoc
      */
@@ -31,7 +35,7 @@ class User extends \yii\db\ActiveRecord
     {
         return 'Users';
     }
-
+    
 	public function behaviors()
 	{
 		return [
@@ -45,9 +49,10 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'password_hash', 'email'], 'required'],
-            [['role', 'status'], 'integer'],
-            [['username', 'email', 'last_login'], 'string', 'max' => 255],
+        	[['password_clear'], 'required', 'on' => self::SCENARIO_CREATE],
+        	[['username', 'email'], 'required'],
+        	[['role', 'status'], 'integer'],
+            [['username', 'password_clear', 'email', 'last_login'], 'string', 'max' => 255],
             [['username'], 'unique'],
         	[['email'], 'email'],
         	[['auth_key'], 'string', 'max' => 32],
@@ -63,7 +68,7 @@ class User extends \yii\db\ActiveRecord
             'id' => 'ID',
             'username' => 'Username',
             'auth_key' => 'Auth Key',
-            'password_hash' => 'Password',
+            'password_clear' => 'Password',
             'password_reset_token' => 'Password Reset Token',
             'email' => 'Email',
             'role' => 'Role',
@@ -76,9 +81,9 @@ class User extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         $return = parent::beforeSave($insert);
-
-        if ($this->isAttributeChanged('password_hash'))
-        	$this->password_hash = Yii::$app->security->generatePasswordHash($this->password_hash);
+        
+        if ($this->password_clear != null)
+        	$this->setPassword($this->password_clear);
 
         if ($this->isNewRecord)
             $this->auth_key = Yii::$app->security->generateRandomKey($length = 255);
@@ -86,8 +91,40 @@ class User extends \yii\db\ActiveRecord
         return $return;
     }
     
+    public function setPassword($password)
+    {
+    	$this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+    
+    /**
+     * Find by username column
+     *
+     * @param string $username
+     * @return \yii\db\static|NULL
+     */
+    public static function findByUsername($username)
+    {
+    	Yii::warning('Reached find with username: ' . $username);
+    	return self::findOne(['username' => $username]);
+    }
+    
+    /**
+     * Validates password against stored hash
+     *
+     * @param string $password
+     * @return boolean
+     */
+    public function validatePassword($password)
+    {
+    	return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+    
     // 5 methods that need to be implemented by IdentityInterface and used internally by Yii
     
+    /**
+     * @codeCoverageIgnore
+     * @see \yii\web\IdentityInterface::getId()
+     */
     public function getId()
     {
     	return $this->id;
@@ -113,27 +150,4 @@ class User extends \yii\db\ActiveRecord
     	throw new NotSupportedException('You can only login by username/password pair for now.');
     }
     
-    // Methods for LoginForm
-    
-    /**
-     * Find by username column
-     * 
-     * @param string $username
-     * @return \yii\db\static|NULL
-     */
-    public static function findByUsername($username)
-    {
-    	return self::findOne(['username' => $username]);
-    }
-    
-    /**
-     * Validates password against stored hash
-     * 
-     * @param string $password
-     * @return boolean
-     */
-    public function validatePassword($password)
-    {
-    	return Yii::$app->security->validatePassword($password, $this->password_hash);
-    }
 }
