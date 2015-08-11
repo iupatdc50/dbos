@@ -7,9 +7,6 @@ use kartik\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
-/* @var $statusModel app\models\member\Status */
-/* @var $classModel app\models\member\MemberClass */
-/* @var $employerModel app\models\member\Employment */
 /* @var $noteModel app\models\member\Note */
 
 $this->title = $model->fullName;
@@ -22,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <tr><td class="text-center">
     <?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width'=>'150', 'height'=>'200']) ?>
     <h4><?= Html::encode($this->title) ?></h4>
-    <p><?= Html::encode(isset($statusModel) ? $statusModel->lob->short_descrip : 'No Trade')  ?></p>
+    <p><?= Html::encode(isset($model->currentStatus) ? $model->currentStatus->lob->short_descrip : 'No Trade')  ?></p>
     <p>
     	<?= Html::button('<i class="glyphicon glyphicon-camera"></i>&nbsp;Update Photo',
 						['value' => Url::to(['photo', 'id'  => $model->member_id]),
