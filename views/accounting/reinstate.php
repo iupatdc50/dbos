@@ -5,7 +5,7 @@ use yii\bootstrap\ActiveForm;
 use kartik\datecontrol\DateControl;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\receipt\ReinstateForm */
+/* @var $model app\models\accounting\ReinstateForm */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 

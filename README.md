@@ -13,6 +13,16 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.5.101 Notes
+
+. Revised login layout and last login processing
+. Added member IUPAT ID, email, in-application processing and dues delinquency checks 
+. Added validation checking for application date, birth date (age), 
+. Revised cosmetic to member transaction windows
+. Added member accounting framework, injected dates for testing
+. Added status handling for new entries
+. Fixed minor bugs
+
 0.9.4.331 Notes
 
 . Added conditional Close Date to Create Project Screen

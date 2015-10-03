@@ -4,19 +4,19 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\value\BillRateSearch */
+/* @var $searchModel app\models\accounting\DuesRateSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Bill Rates';
+$this->title = 'Dues Rates';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="bill-rate-index">
+<div class="dues-rate-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Bill Rate', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Dues Rate', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -27,9 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 //            'id',
             'lob_cd',
-            ['attribute' => 'member_class', 'value' => 'memberClass.descrip'],
             ['attribute' => 'rate_class', 'value' => 'rateClass.descrip', 'contentOptions' => ['style' => 'white-space: nowrap;']],
-            ['attribute' => 'fee_type', 'value' => 'feeType.descrip', 'contentOptions' => ['style' => 'white-space: nowrap;']],
             'effective_dt:date',
             'end_dt:date',
             [

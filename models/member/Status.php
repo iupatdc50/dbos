@@ -5,6 +5,7 @@ namespace app\models\member;
 use Yii;
 use yii\db\Query;
 use app\models\value\Lob;
+use app\models\member\Member;
 use app\models\member\StatusCode;
 
 /**
@@ -62,6 +63,26 @@ class Status extends \yii\db\ActiveRecord
             'member_status' => 'Status',
             'reason' => 'Reason',
         ];
+    }
+    
+    /**
+     * On a new member entry, the status defaults to active and the effective date is the
+     * application date
+     * 
+     * @param Member $member
+     * @param string $reason
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function configureNewEntry(Member $member, $reason = 'New entry')
+    {
+    	if (!(isset($member) && ($member instanceof Member)))
+    		throw new \yii\base\InvalidConfigException('No member object injected');
+    	if (!isset($this->lob_cd))
+    		throw new \yii\base\InvalidConfigException('LOB code must be provided on a new entry');
+    	$this->member_id = $member->member_id;
+    	$this->member_status = 'A';
+    	$this->effective_dt = $member->application_dt;
+    	$this->reason =  $reason;
     }
     
     public function getIsActive()

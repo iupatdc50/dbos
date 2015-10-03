@@ -15,7 +15,12 @@ use Yii;
  */
 class Email extends \yii\db\ActiveRecord
 {
-    /**
+	/*
+	 * Injected Member object, used for creating new entries
+	 */
+	public $member;
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
@@ -29,8 +34,7 @@ class Email extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['member_id', 'email'], 'required'],
-            [['member_id'], 'string', 'max' => 11],
+            [['email'], 'required'],
             [['email'], 'email'],
             [['email'], 'unique'],
         ];
@@ -48,11 +52,16 @@ class Email extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getMember()
+    public function beforeSave($insert)
     {
-        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+    	if (parent::beforeSave($insert)) {
+	    	if (!(isset($this->member) && ($this->member instanceof Member)))
+	    		throw new \yii\base\InvalidConfigException('No member object injected');
+    		if ($insert) 
+    			$this->member_id = $this->member->member_id;
+    		return true;
+    	}
+    	return false;
     }
+    
 }

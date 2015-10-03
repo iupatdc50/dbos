@@ -83,6 +83,7 @@ h1, .h1 {
 
 ul.noBullets {list-style: none;}
 
+.pad-six {padding: 6px;}
 .three-em {height: 3em;}
 .ten-em {width: 10em;}
 .twelve-em {width: 12em;}

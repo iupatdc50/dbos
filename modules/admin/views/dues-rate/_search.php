@@ -19,11 +19,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'lob_cd') ?>
 
-    <?= $form->field($model, 'member_class') ?>
-
     <?= $form->field($model, 'rate_class') ?>
-
-    <?= $form->field($model, 'fee_type') ?>
 
     <?php // echo $form->field($model, 'effective_dt') ?>
 

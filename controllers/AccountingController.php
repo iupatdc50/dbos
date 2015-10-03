@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\receipt\ReinstateForm;
+use app\models\accounting\ReinstateForm;
 use Yii;
 use \yii\web\Controller;
 use yii\web\Response;

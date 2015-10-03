@@ -8,14 +8,16 @@ use app\models\member\Member;
 use app\models\member\MemberId;
 use app\models\member\Address;
 use app\models\member\Phone;
+use app\models\member\Email;
+use app\models\member\Status;
+use app\models\member\Employment;
+use app\models\member\Note;
+use app\models\member\StatusCode;
 use app\models\member\MemberSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
-use app\models\member\Employment;
-use app\models\member\Note;
-use app\models\member\StatusCode;
 use yii\helpers\ArrayHelper;
 use app\helpers\OptionHelper;
 
@@ -81,10 +83,14 @@ class MemberController extends RootController
         $model = new Member(['idGenerator' => $idGenerator]);
         $modelAddress = new Address;
         $modelPhone = new Phone;
+        $modelEmail = new Email;
+        $modelStatus = new Status;
         
         if ($model->load(Yii::$app->request->post())
         		&& $modelAddress->load(Yii::$app->request->post()) 
-        		&& $modelPhone->load(Yii::$app->request->post())) {
+        		&& $modelPhone->load(Yii::$app->request->post()) 
+        		&& $modelEmail->load(Yii::$app->request->post()) 
+        		&& $modelStatus->load(Yii::$app->request->post())) {
         	
         	$image = $model->uploadImage();
         	if ($model->validate() && $modelAddress->validate() && $modelPhone->validate()) {
@@ -98,8 +104,10 @@ class MemberController extends RootController
 		        		}
         				$modelAddress->member_id = $model->member_id;
 						$modelPhone->member_id = $model->member_id;        				
-
-        				if ($modelAddress->save(false) && $modelPhone->save(false)) {
+						$modelEmail->member = $model;
+						$modelStatus->configureNewEntry($model);
+						
+        				if ($modelAddress->save(false) && $modelPhone->save(false) && $modelEmail->save(false) && $modelStatus->save(false)) {
         					$transaction->commit();
 							return $this->redirect(['view', 'id' => $model->member_id]);
         				}
@@ -119,6 +127,8 @@ class MemberController extends RootController
                 'model' => $model,
             	'modelAddress' => $modelAddress,
             	'modelPhone' => $modelPhone,
+            	'modelEmail' => $modelEmail,
+        		'modelStatus' => $modelStatus,
         ]);
     }
 
@@ -139,9 +149,10 @@ class MemberController extends RootController
         } 
         return $this->render('update', [
         	'model' => $model,
-        	// Addresses, phones and specialties are updated in their own controllers
+        	// Addresses, phones, emails and specialties are updated in their own controllers
             'modelsAddress' => $model->getAddresses(),
         	'modelsPhone' => $model->getPhones(),
+        	'modelsEmail' => $model->getEmails(),
         	'modelsSpecialty' => $model->getSpecialties(),
         ]);
     }

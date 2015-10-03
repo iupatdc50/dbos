@@ -32,6 +32,9 @@ use app\models\value\DocumentType;
  * @property string $remarks
  * @property string $photo_id Stored the generated filename
  * @property string $imse_id
+ * @property date $application_dt
+ * @property date $init_dt
+ * @property date $dues_paid_thru_dt
  * 
  * @property Phone[] $phones
  * @property Address[] $addresses
@@ -47,6 +50,26 @@ use app\models\value\DocumentType;
  */
 class Member extends \yii\db\ActiveRecord implements iNotableInterface
 {
+	/*
+	 * @var OpDate
+	 */
+	protected $_application_dt;
+	
+	/*
+	 * @var OpDate
+	 */
+	protected $_dues_paid_thru_dt;
+	
+	/*
+	 * @var OpDate How old the application date can be
+	 */
+	public $app_cutoff_dt;
+	
+	/*
+	 * @var OpDate Acceptable age of applicant
+	 */
+	public $age_cutoff_dt;
+	
 	/* 
 	 * @var iIdInterface idGenerator 
 	 */
@@ -91,6 +114,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$command = $query->createCommand();
     	return $command->queryAll();
     }
+    
+    public function init()
+    {
+    	$this->app_cutoff_dt = $this->getToday();
+    	$this->app_cutoff_dt->modify('-1 year');
+    	$this->age_cutoff_dt = $this->getToday();
+    	$this->age_cutoff_dt->modify('-16 year');
+    }
 
     /**
      * @inheritdoc
@@ -98,8 +129,10 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function rules()
     {
         return [
-            [['last_nm', 'first_nm', 'birth_dt', 'gender', 'shirt_size', 'local_pac', 'hq_pac'], 'required'],
-            [['birth_dt'], 'date', 'format' => 'php:Y-m-d'],
+            [['last_nm', 'first_nm', 'birth_dt', 'gender', 'shirt_size', 'local_pac', 'hq_pac', 'application_dt'], 'required'],
+            [['birth_dt', 'application_dt', 'init_dt', 'dues_paid_thru_dt'], 'date', 'format' => 'php:Y-m-d'],
+        	[['application_dt'], 'validateApplicationDt'],
+        	[['birth_dt'], 'validateBirthDt'],
 			[['gender'], 'in', 'range' => OptionHelper::getAllowedGender()],
         	[['local_pac', 'hq_pac'], 'in', 'range' => OptionHelper::getAllowedTF()],
             [['ssnumber', 'report_id'], 'string', 'max' => 11],
@@ -109,6 +142,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
             [['photo_id'], 'string', 'max' => 20],
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
         	[['middle_inits', 'suffix', 'photo_id', 'imse_id'], 'default'],
+        	[['ssnumber', 'imse_id'], 'unique'],
         ];
     }
 
@@ -137,11 +171,31 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
             'addressTexts' => 'Address(es)',
         	'phoneTexts' => 'Phone(s)',
         	'emailTexts' => 'Email(s)',
+        	'pacTexts' => 'PAC Participation',
         	'specialtyTexts' => 'Specialties',
         	'lob_cd' => 'Local',
         	'status' => 'Status',
         	'fullName' => 'Name',
+        	'application_dt' => 'Application Date',
+        	'init_dt' => 'Init Date (Current)',
+        	'dues_paid_thru_dt' => 'Dues&nbsp;Thru',
         ];
+    }
+    
+    public function validateApplicationDt($attribute, $params)
+    {
+    	$dt = (new OpDate)->setFromMySql($this->$attribute);
+    	if (OpDate::dateDiff($this->app_cutoff_dt, $dt) <= 0)
+    		$this->addError($attribute, 'Application date is too old.');
+    	elseif (OpDate::dateDiff($this->today, $dt) > 0)
+    	    $this->addError($attribute, 'Application date cannot be future');
+    }
+    
+    public function validateBirthDt($attribute, $params)
+    {
+    	$dt = (new OpDate)->setFromMySql($this->$attribute);
+    	if (OpDate::dateDiff($this->age_cutoff_dt, $dt) > 0)
+    		$this->addError($attribute, 'Member under age limit');
     }
     
     public function beforeValidate() 
@@ -164,10 +218,20 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     			} catch (Exception $e) {
     				throw new \yii\base\InvalidConfigException('Missing ID generator');
     			}
+    			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
+    				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
     		}
     		return true;
     	}
     	return false;
+    }
+    
+    public function afterSave($insert, $changedAttributes)
+    {
+    	if (parent::afterSave($insert, $changedAttributes)) {
+    		if (isset($changedAttributes['application_dt']))
+    			unset($this->_application_dt);
+    	}
     }
     
     /**
@@ -228,8 +292,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		   . "  ORDER BY specialty "
     	;
     	$cmd = Yii::$app->db->createCommand($sql);
+    	// When no member status entry exists, should return an empty resultset
     	$cmd->bindValues([
-    			':lob_cd' => $this->currentStatus->lob_cd,
+    			':lob_cd' => isset($this->currentStatus) ? $this->currentStatus->lob_cd : 'none',
     			':member_id' => $this->member_id,
     	]);
     	return $cmd->queryAll();
@@ -378,6 +443,16 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }
     
+    public function getPacTexts()
+    {
+    	$texts = [];
+    	if ($this->local_pac == 'T')
+    		$texts[] = 'Local';
+    	if ($this->hq_pac == 'T')
+    		$texts[] = 'HQ';
+    	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
+    }
+    
     public function getSpecialtyTexts()
     {
     	$texts = [];
@@ -428,11 +503,11 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         return $image;
     }
     
-        /**
-    * Process deletion of image
-    *
-    * @return boolean the status of deletion
-    */
+    /**
+     * Process deletion of image
+     *
+     * @return boolean the status of deletion
+     */
     public function deleteImage() 
     {
         $file = $this->imagePath;
@@ -456,7 +531,101 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getAge()
     {
     	$birth_dt = new OpDate();
-    	return $birth_dt->setFromMySql($this->birth_dt)->diff(new OpDate())->format('%y');
+    	return $birth_dt->setFromMySql($this->birth_dt)->diff($this->today)->format('%y');
+    }
+    
+    /**
+     * Starting dues paid thru date is based on the application date.  When on or 
+     * prior to the 20th, the starting paid thru is the end of the previous month.
+     * Otherwise it is the end of the current month.
+     *  
+     * @return \app\components\utilities\OpDate
+     */
+    public function getDuesStartDt()
+    {
+    	$dt = $this->getApplicationDtObject();
+    	if ($dt->getDay() > 20) 
+    		$dt->modify('+1 month');
+    	$dt->setDate($dt->getYear(), $dt->getMonth(), 1);
+    	$dt->modify('-1 day');
+    	return $dt;
+    }
+    
+    /**
+     * A active member is "in application" if his initiation date is null for a new member,
+     * and less than the application date if he has been assessed a new APF after reinstatement
+     * 
+     * @return boolean
+     */
+    public function isInApplication()
+    {
+    	$result = false;
+    	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'A')) {
+    		if (isset($this->init_dt)) {
+	    		$application_dt = $this->getApplicationDtObject();
+	    		$init_dt = (new OpDate)->setFromMySql($this->init_dt);
+	    		$result = (OpDate::dateDiff($application_dt, $init_dt) < 0);
+    		} else {
+    			$result = true;
+    		}
+    	}
+    	return $result;
+    }
+    
+    public function getApplicationDtObject()
+    {
+    	if (!isset($this->_application_dt))
+    		$this->_application_dt = (new OpDate)->setFromMySql($this->application_dt);
+    	return $this->_application_dt;
+    }
+    
+	/**
+	 * Member is dues delinquent at 3 months as of the end of the current month
+	 * 
+	 * @throws \Exception
+	 * @return boolean
+	 */
+    public function isDelinquentNotSuspended()
+    {
+    	$result = false;
+    	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'A')) {
+    		if (!isset($this->dues_paid_thru_dt)) 
+    			throw new \Exception("Dues paid thru date is not set for member: {$member_id}");
+    		$result = $this->isOlderThanCutoff(3);
+    	}
+    	return $result;
+    }
+    
+	/**
+	 * Member is candidate for drop if suspended and dues are 6 months as of the end of the current month
+	 * 
+	 * @throws \Exception
+	 * @return boolean
+	 */
+    public function isPastGracePeriodNotDropped()
+    {
+    	$result = false;
+    	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'S')) {
+    		if (!isset($this->dues_paid_thru_dt))
+    			throw new \Exception("Dues paid thru date is not set for member: {$member_id}");
+    		$result = $this->isOlderThanCutoff(6);
+    	}
+    	return $result;	
+    }
+    
+    protected function getDuesPaidThruDtObject()
+    {
+    	if (!isset($this->_dues_paid_thru_dt))
+    		$this->_dues_paid_thru_dt = (new OpDate)->setFromMySql($this->dues_paid_thru_dt);
+    	return $this->_dues_paid_thru_dt;
+    }
+    
+    protected function isOlderThanCutoff($months)
+    {
+    	$cutoff = $this->getToday();
+    	$cutoff->modify('-' . $months . ' month');
+    	$cutoff->setToMonthEnd();
+    	return (OpDate::dateDiff($this->getDuesPaidThruDtObject(), $cutoff) >= 0);
     }
     
     public function getGenderText()
@@ -472,6 +641,16 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getLocalPacText()
     {
     	return OptionHelper::getTFText($this->local_pac);
+    }
+    
+    /**
+     * Override this function when testing with fixed date
+     * 
+     * @return \app\components\utilities\OpDate
+     */
+    protected function getToday()
+    {
+    	return new OpDate();
     }
     
 }

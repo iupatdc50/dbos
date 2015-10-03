@@ -77,9 +77,15 @@ app\assets\ApplicationUiAssetBundle::register($this);
 								['label' => 'Rate Classes', 'url'=>'#'],
 								['label' => 'Fee Types', 'url'=>'#'],
 								[
-									'label' => 'Bill Rates', 
-									'url'=> '/admin/bill-rate', 
-									'active' => (yii::$app->requestedRoute == 'admin/bill-rate')],
+									'label' => 'Initiation Fees (APF)', 
+									'url'=> '/admin/init-fee', 
+									'active' => (yii::$app->requestedRoute == 'admin/init-fee')
+								],
+								[
+									'label' => 'Dues Rates', 
+									'url'=> '/admin/dues-rate', 
+									'active' => (yii::$app->requestedRoute == 'admin/dues-rate')
+								],
 							],
 						],
 						[

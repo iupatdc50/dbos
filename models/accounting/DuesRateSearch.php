@@ -1,16 +1,16 @@
 <?php
 
-namespace app\models\value;
+namespace app\models\accounting;
 
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\value\BillRate;
+use app\models\accounting\DuesRate;
 
 /**
- * BillRateSearch represents the model behind the search form about `app\models\value\BillRate`.
+ * DuesRateSearch represents the model behind the search form about `app\models\accounting\DuesRate`.
  */
-class BillRateSearch extends BillRate
+class DuesRateSearch extends DuesRate
 {
     /**
      * @inheritdoc
@@ -19,7 +19,7 @@ class BillRateSearch extends BillRate
     {
         return [
             [['id'], 'integer'],
-            [['lob_cd', 'member_class', 'rate_class', 'fee_type', 'effective_dt', 'end_dt'], 'safe'],
+            [['lob_cd', 'rate_class', 'effective_dt', 'end_dt'], 'safe'],
             [['rate'], 'number'],
         ];
     }
@@ -42,7 +42,7 @@ class BillRateSearch extends BillRate
      */
     public function search($params)
     {
-        $query = BillRate::find();
+        $query = DuesRate::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -64,9 +64,8 @@ class BillRateSearch extends BillRate
         ]);
 
         $query->andFilterWhere(['like', 'lob_cd', $this->lob_cd])
-            ->andFilterWhere(['like', 'member_class', $this->member_class])
             ->andFilterWhere(['like', 'rate_class', $this->rate_class])
-            ->andFilterWhere(['like', 'fee_type', $this->fee_type]);
+        ;
 
         return $dataProvider;
     }
