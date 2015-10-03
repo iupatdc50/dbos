@@ -1,6 +1,6 @@
 <?php
 
-use yii\widgets\DetailView;
+use kartik\detail\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
 use kartik\helpers\Html;
@@ -16,10 +16,9 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="member-view">
 
 <table class="hundred-pct">
-<tr><td class="text-center">
-    <?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width'=>'150', 'height'=>'200']) ?>
+<tr><td class="text-center pad-six">
     <h4><?= Html::encode($this->title) ?></h4>
-    <p><?= Html::encode(isset($model->currentStatus) ? $model->currentStatus->lob->short_descrip : 'No Trade')  ?></p>
+	<p><?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width'=>'150', 'height'=>'200']) ?></p>
     <p>
     	<?= Html::button('<i class="glyphicon glyphicon-camera"></i>&nbsp;Update Photo',
 						['value' => Url::to(['photo', 'id'  => $model->member_id]),
@@ -28,7 +27,23 @@ $this->params['breadcrumbs'][] = $this->title;
 						'data-title' => 'Photo',
 					]) 
 		?>
-    </p>
+    </p> 
+    <br />
+    <?= DetailView::widget([
+    		'model' => $model,
+        	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table text-left'],
+        	'attributes' => [
+        		[
+        				'label' => 'Trade', 
+        				'value' => Html::encode(isset($model->currentStatus) ? $model->currentStatus->lob->short_descrip : 'No Trade'),
+    			],
+        		[
+        				'attribute' => 'dues_paid_thru_dt',
+        				'format' => 'date',
+        				'rowOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
+    			],	
+    		],
+    ]); ?>
     </td><td class="seventyfive-pct">
 		<?= $this->render('../partials/_quicksearch', ['className' => 'member']); ?>
         <div><p>
@@ -41,24 +56,24 @@ $this->params['breadcrumbs'][] = $this->title;
 	            ],
 	        ]) ?>
         </p></div>
-
     <?= DetailView::widget([
         'model' => $model,
         'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
         'attributes' => [
             'member_id',
             'report_id',
-            'addressTexts:ntext',
+            'imse_id',
+        	'addressTexts:ntext',
             'phoneTexts:ntext',
             'emailTexts:ntext',
     		'age',
             'birth_dt:date',
             ['attribute' => 'gender', 'value' => Html::encode($model->genderText)],
             'shirt_size',
-            ['attribute' => 'local_pac', 'value' => Html::encode($model->localPacText)],
-            ['attribute' => 'hq_pac', 'value' => Html::encode($model->hqPacText)],
-            'imse_id',
-            'specialtyTexts:ntext',
+        	'pacTexts:ntext',
+        	'application_dt:date',
+        	'init_dt:date',
+        	'specialtyTexts:ntext',
         ],
     ]) ?>
 </td></tr>
@@ -95,10 +110,6 @@ $this->params['breadcrumbs'][] = $this->title;
 			],
 			[
 				'header' => Html::tag('span', 'Compliance: '),
-				'content' => 'Feature not yet supported',
-			],
-			[
-				'header' => Html::tag('span', 'Paid Thru: ')  ,
 				'content' => 'Feature not yet supported',
 			],
 			[

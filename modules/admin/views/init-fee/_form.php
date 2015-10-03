@@ -4,27 +4,27 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\value\BillRate */
+/* @var $model app\models\accounting\InitFee */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="bill-rate-form">
+<div class="init-fee-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'lob_cd')->textInput(['maxlength' => 4]) ?>
+    <?= $form->field($model, 'lob_cd')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'member_class')->textInput(['maxlength' => 2]) ?>
-
-    <?= $form->field($model, 'rate_class')->textInput(['maxlength' => 2]) ?>
-
-    <?= $form->field($model, 'fee_type')->textInput(['maxlength' => 2]) ?>
+    <?= $form->field($model, 'member_class')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'effective_dt')->textInput() ?>
 
     <?= $form->field($model, 'end_dt')->textInput() ?>
 
-    <?= $form->field($model, 'rate')->textInput(['maxlength' => 7]) ?>
+    <?= $form->field($model, 'fee')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'dues_months')->textInput() ?>
+
+    <?= $form->field($model, 'included')->dropDownList([ 'T' => 'T', 'F' => 'F', ], ['prompt' => '']) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

@@ -5,6 +5,7 @@ namespace app\models\user;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
+use app\components\utilities\OpDate;
 
 /**
  * This is the model class for table "Users".
@@ -19,7 +20,7 @@ use yii\web\IdentityInterface;
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
- * @property string $last_login
+ * @property datetime $last_login
  */
 class User extends \yii\db\ActiveRecord
 				 implements IdentityInterface
@@ -52,7 +53,7 @@ class User extends \yii\db\ActiveRecord
         	[['password_clear'], 'required', 'on' => self::SCENARIO_CREATE],
         	[['username', 'email'], 'required'],
         	[['role', 'status'], 'integer'],
-            [['username', 'password_clear', 'email', 'last_login'], 'string', 'max' => 255],
+            [['username', 'password_clear', 'email'], 'string', 'max' => 255],
             [['username'], 'unique'],
         	[['email'], 'email'],
         	[['auth_key'], 'string', 'max' => 32],
@@ -117,6 +118,11 @@ class User extends \yii\db\ActiveRecord
     public function validatePassword($password)
     {
     	return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+    
+    public function getLastLoginDisplay()
+    {
+    	return isset($this->last_login) ? (new OpDate)->setFromMySql($this->last_login)->getDisplayDateTime() : '(First login)';
     }
     
     // 5 methods that need to be implemented by IdentityInterface and used internally by Yii

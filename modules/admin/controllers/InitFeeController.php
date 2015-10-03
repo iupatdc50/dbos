@@ -3,16 +3,16 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\value\BillRate;
-use app\models\value\BillRateSearch;
+use app\models\accounting\InitFee;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * BillRateController implements the CRUD actions for BillRate model.
+ * InitFeeController implements the CRUD actions for InitFee model.
  */
-class BillRateController extends Controller
+class InitFeeController extends Controller
 {
     public function behaviors()
     {
@@ -27,22 +27,22 @@ class BillRateController extends Controller
     }
 
     /**
-     * Lists all BillRate models.
+     * Lists all InitFee models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new BillRateSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = new ActiveDataProvider([
+            'query' => InitFee::find(),
+        ]);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
     /**
-     * Displays a single BillRate model.
+     * Displays a single InitFee model.
      * @param integer $id
      * @return mixed
      */
@@ -54,13 +54,13 @@ class BillRateController extends Controller
     }
 
     /**
-     * Creates a new BillRate model.
+     * Creates a new InitFee model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new BillRate();
+        $model = new InitFee();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -72,7 +72,7 @@ class BillRateController extends Controller
     }
 
     /**
-     * Updates an existing BillRate model.
+     * Updates an existing InitFee model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -91,7 +91,7 @@ class BillRateController extends Controller
     }
 
     /**
-     * Deletes an existing BillRate model.
+     * Deletes an existing InitFee model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -104,15 +104,15 @@ class BillRateController extends Controller
     }
 
     /**
-     * Finds the BillRate model based on its primary key value.
+     * Finds the InitFee model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return BillRate the loaded model
+     * @return InitFee the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = BillRate::findOne($id)) !== null) {
+        if (($model = InitFee::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

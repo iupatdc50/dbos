@@ -30,10 +30,10 @@ $this->params['breadcrumbs'][] = $this->title;
 		],
 		'rowOptions' => function($model) {
 							$css = ['verticalAlign' => 'middle'];
-        					if(!isset($model->currentStatus) || ($model->currentStatus->member_status == 'I')) {
-//        						return ['class' => 'text-muted'];
+        					if(!isset($model->currentStatus) || ($model->currentStatus->member_status == 'I')) 
 								$css['class'] = 'text-muted';
-        					}
+        					else 
+        						$css['class'] = $model->isPastGracePeriodNotDropped() ? 'danger' : ($model->isDelinquentNotSuspended() ? 'warning' : 'default'); 
         					return $css;
     					},
         'columns' => [

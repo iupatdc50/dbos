@@ -20,6 +20,9 @@ use app\helpers\OptionHelper;
 /* @var $modelsAddress \yii\db\ActiveQuery */
 /* @var $modelPhone app\models\member\Phone */
 /* @var $modelsPhone \yii\db\ActiveQuery */
+/* @var $modelEmail \yii\db\ActiveQuery */
+/* @var $modelsEmail \yii\db\ActiveQuery */
+/* @var $modelStatus \yii\db\ActiveQuery */
 /* @var $modelsSpecialty \yii\db\ActiveQuery */
 /* @var $form yii\widgets\ActiveForm */
 ?>
@@ -53,8 +56,14 @@ use app\helpers\OptionHelper;
     
 	<?php endif ?>
     
-    <?= $form->field($model, 'ssnumber')->textInput(['maxlength' => 11]) ?>
+    <?= $form->field($model, 'application_dt')->widget(DateControl::className(), [
+    		'type' => DateControl::FORMAT_DATE,
+    ]) ?>
 
+	<?= $form->field($model, 'ssnumber')->textInput(['maxlength' => 11]) ?>
+
+    <?= $form->field($model, 'imse_id')->textInput(['maxlength' => 20]) ?>
+    
     <?= $form->field($model, 'last_nm')->textInput(['maxlength' => 30]) ?>
 
     <?= $form->field($model, 'first_nm')->textInput(['maxlength' => 30]) ?>
@@ -95,8 +104,6 @@ use app\helpers\OptionHelper;
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
-    <?= $form->field($model, 'imse_id')->textInput(['maxlength' => 20]) ?>
-    
     <hr>
 	    <div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
@@ -120,6 +127,9 @@ use app\helpers\OptionHelper;
     				'phone' => $modelPhone,
     			]
     	) ?>
+    	<hr>
+    	<?= $form->field($modelEmail, 'email')->textInput(['maxlength' => 50]) ?>
+    	<?= $form->field($modelStatus, 'lob_cd')->textInput(['maxlength' => 4]) ?>
     	</div>
 	<?php endif ?>
 
@@ -147,6 +157,13 @@ use app\helpers\OptionHelper;
 	    		]
 	    ) ?>
 	    <?= $this->render(
+	    		'../member-email/_grid',
+	    		[
+	    			'modelsEmail' => $modelsEmail,	
+	    			'relation_id' => $model->member_id,
+	    		]
+	    ) ?>
+        <?= $this->render(
 	    		'../member-specialty/_grid',
 	    		[
 	    			'modelsSpecialty' => $modelsSpecialty,	

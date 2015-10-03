@@ -4,13 +4,13 @@ use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $model app\models\value\BillRate */
+/* @var $model app\models\accounting\DuesRate */
 
-$this->title = 'Create Bill Rate';
-$this->params['breadcrumbs'][] = ['label' => 'Bill Rates', 'url' => ['index']];
+$this->title = 'Create Dues Rate';
+$this->params['breadcrumbs'][] = ['label' => 'Dues Rates', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="bill-rate-create">
+<div class="dues-rate-create">
 
     <h1><?= Html::encode($this->title) ?></h1>
 

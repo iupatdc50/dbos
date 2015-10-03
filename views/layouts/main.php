@@ -69,7 +69,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	                $menuItems[] = ['label' => 'Admin', 'url' => ['/admin'],
 	                ];
 	                $menuItems[] = [
-	                	'label' => 'Logout (' . Yii::$app->user->identity->username . ')',
+	                	'label' => 'Logout ' . Yii::$app->user->identity->username,
 	                    'url' => ['/site/logout'],
 	                    'linkOptions' => ['data-method' => 'post'],
 	                ];
@@ -92,6 +92,9 @@ app\assets\ApplicationUiAssetBundle::register($this);
        				<p class="pull-left">&copy; <?= date('Y') ?> 
        				   <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
        				</p>
+       				<?php if (!Yii::$app->user->isGuest): ?>
+	        			<p class="pull-right">Last logged in: <?= Yii::$app->session->get('user.last_login'); ?></p>
+    				<?php endif; ?>	
  			    </div>
 			</footer>
 		</div>

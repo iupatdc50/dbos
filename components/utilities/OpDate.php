@@ -20,6 +20,7 @@ class OpDate extends \DateTime
 	protected $_day;
 	protected $_hour;
 	protected $_minute;
+	protected $_second;
 	// protected $_ampm;
 	
 	/**
@@ -93,7 +94,7 @@ class OpDate extends \DateTime
 		if ($minute < 0 || $minute > 59) {
 			$outOfRange = TRUE;
 		}
-		if ($second < 0 || $second > 23) {
+		if ($second < 0 || $second > 59) {
 			$outOfRange = TRUE;
 		}
 		if ($outOfRange) {
@@ -123,7 +124,6 @@ class OpDate extends \DateTime
 	 *
 	 * @param string $modify
 	 *        	Standard strtotime add/sub expressions
-	 * @return DateTime
 	 */
 	public function modify($modify) {
 		$parts = explode ( ' ', $modify );
@@ -147,6 +147,13 @@ class OpDate extends \DateTime
 		// Pass all non-month arithmetic to parent
 		parent::modify ( $modify );
 		$this->refreshDateParts ();
+	}
+	
+	public function setToMonthEnd()
+	{
+		$this->modify('+1 month');
+		$this->setDate($this->_year, $this->_month, 1);
+		$this->modify('-1 day');
 	}
 	
 	/**
@@ -204,7 +211,9 @@ class OpDate extends \DateTime
 			if (! is_array ( $parts ) || count ( $parts ) != 3) {
 				throw new \yii\base\InvalidValueException ( "Expecting time as `HH:MM:SS`. Submitted: {$dateString}" );
 			}
-			$this->setTime ( $parts [0], $parts [1] );
+			$this->setTime ( $parts [0], $parts [1], $parts[2] );
+		} else {
+			$this->setTime (0, 0, 0);
 		}
 		return $this;
 	}
@@ -291,7 +300,7 @@ class OpDate extends \DateTime
 	 * @return string YYYY-MM-DD (ISO US English format)
 	 */
 	public function getMySqlDate($notime = TRUE) {
-		return $notime ? $this->format ( 'Y-m-d' ) : $this->format ( 'Y-m-d H:i' );
+		return $notime ? $this->format ( 'Y-m-d' ) : $this->format ( 'Y-m-d H:i:s' );
 	}
 	
 	/**
@@ -327,6 +336,7 @@ class OpDate extends \DateTime
 	private function refreshTimeParts() {
 		$this->_hour = ( int ) $this->format ( 'H' );
 		$this->_minute = ( int ) $this->format ( 'i' );
+		$this->_second = ( int ) $this->format ( 's' );
 	}
 	
 	/**

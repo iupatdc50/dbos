@@ -63,7 +63,7 @@ class Specialty extends \yii\db\ActiveRecord
     {
     	if (parent::beforeSave($insert)) {
 	    	if (!(isset($this->member) && ($this->member instanceof Member)))
-	    		throw new InvalidConfigException('No member object injected');
+	    		throw new \yii\base\InvalidConfigException('No member object injected');
     		if ($insert) 
     			$this->member_id = $this->member->member_id;
     		return true;
