@@ -10,6 +10,19 @@ use yii\helpers\Json;
 
 class AccountingController extends Controller
 {
+	
+	public $layout = 'accounting';
+	
+    /**
+     * @return mixed
+     */
+    public function actionIndex()
+    {
+        
+        return $this->render('index', [
+        ]);
+    }
+    
 	public function actionReinstate() {
 		$model = new ReinstateForm();
 		

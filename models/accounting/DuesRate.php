@@ -15,7 +15,7 @@ use app\models\value\RateClass;
  * @property string $rate_class
  * @property string $effective_dt
  * @property string $end_dt
- * @property string $rate
+ * @property number $rate
  *
  * @property Lob $lobCd
  * @property RateClass $rateClass

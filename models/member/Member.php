@@ -543,7 +543,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      */
     public function getDuesStartDt()
     {
-    	$dt = $this->getApplicationDtObject();
+    	$dt = clone $this->getApplicationDtObject();
     	if ($dt->getDay() > 20) 
     		$dt->modify('+1 month');
     	$dt->setDate($dt->getYear(), $dt->getMonth(), 1);
@@ -613,7 +613,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	return $result;	
     }
     
-    protected function getDuesPaidThruDtObject()
+    public function getDuesPaidThruDtObject()
     {
     	if (!isset($this->_dues_paid_thru_dt))
     		$this->_dues_paid_thru_dt = (new OpDate)->setFromMySql($this->dues_paid_thru_dt);

@@ -72,7 +72,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'shirt_size',
         	'pacTexts:ntext',
         	'application_dt:date',
-        	'init_dt:date',
+        		[
+        				'attribute' => 'init_dt',
+        				'format' => $model->isInApplication() ? NULL : 'date',
+        				'rowOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
+        				'value' => $model->isInApplication() ? '** In Application **' : $model->init_dt,
+    			],	
         	'specialtyTexts:ntext',
         ],
     ]) ?>

@@ -68,6 +68,14 @@ class Assessment extends \yii\db\ActiveRecord
             'created_by' => 'Created By',
         ];
     }
+    
+    /**
+     * @return ActiveQuery
+     */
+    public function getAllocatedPayments()
+    {
+    	return $this->hasMany(AssessmentAllocation::className(), ['assessment_id' => 'id'])->sum('allocation_amt');
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -92,4 +100,5 @@ class Assessment extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
+    
 }

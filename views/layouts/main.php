@@ -60,7 +60,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	                				['label' => 'JTP Projects', 'url' => ['/project-jtp/']],
 	                		],
 	                ];
-	                $menuItems[] = ['label' => 'Accounting', 'url' => ['/site/unavailable'],
+	                $menuItems[] = ['label' => 'Accounting', 'url' => ['/accounting/'],
 	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'accounting'),
 	                ];
 	                $menuItems[] = ['label' => 'Training', 'url' => ['/site/unavailable'],
