@@ -31,7 +31,7 @@ use kartik\widgets\SideNav;
 							],
 						],
 						[
-							'label' => 'Employer Remittance', 'icon' => '',
+							'label' => 'Employer Receipts', 'icon' => '', 'url' => 'receipt-contractor',
 						],
 						[
 							'label' => 'Reports',

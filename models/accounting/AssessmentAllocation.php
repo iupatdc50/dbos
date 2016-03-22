@@ -3,24 +3,17 @@
 namespace app\models\accounting;
 
 use Yii;
-use app\models\value\FeeType;
+use app\modules\admin\models\FeeType;
 
 /**
  * This is the model class for table "OtherAllocations".
  *
- * @property string $fee_type 
  * @property string $assessment_id
  *
+ * @property Assessment @assessment
  */
 class AssessmentAllocation extends BaseAllocation
 {
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'AssessmentAllocations';
-    }
     
     /**
      * @inheritdoc
@@ -28,8 +21,7 @@ class AssessmentAllocation extends BaseAllocation
     public function rules()
     {
         $this->_validationRules = [
-            [['fee_type', 'assessment_id'], 'required'],
-            [['fee_type'], 'exist', 'targetClass' => FeeType::className(), 'targetAttribute' => 'fee_type'],
+//            [['assessment_id'], 'required'],
         	[['assessment_id'], 'exist', 'targetClass' => Assessment::className(), 'targetAttribute' => 'id'],
         ];
         return parent::rules();
@@ -50,9 +42,9 @@ class AssessmentAllocation extends BaseAllocation
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getFeeType()
+    public function getAssessment()
     {
-    	return $this->hasOne(FeeType::className(), ['fee_type' => 'fee_type']);
+    	return $this->hasOne(Assessment::className(), ['id' => 'assessment_id']);
     }
     
     

@@ -12,25 +12,32 @@ use kartik\datecontrol\DateControl;
 <div class="reinstate-form">
 
     <?php $form = ActiveForm::begin([
-    		'layout' => 'horizontal',
-    		'id' => 'reinstate-receipt',
+//    		'layout' => 'horizontal',
+    		'id' => 'receipt-form',
+    		'options' => ['class' => 'ajax-create'], // Required for modal within an update
     		'enableClientValidation' => true,
     		
     ]); ?>
     
-    	<?= $form->field($model, 'receipt_nbr')->textInput();  ?>
-	    <?= $form->field($model, 'receipt_dt')->widget(DateControl::className(), [
-	    		'type' => DateControl::FORMAT_DATE,
-	    ])  ?>
-        <?= $form->field($model, 'total_amt')->textInput();  ?>
-        <?= $form->field($model, 'reinstate_fee')->textInput();  ?>
-        <?= $form->field($model, 'dues')->textInput();  ?>
-        <?= $form->field($model, 'other_fees')->textInput();  ?>
-        <?= $form->field($model, 'payment_method')->textInput();  ?>
-        <?= $form->field($model, 'notes')->textInput();  ?>
+    <?= $this->render('../receipt/_formfields', [
+    	'form' => $form,
+        'model' => $modelReceipt,
+    ]) ?>
 
-            <div class="form-group">
-        <?= Html::submitButton('Post', ['class' => 'btn btn-success']) ?>
+	<div class="panel panel-default">
+		<div class="panel-heading"><h4 class="panel-title"><i class="glyphicon glyphicon-tasks"></i> Reinstatement Fees</h4></div>
+	    <div class="panel-body">
+    
+    <?= $this->render('../receipt/_formalloc', [
+    		'form' => $form,
+    		'ixM' => -1,
+    		'modelReceipt' => $modelReceipt,
+    		'modelsAllocation' => $modelsAllocation, 
+    ]) ?>
+    
+    </div></div>
+    <div class="form-group">
+        <?= Html::submitButton('Reinstate', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

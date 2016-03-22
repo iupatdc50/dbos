@@ -8,7 +8,7 @@ use app\models\value\RateClass;
 
 
 /**
- * This is the model class for table "BillRates".
+ * This is the model class for table "DuesRates".
  *
  * @property integer $id
  * @property string $lob_cd
@@ -19,7 +19,6 @@ use app\models\value\RateClass;
  *
  * @property Lob $lobCd
  * @property RateClass $rateClass
- * @property FeeType $feeType
  */
 class DuesRate extends \yii\db\ActiveRecord
 {

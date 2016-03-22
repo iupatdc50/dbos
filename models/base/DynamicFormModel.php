@@ -7,20 +7,21 @@ use yii\helpers\ArrayHelper;
 /**
  * Special extension to Model adds a static function to populate an array of models 
  */
-class Model extends \yii\base\Model
+class DynamicFormModel extends \yii\base\Model
 {
 	/**
 	 * Creates and populates a set of models.
 	 *
 	 * @param string $modelClass
 	 * @param array $multipleModels
+	 * @param array $data
 	 * @return array
 	 */
-	public static function createMultiple($modelClass, $multipleModels = [])
+	public static function createMultiple($modelClass, $multipleModels = [], $data = null)
 	{
 		$model    = new $modelClass;
 		$formName = $model->formName();
-		$post     = Yii::$app->request->post($formName);
+		$post     = empty($data) ? Yii::$app->request->post($formName) : $data[$formName];
 		$models   = [];
 
 		if (! empty($multipleModels)) {

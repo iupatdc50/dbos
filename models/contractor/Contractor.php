@@ -23,6 +23,8 @@ use app\models\member\Employment;
  * @property Address[] $addresses
  * @property Phone[] $phones
  * @property Signatory[] $signatories
+ * @property integer $employeeCount
+ * @property Member[] $employees
  */
 class Contractor extends \yii\db\ActiveRecord
 {
@@ -163,6 +165,12 @@ class Contractor extends \yii\db\ActiveRecord
     			->viaTable('CurrentEmployees', ['employer' => 'license_nbr'])
     			->count()
     	; 
+    }
+    
+    public function getEmployees()
+    {
+    	return $this->hasMany(Member::className(), ['member_id' => 'member_id'])
+    			->viaTable('CurrentEmployees', ['employer' => 'license_nbr']);
     }
     
     /**

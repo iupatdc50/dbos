@@ -37,6 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'unallocated_amt',
             'created_at',
             'created_by',
+            'remarks:ntext',
         ],
     ]) ?>
 

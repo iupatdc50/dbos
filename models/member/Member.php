@@ -13,6 +13,7 @@ use app\models\base\iIdGeneratedInterface;
 use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
+use app\models\accounting\BaseAllocation;
 
 /**
  * This is the model class for table "Members".
@@ -46,6 +47,7 @@ use app\models\value\DocumentType;
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
  * @property CurrentEmployment $employer
+ * @property BaseAllocation[] $allocations
  * @property Note[] $notes
  */
 class Member extends \yii\db\ActiveRecord implements iNotableInterface
@@ -377,9 +379,31 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
+     * Add allocation to this member
+     * 
+     * @param BaseAllocation $alloc
+     * @throws \BadMethodCallException
+     * @return boolean
+     */
+    public function addAllocation($alloc)
+    {
+    	if (!($alloc instanceof BaseAllocation))
+    		throw new \BadMethodCallException('Not an instance of BaseAllocation');
+    	$alloc->member_id = $this->member_id;
+    	return $alloc->save();
+    }
+    
+    public function getAllocations()
+    {
+    	return $this->hasMany(BaseAllocation::className(), ['member_id' => 'member_id']);
+    }
+    
+    /**
      * Adds a journal note to this member
      * 
-     * @param Note $note
+     * @param BaseAllocation $alloc
+     * @throws \BadMethodCallException
+     * @return boolean
      */
     public function addNote($note)
     {

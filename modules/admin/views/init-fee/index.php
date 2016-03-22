@@ -1,35 +1,42 @@
 <?php
 
 use yii\helpers\Html;
-use yii\grid\GridView;
+use kartik\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Init Fees';
+$this->title = 'Initiation Fees';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="init-fee-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Create Init Fee', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+		'panel'=>[
+	        'type'=>GridView::TYPE_WARNING,
+	        'heading'=> $this->title,
+		    'after' => false,
+		],
+		'toolbar' => [
+			'content' => Html::a('Create Init Fee', ['create'], ['class' => 'btn btn-success']),
+		],
+    	'columns' => [
 
-            'id',
-            'lob_cd',
-            'member_class',
+    		'lob_cd',
+            [
+            		'attribute' => 'member_class',
+            		'value' => 'classCd.descrip',
+            ],
             'effective_dt:date',
             'end_dt:date',
             'fee',
             'dues_months',
-            'included',
+	        [
+	        	'attribute' => 	'included',
+	        	'class' => 'kartik\grid\BooleanColumn',
+        		'value' => function($data) {return ($data->included) == 'T' ? true : false;},
+	        ],
 
             ['class' => 'yii\grid\ActionColumn', 'template' => '{delete}',],
         ],

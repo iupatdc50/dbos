@@ -12,6 +12,9 @@ use app\models\accounting\Receipt;
  */
 class ReceiptSearch extends Receipt
 {
+	
+	public $payor_type_filter;
+	
     /**
      * @inheritdoc
      */
@@ -19,7 +22,7 @@ class ReceiptSearch extends Receipt
     {
         return [
             [['id', 'created_at', 'created_by'], 'integer'],
-            [['payor_nm', 'payment_method', 'payor_type', 'received_dt'], 'safe'],
+            [['payor_nm', 'payment_method', 'payor_type', 'received_dt', 'remarks'], 'safe'],
             [['received_amt', 'unallocated_amt'], 'number'],
         ];
     }
@@ -67,7 +70,8 @@ class ReceiptSearch extends Receipt
 
         $query->andFilterWhere(['like', 'payor_nm', $this->payor_nm])
             ->andFilterWhere(['like', 'payment_method', $this->payment_method])
-            ->andFilterWhere(['like', 'payor_type', $this->payor_type]);
+            ->andFilterWhere(['like', 'payor_type', $this->payor_type_filter])
+            ->andFilterWhere(['like', 'remarks', $this->remarks]);
 
         return $dataProvider;
     }

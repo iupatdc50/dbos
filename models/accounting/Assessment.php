@@ -3,6 +3,7 @@
 namespace app\models\accounting;
 
 use Yii;
+use app\modules\admin\models\FeeType;
 
 /**
  * This is the model class for table "Assessments".
@@ -49,7 +50,7 @@ class Assessment extends \yii\db\ActiveRecord
             [['purpose'], 'string'],
             [['created_at', 'created_by'], 'integer'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
-            [['fee_type'], 'exist', 'targetClass' => '\app\models\value\FeeType']
+            [['fee_type'], 'exist', 'targetClass' => FeeType::classname()],
         ];
     }
 

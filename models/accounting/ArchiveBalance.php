@@ -32,7 +32,7 @@ class ArchiveBalance extends \yii\db\ActiveRecord
             [['cutoff_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['balance_amt'], 'number'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
-            [['fee_type'], 'exist', 'targetClass' => '\app\models\value\FeeType']
+            [['fee_type'], 'exist', 'targetClass' => '\app\modules\admin\models\FeeType']
         ];
     }
 

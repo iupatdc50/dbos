@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\value;
+namespace app\modules\admin\models;
 
 use Yii;
 

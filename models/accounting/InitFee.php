@@ -3,6 +3,7 @@
 namespace app\models\accounting;
 
 use Yii;
+use app\models\member\ClassCode;
 
 /**
  * This is the model class for table "InitFees".
@@ -16,8 +17,8 @@ use Yii;
  * @property integer $dues_months
  * @property string $included
  *
- * @property Lobs $lobCd
- * @property MemberClassCodes $memberClass
+ * @property Lob $lobCd
+ * @property ClassCode $classCd
  */
 class InitFee extends \yii\db\ActiveRecord
 {
@@ -74,8 +75,8 @@ class InitFee extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMemberClass()
+    public function getClassCd()
     {
-        return $this->hasOne(MemberClassCodes::className(), ['member_class_cd' => 'member_class']);
+        return $this->hasOne(ClassCode::className(), ['member_class_cd' => 'member_class']);
     }
 }

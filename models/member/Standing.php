@@ -11,6 +11,7 @@ use app\models\accounting\DuesRateFinder;
 /** 
  * Model class for managing the financial status of a member
  * 
+ * Requires the injection of a Member and a DuesRateFinder object 
  */
 class Standing extends Model
 {
@@ -41,6 +42,11 @@ class Standing extends Model
 			throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
 	}
 	
+	/**
+	 * Determines number of dues months owed by member. If paid thru is future, then returns zero.
+	 *  
+	 * @return number
+	 */
 	public function getMonthsToCurrent()
 	{
 		return ($this->getCurrentMonthEnd() > $this->member->duesPaidThruDtObject) 
@@ -48,6 +54,11 @@ class Standing extends Model
 			: 0;
 	}
 	
+	/**
+	 * Returns owed dues period into a date range
+	 *   
+	 * @return string
+	 */
 	public function getMonthsToCurrentDescrip()
 	{
 		$start = $this->member->duesPaidThruDtObject;
@@ -55,6 +66,11 @@ class Standing extends Model
 		return $start->getMonthName(true) . ' ' . $start->getYear() . ' - ' . $end->getMonthName(true) . ' ' . $end->getYear();
 	}
 	
+	/**
+	 * Returns total outstanding dues owed. If paid thru is future, returns 0.00
+	 * 
+	 * @return number
+	 */
 	public function getDuesBalance()
 	{
 		return ($this->getCurrentMonthEnd() > $this->member->duesPaidThruDtObject) 
@@ -76,6 +92,11 @@ class Standing extends Model
 		return $this->_today;
 	}
 	
+	/**
+	 * Returns the last day of the current month
+	 * 
+	 * @return \app\components\utilities\OpDate
+	 */
 	private function getCurrentMonthEnd()
 	{
 		if(!isset($this->_currentMonthEnd)) {

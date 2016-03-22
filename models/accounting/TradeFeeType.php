@@ -1,19 +1,17 @@
 <?php
 
-namespace app\modules\admin\models;
+namespace app\models\accounting;
 
 use Yii;
 
 /**
- * This is the model class for table "TradeFeeTypes".
+ * This is the model class for table "TradeFeeTypesExt".
  *
  * @property string $lob_cd
  * @property string $fee_type
+ * @property string $descrip
  * @property string $employer_remittable
  * @property string $member_remittable
- *
- * @property Lobs $lobCd
- * @property FeeTypes $feeType
  */
 class TradeFeeType extends \yii\db\ActiveRecord
 {
@@ -22,7 +20,7 @@ class TradeFeeType extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'TradeFeeTypes';
+        return 'TradeFeeTypesExt';
     }
 
     /**
@@ -31,10 +29,11 @@ class TradeFeeType extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['lob_cd', 'fee_type'], 'required'],
+            [['lob_cd', 'fee_type', 'descrip'], 'required'],
             [['employer_remittable', 'member_remittable'], 'string'],
             [['lob_cd'], 'string', 'max' => 4],
-            [['fee_type'], 'string', 'max' => 2]
+            [['fee_type'], 'string', 'max' => 2],
+            [['descrip'], 'string', 'max' => 50]
         ];
     }
 
@@ -44,26 +43,13 @@ class TradeFeeType extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'lob_cd' => 'Local',
+            'lob_cd' => 'Lob Cd',
             'fee_type' => 'Fee Type',
+            'descrip' => 'Descrip',
             'employer_remittable' => 'Employer Remittable',
             'member_remittable' => 'Member Remittable',
         ];
     }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getLobCd()
-    {
-        return $this->hasOne(Lobs::className(), ['lob_cd' => 'lob_cd']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getFeeType()
-    {
-        return $this->hasOne(FeeTypes::className(), ['fee_type' => 'fee_type']);
-    }
+    
+    
 }

@@ -75,7 +75,16 @@ app\assets\ApplicationUiAssetBundle::register($this);
 							'icon' => 'usd',
 							'items' => [
 								['label' => 'Rate Classes', 'url'=>'#'],
-								['label' => 'Fee Types', 'url'=>'#'],
+								[
+										'label' => 'Fee Types', 
+										'url' => '/admin/fee-type',
+										'active' => (yii::$app->requestedRoute == 'admin/fee-type'),
+								],
+								[
+										'label' => 'Trade Fee Options', 
+										'url' => '/admin/trade-fee',
+										'active' => (yii::$app->requestedRoute == 'admin/trade-fee'),
+								],
 								[
 									'label' => 'Initiation Fees (APF)', 
 									'url'=> '/admin/init-fee', 

@@ -4,8 +4,9 @@ namespace app\models\accounting;
 
 use Yii;
 use app\models\accounting\DuesRateFinder;
-use app\models\member\Member;
+use app\models\member\Standing;
 use app\components\utilities\OpDate;
+use app\models\member\app\models\member;
 
 /**
  * This is the model class for table "DuesAllocations".
@@ -13,7 +14,6 @@ use app\components\utilities\OpDate;
  * @property integer $months
  * @property string $paid_thru_dt
  * 
- * @property Member $member
  */
 class DuesAllocation extends BaseAllocation
 {
@@ -24,19 +24,17 @@ class DuesAllocation extends BaseAllocation
 	public $duesRateFinder;
 	
 	public $unalloc_remainder;
+	/**
+	 * @var string Represents the current dues 
+	 */
+	public $start_dt;
 			
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'DuesAllocations';
-    }
-
 	public function init()
 	{
 		if(!(isset($this->duesRateFinder) && ($this->duesRateFinder instanceof DuesRateFinder)))
 			throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
+		if(!(isset($this->start_dt)))
+			$this->start_dt = $this->allocatedMember->member->dues_paid_thru_dt;
 	}
 	
     /**
@@ -84,15 +82,20 @@ class DuesAllocation extends BaseAllocation
     	}
     }
     */
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getMember()
-    {
-        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
-    }
     
+	/**
+	 * Uses Standing class to estimate the dues allocation for a member
+	 * 
+	 * @return number|NULL
+	 */
+    public function estimateAlloc()
+    {
+    	if (!isset($this->alloc_memb_id))
+    		return null;
+    	$standing = new Standing(['member' => $this->allocatedMember->member, 'duesRateFinder' => $this->duesRateFinder]);
+    	return $standing->duesBalance;
+    }
+
 	/**
 	 * Calculates number of months covered by allocation_amt
 	 * 
@@ -104,7 +107,7 @@ class DuesAllocation extends BaseAllocation
     	$tab = $this->allocation_amt;
     	$months = 0;
     	/* @var \yii\db\DataReader $periods */
-    	$periods = $this->duesRateFinder->getRatePeriods($this->member->dues_paid_thru_dt);
+    	$periods = $this->duesRateFinder->getRatePeriods($this->start_dt);
     	foreach ($periods as $period) {
     		if($period['max_in_period'] <= $tab) {
     			$months += $period['months_in_period'];
@@ -132,7 +135,7 @@ class DuesAllocation extends BaseAllocation
     {
     	if ($months === null)
     		$months = $this->calcMonths();
-    	$paid_thru = (new OpDate)->setFromMySql($this->member->dues_paid_thru_dt);
+    	$paid_thru = (new OpDate)->setFromMySql($this->start_dt);
     	$paid_thru->modify('+' . $months . ' month');
     	return $paid_thru->getMySqlDate();
     }

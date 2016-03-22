@@ -20,10 +20,10 @@ use kartik\grid\GridView;
 			'content' => 
 				Html::button('<i class="glyphicon glyphicon-repeat"></i>&nbsp;Reinstate', 
         			['value' => Url::to(["/accounting/reinstate", 'member_id'  => $id]), 
-            		'id' => 'suspendButton',
+            		'id' => 'reinstateButton',
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Reinstate',
-            		'disabled' => true,
+//            		'disabled' => true,
 //            		'disabled' => ($status == 'Active'),
     			])
 				. Html::button('<i class="glyphicon glyphicon-warning-sign"></i>&nbsp;Suspend', 
@@ -39,7 +39,7 @@ use kartik\grid\GridView;
             		'id' => 'dropButton',
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Drop',	
-            		'disabled' => true,
+//            		'disabled' => true,
 //            		'disabled' => ($status == 'Inactive'),
             	]),
 		],

@@ -5,9 +5,11 @@ namespace app\modules\admin\controllers;
 use Yii;
 use app\models\accounting\DuesRate;
 use app\models\accounting\DuesRateSearch;
+use app\models\value\Lob;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 
 /**
  * DuesRateController implements the CRUD actions for DuesRate model.
@@ -34,10 +36,12 @@ class DuesRateController extends Controller
     {
         $searchModel = new DuesRateSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
+        $lobPicklist = ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'lob_cd');
+        
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+        	'lobPicklist' => $lobPicklist,
         ]);
     }
 

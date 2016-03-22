@@ -3,34 +3,45 @@
 namespace app\models\accounting;
 
 use Yii;
-use app\models\contractor\Contractor;
+use \app\models\accounting\ResponsibleEmployer;
+use \app\models\contractor\Contractor;
 
-/**
- * 
- * @property Contractor $contractor
- *
- */
 class ReceiptContractor extends Receipt
 {
-	public $license_nbr;
 	
+	protected $_remit_filter = 'employer_remittable';
 	/**
-	 * @inheritdoc
+	 * Injected employer object
+	 * @var ResponsibleEmployer
 	 */
-	public function rules()
-	{
-		$rules = parent::rules();
-		$rules[] = [['license_nbr'], 'required'];
-		return $rules;
-	}
+	public $responsible;
+	public $fee_types = [];
 	
-	/**
-	 * @return \yii\db\ActiveQuery
-	 */
-	public function getContractor()
-	{
-		return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
-	}
-	
-	
+    public function rules()
+    {
+        $this->_validationRules = [
+        	[['fee_types'], 'safe'],
+        ];
+        return parent::rules();
+    }
+    
+    public function beforeSave($insert)
+    {
+    	if (parent::beforeSave($insert)) {
+			if(!isset($this->responsible) && ($this->responsible instanceof ResponsibleEmployer))
+				throw new \yii\base\InvalidConfigException('No responsible employer object injected');
+    		if ($insert) {
+    			if (isset($this->payor_nm)) {
+    				$this->payor_type = self::PAYOR_OTHER;
+    			} else {
+    				$this->payor_type = self::PAYOR_CONTRACTOR;
+    				$this->payor_nm = $this->responsible->employer->contractor;
+    			}
+    		}
+    		return true;
+    	}
+    	return false;	 
+    }
+
+    
 }

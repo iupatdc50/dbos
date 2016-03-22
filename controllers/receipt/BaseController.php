@@ -1,19 +1,26 @@
 <?php
 
-namespace app\modules\admin\controllers;
+namespace app\controllers\receipt;
 
 use Yii;
-use app\models\accounting\InitFee;
-use yii\data\ActiveDataProvider;
+use app\models\accounting\Receipt;
+use app\models\accounting\ReceiptSearch;
+use yii\base\InvalidCallException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\base\yii\base;
+
 
 /**
- * InitFeeController implements the CRUD actions for InitFee model.
+ * BaseController implements the CRUD actions for Receipt model.
  */
-class InitFeeController extends Controller
+class BaseController extends Controller
 {
+	
+	public $layout = 'accounting';
+	public $payor_type_filter = null;
+			
     public function behaviors()
     {
         return [
@@ -25,24 +32,26 @@ class InitFeeController extends Controller
             ],
         ];
     }
-
+    
     /**
-     * Lists all InitFee models.
+     * Lists all Receipt models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => InitFee::find(),
-        ]);
-        
+    	if (!isset($this->payor_type_filter))
+    		throw new InvalidCallException('Index action cannot be called directly fron this controller');
+        $searchModel = new ReceiptSearch(['payor_type_filter' => $this->payor_type_filter]);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
         return $this->render('index', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
     /**
-     * Displays a single InitFee model.
+     * Displays a single Receipt model.
      * @param integer $id
      * @return mixed
      */
@@ -54,25 +63,7 @@ class InitFeeController extends Controller
     }
 
     /**
-     * Creates a new InitFee model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new InitFee();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Updates an existing InitFee model.
+     * Updates an existing Receipt model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -91,7 +82,7 @@ class InitFeeController extends Controller
     }
 
     /**
-     * Deletes an existing InitFee model.
+     * Deletes an existing Receipt model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -104,18 +95,16 @@ class InitFeeController extends Controller
     }
 
     /**
-     * Finds the InitFee model based on its primary key value.
+     * Finds the Receipt model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return InitFee the loaded model
+     * @return Receipt the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = InitFee::findOne($id)) !== null) {
-            return $model;
-        } else {
+        if (($model = Receipt::findOne($id)) == null) 
             throw new NotFoundHttpException('The requested page does not exist.');
-        }
+        return $model;
     }
 }
