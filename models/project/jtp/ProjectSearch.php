@@ -34,7 +34,7 @@ class ProjectSearch extends Project
     }
     
     /**
-     * Builds serach data provider
+     * Builds search data provider
      *
      * @see \yii\base\Component::behaviors()
      */

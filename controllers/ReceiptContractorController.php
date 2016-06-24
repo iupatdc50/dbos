@@ -7,12 +7,14 @@ use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\AllocatedMember;
+use app\models\accounting\StagedAllocationSearch;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\DuesAllocation;
 use \app\models\member\Member;
 use \app\models\accounting\DuesRateFinder;
 use yii\helpers\ArrayHelper;
+use app\models\accounting\StagedAllocation;
 
 
 class ReceiptContractorController extends \app\controllers\receipt\BaseController
@@ -64,7 +66,11 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 								}
 							}
 							$transaction->commit();
-							return $this->redirect(['itemize', 'id' => $model->id]);
+							return $this->redirect([
+									'itemize', 
+									'id' => $model->id,
+									'fee_types' => $model->fee_types,
+							]);
 						}
 							
 					}
@@ -83,24 +89,19 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 		
 	}
 	
-	public function actionItemize($id)
+	public function actionItemize($id, array $fee_types)
 	{
 		$modelReceipt = $this->findModel($id);
-		$modelsMember = $modelReceipt->members;
-		$modelsAllocation = [];
-		$oldAllocs = [];
-		
-		// Assume allocated members is generated on create
-		foreach ($modelsMember as $ixM => $member) {
-			$allocs = $member->allocations;
-			$modelsAllocation[$ixM] = $allocs;
-			$oldAllocs = ArrayHelper::merge(ArrayHelper::index($allocs, 'id'), $oldAllocs);
-		}
+		if(!StagedAllocation::makeTable($id))
+			throw new InvalidConfigException('Could not produce staged allocations for: ' . $id);
+		$searchAlloc = new StagedAllocationSearch();
+		$allocProvider = $searchAlloc->search(Yii::$app->request->queryParams);
 
         return $this->render('itemize', [
             'modelReceipt' => $modelReceipt,
-        	'modelsMember' => $modelsMember,
-        	'modelsAllocation' => (empty($modelsAllocation)) ? [[new BaseAllocation]] : $modelsAllocation,
+        	'searchAlloc' => $searchAlloc,
+        	'allocProvider' => $allocProvider,
+        	'fee_types' => $fee_types,
         ]);
 	}
 	

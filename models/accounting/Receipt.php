@@ -165,7 +165,7 @@ class Receipt extends \yii\db\ActiveRecord
     public function getFeeOptions($lob_cd)
     {
     	if(!isset($this->_remit_filter))
-    		throw new ConfigurationException('Unknown remittable filter field');
+    		throw new yii\base\InvalidConfigException('Unknown remittable filter field');
     	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
     }
     

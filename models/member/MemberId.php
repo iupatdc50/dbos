@@ -7,7 +7,7 @@ use Yii;
 class MemberId implements \app\models\base\iIdInterface
 {
 	public function newId($seq = NULL) {
-		$db = yii::$app->db;
+		$db = Yii::$app->db;
 		$db->createCommand("CALL NewMemberID (:seq, @out)")
 			->bindValue(':seq', $seq)
 			->execute();
