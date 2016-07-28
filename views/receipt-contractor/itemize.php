@@ -7,11 +7,8 @@ use yii\helpers\Url;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
 use kartik\grid\GridView;
-use wbraganca\dynamicform\DynamicFormWidget;
+use yii\bootstrap\Modal;
 
-
-// The controller action that will render the list
-$url = Url::to(['/member/member-list']);
 
 $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
 $this->params['breadcrumbs'][] = ['label' => 'Employer Receipts', 'url' => ['index']];
@@ -20,6 +17,22 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 <div class="receipt-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
+    
+            <div><p>
+					<?= Html::button('<i class="glyphicon glyphicon-import"></i>&nbsp;Import',
+							['value' => Url::to(["*", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
+									'id' => 'importButton',
+									'class' => 'btn btn-default btn-modal',
+									'data-title' => 'Import',
+							]); ?>
+            		<?= Html::button('<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
+							['value' => Url::to(["*", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
+									'id' => 'printButton',
+									'class' => 'btn btn-default btn-modal',
+									'data-title' => 'Print',
+							]); ?>
+			</p></div>
+    
     
     <?= DetailView::widget([
         'model' => $modelReceipt,
@@ -34,7 +47,12 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
             		'value' => Html::encode($modelReceipt->methodText) . ($modelReceipt->payment_method != '1' ? ' [' . $modelReceipt->tracking_nbr . ']' : ''),
    			],
             'received_amt',
-            'unallocated_amt',
+            [
+            		'attribute' => 'outOfBalance',
+            		'label' => 'Out of Balance',
+           // 		'rowOptions' => ($modelReceipt->outOfBalance != 0.00) ? ['class' => 'danger'] : ['class' => 'success'],
+            		'rowOptions' => ['class' => 'danger'],
+        	],
         ],
     ]) ?>
     
@@ -54,28 +72,41 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
         ];
     	$feeColumns = [];
     	foreach ($fee_types as $fee_type) {
-    		$feeColumns[] = ['attribute' => $fee_type];
+    		$feeColumns[] = [
+    				'attribute' => $fee_type,
+    				'header' => strtoupper($fee_type),
+    				'class' => 'kartik\grid\EditableColumn',
+    				'editableOptions' => [
+    						'header' => strtoupper($fee_type),
+    						'inputType' => \kartik\editable\Editable::INPUT_TEXT,
+    				],
+    				'hAlign' => 'right',
+    				'vAlign' => 'middle',
+    				'format' => ['decimal', 2],
+    		];
     	} 
     	$actionColumn[] = [
-					'class' => \yii\grid\ActionColumn::className(),
-					'controller' => 'member-address/create',
+					'class' => 'kartik\grid\ActionColumn',
+					'controller' => 'staged-allocation',
 					'template' => '{delete}',
 					'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
-							['value' => Url::to(["/member-address/create", 'relation_id'  => $modelReceipt->id]),
-									'id' => 'employeeAddButton',
+							['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
+									'id' => 'allocationCreateButton',
 									'class' => 'btn btn-default btn-modal btn-embedded',
-									'data-title' => 'Employee',
+									'data-title' => 'Allocation',
 							]),
 				];
     ?>
     
     <?= GridView::widget([
+    	'id' => 'itemize-grid',
         'dataProvider' => $allocProvider,		
         'filterModel' => $searchAlloc,
  		'filterRowOptions'=>['class'=>'filter-row'],
+    	'pjax' => true,
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
-	        'heading'=> '<i class="glyphicon glyphicon-task"></i>&nbsp;Receipt Allocations',
+	        'heading'=> '<i class="glyphicon glyphicon-tasks"></i>&nbsp;Receipt Allocations',
 				'before' => false,
 				'after' => false,
 		],
@@ -86,3 +117,4 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
         
     
 </div>
+<?= $this->render('../partials/_modal') ?>

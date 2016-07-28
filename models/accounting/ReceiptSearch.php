@@ -49,6 +49,7 @@ class ReceiptSearch extends Receipt
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+        	'sort' => ['defaultOrder' => ['received_dt' => SORT_DESC]],
         ]);
 
         $this->load($params);
@@ -64,8 +65,6 @@ class ReceiptSearch extends Receipt
             'received_dt' => $this->received_dt,
             'received_amt' => $this->received_amt,
             'unallocated_amt' => $this->unallocated_amt,
-            'created_at' => $this->created_at,
-            'created_by' => $this->created_by,
         ]);
 
         $query->andFilterWhere(['like', 'payor_nm', $this->payor_nm])

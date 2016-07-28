@@ -150,9 +150,9 @@ class Receipt extends \yii\db\ActiveRecord
     public function getPayorOptions()
     {
     	return [
-    			self::PAYOR_CONTRACTOR,
-    			self::PAYOR_MEMBER,
-    			self::PAYOR_OTHER,
+    			self::PAYOR_CONTRACTOR => 'Contractor',
+    			self::PAYOR_MEMBER => 'Member',
+    			self::PAYOR_OTHER => 'Other',
     	];
     }
     
@@ -169,5 +169,21 @@ class Receipt extends \yii\db\ActiveRecord
     	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
     }
     
+    public function getAllocatedMembers()
+    {
+    	return $this->hasMany(AllocatedMember::className(), ['receipt_id' => 'id']);
+    }
+    
+    public function getTotalAllocation()
+    {
+    	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])
+    				->via('allocatedMembers')
+    				->sum('allocation_amt');
+    }
+    
+    public function getOutOfBalance()
+    {
+    	return $this->received_amt - $this->totalAllocation;
+    }
     
 }

@@ -39,15 +39,7 @@ class BaseController extends Controller
      */
     public function actionIndex()
     {
-    	if (!isset($this->payor_type_filter))
-    		throw new InvalidCallException('Index action cannot be called directly fron this controller');
-        $searchModel = new ReceiptSearch(['payor_type_filter' => $this->payor_type_filter]);
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+    	return $this->redirect("/accounting");
     }
 
     /**

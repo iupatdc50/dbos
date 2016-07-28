@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\controllers\base\SummaryController;
 use Yii;
+use app\models\member\Member;
 use app\models\member\Employment;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -63,6 +64,30 @@ class EmploymentController extends SummaryController
 			return $this->goBack();
 		}
 		return $this->renderAjax('terminate', compact('model'));
+	}
+	
+	/**
+	 * List builder for employee pickllist.  Builds JSON encoded array:
+	 * ['results'] key provides progressive results. If a member_id is provided,
+	 * 			   then this key provides the member_id and member's full name
+	 *
+	 * @param string|array $search Criteria used.
+	 * @param string $license_nbr Contractor who employs these members
+	 * @param string $member_id Selected member's member_id
+	 */
+	public function actionEmployeeList($search = null, $employer = null, $member_id = null)
+	{
+		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+		$out = ['results' => ['id' => '', 'text' => '']];
+		if (!is_null($search)) {
+			$condition = (is_null($employer)) ? $search : ['full_nm' => $search, 'employer' => $employer];
+			$data = Employment::listEmployees($condition);
+			$out['results'] = array_values($data);
+		}
+		elseif (!is_null($member_id) && ($member_id <> '0')) {
+			$out['results'] = ['member_id' => $member_id, 'text' => Member::findOne($member_id)->full_nm];
+		}
+		return $out;
 	}
 	
 	protected function findCurrent($id)

@@ -72,4 +72,9 @@ class AllocatedMember extends \yii\db\ActiveRecord
     	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id']);
     }
     
+    public function getTotalAllocation()
+    {
+    	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])->sum('allocation_amt');
+    }
+    
 }

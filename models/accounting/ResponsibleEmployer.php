@@ -11,7 +11,7 @@ use \app\models\contractor\Contractor;
  * @property integer $receipt_id
  * @property string $license_nbr
  *
- * @property Receipts $receipt
+ * @property Receipt $receipt
  * @property Contractor $employer
  */
 class ResponsibleEmployer extends \yii\db\ActiveRecord

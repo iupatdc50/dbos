@@ -42,6 +42,5 @@ class ReceiptContractor extends Receipt
     	}
     	return false;	 
     }
-
     
 }

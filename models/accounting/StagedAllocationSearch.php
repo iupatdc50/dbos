@@ -12,10 +12,6 @@ use app\models\member\Member;
  */
 class StagedAllocationSearch extends StagedAllocation
 {
-	//Search place holders
-	public $reportId;
-	public $fullName;
-	
 	
 	/**
 	 * @inheritdoc

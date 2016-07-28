@@ -20,18 +20,12 @@ use kartik\widgets\SideNav;
 							'label' => 'Member Assessment', 'icon' => '',
 						],
 						[
-							'label' => 'Member Payment', 'icon' => '',
-						],
-						[
 							'label' => 'Employer Invoices', 
 							'icon' => '',
 							'items' => [
 								['label' => 'All Employers'],		
 								['label' => 'Choose Employer'],		
 							],
-						],
-						[
-							'label' => 'Employer Receipts', 'icon' => '', 'url' => 'receipt-contractor',
 						],
 						[
 							'label' => 'Reports',
@@ -49,9 +43,6 @@ use kartik\widgets\SideNav;
 			?>
 		</div>
 		<div class="col-sm-9">
-	        <?= Breadcrumbs::widget([
-	            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-	        ]) ?>
 			<?= $content; ?>
 		</div>
 	

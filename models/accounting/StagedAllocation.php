@@ -4,7 +4,7 @@ namespace app\models\accounting;
 
 use Yii;
 use app\models\member\Member;
-use app\modules\admin\models\FeeType;
+use app\models\accounting\BaseAllocation;
 
 /**
  * This is the model class for the StagedAllocation_ tables, which flattens the contractor
@@ -18,6 +18,11 @@ use app\modules\admin\models\FeeType;
  */
 class StagedAllocation extends \yii\db\ActiveRecord
 {
+	//Used to make variable columns update safe in rules()
+	public $fee_types = [];
+	//Search place holders
+	public $reportId;
+	public $fullName;
 	
 	public static function primaryKey()
 	{
@@ -36,15 +41,24 @@ class StagedAllocation extends \yii\db\ActiveRecord
     }
     
     /**
+    public function __construct($fee_types = [], $config = [])
+    {
+		if (empty($fee_types))
+			throw new \BadMethodCallException('Missing parameter fee_types');
+		$this->_fee_types = $fee_types;
+		parent::__construct($config);
+    }
+    */
+    
+    /**
      * @inheritdoc
      */
     public function rules()
     {
-    	$fee_columns = FeeType::find()->select('fee_type')->asArray;
-    	return [
+		return [
     			[['alloc_memb_id'], 'integer'],
     			[['member_id', 'fullName', 'reportId'], 'safe'],
-    			[$fee_columns, 'number'],
+    			[$this->fee_types, 'number'],
     	];
     }    
     
@@ -56,7 +70,7 @@ class StagedAllocation extends \yii\db\ActiveRecord
     public static function makeTable($receipt_id)
     {
     	if(!isset(Yii::$app->user->id))
-    		throw new yii\base\InvalidConfigException('No user ID exists.  Login required.');
+    		throw new \yii\base\InvalidConfigException('No user ID exists.  Login required.');
     	
     	$db = Yii::$app->db;
     	$db->createCommand('DROP TABLE IF EXISTS ' . self::tableName())
@@ -68,13 +82,32 @@ class StagedAllocation extends \yii\db\ActiveRecord
     	   		  ])
     	   		  ->execute();
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getMember()
     {
     	return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+    }
+    
+    public function beforeSave($insert)
+    {
+    	if(parent::beforeSave($insert)) {
+    		if (!$insert) {
+    			
+    		}
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public function beforeDelete()
+    {
+    	$allocs = BaseAllocation::findAll(['alloc_memb_id' => $this->alloc_memb_id]);
+    	foreach ($allocs as $alloc)
+    		$alloc->delete();
+    	return parent::beforeDelete();
     }
     
 }
