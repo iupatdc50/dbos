@@ -2,12 +2,16 @@
 
 namespace app\controllers;
 
-use app\controllers\base\SubmodelController;
 use Yii;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
+use kartik\grid\EditableColumnAction;
+use app\controllers\base\SubmodelController;
 use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocationBuilder;
+use app\models\accounting\StagedAllocation;
 
 /**
  * StagedAllocationController implements the CRUD actions for accouting\StagedAllocation model.
@@ -46,6 +50,36 @@ class StagedAllocationController extends SubmodelController
 		return $this->renderAjax('add', compact('model', 'license_nbr'));
 	
 	}	
+	
+	/**
+	 * Edits Ajax updateable amount columns staged allocation grid
+	 */
+	public function actionEditAlloc()
+	{
+		if(Yii::$app->request->post('hasEditable')) {
+			$id = Yii::$app->request->post('editableKey');
+			$model = $this->findModel($id);
+			// Assume only 1 allocation column updated at a time
+			$attr = key(current($_POST['StagedAllocation']));
+			// Make column update safe in model
+			$model->fee_types = [$attr];
+			$out = Json::encode(['output'=>'', 'message'=>'']);
+			// $posted is the posted data for StagedAllocation without any indexes
+			$posted = current($_POST['StagedAllocation']);
+			// $post is the converted array for single model validation
+			$post = ['StagedAllocation' => $posted];
+			$message = '';
+				
+			if ($model->load($post)) {
+				$model->save();
+				$output = Yii::$app->formatter->asDecimal($model->$attr, 2);
+				$out = Json::encode(['output' => $output, 'message' => $message]);
+			}
+			echo $out;
+			return;
+		}
+		
+	}
 	
 	protected function findReceiptModel($id)
 	{

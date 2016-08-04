@@ -19,6 +19,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     <h1><?= Html::encode($this->title) ?></h1>
     
             <div><p>
+            		<?= Html::a('Post', ['*'], ['class' => 'btn btn-primary']) ?>
 					<?= Html::button('<i class="glyphicon glyphicon-import"></i>&nbsp;Import',
 							['value' => Url::to(["*", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
 									'id' => 'importButton',
@@ -79,6 +80,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     				'editableOptions' => [
     						'header' => strtoupper($fee_type),
     						'inputType' => \kartik\editable\Editable::INPUT_TEXT,
+    						'formOptions' => ['action' => '/staged-allocation/edit-alloc'],
     				],
     				'hAlign' => 'right',
     				'vAlign' => 'middle',

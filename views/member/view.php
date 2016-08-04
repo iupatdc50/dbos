@@ -114,6 +114,10 @@ $this->params['breadcrumbs'][] = $this->title;
 				'content' => '<div data-url='.$classUrl.'>loading...</div>',
 			],
 			[
+				'header' => Html::tag('span', 'Balances'),
+				'content' => '<div data-url=*>loading...</div>',
+			],
+			[
 				'header' => Html::tag('span', 'Compliance: '),
 				'content' => 'Feature not yet supported',
 			],

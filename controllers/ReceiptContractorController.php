@@ -80,32 +80,6 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 		$searchAlloc = new StagedAllocationSearch(['fee_types' => $fee_types]);
 		$allocProvider = $searchAlloc->search(Yii::$app->request->queryParams);
 		
-		//Ajax updateables
-		if(Yii::$app->request->post('hasEditable')) {
-			$alloc_memb_id = Yii::$app->request->post('editableKey');
-			$modelAlloc = StagedAllocation::findOne($alloc_memb_id);
-			$modelAlloc->fee_types = $fee_types;
-			$out = Json::encode(['output'=>'', 'message'=>'']);
-			// $posted is the posted data for StagedAllocation without any indexes
-			$posted = current($_POST['StagedAllocation']);
-			// $post is the converted array for single model validation
-			$post = ['StagedAllocation' => $posted];
-			
-			if ($modelAlloc->load($post)) {
-				$modelAlloc->save();
-				$output = $message = '';
-				foreach ($fee_types as $fee_type) {
-					if (isset($posted[$fee_type])) {
-						$output = Yii::$app->formatter->asDecimal($modelAlloc->$fee_type, 2);
-//						$message = $fee_type . ' was changed';
-					}
-				}
-				$out = Json::encode(['output' => $output, 'message' => $message]);
-			}			
-			echo $out;
-			return;
-		}
-
         return $this->render('itemize', [
             'modelReceipt' => $modelReceipt,
         	'searchAlloc' => $searchAlloc,
