@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.5.5xx Notes
+
+. Added receipt staging functionality
+. Added Excel import for contractor receipts
+. Added Excel export for remittance template
+
 0.9.5.101 Notes
 
 . Revised login layout and last login processing
