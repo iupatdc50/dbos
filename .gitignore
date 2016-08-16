@@ -42,4 +42,5 @@ composer.lock
 /web/saa/*
 /web/idc/*
 /web/assets/*
+/web/uploads/*
 /web/index-test.php

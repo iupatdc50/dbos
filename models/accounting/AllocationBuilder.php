@@ -11,6 +11,8 @@ use app\models\accounting\DuesAllocation;
 
 class AllocationBuilder extends Model
 {
+	private $_errors;
+	
 	public function prepareAllocs(AllocatedMember $memb, $fee_types = [])
 	{
 		foreach ($fee_types as $fee_type) {
@@ -30,13 +32,36 @@ class AllocationBuilder extends Model
 				]);
 			}
 			$alloc->fee_type = $fee_type;
-			try {
-				$alloc->save();
-			} catch (\Exception $e) {
-				$errors = print_r($alloc->errors, true);
-				return $errors;				
-			}
+			if (!$this->saveAlloc($alloc))
+				return $this->_errors;
 		}
 		return true;
-	}	
+	}
+
+	public function prepareAllocsFromArray(AllocatedMember $memb, $array = []) {
+		$strip = ['last_nm' => 'remove', 'first_nm' => 'remove', 'report_id' => 'remove'];
+		$allocs = array_diff_key($array, $strip);
+		foreach ($allocs as $fee_type => $amt) {
+			$alloc = new BaseAllocation([
+					'alloc_memb_id' => $memb->id,
+					'fee_type' => $fee_type,
+					'allocation_amt' => $amt,
+			]);
+			if (!$this->saveAlloc($alloc))
+				return $this->_errors;
+		}
+		return true;
+	}
+	
+	protected function saveAlloc($alloc)
+	{
+		try {
+			$alloc->save();
+		} catch (\Exception $e) {
+			$this->_errors = print_r($alloc->errors, true);
+			return false;
+		}
+		return true;
+	}
+	
 }

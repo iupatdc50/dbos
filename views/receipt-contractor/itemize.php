@@ -20,12 +20,6 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     
             <div><p>
             		<?= Html::a('Post', ['*'], ['class' => 'btn btn-primary']) ?>
-					<?= Html::button('<i class="glyphicon glyphicon-import"></i>&nbsp;Import',
-							['value' => Url::to(["*", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
-									'id' => 'importButton',
-									'class' => 'btn btn-default btn-modal',
-									'data-title' => 'Import',
-							]); ?>
             		<?= Html::button('<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
 							['value' => Url::to(["*", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
 									'id' => 'printButton',

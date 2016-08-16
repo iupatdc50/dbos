@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
+use kartik\widgets\FileInput;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\ReceiptContractor */
@@ -23,6 +24,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php $form = ActiveForm::begin([
 //    		'layout' => 'horizontal',
+    		'enableClientValidation' => true,
+    		'options' => ['enctype' => 'multipart/form-data'],
     ]); ?>
     
     <?= $form->field($model->responsible, 'license_nbr')->widget(Select2::classname(), [
@@ -51,7 +54,16 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions('1791'), [
     		'multiple' => true,
     ]) ?>
+    
+    <hr>
 
+    <?= $form->field($model, 'xlsx_file')->widget(FileInput::className(), [
+    		'options' => ['accept' => '.xlsx, .xls'],
+    		'pluginOptions'=> [
+    				'showUpload' => false,
+    		],    		
+    ]);    ?>
+    
     <div class="form-group">
         <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
     </div>

@@ -6,6 +6,7 @@ use Yii;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ResponsibleEmployer;
+use app\models\accounting\RemittanceExcel;
 use app\models\accounting\AllocatedMember;
 use app\models\accounting\StagedAllocationSearch;
 use app\models\accounting\BaseAllocation;
@@ -17,7 +18,6 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\AllocationBuilder;
-use app\models\accounting\app\models\accounting;
 
 class ReceiptContractorController extends \app\controllers\receipt\BaseController
 {
@@ -27,6 +27,7 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 		$model = new ReceiptContractor(['responsible' => new ResponsibleEmployer()]);
 		
 		if ($model->load(Yii::$app->request->post()) && $model->responsible->load(Yii::$app->request->post())) {
+			
 			$model->payor_type = Receipt::PAYOR_CONTRACTOR;
 			if ($model->validate() && $model->responsible->validate()) {
 				
@@ -35,8 +36,11 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 					if ($model->save(false)) {
 						$model->responsible->receipt_id = $model->id;
 						if ($model->responsible->save(false)) {
+							
+							$file = $model->uploadFile();
+							
 							// Stage member line items
-							if (!empty($model->fee_types)) {
+							if ($file == false) { // manual entry
 								/* @var $member \app\models\member\Member */
 								foreach ($model->responsible->employer->employees as $member) {
 									$alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
@@ -47,7 +51,32 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 									if ($result != true)
 										throw new \Exception('Uncaught validation errors: ' . $result);
 								}
+							} else { // uploaded spreadsheet exists 
+								$path = $model->filePath;
+								$file->saveAs($path);
+								$remittance = new RemittanceExcel(['xlsx_file' => $model->filePath]);
+								$allocs = $remittance->setFeeColumns($model->fee_types)->allocsArray;
+								foreach ($allocs as $alloc) {
+									$member = Member::findOne([
+											'report_id' => $alloc['report_id'],
+											'last_nm' => $alloc['last_nm'],
+											'first_nm' => $alloc['first_nm'],
+									]);
+									if (!isset($member)) {
+										Yii::warning("Receipt {$model->id} member `{$alloc->report_id}` not found.  Skipping row.");
+										continue;
+									}
+									$alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
+									if (!$alloc_memb->save())
+										throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$e}");
+									$builder = new AllocationBuilder();
+									$result = $builder->prepareAllocsFromArray($alloc_memb, $alloc);
+									if ($result != true)
+										throw new \Exception('Uncaught validation errors: ' . $result);
+								}
+								$model->deleteUploadedFile();
 							}
+							
 							$transaction->commit();
 							return $this->redirect([
 									'itemize', 

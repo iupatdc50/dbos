@@ -4,6 +4,7 @@ namespace app\models\accounting;
 
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "Receipts".
@@ -39,6 +40,16 @@ class Receipt extends \yii\db\ActiveRecord
 	protected $_remit_filter;
 	
 	public $fee_types = [];
+	
+	/**
+	 * @var mixed	Stages spreadsheet to be uploaded
+	 */
+	public $xlsx_file;
+	/**
+	 * @var string 	Noise name generated for uploaded spreadsheet
+	 */
+	public $xlsx_name;
+	
 	
 	/**
      * @inheritdoc
@@ -90,7 +101,7 @@ class Receipt extends \yii\db\ActiveRecord
         	[['unallocated_amt'], 'default', 'value' => 0.00],
         	[['tracking_nbr'], 'string', 'max' => 20],
         	[['created_at', 'created_by'], 'integer'],
-        	['fee_types', 'safe'],
+        	[['fee_types', 'xlsx_file'], 'safe'],
         ];
         return array_merge($this->_validationRules, $common_rules);
     }
@@ -111,6 +122,7 @@ class Receipt extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'created_by' => 'Created By',
         	'remarks' => 'Remarks',
+        	'xlsx_file' => 'Import From Spreadsheet',
         ];
         return array_merge($this->_labels, $common_labels);
     }
@@ -184,6 +196,62 @@ class Receipt extends \yii\db\ActiveRecord
     public function getOutOfBalance()
     {
     	return $this->received_amt - $this->totalAllocation;
+    }
+    
+    /**
+     * Fetch spreadsheet file name with complete path (FQDN)
+     * 
+     * @return <string, NULL>
+     */
+    public function getFilePath()
+    {
+    	$path = Yii::getAlias('@webroot') . Yii::$app->params['uploadDir'];
+    	return isset($this->xlsx_name) ? $path . $this->xlsx_name : null;
+    }
+    
+    /**
+     * Process upload of spreadsheet
+     * 
+     * @return mixed the uploaded spreadsheet
+     */
+    public function uploadFile()
+    {
+    	$file = UploadedFile::getInstance($this, 'xlsx_file');
+    	if (empty($file))
+    		return false;
+    	
+        
+        // generate a unique file name for storage
+        $ext = end((explode(".", $file->name)));
+        $this->xlsx_name = Yii::$app->security->generateRandomString(16).".{$ext}";
+    	
+        return $file;
+    	
+    }
+
+    /**
+     * Process deletion of uploaded spreadsheet
+     *
+     * @return boolean the status of deletion
+     */
+    public function deleteUploadedFile()
+    {
+    	$file = $this->filePath;
+    
+    	// check if file exists on server
+    	if (empty($file) || !file_exists($file)) {
+    		return false;
+    	}
+    
+    	// check if uploaded file can be deleted on server
+    	if (!unlink($file)) {
+    		return false;
+    	}
+    
+    	// if deletion successful, reset your file attributes
+    	$this->xlsx_name = null;
+    
+    	return true;
     }
     
 }

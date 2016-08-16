@@ -30,6 +30,22 @@ $this->params['breadcrumbs'][] = $this->title;
     					},
         'columns' => [
         	[
+        		'class' => 'yii\grid\ActionColumn',
+            	'template' => '{export}',
+            	'buttons' => [
+        			'export' => function ($url, $model) {
+        		    				return Html::a('<span class="glyphicon glyphicon-export"></span>', $url, ['title' => 'Generate remittance template', 'data-pjax' => '0']);
+        		        		},
+        		],
+        		'urlCreator' => function ($action, $model, $key, $index) {
+        		            		if ($action === 'export') {
+        		            			$url = Yii::$app->urlManager->createUrl(['contractor/remit-template', 'id' => $model->license_nbr]);
+        		            			return $url;
+        		            		}
+        						},
+        	],
+        		
+        	[
         		'attribute' => 'is_active',
     			'width' => '110px',
     			'value' => 'statusText',

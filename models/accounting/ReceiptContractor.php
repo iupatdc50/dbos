@@ -20,7 +20,7 @@ class ReceiptContractor extends Receipt
     public function rules()
     {
         $this->_validationRules = [
-        	[['fee_types'], 'safe'],
+        	[['fee_types'], 'required', 'message' => 'Please select at least one Fee Type'],
         ];
         return parent::rules();
     }

@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '0.9.5.501',
+		'version' => '0.9.5.511',
 		'basePath' => realpath ( __DIR__ . '/../' ),
 		'modules' => [ 
 			    'datecontrol' => [
@@ -48,6 +48,7 @@ $config = [
 		'params' => [
 				'imageDir' => DIRECTORY_SEPARATOR . 'idc' . DIRECTORY_SEPARATOR,
 				'docDir' => DIRECTORY_SEPARATOR . 'saa' . DIRECTORY_SEPARATOR,
+				'uploadDir' => DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR,
 		],
 ];
 
