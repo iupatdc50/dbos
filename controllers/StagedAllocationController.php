@@ -11,6 +11,7 @@ use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocationBuilder;
+use app\models\accounting\BaseAllocation;
 use app\models\accounting\StagedAllocation;
 
 /**
@@ -49,7 +50,18 @@ class StagedAllocationController extends SubmodelController
 		}
 		return $this->renderAjax('add', compact('model', 'license_nbr'));
 	
-	}	
+	}
+
+	public function actionPost($receipt_id)
+	{
+		/** @var ReceiptContractor $receipt */
+		$receipt = $this->findReceiptModel($receipt_id);
+		
+		if($receipt->outOfBalance != 0.00)
+			return $this->goBack();
+		die("not developed yet");
+		
+	}
 	
 	/**
 	 * Edits Ajax updateable amount columns staged allocation grid
@@ -71,7 +83,12 @@ class StagedAllocationController extends SubmodelController
 			$message = '';
 				
 			if ($model->load($post)) {
-				$model->save();
+				if($model->save()) {
+					// Apply to underlying allocation
+					$base = $this->findBaseAlloc($model->alloc_memb_id, $attr);
+					$base->allocation_amt = $posted[$attr];
+					$base->save();
+				}
 				$output = Yii::$app->formatter->asDecimal($model->$attr, 2);
 				$out = Json::encode(['output' => $output, 'message' => $message]);
 			}
@@ -90,6 +107,22 @@ class StagedAllocationController extends SubmodelController
         if (!$receipt->responsible)
         	throw new InvalidConfigException('Contractor receipt does not have an associated responsible contrator');
         return $receipt;
+	}
+	
+	/**
+	 * Retrieves the underlying (normalized) base allocation
+	 * 
+	 * @param int $alloc_memb_id  	
+	 * @param string $fee_type		This can be obtained from the post's column key in the edit-alloc action 
+	 * @throws \InvalidArgumentException
+	 * @return Ambigous <BaseAllocation, NULL>
+	 */
+	protected function findBaseAlloc($alloc_memb_id, $fee_type)
+	{
+		$alloc = BaseAllocation::findOne(['alloc_memb_id' => $alloc_memb_id, 'fee_type' => $fee_type]);
+		if (!$alloc)
+			throw new \InvalidArgumentException('Attemtping to access a non-existent allocation');
+		return $alloc;
 	}
 	
 	

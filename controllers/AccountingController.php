@@ -29,10 +29,12 @@ class AccountingController extends Controller
     {
         $searchModel = new ReceiptSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $payorPicklist = $searchModel->payorOptions;
         
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+        	'payorPicklist' => $payorPicklist,
         ]);
     }
     

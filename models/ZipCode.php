@@ -34,6 +34,11 @@ class ZipCode extends \yii\db\ActiveRecord
             [['zip_cd'], 'string', 'max' => 5],
             [['city'], 'string', 'max' => 30],
             [['island'], 'default', 'value' => null],
+            ['island', 'required', 'when' => function($model) {
+            	return $model->st == 'HI';
+            }, 'whenClient' => "function (attribute, value) {
+            	return $('#zipcode-st').val() == 'HI';
+    		}"],
         	[['island'], 'exist', 'targetClass' => 'app\models\value\Island'],
             [['st'], 'string', 'max' => 2]
         ];

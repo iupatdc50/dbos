@@ -79,6 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
         				'value' => $model->isInApplication() ? '** In Application **' : $model->init_dt,
     			],	
         	'specialtyTexts:ntext',
+        	'drug_test_dt:date',
         ],
     ]) ?>
 </td></tr>
@@ -91,6 +92,9 @@ $this->params['breadcrumbs'][] = $this->title;
     
     $class = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
     $classUrl = Yii::$app->urlManager->createUrl(['member-class/summary-json', 'id' => $model->member_id]);
+    
+//    $balance = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
+    $balancesUrl = Yii::$app->urlManager->createUrl(['member-balances/summary-json', 'id' => $model->member_id]);
     
     $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);
@@ -115,7 +119,7 @@ $this->params['breadcrumbs'][] = $this->title;
 			],
 			[
 				'header' => Html::tag('span', 'Balances'),
-				'content' => '<div data-url=*>loading...</div>',
+				'content' => '<div class="balances" data-url='.$balancesUrl.'>loading...</div>',
 			],
 			[
 				'header' => Html::tag('span', 'Compliance: '),

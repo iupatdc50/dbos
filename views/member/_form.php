@@ -64,6 +64,8 @@ use app\helpers\OptionHelper;
 
     <?= $form->field($model, 'imse_id')->textInput(['maxlength' => 20]) ?>
     
+    <?= $form->field($model, 'card_id')->textInput(['maxlength' => 20]) ?>
+    
     <?= $form->field($model, 'last_nm')->textInput(['maxlength' => 30]) ?>
 
     <?= $form->field($model, 'first_nm')->textInput(['maxlength' => 30]) ?>
@@ -103,6 +105,10 @@ use app\helpers\OptionHelper;
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
+
+    <?= $form->field($model, 'drug_test_dt')->widget(DateControl::className(), [
+    		'type' => DateControl::FORMAT_DATE,
+    ])  ?>
 
     <hr>
 	    <div class="form-group">

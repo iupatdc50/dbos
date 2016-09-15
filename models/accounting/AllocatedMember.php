@@ -45,6 +45,7 @@ class AllocatedMember extends \yii\db\ActiveRecord
         return [
             'receipt_id' => 'Receipt ID',
             'member_id' => 'Member ID',
+        	'totalAllocation' => 'Allocated',
         ];
     }
     
@@ -74,7 +75,10 @@ class AllocatedMember extends \yii\db\ActiveRecord
     
     public function getTotalAllocation()
     {
-    	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])->sum('allocation_amt');
+    	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])
+    					->where(['!=', 'fee_type', 'HR'])
+    					->sum('allocation_amt')
+    	;
     }
     
 }

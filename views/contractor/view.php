@@ -54,7 +54,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	$signatory = isset($model->currentSignatory) ? $model->currentSignatory->lobs : 'Non-Union';
  	$signatoryUrl = Yii::$app->urlManager->createUrl(['contractor-signatory/summary-json', 'id' => $model->license_nbr]);
  	$ancillaryUrl = Yii::$app->urlManager->createUrl(['contractor-ancillary/summary-json', 'id' => $model->license_nbr]);
- 	
+ 	$receiptsUrl = Yii::$app->urlManager->createUrl(['receipt-contractor/summary-json', 'id' => $model->license_nbr]);
  	
  	$registrationUrl = Yii::$app->urlManager->createUrl(['registration/summary-json', 'id' => $model->license_nbr]);
  	
@@ -75,6 +75,10 @@ $this->params['breadcrumbs'][] = $this->title;
 			[
 				'header' => Html::tag('span', 'Billing History') ,
 				'content' => 'Feature not supported',
+			],
+			[
+				'header' => Html::tag('span', 'Receipt History'),
+				'content' => '<div data-url='.$receiptsUrl.'>loading...</div>',
 			],
 		],
 	    'options' => ['tag' => 'div'],

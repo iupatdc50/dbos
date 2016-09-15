@@ -7,6 +7,7 @@ use yii\base\Model;
 use app\components\utilities\OpDate;
 use app\models\member\Member;
 use app\models\accounting\DuesRateFinder;
+use app\models\accounting\Assessment;
 
 /** 
  * Model class for managing the financial status of a member
@@ -76,6 +77,16 @@ class Standing extends Model
 		return ($this->getCurrentMonthEnd() > $this->member->duesPaidThruDtObject) 
 			? $this->duesRateFinder->computeBalance($this->member->dues_paid_thru_dt, $this->getCurrentMonthEnd()->getMySqlDate()) 
 			: 0.00;
+	}
+	
+	public function getAssessmentBalance()
+	{
+		$sql = 'SELECT * FROM Assessments AS A WHERE member_id = :id';
+		$assessments = Assessment::findBySql($sql, ['id' => $this->member->member_id])->all();
+		$balance = 0.00;
+		foreach($assessments as $assessment)
+			$balance += $assessment->balance;
+		return $balance; 
 	}
 	
 	/**

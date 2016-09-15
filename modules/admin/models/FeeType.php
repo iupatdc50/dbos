@@ -10,6 +10,7 @@ use Yii;
  * @property string $fee_type
  * @property string $descrip
  * @property string $freq
+ * @property string $extDescrip
  */
 class FeeType extends \yii\db\ActiveRecord
 {
@@ -43,6 +44,12 @@ class FeeType extends \yii\db\ActiveRecord
             'fee_type' => 'Fee Type',
             'descrip' => 'Descrip',
             'freq' => 'Freq',
+        	'extDescrip' => 'Description',
         ];
+    }
+    
+    public function getExtDescrip()
+    {
+    	return $this->fee_type . ': ' . $this->descrip;
     }
 }

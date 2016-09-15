@@ -60,6 +60,10 @@ h1, .h1 {
 	padding: 6px;	
 }
 
+table .total-border {
+	border-top-style: double;
+}
+
 .btn {
 	font-size: 12px;
 	padding: 6px 12px;
@@ -99,6 +103,13 @@ ul.noBullets {list-style: none;}
 
 .datatop {vertical-align: top;} 
 
+
+.td-danger {
+	background-color: #f2dede;
+    border-color: #d43f3a;
+}
+
+
 span.not-set {color: #c8c8a7;}
 span.active {
 	color: #fff;
@@ -109,6 +120,13 @@ span.active {
 span.inactive {
 	color: #d43f3a;
 	font-weight: bold;
+}
+
+span.lbl-danger {
+	background-color: #f2dede;
+    border-color: #d43f3a;
+    padding: 6px 12px;	
+    font-weight: bold;
 }
 
 a span.loaned {
@@ -142,6 +160,10 @@ a span.loaned {
 	color: #337ab7;
 }
 
+.balances .modal-dialog {
+	width: 900px;
+}
+
 .kv-panel-before {
 	border-bottom: 1px solid #ddd;
 	padding: 1px;
@@ -157,6 +179,14 @@ a span.loaned {
 
 .select2-container--krajee .select2-selection--single .select2-selection__arrow {
 	height: 28px;
+}
+
+#dues_grid .summary {
+	visibility: hidden;
+}
+
+#hrs_grid .summary {
+	visibility: hidden;
 }
 
 #journal {

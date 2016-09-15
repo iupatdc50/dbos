@@ -13,6 +13,14 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.5.601 Notes
+
+. Added some receipt functionality and navigation improvements, including balancing mechanisms
+. Added various drill downs for financial information by member and contractor
+. Added helper dues (and hours) input for receipts
+. Added last drug test date
+. Fixed some bugs
+
 0.9.5.5xx Notes
 
 . Added receipt staging functionality

@@ -20,7 +20,7 @@ class ReceiptContractor extends Receipt
     public function rules()
     {
         $this->_validationRules = [
-        	[['fee_types'], 'required', 'message' => 'Please select at least one Fee Type'],
+        	['fee_types', 'required', 'message' => 'Please select at least one Fee Type'],
         ];
         return parent::rules();
     }
@@ -41,6 +41,11 @@ class ReceiptContractor extends Receipt
     		return true;
     	}
     	return false;	 
+    }
+    
+    public function getHelperDuesText()
+    {
+    	return ($this->helper_dues > 0.00) ? $this->helper_dues . ' (' . $this->helper_hrs . ' hours)' : null;
     }
     
 }

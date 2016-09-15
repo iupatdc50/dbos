@@ -73,9 +73,22 @@ class Assessment extends \yii\db\ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getAllocatedPayments()
+    public function getTotalAllocated()
     {
     	return $this->hasMany(AssessmentAllocation::className(), ['assessment_id' => 'id'])->sum('allocation_amt');
+    }
+    
+    /**
+     * @return ActiveQuery
+     */
+    public function getAllocatedPayments()
+    {
+    	return $this->hasMany(AssessmentAllocation::className(), ['assessment_id' => 'id']);
+    }
+    
+    public function getBalance()
+    {
+    	return $this->assessment_amt - $this->totalAllocated;
     }
 
     /**

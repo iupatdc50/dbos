@@ -14,6 +14,7 @@ use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
 use app\models\accounting\BaseAllocation;
+use app\models\accounting\Assessment;
 
 /**
  * This is the model class for table "Members".
@@ -36,6 +37,7 @@ use app\models\accounting\BaseAllocation;
  * @property date $application_dt
  * @property date $init_dt
  * @property date $dues_paid_thru_dt
+ * @property date $drug_test_dt
  * 
  * @property Phone[] $phones
  * @property Address[] $addresses
@@ -132,7 +134,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return [
             [['last_nm', 'first_nm', 'birth_dt', 'gender', 'shirt_size', 'local_pac', 'hq_pac', 'application_dt'], 'required'],
-            [['birth_dt', 'application_dt', 'init_dt', 'dues_paid_thru_dt'], 'date', 'format' => 'php:Y-m-d'],
+            [['birth_dt', 'application_dt', 'init_dt', 'dues_paid_thru_dt', 'drug_test_dt'], 'date', 'format' => 'php:Y-m-d'],
         	[['application_dt'], 'validateApplicationDt'],
         	[['birth_dt'], 'validateBirthDt'],
 			[['gender'], 'in', 'range' => OptionHelper::getAllowedGender()],
@@ -181,6 +183,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	'application_dt' => 'Application Date',
         	'init_dt' => 'Init Date (Current)',
         	'dues_paid_thru_dt' => 'Dues&nbsp;Thru',
+        	'drug_test_dt' => 'Last Drug Test',
         ];
     }
     
@@ -215,10 +218,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	if (parent::beforeSave($insert)) {
     		if ($insert) {
-    			try {
-    				$this->member_id = $this->idGenerator->newId();
-    			} catch (Exception $e) {
-    				throw new \yii\base\InvalidConfigException('Missing ID generator');
+    			if (isset($this->imse_id)) {
+    				$this->member_id = $this->imse_id;
+    			} else {
+    				try {
+    					$this->member_id = $this->idGenerator->newId();
+    				} catch (Exception $e) {
+    					throw new \yii\base\InvalidConfigException('Missing ID generator');
+    				}
     			}
     			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
     				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
@@ -341,6 +348,11 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getStatuses()
     {
         return $this->hasMany(Status::className(), ['member_id' => 'member_id']);
+    }
+    
+    public function getAssessmentBalance()
+    {
+    	return $this->hasMany(Assessment::className(), ['member_id' => 'member_id'])->sum('balance');
     }
     
     /**

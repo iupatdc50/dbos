@@ -14,6 +14,7 @@ use yii\web\UploadedFile;
  * @property string $payment_method
  * @property string $tracking_nbr
  * @property string $payor_type
+ * @property string $received_amt
  * @property string $received_dt
  * @property string $received_amt
  * @property string $unallocated_amt
@@ -22,6 +23,7 @@ use yii\web\UploadedFile;
  * @property string $remarks
  *
  * @property AllocatedMember[] $members
+ * @property ReceiptFeeType[] $feeTypes
  * @property User $createdBy
  */
 class Receipt extends \yii\db\ActiveRecord
@@ -76,6 +78,15 @@ class Receipt extends \yii\db\ActiveRecord
     			self::PAYOR_OTHER,
     	];
     }
+    
+    public static function getPayorOptions()
+    {
+    	return [
+    			self::PAYOR_CONTRACTOR => 'Contractor',
+    			self::PAYOR_MEMBER => 'Member',
+    			self::PAYOR_OTHER => 'Other',
+    	];
+    }
 
     public function behaviors()
 	{
@@ -92,16 +103,21 @@ class Receipt extends \yii\db\ActiveRecord
     {
         $common_rules = [
             [['payor_nm'], 'string', 'max' => 100],
-        	[['payor_nm'], 'default', 'value' => null],
+        	[['payor_nm', 'helper_hrs'], 'default', 'value' => null],
         	[['payment_method', 'payor_type', 'received_dt', 'received_amt'], 'required'],
         	[['payment_method'], 'in', 'range' => self::getAllowedMethods()],
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
             [['received_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['received_amt', 'unallocated_amt'], 'number'],
-        	[['unallocated_amt'], 'default', 'value' => 0.00],
+        	[['unallocated_amt', 'helper_dues'], 'default', 'value' => 0.00],
+            ['helper_hrs', 'required', 'when' => function($model) {
+            	return $model->helper_dues > 0.00;
+            }, 'whenClient' => "function (attribute, value) {
+            	return $('#helperdues').val() > 0.00;
+    		}"],
         	[['tracking_nbr'], 'string', 'max' => 20],
         	[['created_at', 'created_by'], 'integer'],
-        	[['fee_types', 'xlsx_file'], 'safe'],
+        	[['remarks', 'fee_types', 'xlsx_file'], 'safe'],
         ];
         return array_merge($this->_validationRules, $common_rules);
     }
@@ -119,9 +135,12 @@ class Receipt extends \yii\db\ActiveRecord
             'received_dt' => 'Received Date',
             'received_amt' => 'Amount',
             'unallocated_amt' => 'Unallocated',
-            'created_at' => 'Created At',
+            'helper_dues' => 'Helper Dues',
+            'helper_hrs' => 'Hours',
+        	'created_at' => 'Created At',
             'created_by' => 'Created By',
         	'remarks' => 'Remarks',
+        	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
         ];
         return array_merge($this->_labels, $common_labels);
@@ -159,19 +178,11 @@ class Receipt extends \yii\db\ActiveRecord
     	return isset($options[$method]) ? $options[$method] : "Unknown Payment Method `{$method}`";
     }
     
-    public function getPayorOptions()
+    public function getPayorText($code = null)
     {
-    	return [
-    			self::PAYOR_CONTRACTOR => 'Contractor',
-    			self::PAYOR_MEMBER => 'Member',
-    			self::PAYOR_OTHER => 'Other',
-    	];
-    }
-    
-    public function getPayorText($code)
-    {
-    	$options = $this->payorOptions;
-    	return isset($options[$code]) ? $options[$code] : "Unknown Payor Type `{$code}`";
+    	$payor = isset($code) ? $code : $this->payor_type;
+    	$options = self::getPayorOptions();
+    	return isset($options[$payor]) ? $options[$payor] : "Unknown Payor Type `{$payor}`";
     }
     
     public function getFeeOptions($lob_cd)
@@ -179,6 +190,20 @@ class Receipt extends \yii\db\ActiveRecord
     	if(!isset($this->_remit_filter))
     		throw new yii\base\InvalidConfigException('Unknown remittable filter field');
     	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
+    }
+    
+    public function getFeeTypes()
+    {
+    	return $this->hasMany(ReceiptFeeType::className(), ['receipt_id' => 'id']);
+    }
+    
+    public function getFeeTypeTexts()
+    {
+    	$texts = [];
+    	foreach ($this->feeTypes as $feeType) {
+    		$texts[] = $feeType->feeType->extDescrip;
+    	}
+    	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }
     
     public function getAllocatedMembers()
@@ -195,7 +220,7 @@ class Receipt extends \yii\db\ActiveRecord
     
     public function getOutOfBalance()
     {
-    	return $this->received_amt - $this->totalAllocation;
+    	return $this->received_amt - ($this->totalAllocation + $this->unallocated_amt + $this->helper_dues);
     }
     
     /**

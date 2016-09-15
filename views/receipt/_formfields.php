@@ -30,7 +30,8 @@ use kartik\datecontrol\DateControl;
     <?= $form->field($model, 'received_amt')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'unallocated_amt')->textInput(['maxlength' => true]) ?>
-
+    
+    <?= $form->field($model, 'remarks')->textarea(['rows' => 3]) ?>
 
 </div>
 

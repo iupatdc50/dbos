@@ -1,13 +1,13 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
 use kartik\grid\GridView;
 use yii\bootstrap\Modal;
+use kartik\editable\Editable;
 
 
 $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
@@ -18,38 +18,32 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 
     <h1><?= Html::encode($this->title) ?></h1>
     
+    		<div class="pull-right">
+    		<?php if ($modelReceipt->outOfBalance != 0.00): ?>
+    			<span class="lbl-danger"><?= Html::encode('Out of Balance: ' . $modelReceipt->outOfBalance); ?></span>
+			<?php endif ?>
+    		</div>
             <div><p>
-            		<?= Html::a('Post', ['*'], ['class' => 'btn btn-primary']) ?>
-            		<?= Html::button('<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
-							['value' => Url::to(["*", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
-									'id' => 'printButton',
+            		<?php if ($modelReceipt->outOfBalance == 0.00): ?>
+            			<?= Html::a('Post', ['/staged-allocation/post', 'receipt_id' => $modelReceipt->id], ['class' => 'btn btn-primary']) ?>
+            		<?php else: ?>
+            			<?=  Html::button('<i class="glyphicon glyphicon-check"></i>&nbsp;Balance', 
+							['value' => Url::to(["balance", 'id' => $modelReceipt->id, 'fee_types' => $fee_types]),
+									'id' => 'balanceButton',
 									'class' => 'btn btn-default btn-modal',
-									'data-title' => 'Print',
+									'data-title' => 'Unallocated',
 							]); ?>
+            		<?php endif ?>
+            		<?= Html::a('Cancel', ['delete', 'id' => $modelReceipt->id], [
+       	            		'class' => 'btn btn-danger',
+	            			'data' => [
+	                			'confirm' => 'Are you sure you want to cancel this receipt?',
+	                			'method' => 'post',
+	            			],
+	           		]) ?>
 			</p></div>
     
-    
-    <?= DetailView::widget([
-        'model' => $modelReceipt,
-        'attributes' => [
-            'received_dt:date',
-        	[
-            		'attribute' => 'payor_nm',
-            		'value' => $modelReceipt->payor_nm . ($modelReceipt->payor_type == 'O' ? ' (for ' . $modelReceipt->responsible->employer->contractor . ')' : ''),
-    		],
-            [
-            		'attribute' => 'payment_method',
-            		'value' => Html::encode($modelReceipt->methodText) . ($modelReceipt->payment_method != '1' ? ' [' . $modelReceipt->tracking_nbr . ']' : ''),
-   			],
-            'received_amt',
-            [
-            		'attribute' => 'outOfBalance',
-            		'label' => 'Out of Balance',
-           // 		'rowOptions' => ($modelReceipt->outOfBalance != 0.00) ? ['class' => 'danger'] : ['class' => 'success'],
-            		'rowOptions' => ['class' => 'danger'],
-        	],
-        ],
-    ]) ?>
+    <?= $this->render('../receipt/_detail', ['modelReceipt' => $modelReceipt]); ?>
     
     <?php
     	$baseColumns = [
@@ -73,12 +67,15 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     				'class' => 'kartik\grid\EditableColumn',
     				'editableOptions' => [
     						'header' => strtoupper($fee_type),
-    						'inputType' => \kartik\editable\Editable::INPUT_TEXT,
+    						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
     						'formOptions' => ['action' => '/staged-allocation/edit-alloc'],
+    						'showButtons' => false,
     				],
     				'hAlign' => 'right',
     				'vAlign' => 'middle',
     				'format' => ['decimal', 2],
+//    				'pageSummary' => true,
+//    				'refreshGrid' => true,
     		];
     	} 
     	$actionColumn[] = [
@@ -107,6 +104,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 				'after' => false,
 		],
         'columns' => array_merge($baseColumns, $feeColumns, $actionColumn),
+//    	'showPageSummary' => true,
         		
     ]);?>
     
@@ -114,3 +112,4 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     
 </div>
 <?= $this->render('../partials/_modal') ?>
+

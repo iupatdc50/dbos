@@ -14,6 +14,7 @@ class ReceiptSearch extends Receipt
 {
 	
 	public $payor_type_filter;
+	public $feeTypes;
 	
     /**
      * @inheritdoc
@@ -22,7 +23,7 @@ class ReceiptSearch extends Receipt
     {
         return [
             [['id', 'created_at', 'created_by'], 'integer'],
-            [['payor_nm', 'payment_method', 'payor_type', 'received_dt', 'remarks'], 'safe'],
+            [['payor_nm', 'payment_method', 'payor_type_filter', 'received_dt', 'feeTypes', 'remarks'], 'safe'],
             [['received_amt', 'unallocated_amt'], 'number'],
         ];
     }
@@ -60,6 +61,8 @@ class ReceiptSearch extends Receipt
             return $dataProvider;
         }
 
+        $query->joinWith(['feeTypes']);
+
         $query->andFilterWhere([
             'id' => $this->id,
             'received_dt' => $this->received_dt,
@@ -70,7 +73,9 @@ class ReceiptSearch extends Receipt
         $query->andFilterWhere(['like', 'payor_nm', $this->payor_nm])
             ->andFilterWhere(['like', 'payment_method', $this->payment_method])
             ->andFilterWhere(['like', 'payor_type', $this->payor_type_filter])
-            ->andFilterWhere(['like', 'remarks', $this->remarks]);
+            ->andFilterWhere(['like', ReceiptFeeType::tableName() . '.fee_type', $this->feeTypes])
+//            ->andFilterWhere(['like', 'remarks', $this->remarks])
+        ;
 
         return $dataProvider;
     }

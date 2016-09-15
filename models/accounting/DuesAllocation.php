@@ -61,10 +61,6 @@ class DuesAllocation extends BaseAllocation
         return parent::attributeLabels();
     }
     
-    public function afterValidate() {
-    	
-    }
-    
     public function afterSave($insert, $changedAttributes) {
     	if (parent::afterSave($insert, $changedAttributes)) {
     		if (isset($changedAttributes['allocation_amt'])) {

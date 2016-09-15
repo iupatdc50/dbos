@@ -50,6 +50,13 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
     ]) ?>
     
+    <?= $form->field($model, 'helper_dues')->textInput(['maxlength' => true, 'id' => 'helperdues']) ?>
+
+    <?= $form->field($model, 'helper_hrs')
+    		 ->textInput(['maxlength' => true, 'id' => 'helperhrs'])
+    		 ->label('Hours', ['id' => 'helperhrslbl']) ?>
+    
+    
     <?php // ** Temporary ** Assume 1791 ?>
     <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions('1791'), [
     		'multiple' => true,
@@ -71,3 +78,27 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php ActiveForm::end(); ?>
 
 </div>
+
+<?php 
+$script = <<< JS
+
+$(function() {
+		$('#helperhrslbl').hide();
+		$('#helperhrs').hide();
+})
+
+$('#helperdues').change(function() {
+	var dues = $(this).val();
+	if(dues > 0.00) {
+		$('#helperhrslbl').show();
+		$('#helperhrs').show();
+		$('#helperhrs').focus();
+	} else {
+		$('#helperhrslbl').hide();
+		$('#helperhrs').hide();
+	};
+});
+
+JS;
+$this->registerJs($script);
+?>

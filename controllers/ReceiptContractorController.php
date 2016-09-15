@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptContractor;
+use app\models\accounting\ReceiptContractorSearch;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\RemittanceExcel;
 use app\models\accounting\AllocatedMember;
@@ -106,7 +107,7 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 		$modelReceipt = $this->findModel($id);
 		if(!StagedAllocation::makeTable($id))
 			throw new InvalidConfigException('Could not produce staged allocations for: ' . $id);
-		$searchAlloc = new StagedAllocationSearch(['fee_types' => $fee_types]);
+		$searchAlloc = new StagedAllocationSearch(['receipt_id' => $id, 'fee_types' => $fee_types]);
 		$allocProvider = $searchAlloc->search(Yii::$app->request->queryParams);
 		
         return $this->render('itemize', [
@@ -117,7 +118,20 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
         ]);
 	}
 	
-    /**
+	public function actionSummaryJson($id)
+	{
+		$searchModel = new ReceiptContractorSearch();
+		$searchModel->license_nbr = $id;
+		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+		echo Json::encode($this->renderPartial('_summary', [
+				'dataProvider' => $dataProvider,
+				'searchModel' => $searchModel, 
+				'id' => $id,
+		]));
+	}
+	
+	
+	/**
      * Finds the Receipt model based on its primary key value.  Injects responsible employer
      * object
      * 
@@ -141,5 +155,6 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 	{
 		Yii::$app->user->returnUrl = Yii::$app->request->url;
 	}
+	
 	
 }

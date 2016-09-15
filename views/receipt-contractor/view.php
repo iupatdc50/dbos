@@ -34,6 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'payor_type',
             'received_dt',
             'received_amt',
+        	'helperDuesText',
             'unallocated_amt',
             'created_at',
             'created_by',

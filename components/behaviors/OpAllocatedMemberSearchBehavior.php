@@ -20,12 +20,14 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 	{
 		$query = call_user_func([$this->recordClass, 'find']);
 		$query->joinWith(['member']);
+		$query->where(['receipt_id' => $this->owner->receipt_id]);
 		
 		$m = Member::tableName();
 		
 		$dataProvider = new ActiveDataProvider([
 				'query' => $query,
 				'sort' => ['defaultOrder' => ['fullName' => SORT_ASC]],
+				'pagination' => ['pageSize' => 12],
 		]);
 		
 		$dataProvider->sort->attributes['fullName'] = [

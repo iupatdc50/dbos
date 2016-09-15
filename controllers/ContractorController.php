@@ -57,20 +57,6 @@ class ContractorController extends RootController
     	$employeeSearchModel = new EmploymentSearch();
     	$employeeSearchModel->employer_search = $id;
     	$employeeProvider = $employeeSearchModel->search([]);
-/*
-    	$query = Contractor::find()
-    		->where(['license_nbr' => $id])
-    		->select(['last_nm', 'first_nm', 'report_id'])
-    		->joinWith(['employees'])
-    		->orderBy(['last_nm' => SORT_ASC, 'first_nm' => SORT_ASC, 'report_id' => SORT_ASC]);
-*/
-//    	die(var_dump($query->sql));
-/*
-    	$dataProvider = new ActiveDataProvider([
-    			'query' => $query,
-    			'pagination' => ['pageSize' => 300],
-    	]);
-*/
     	return $this->renderPartial('remit-template', ['dataProvider' => $employeeProvider, 'file_nm' => $file_nm]);
     }
 

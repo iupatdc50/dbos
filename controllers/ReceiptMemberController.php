@@ -5,18 +5,17 @@ namespace app\controllers;
 use Yii;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptMember;
-use app\models\accounting\AllocatedMember;
+use app\models\accounting\ReceiptMemberSearch;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\DuesAllocation;
 use \app\models\member\Member;
 use \app\models\accounting\DuesRateFinder;
 use yii\helpers\ArrayHelper;
-use app\models\accounting\app\models\accounting;
 
 class ReceiptMemberController extends \app\controllers\receipt\BaseController
 {
-	public function actionCreate()
+	public function actionCreate($id = null)
 	{
 		$modelReceipt = new ReceiptMember();
 		$modelMember = new AllocatedMember();
@@ -29,4 +28,17 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
 		]);
 		
 	}
+	
+	public function actionSummaryAjax($id)
+	{
+		$searchModel = new ReceiptMemberSearch();
+		$searchModel->member_id = $id;
+		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+		return $this->renderAjax('_summary', [
+				'dataProvider' => $dataProvider,
+				'searchModel' => $searchModel,
+				'payorPicklist' => Receipt::getPayorOptions(),
+		]);
+	}
+	
 }

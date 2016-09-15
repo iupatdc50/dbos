@@ -5,6 +5,7 @@ namespace app\controllers\receipt;
 use Yii;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptSearch;
+use app\models\accounting\AllocatedMemberSearch;
 use yii\base\InvalidCallException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -17,8 +18,10 @@ use yii\base\yii\base;
  */
 class BaseController extends Controller
 {
+		
+	/** @var array Supplemental data providers */
+	protected $otherProviders = [];
 	
-	public $layout = 'accounting';
 	public $payor_type_filter = null;
 			
     public function behaviors()
@@ -49,9 +52,24 @@ class BaseController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+    	$model = $this->findModel($id);
+    	    	
+    	$searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
+    	$membProvider = $searchMemb->search(Yii::$app->request->queryParams);
+
+    	return $this->render('/receipt/view', compact('model', 'membProvider', 'searchMemb'));
+    }
+    
+    public function actionBalance($id, array $fee_types)
+    {
+    	$model = $this->findModel($id);
+    	$model->fee_types = $fee_types;
+    	if ($model->load(Yii::$app->request->post())) {
+    		if($model->save()) 
+    			return $this->goBack();
+    		throw new \yii\base\Exception('Problem with post.  Errors: ' . print_r($model->errors, true)); 
+    	}		
+    	return $this->renderAjax('/receipt/balance', compact('model'));
     }
 
     /**
@@ -71,6 +89,11 @@ class BaseController extends Controller
                 'model' => $model,
             ]);
         }
+    }
+    
+    public function actionPost($id)
+    {
+    	
     }
 
     /**
@@ -95,8 +118,6 @@ class BaseController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Receipt::findOne($id)) == null) 
-            throw new NotFoundHttpException('The requested page does not exist.');
-        return $model;
+        return null;
     }
 }
