@@ -14,7 +14,7 @@ use yii\helpers\Json;
 class AllocationController extends Controller
 {
 
-	public function actionSummaryJson()
+	public function actionSummaryAjax()
 	{
 		
 		$alloc_query = AssessmentAllocation::find();

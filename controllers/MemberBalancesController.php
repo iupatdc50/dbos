@@ -20,11 +20,15 @@ class MemberBalancesController extends Controller
 		$member = Member::findOne($id);
 		
 		$rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
+/*
 		$standing = new Standing(['member' => $member, 'duesRateFinder' => $rate_finder]);
 		$dues_balance = $standing->duesBalance;
-		$assessment_balance = number_format($standing->assessmentBalance, 2); 
+		*/
+		$standing = new Standing(['member' => $member]);
+		$dues_balance = $standing->getDuesBalance($rate_finder);
+		$assessment_balance = number_format($standing->totalAssessmentBalance, 2); 
 		
-		$query = Assessment::find()->innerJoinWith('allocatedPayments');
+		$query = Assessment::find()->joinWith('allocatedPayments');
 		$query->where(['member_id' => $member->member_id]);
 		$assessProvider = new ActiveDataProvider([
 				'query' => $query,

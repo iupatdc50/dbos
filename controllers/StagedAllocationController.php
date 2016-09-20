@@ -52,17 +52,6 @@ class StagedAllocationController extends SubmodelController
 	
 	}
 
-	public function actionPost($receipt_id)
-	{
-		/** @var ReceiptContractor $receipt */
-		$receipt = $this->findReceiptModel($receipt_id);
-		
-		if($receipt->outOfBalance != 0.00)
-			return $this->goBack();
-		die("not developed yet");
-		
-	}
-	
 	/**
 	 * Edits Ajax updateable amount columns staged allocation grid
 	 */
@@ -96,6 +85,18 @@ class StagedAllocationController extends SubmodelController
 			return;
 		}
 		
+	}
+	
+	public function actionDelete($id)
+	{
+		$allocs = BaseAllocation::findAll(['alloc_memb_id' => $id]);
+		foreach ($allocs as $alloc)
+			if (!$alloc->delete())
+				throw new \yii\base\UserException('Problem with allocation.  Errors: ' . print_r($alloc->errors, true));
+		$alloc_memb = AllocatedMember::findOne($id);
+		if (!$alloc_memb->delete())
+			throw new \yii\base\UserException('Problem with allocation.  Errors: ' . print_r($alloc_memb->errors, true));
+		parent::actionDelete($id);
 	}
 	
 	protected function findReceiptModel($id)

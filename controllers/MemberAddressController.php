@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\controllers\base\SubmodelController;
 use Yii;
-use app\models\project\Address;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;

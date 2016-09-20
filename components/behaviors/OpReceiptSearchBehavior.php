@@ -48,7 +48,7 @@ class OpReceiptSearchBehavior extends Behavior
 		
 		$dataProvider = new ActiveDataProvider([
 				'query' => $query,
-				'sort' => ['defaultOrder' => ['received_dt' => SORT_ASC]],
+				'sort' => ['defaultOrder' => ['received_dt' => SORT_DESC]],
 		]);
 	
 		if (isset($this->sort_attrs) && (count($this->sort_attrs) > 0)) {

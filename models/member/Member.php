@@ -135,7 +135,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         return [
             [['last_nm', 'first_nm', 'birth_dt', 'gender', 'shirt_size', 'local_pac', 'hq_pac', 'application_dt'], 'required'],
             [['birth_dt', 'application_dt', 'init_dt', 'dues_paid_thru_dt', 'drug_test_dt'], 'date', 'format' => 'php:Y-m-d'],
-        	[['application_dt'], 'validateApplicationDt'],
+        	[['application_dt'], 'validateApplicationDt', 'when' => function ($model, $attribute) {
+        		return $model->{$attribute} !== $model->getOldAttribute($attribute);
+        	}],
         	[['birth_dt'], 'validateBirthDt'],
 			[['gender'], 'in', 'range' => OptionHelper::getAllowedGender()],
         	[['local_pac', 'hq_pac'], 'in', 'range' => OptionHelper::getAllowedTF()],
@@ -349,12 +351,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return $this->hasMany(Status::className(), ['member_id' => 'member_id']);
     }
-    
-    public function getAssessmentBalance()
-    {
-    	return $this->hasMany(Assessment::className(), ['member_id' => 'member_id'])->sum('balance');
-    }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */

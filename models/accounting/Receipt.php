@@ -218,9 +218,25 @@ class Receipt extends \yii\db\ActiveRecord
     				->sum('allocation_amt');
     }
     
+    public function getDuesAllocations()
+    {
+    	return $this->hasMany(DuesAllocation::className(), ['alloc_memb_id' => 'id'])
+    				->andOnCondition(['fee_type' => 'DU'])
+    			    ->via('allocatedMembers')
+    	;
+    }
+    
     public function getOutOfBalance()
     {
     	return $this->received_amt - ($this->totalAllocation + $this->unallocated_amt + $this->helper_dues);
+    }
+    
+    public function getAssessmentAllocations()
+    {
+    	return $this->hasMany(AssessmentAllocation::className(), ['alloc_memb_id' => 'id'])
+    		->andOnCondition(['<>', 'fee_type', 'DU'])
+    		->via('allocatedMembers')
+    	;
     }
     
     /**

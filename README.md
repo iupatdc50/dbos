@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.5.701 Notes
+
+. Added dues receipt move forward paid thru date functionality
+. Added assessment handling, including progressive balancing of partial payments
+. Fixed some bugs
+
 0.9.5.601 Notes
 
 . Added some receipt functionality and navigation improvements, including balancing mechanisms

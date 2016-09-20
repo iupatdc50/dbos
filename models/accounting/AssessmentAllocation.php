@@ -47,6 +47,16 @@ class AssessmentAllocation extends BaseAllocation
     	return $this->hasOne(Assessment::className(), ['id' => 'assessment_id']);
     }
     
+    public function applyToAssessment()
+    {
+    	$standing = $this->getStanding();
+    	if ($assessment = $standing->getOutstandingAssessment($this->fee_type)) {
+    		$this->assessment_id = $assessment->id;
+    		return true;
+    	}
+    	return false;
+    }
+    
     
 
 }

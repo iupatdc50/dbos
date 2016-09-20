@@ -4,6 +4,7 @@ namespace app\models\accounting;
 
 use Yii;
 use app\models\member\Member;
+use app\models\member\Standing;
 use \app\modules\admin\models\FeeType;
 
 /**
@@ -15,6 +16,7 @@ use \app\modules\admin\models\FeeType;
  * @property number $allocation_amt
  *
  * @property AllocatedMember $allocatedMember
+ * @property Member $member
  * @property FeeType $feeType
  */
 class BaseAllocation extends \yii\db\ActiveRecord
@@ -22,7 +24,12 @@ class BaseAllocation extends \yii\db\ActiveRecord
 	protected $_validationRules = [];
 	protected $_labels = [];
 	
-    /**
+	/**
+	 * @var Standing 	May be injected, if required
+	 */
+	public $standing;
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
@@ -68,9 +75,27 @@ class BaseAllocation extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getMember()
+    {
+        return $this->hasOne(Member::className(), ['member_id' => 'member_id'])
+        			->via('allocatedMember')
+        ;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getFeeType()
     {
     	return $this->hasOne(FeeType::className(), ['fee_type' => 'fee_type']);
     }
+    
+    protected function getStanding()
+    {
+    	if(!(isset($this->standing)))
+    		$this->standing = new Standing(['member' => $this->member]);
+    	return $this->standing;
+    }
+    
     
 }

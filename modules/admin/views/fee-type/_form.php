@@ -2,6 +2,8 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\helpers\OptionHelper;
+use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\modules\admin\models\FeeType */
@@ -18,6 +20,14 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'freq')->dropDownList([ 'R' => 'R', 'M' => 'M', 'O' => 'O', ], ['prompt' => '']) ?>
 
+    <?= $form->field($model, 'is_assess')->widget(Select2::className(), [
+    		'data' => OptionHelper::getTFOptions(), 
+    		'hideSearch' => true,
+			'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select...'],
+    ]) ?>
+
+    
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

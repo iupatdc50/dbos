@@ -26,7 +26,7 @@ echo GridView::widget([
 							'value'=>function ($model, $key, $index, $column) {
 										return GridView::ROW_COLLAPSED;
 									 },
-							'detailUrl'=> Yii::$app->urlManager->createUrl(['allocation/summary-json']),
+							'detailUrl'=> Yii::$app->urlManager->createUrl(['allocation/summary-ajax']),
 							'headerOptions'=>['class'=>'kartik-sheet-style'],
     						'expandOneOnly'=>true,
 				],

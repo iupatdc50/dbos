@@ -8,6 +8,7 @@ use app\models\accounting\AllocatedMember;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\DuesAllocation;
+use app\models\member\Standing;
 
 class AllocationBuilder extends Model
 {
@@ -30,6 +31,9 @@ class AllocationBuilder extends Model
 						'alloc_memb_id' => $memb->id,
 						'allocation_amt' => 0.00,
 				]);
+				$standing = new Standing(['member' => $memb->member]);
+				if ($assessment = $standing->getOutstandingAssessment($fee_type))
+					$alloc->allocation_amt = $assessment->assessment_amt;
 			}
 			$alloc->fee_type = $fee_type;
 			if (!$this->saveAlloc($alloc))

@@ -3,6 +3,7 @@
 namespace app\controllers\receipt;
 
 use Yii;
+use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptSearch;
 use app\models\accounting\AllocatedMemberSearch;
@@ -11,6 +12,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\base\yii\base;
+use app\models\accounting\app\models\accounting;
 
 
 /**
@@ -93,6 +95,42 @@ class BaseController extends Controller
     
     public function actionPost($id)
     {
+    	$model = $this->findModel($id);
+
+    	$allocs = $model->duesAllocations;
+    	$save_errors = [];
+    	/* @var $alloc DuesAllocation */
+    	foreach ($allocs as $alloc) {
+    		$member = $alloc->member;
+    		$alloc->duesRateFinder = new DuesRateFinder(
+    				$member->currentStatus->lob_cd,
+    				$member->currentClass->rate_class
+    		);
+    		$alloc->months = $alloc->calcMonths();
+    		$alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
+    		if (!$alloc->save()) {
+    			$save_errors = array_merge($save_errors, $alloc->errors);
+    		} else {
+    			$member->dues_paid_thru_dt = $alloc->paid_thru_dt;
+    			if (!$member->save())
+    				$save_errors = array_merge($save_errors, $member->errors);;
+    		}
+    	}
+    	
+    	$allocs = $model->assessmentAllocations;
+    	/* @var $alloc AssessmentAllocation */
+    	foreach ($allocs as $alloc) {
+    		if ($alloc->applyToAssessment()) {
+    			if (!$alloc->save()) {
+    				$save_errors = array_merge($save_errors, $alloc->errors);
+    			}
+    		}	 
+    	}   
+    	
+    	
+    	if (!empty($save_errors))
+    		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($save_errors, true));
+    	return $this->redirect(['view', 'id' => $model->id]);
     	
     }
 

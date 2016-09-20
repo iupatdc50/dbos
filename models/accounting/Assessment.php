@@ -4,6 +4,7 @@ namespace app\models\accounting;
 
 use Yii;
 use app\modules\admin\models\FeeType;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "Assessments".
@@ -46,6 +47,7 @@ class Assessment extends \yii\db\ActiveRecord
     {
         return [
             [['member_id', 'fee_type', 'assessment_amt'], 'required'],
+        	['assessment_dt', 'date', 'format' => 'php:Y-m-d'],
             [['assessment_amt'], 'number'],
             [['purpose'], 'string'],
             [['created_at', 'created_by'], 'integer'],
@@ -107,6 +109,11 @@ class Assessment extends \yii\db\ActiveRecord
         return $this->hasOne(FeeType::className(), ['fee_type' => 'fee_type']);
     }
 
+    public function getFeeOptions()
+    {
+    	return ArrayHelper::map(FeeType::find()->where(['is_assess' => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -114,5 +121,7 @@ class Assessment extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
+    
+    
     
 }

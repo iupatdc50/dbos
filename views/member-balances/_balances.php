@@ -2,7 +2,6 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use kartik\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $dues_balance string */
@@ -46,39 +45,11 @@ $bkground = $total_due > 0 ? ' td-danger' : ''; ?>
 	</tbody></table>
 
 <div>
-<? 
 
-$controller = 'assessment';
-
-echo GridView::widget([
+<?= $this->render('../assessment/_summary', [
 		'dataProvider' => $assessProvider,
-		'panel'=>[
-	        'type'=>GridView::TYPE_DEFAULT,
-	        'heading'=>'Open Assessments',
-			'before' => false,
-		    'after' => false,
-		    'footer' => false,
-		],
-		'columns' => [
-				'created_at:date',
-				'fee_type',
-				'assessment_amt',
-				'purpose',
-				[
-						'class' => \yii\grid\ActionColumn::className(),
-						'controller' => $controller,
-						'template' => '{delete}',
-						'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
-								'value' => Url::to(["/{$controller}/create", 'relation_id'  => '*']),
-								'id' => 'assessmentCreateButton',
-								'class' => 'btn btn-default btn-modal btn-embedded',
-								'data-title' => 'Assessment',
-						]),
-				],
-		],
-]);
-
-?>
+		'relation_id' => $member->member_id,
+]);  ?>
 
 </div>
 

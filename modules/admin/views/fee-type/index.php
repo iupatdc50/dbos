@@ -27,6 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'fee_type',
             'descrip',
             'freq',
+    		'is_assess',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

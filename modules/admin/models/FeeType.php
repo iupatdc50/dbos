@@ -3,6 +3,7 @@
 namespace app\modules\admin\models;
 
 use Yii;
+use app\helpers\OptionHelper;
 
 /**
  * This is the model class for table "FeeTypes".
@@ -31,7 +32,8 @@ class FeeType extends \yii\db\ActiveRecord
             [['fee_type', 'descrip'], 'required'],
             [['freq'], 'string'],
             [['fee_type'], 'string', 'max' => 2],
-            [['descrip'], 'string', 'max' => 50]
+            [['descrip'], 'string', 'max' => 50],
+        	[['is_assess'], 'in', 'range' => OptionHelper::getAllowedTF()],
         ];
     }
 
@@ -45,6 +47,7 @@ class FeeType extends \yii\db\ActiveRecord
             'descrip' => 'Descrip',
             'freq' => 'Freq',
         	'extDescrip' => 'Description',
+        	'is_assess' => 'Assessible',
         ];
     }
     
@@ -52,4 +55,7 @@ class FeeType extends \yii\db\ActiveRecord
     {
     	return $this->fee_type . ': ' . $this->descrip;
     }
+    
+    
+    
 }

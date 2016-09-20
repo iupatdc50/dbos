@@ -33,14 +33,16 @@ class Standing extends Model
 	/**
 	 * @var DuesRateFinder
 	 */
-	public $duesRateFinder;
+//	public $duesRateFinder;
 	
 	public function init()
 	{
 		if(!(isset($this->member) && ($this->member instanceof Member)))
 			throw new \yii\base\InvalidConfigException('No member object injected');
+		/*
 		if(!(isset($this->duesRateFinder) && ($this->duesRateFinder instanceof DuesRateFinder)))
 			throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
+			*/
 	}
 	
 	/**
@@ -72,14 +74,20 @@ class Standing extends Model
 	 * 
 	 * @return number
 	 */
-	public function getDuesBalance()
+	public function getDuesBalance(DuesRateFinder $rateFinder)
 	{
 		return ($this->getCurrentMonthEnd() > $this->member->duesPaidThruDtObject) 
-			? $this->duesRateFinder->computeBalance($this->member->dues_paid_thru_dt, $this->getCurrentMonthEnd()->getMySqlDate()) 
+			? $rateFinder->computeBalance($this->member->dues_paid_thru_dt, $this->getCurrentMonthEnd()->getMySqlDate()) 
 			: 0.00;
 	}
 	
-	public function getAssessmentBalance()
+	public function getOutstandingAssessment($fee_type)
+	{
+		$assessment = Assessment::findOne(['member_id' => $this->member->member_id, 'fee_type' => $fee_type]);
+		return (isset($assessment) && ($assessment->balance <> 0)) ? $assessment : null;
+	}
+	
+	public function getTotalAssessmentBalance()
 	{
 		$sql = 'SELECT * FROM Assessments AS A WHERE member_id = :id';
 		$assessments = Assessment::findBySql($sql, ['id' => $this->member->member_id])->all();

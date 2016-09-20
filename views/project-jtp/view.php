@@ -99,9 +99,10 @@ $this->params['breadcrumbs'][] = $this->title;
 			],
 			'columns' => [
 				[ 
-					// rowHighlight defaults to true; rowSelectedClass defaults to GridView::TYPE_SUCCESS
 					'class'=>'kartik\grid\RadioColumn',
    					'width'=>'36px',
+					'rowHighlight' => true,
+					'rowSelectedClass' => GridView::TYPE_SUCCESS,
 				],
 		    	[
     				'class'=>'kartik\grid\BooleanColumn',

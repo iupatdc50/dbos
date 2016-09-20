@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     		</div>
             <div><p>
             		<?php if ($modelReceipt->outOfBalance == 0.00): ?>
-            			<?= Html::a('Post', ['/staged-allocation/post', 'receipt_id' => $modelReceipt->id], ['class' => 'btn btn-primary']) ?>
+            			<?= Html::a('Post', ['post', 'id' => $modelReceipt->id], ['class' => 'btn btn-primary']) ?>
             		<?php else: ?>
             			<?=  Html::button('<i class="glyphicon glyphicon-check"></i>&nbsp;Balance', 
 							['value' => Url::to(["balance", 'id' => $modelReceipt->id, 'fee_types' => $fee_types]),

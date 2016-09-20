@@ -4,7 +4,6 @@ namespace app\models\accounting;
 
 use Yii;
 use app\models\accounting\DuesRateFinder;
-use app\models\member\Standing;
 use app\components\utilities\OpDate;
 use app\models\member\app\models\member;
 
@@ -22,20 +21,12 @@ class DuesAllocation extends BaseAllocation
 	 * @var DuesRateFinder
 	 */
 	public $duesRateFinder;
-	
+
 	public $unalloc_remainder;
 	/**
 	 * @var string Represents the current dues 
 	 */
 	public $start_dt;
-			
-	public function init()
-	{
-		if(!(isset($this->duesRateFinder) && ($this->duesRateFinder instanceof DuesRateFinder)))
-			throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
-		if(!(isset($this->start_dt)))
-			$this->start_dt = $this->allocatedMember->member->dues_paid_thru_dt;
-	}
 	
     /**
      * @inheritdoc
@@ -86,10 +77,10 @@ class DuesAllocation extends BaseAllocation
 	 */
     public function estimateAlloc()
     {
-    	if (!isset($this->alloc_memb_id))
+    	if (!isset($this->alloc_memb_id) || (!$this->rateFinderExists()))
     		return null;
-    	$standing = new Standing(['member' => $this->allocatedMember->member, 'duesRateFinder' => $this->duesRateFinder]);
-    	return $standing->duesBalance;
+    	$standing = $this->getStanding();
+    	return $standing->getDuesBalance($this->duesRateFinder);
     }
 
 	/**
@@ -100,20 +91,25 @@ class DuesAllocation extends BaseAllocation
 	 */
     public function calcMonths()
     {
+    	if (!$this->rateFinderExists())
+    		return null;
     	$tab = $this->allocation_amt;
     	$months = 0;
     	/* @var \yii\db\DataReader $periods */
-    	$periods = $this->duesRateFinder->getRatePeriods($this->start_dt);
+    	$periods = $this->duesRateFinder->getRatePeriods($this->getStartDt());
     	foreach ($periods as $period) {
     		if($period['max_in_period'] <= $tab) {
     			$months += $period['months_in_period'];
     			// Can't use standard substract on FP numbers
     			$tab = bcsub($tab, $period['max_in_period'], 2);
     		} else {
+    			
+/*  FP numbers are in base 2, so fmod is unreliable
     			$this->unalloc_remainder = fmod($tab, $period['rate']);
-    			if ($this->unalloc_remainder > 0.00)	
+    			if ($this->unalloc_remainder != 0)	
     				throw new \yii\base\UserException("Remainder of {$this->unalloc_remainder} exists in dues allocation. Tab: {$tab}; Rate: {$period['rate']}; Max: {$period['max_in_period']}");
-    			$months += $tab / $period['rate'];
+ */
+    			$months += bcdiv($tab, $period['rate'], 2);
     			$tab = 0.00;
     		}
     		if ($tab <= 0.00)
@@ -134,6 +130,23 @@ class DuesAllocation extends BaseAllocation
     	$paid_thru = (new OpDate)->setFromMySql($this->start_dt);
     	$paid_thru->modify('+' . $months . ' month');
     	return $paid_thru->getMySqlDate();
+    }
+    
+    private function getStartDt()
+    {
+		if(!(isset($this->start_dt)))
+			$this->start_dt = $this->member->dues_paid_thru_dt;
+		return $this->start_dt;
+    }
+    
+    private function rateFinderExists()
+    {
+    	if (isset($this->duesRateFinder)) {
+    		if(!($this->duesRateFinder instanceof DuesRateFinder))
+    			throw new \yii\base\InvalidConfigException('Not a valid dues rate finder object');
+    	} else
+    		throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
+    	return true;
     }
         
 }

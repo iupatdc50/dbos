@@ -70,6 +70,9 @@ table .total-border {
 }
 .btn-xs, .btn-group-xs > .btn {padding: 1px 5px;}
 .btn-embedded {margin: -6px}
+.btn-detail {
+	padding: 1px 5px;
+}
 .btn.margin-lft-25 {margin-left: 25%;}
 
 .op-dv-table th {

@@ -13,6 +13,10 @@ use kartik\datecontrol\DateControl;
 
 <div class="receipt-formfields">
 
+	<?= $form->field($model, 'received_dt')->widget(DateControl::className(), [
+			'type' => DateControl::FORMAT_DATE,
+	])   ?>
+       
 	<?= $form->field($model, 'payor_nm')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'payment_method')->widget(Select2::className(), [
@@ -23,10 +27,6 @@ use kartik\datecontrol\DateControl;
     		 ->textInput(['maxlength' => true, 'id' => 'trackingnbr'])
     		 ->label('', ['id' => 'trackinglbl']) ?>
     
-	<?= $form->field($model, 'received_dt')->widget(DateControl::className(), [
-			'type' => DateControl::FORMAT_DATE,
-	])   ?>
-       
     <?= $form->field($model, 'received_amt')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'unallocated_amt')->textInput(['maxlength' => true]) ?>
