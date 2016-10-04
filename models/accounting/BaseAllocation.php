@@ -5,7 +5,9 @@ namespace app\models\accounting;
 use Yii;
 use app\models\member\Member;
 use app\models\member\Standing;
-use \app\modules\admin\models\FeeType;
+use app\models\accounting\TradeFeeType;
+use app\modules\admin\models\FeeType;
+
 
 /**
  * This is the base model class for various receipt allocation tables.

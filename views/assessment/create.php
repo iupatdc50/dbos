@@ -24,7 +24,7 @@ use app\helpers\OptionHelper;
     		'data' => $model->feeOptions, 
     		'hideSearch' => true,
 			'size' => Select2::SMALL,
-    		'options' => ['placeholder' => 'Select...'],
+    		'options' => ['placeholder' => 'Select...', 'id' => 'feetype'],
     ]) ?>
     
     <?= $form->field($model, 'assessment_dt')->widget(DateControl::className(), [
@@ -32,6 +32,9 @@ use app\helpers\OptionHelper;
 	])   ?>
        
     <?= $form->field($model, 'assessment_amt')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'months')
+    		 ->textInput(['maxlength' => true, 'id' => 'months'])
+    		 ->label('Dues Months', ['id' => 'monthslbl']) ?>
     <?= $form->field($model, 'purpose')->textArea(['rows' => 2]) ?>
     
 
@@ -44,3 +47,25 @@ use app\helpers\OptionHelper;
 
 </div>
 
+<?php 
+$script = <<< JS
+
+$(function() {
+		$('#monthslbl').hide();
+		$('#months').hide();
+})
+
+$('#feetype').change(function() {
+	var feetype = $(this).val();
+	if(feetype == 'IN') {
+		$('#monthslbl').show();
+		$('#months').show();
+	} else {
+		$('#monthslbl').hide();
+		$('#months').hide();
+	};
+});
+
+JS;
+$this->registerJs($script);
+?>

@@ -12,7 +12,7 @@ use yii\helpers\Url;
     	<?= Html::button('Create Receipt', [
 							'class' => 'btn btn-default btn-modal',
 							'id' => 'receiptCreateButton',
-							'value' => Url::to(['create-member/create', 'id'  => $member->member_id]),
+							'value' => Url::to(['receipt-member/create', 'id'  => $member->member_id]),
 							'data-title' => 'Receipt',
 		]) . ' ' .
 		

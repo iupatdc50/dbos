@@ -25,7 +25,7 @@ class AllocationBuilder extends Model
 								$memb->member->currentClass->rate_class
 						),
 				]);
-				$alloc->allocation_amt = $alloc->estimateAlloc();
+				$alloc->allocation_amt = $alloc->estimateOwed();
 			} else {
 				$alloc = new AssessmentAllocation([
 						'alloc_memb_id' => $memb->id,
@@ -33,7 +33,7 @@ class AllocationBuilder extends Model
 				]);
 				$standing = new Standing(['member' => $memb->member]);
 				if ($assessment = $standing->getOutstandingAssessment($fee_type))
-					$alloc->allocation_amt = $assessment->assessment_amt;
+					$alloc->allocation_amt = $assessment->balance;
 			}
 			$alloc->fee_type = $fee_type;
 			if (!$this->saveAlloc($alloc))

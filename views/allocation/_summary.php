@@ -33,7 +33,6 @@ use kartik\grid\GridView;
 						'class' => '\kartik\grid\DataColumn',
 						'attribute' => 'allocation_amt',
 						'format' => ['decimal', 2],
-//						'pageSummary' => true,
 						'hAlign' => 'right',
 		
 				],
@@ -62,6 +61,7 @@ use kartik\grid\GridView;
 <?= GridView::widget([
 		'id' => 'hrs_grid',
 		'dataProvider' => $hrsProvider,
+		/*
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
 				'heading'=>'<i class="glyphicon glyphicon-time"></i>',
@@ -69,6 +69,7 @@ use kartik\grid\GridView;
 				'after' => false,
 				'footer' => false,
 		],
+		*/
 		'columns' => [
 				[
 						'class' => '\kartik\grid\DataColumn',

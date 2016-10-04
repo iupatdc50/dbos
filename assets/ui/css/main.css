@@ -29,9 +29,40 @@ div.logo {
   width:    90px;
 }
 
+div.lion-title {
+  font-size: 		2.0em;
+  color:		#333333;
+  border-bottom: 	1px solid #d0d2c1;
+  border-top: 		1px solid #d0d2c1;
+  padding-left:         10px;
+  position: 		absolute;
+  top: 			52px;
+  left: 		201px;
+  right:		35px;
+}
+
+div.lion-title span {
+	font-size: 0.5em;
+	padding: 10px 0 10px 10px;
+}
+
+div.lion {
+  background-image: url(../img/dc50_lionhead.jpg);
+  height:   150px;
+  width:    190px;
+}
+
 #logo-nothome {
 	height: 71px;
 	border-radius: 4px;
+}
+
+#report-title {
+	font-weight: 500;
+	font-size: 28px; 
+    line-height: 1.1;
+    margin-top: 5px;
+    margin-bottom: 25px;
 }
 
 body {
@@ -44,7 +75,11 @@ footer {
 	padding-top: 1em;
 	margin-top: 3em;
 	height: 3em;
+}
+
+.footer {
 	background: #ddd;
+	
 }
 
 h1, .h1 {
@@ -92,6 +127,10 @@ table .total-border {
 ul.noBullets {list-style: none;}
 
 .pad-six {padding: 6px;}
+.pad-rightlink {
+	padding-right: 35px;
+	padding-top: 10px;
+}
 .three-em {height: 3em;}
 .ten-em {width: 10em;}
 .twelve-em {width: 12em;}
@@ -111,6 +150,8 @@ ul.noBullets {list-style: none;}
 	background-color: #f2dede;
     border-color: #d43f3a;
 }
+
+.td-bold {font-weight: bold;}
 
 
 span.not-set {color: #c8c8a7;}

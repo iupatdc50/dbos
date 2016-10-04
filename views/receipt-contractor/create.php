@@ -50,6 +50,8 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
     ]) ?>
     
+    <?= $form->field($model, 'unallocated_amt')->textInput(['maxlength' => true]) ?>
+    
     <?= $form->field($model, 'helper_dues')->textInput(['maxlength' => true, 'id' => 'helperdues']) ?>
 
     <?= $form->field($model, 'helper_hrs')

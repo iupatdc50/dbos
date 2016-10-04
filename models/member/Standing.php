@@ -4,6 +4,7 @@ namespace app\models\member;
 
 use Yii;
 use yii\base\Model;
+use yii\base\InvalidConfigException;
 use app\components\utilities\OpDate;
 use app\models\member\Member;
 use app\models\accounting\DuesRateFinder;
@@ -52,8 +53,9 @@ class Standing extends Model
 	 */
 	public function getMonthsToCurrent()
 	{
-		return ($this->getCurrentMonthEnd() > $this->member->duesPaidThruDtObject) 
-			? $this->getCurrentMonthEnd()->diff($this->member->duesPaidThruDtObject)->format('%m') 
+		$obligation_dt = $this->getDuesObligation();
+		return ($obligation_dt > $this->member->duesPaidThruDtObject) 
+			? $obligation_dt()->diff($this->member->duesPaidThruDtObject)->format('%m') 
 			: 0;
 	}
 	
@@ -65,7 +67,7 @@ class Standing extends Model
 	public function getMonthsToCurrentDescrip()
 	{
 		$start = $this->member->duesPaidThruDtObject;
-		$end = $this->getCurrentMonthEnd();
+		$end = $this->getDuesObligation();
 		return $start->getMonthName(true) . ' ' . $start->getYear() . ' - ' . $end->getMonthName(true) . ' ' . $end->getYear();
 	}
 	
@@ -76,9 +78,8 @@ class Standing extends Model
 	 */
 	public function getDuesBalance(DuesRateFinder $rateFinder)
 	{
-		return ($this->getCurrentMonthEnd() > $this->member->duesPaidThruDtObject) 
-			? $rateFinder->computeBalance($this->member->dues_paid_thru_dt, $this->getCurrentMonthEnd()->getMySqlDate()) 
-			: 0.00;
+		$obligation_dt = $this->getDuesObligation();
+		return ($obligation_dt > $this->member->duesPaidThruDtObject) ? $rateFinder->computeBalance($this->member->dues_paid_thru_dt, $obligation_dt->getMySqlDate()) : 0.00;
 	}
 	
 	public function getOutstandingAssessment($fee_type)
@@ -123,6 +124,30 @@ class Standing extends Model
 			$this->_currentMonthEnd->setToMonthEnd();
 		}
 		return $this->_currentMonthEnd;
+	}
+	
+	/**
+	 * Returns the date dues must be paid thru to meet obligation.  
+	 * 
+	 * If member, is in application, this date is determined by adding the APF dues months to the current application 
+	 * date.  Otherwise, the current month end is used.
+	 * 
+	 * @see Member::getDuesStartDt
+	 * @throws InvalidConfigException
+	 * @return \app\components\utilities\OpDate
+	 */
+	private function getDuesObligation()
+	{
+		if ($this->member->isInApplication()) {
+			$apf = $this->member->currentApf;
+			if (!isset($apf))
+				throw new InvalidConfigException('No current APF for member: ' . $this->member->member_id);
+			$obligation_dt = $this->member->getDuesStartDt();
+			$obligation_dt->modify('+' . $apf->months . ' month');
+		} else {
+			$obligation_dt = $this->getCurrentMonthEnd();
+		}
+		return $obligation_dt;
 	}
 	
 }

@@ -7,6 +7,7 @@ use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 use app\models\value\Size;
+use app\models\value\Lob;
 use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
 use app\models\base\iIdGeneratedInterface;
@@ -14,7 +15,9 @@ use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
 use app\models\accounting\BaseAllocation;
-use app\models\accounting\Assessment;
+use app\models\accounting\InitFee;
+use app\models\accounting\DuesRateFinder;
+use app\models\accounting\ApfAssessment;
 
 /**
  * This is the model class for table "Members".
@@ -50,10 +53,14 @@ use app\models\accounting\Assessment;
  * @property MemberClass $currentClass
  * @property CurrentEmployment $employer
  * @property BaseAllocation[] $allocations
+ * @property ApfAssessment $currentApf
  * @property Note[] $notes
  */
 class Member extends \yii\db\ActiveRecord implements iNotableInterface
 {
+	CONST UNCHECKED = 0;
+	CONST CHECKED = 1;
+	
 	/*
 	 * @var OpDate
 	 */
@@ -83,6 +90,17 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	 * @var mixed 	Stages the image to be uploaded 
 	 */
 	public $photo_file;
+	
+	/**
+	 * @var mixed	Stages combined member & rate class codes
+	 */
+	public $member_class;
+	public $wage_percent;
+	
+	/**
+	 * @var binary Stages whether new member should be APF exempt
+	 */
+	public $exempt_apf;
 	
     /**
      * @inheritdoc
@@ -149,6 +167,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
         	[['middle_inits', 'suffix', 'photo_id', 'imse_id'], 'default'],
         	[['ssnumber', 'imse_id'], 'unique'],
+            [['exempt_apf', 'wage_percent'], 'safe'],            
         ];
     }
 
@@ -186,6 +205,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	'init_dt' => 'Init Date (Current)',
         	'dues_paid_thru_dt' => 'Dues&nbsp;Thru',
         	'drug_test_dt' => 'Last Drug Test',
+        	'exempt_apf' => 'Exempt APF?'
         ];
     }
     
@@ -239,9 +259,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     
     public function afterSave($insert, $changedAttributes)
     {
-    	if (parent::afterSave($insert, $changedAttributes)) {
-    		if (isset($changedAttributes['application_dt']))
-    			unset($this->_application_dt);
+    	parent::afterSave($insert, $changedAttributes); 
+    	if (isset($changedAttributes['application_dt'])) {
+    		unset($this->_application_dt);
     	}
     }
     
@@ -351,6 +371,31 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return $this->hasMany(Status::className(), ['member_id' => 'member_id']);
     }
+    
+    /**
+     * Adds a Status entry for a member
+     * 
+     * For a new member member_status is determined by the submitted exempt_apf switch, and the lob_cd must be supplied.
+     * For an existing member, the previous lob_cd is assumed
+     * 
+     * @param Status $status
+     * @param array $config
+     * @throws \BadMethodCallException
+     */
+    public function addStatus(Status $status, $config = [])
+    {
+    	if (!($status instanceof Status))
+    		throw new \BadMethodCallException('Not an instance of MemberStatus');
+    	$status->member_id = $this->member_id;
+    	if (!isset($status->lob_cd)) {
+    		if (!isset($this->currentStatus))
+    			throw new \BadMethodCallException('No local can be determined for new Status');
+    		$status->lob_cd = $this->currentStatus->lob_cd;
+    	}
+    	if ($status->reason == Status::REASON_NEW)
+    		$status->member_status = ($this->exempt_apf == Member::CHECKED) ? Status::ACTIVE : Status::IN_APPL;
+    	return $status->save();
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -379,27 +424,22 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         return $this->hasMany(MemberClass::className(), ['member_id' => 'member_id']);
     }
     
+    public function addClass(MemberClass $class, $config = [])
+    {
+    	if (!($class instanceof MemberClass))
+    		throw new \BadMethodCallException('Not an instance of MemberClass');
+    	$class->member_id = $this->member_id;
+    	if ($class->resolveClasses())
+    		return $class->save(); 
+    	return false;
+    }
+    
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getEmployer()
     {
     	return $this->hasOne(CurrentEmployment::className(), ['member_id' => 'member_id']);
-    }
-    
-    /**
-     * Add allocation to this member
-     * 
-     * @param BaseAllocation $alloc
-     * @throws \BadMethodCallException
-     * @return boolean
-     */
-    public function addAllocation($alloc)
-    {
-    	if (!($alloc instanceof BaseAllocation))
-    		throw new \BadMethodCallException('Not an instance of BaseAllocation');
-    	$alloc->member_id = $this->member_id;
-    	return $alloc->save();
     }
     
     public function getAllocations()
@@ -410,7 +450,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * Adds a journal note to this member
      * 
-     * @param BaseAllocation $alloc
+     * @param Note $note
      * @throws \BadMethodCallException
      * @return boolean
      */
@@ -593,13 +633,17 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function isInApplication()
     {
     	$result = false;
-    	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'A')) {
-    		if (isset($this->init_dt)) {
-	    		$application_dt = $this->getApplicationDtObject();
-	    		$init_dt = (new OpDate)->setFromMySql($this->init_dt);
-	    		$result = (OpDate::dateDiff($application_dt, $init_dt) < 0);
-    		} else {
+    	if (isset($this->currentStatus)) {
+    		if ($this->currentStatus->member_status == 'N') {
     			$result = true;
+    		} elseif ($this->currentStatus->member_status == 'A') {
+	    		$application_dt = $this->getApplicationDtObject();
+    			if (isset($this->init_dt)) {
+	    			$init_dt = (new OpDate)->setFromMySql($this->init_dt);
+	    			$result = (OpDate::dateDiff($application_dt, $init_dt) < 0);
+    			} else { // no init_dt
+    				$result = true;
+    			}
     		}
     	}
     	return $result;
@@ -610,6 +654,42 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (!isset($this->_application_dt))
     		$this->_application_dt = (new OpDate)->setFromMySql($this->application_dt);
     	return $this->_application_dt;
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrentApf()
+    {
+    	return $this->hasOne(ApfAssessment::className(), ['member_id' => 'member_id'])
+    		 		->andOnCondition(['fee_type' => 'IN'])
+    		 		->andOnCondition(['assessment_dt' => $this->application_dt])
+    	;
+    }
+    
+    /**
+     * Builds an APF assessment record for the member
+     * 
+     * @return boolean
+     */
+    public function createApfAssessment()
+    {   	
+    	$lob_cd = $this->currentStatus->lob_cd;
+    	$class = $this->currentClass;
+    	// consider injecting the InitFee to simplify testing
+    	$init = InitFee::findOne([
+    			'lob_cd' => $lob_cd,
+    			'member_class' => $class->member_class,
+    	]);
+    	$amount = $init->getAssessmentAmount(new DuesRateFinder($lob_cd, $class->rate_class));
+    	$apf_assessment = new ApfAssessment([
+    			'member_id' => $this->member_id,
+    			'fee_type' => 'IN',
+    			'assessment_dt' => $this->application_dt,
+    			'assessment_amt' => $amount,
+    			'months' => $init->dues_months,
+    	]);
+    	return $apf_assessment->save();
     }
     
 	/**

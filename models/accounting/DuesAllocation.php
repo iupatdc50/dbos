@@ -24,7 +24,7 @@ class DuesAllocation extends BaseAllocation
 
 	public $unalloc_remainder;
 	/**
-	 * @var string Represents the current dues 
+	 * @var string Represents the current dues paid thru. Can be injected for testing
 	 */
 	public $start_dt;
 	
@@ -52,16 +52,6 @@ class DuesAllocation extends BaseAllocation
         return parent::attributeLabels();
     }
     
-    public function afterSave($insert, $changedAttributes) {
-    	if (parent::afterSave($insert, $changedAttributes)) {
-    		if (isset($changedAttributes['allocation_amt'])) {
-    			// Set an event to check outstanding init balance
-    		}
-    		return true;
-    	} else 
-    		return false;    		 
-    }
-
     /*
     public function afterDelete() {
     	if (parent::afterDelete()) {
@@ -71,11 +61,11 @@ class DuesAllocation extends BaseAllocation
     */
     
 	/**
-	 * Uses Standing class to estimate the dues allocation for a member
+	 * Uses Standing class to estimate the dues owed for a member
 	 * 
 	 * @return number|NULL
 	 */
-    public function estimateAlloc()
+    public function estimateOwed()
     {
     	if (!isset($this->alloc_memb_id) || (!$this->rateFinderExists()))
     		return null;
@@ -127,7 +117,7 @@ class DuesAllocation extends BaseAllocation
     {
     	if ($months === null)
     		$months = $this->calcMonths();
-    	$paid_thru = (new OpDate)->setFromMySql($this->start_dt);
+    	$paid_thru = (new OpDate)->setFromMySql($this->getStartDt());
     	$paid_thru->modify('+' . $months . ' month');
     	return $paid_thru->getMySqlDate();
     }

@@ -4,6 +4,7 @@ namespace app\models\accounting;
 
 use Yii;
 use app\models\member\ClassCode;
+use \app\components\utilities\OpDate;
 
 /**
  * This is the model class for table "InitFees".
@@ -79,4 +80,34 @@ class InitFee extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ClassCode::className(), ['member_class_cd' => 'member_class']);
     }
+    
+    /**
+     * Determines the assessment amount portion of the AFP
+     * 
+     * If the dues are included in the APF, the dues are substracted from the amount that will 
+     * go on the assessment
+     * 
+     * @param DuesRateFinder $finder
+     * @return float
+     */
+    public function getAssessmentAmount(DuesRateFinder $finder)
+    {
+    	$amount = $this->fee;
+    	if($this->included == 'T') {
+    		$amount -= ($finder->getCurrentRate($this->today->getMySqlDate()) * (float) $this->dues_months);
+    	}
+    	return $amount;
+    }    
+
+    /**
+     * Override this function when testing with fixed date
+     *
+     * @return \app\components\utilities\OpDate
+     */
+    protected function getToday()
+    {
+    	return new OpDate();
+    }
+    
+    
 }

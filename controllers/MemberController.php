@@ -10,9 +10,11 @@ use app\models\member\Address;
 use app\models\member\Phone;
 use app\models\member\Email;
 use app\models\member\Status;
+use app\models\member\StatusCode;
+use app\models\member\MemberClass;
+use app\models\member\AllowableClassDescription;
 use app\models\member\Employment;
 use app\models\member\Note;
-use app\models\member\StatusCode;
 use app\models\member\MemberSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -85,15 +87,22 @@ class MemberController extends RootController
         $modelPhone = new Phone;
         $modelEmail = new Email;
         $modelStatus = new Status;
+        $modelClass = new MemberClass(['scenario' => MemberClass::SCENARIO_CREATE]);
+        
+        // New member defaults
+        $model->exempt_apf = false;
         
         if ($model->load(Yii::$app->request->post())
         		&& $modelAddress->load(Yii::$app->request->post()) 
         		&& $modelPhone->load(Yii::$app->request->post()) 
         		&& $modelEmail->load(Yii::$app->request->post()) 
-        		&& $modelStatus->load(Yii::$app->request->post())) {
+        		&& $modelStatus->load(Yii::$app->request->post())
+        		&& $modelClass->load(Yii::$app->request->post())) {
         	
         	$image = $model->uploadImage();
         	if ($model->validate() && $modelAddress->validate() && $modelPhone->validate()) {
+        		
+        		$model->init_dt = ($model->exempt_apf) ? $model->application_dt : null;
         		 
         		$transaction = \Yii::$app->db->beginTransaction();
         		try {
@@ -105,9 +114,21 @@ class MemberController extends RootController
         				$modelAddress->member_id = $model->member_id;
 						$modelPhone->member_id = $model->member_id;        				
 						$modelEmail->member = $model;
-						$modelStatus->configureNewEntry($model);
 						
-        				if ($modelAddress->save(false) && $modelPhone->save(false) && $modelEmail->save(false) && $modelStatus->save(false)) {
+        				if ($modelAddress->save(false) && $modelPhone->save(false) && $modelEmail->save(false)) {
+							// Assume lob_cd comes from $_POST
+							$modelStatus->effective_dt = $model->application_dt;
+							$modelStatus->reason = Status::REASON_NEW;
+        					if (!$model->addStatus($modelStatus))
+        						throw new \Exception('Error when adding Status: ' . print_r($modelStatus->errors, true));
+        					// Assume class_id comes from $_POST
+        					$modelClass->effective_dt = $model->application_dt;
+        					if (!$model->addClass($modelClass))
+        						throw new \Exception('Error when adding Member Class: ' . print_r($modelClass->errors, true));
+        					if ($model->isInApplication()) {
+        						if(!$model->createApfAssessment())
+        							throw new \Exception('Uncaught errors saving assessment');
+        					}
         					$transaction->commit();
 							return $this->redirect(['view', 'id' => $model->member_id]);
         				}
@@ -118,9 +139,11 @@ class MemberController extends RootController
         			throw new \Exception('Error when trying to save created Member: ' . $e);
         		}
         	}
-        	/* should not reach this */
+        	/* when you need to debug non-client errors or those not associated with a field  */
+			/*
         	$errors = print_r($model->errors, true) . print_r($modelAddress->errors, true) . print_r($modelPhone->errors, true);
         	throw new \Exception('Uncaught validation exception: ' . $errors);
+        	*/
         }
         $modelAddress->address_type = OptionHelper::ADDRESS_MAILING; 
         return $this->render('create', [
@@ -129,6 +152,7 @@ class MemberController extends RootController
             	'modelPhone' => $modelPhone,
             	'modelEmail' => $modelEmail,
         		'modelStatus' => $modelStatus,
+        		'modelClass' => $modelClass,
         ]);
     }
 
@@ -248,4 +272,5 @@ class MemberController extends RootController
     	}
     	return $note;
     }
+    
 }

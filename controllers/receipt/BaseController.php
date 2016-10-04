@@ -6,13 +6,15 @@ use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptSearch;
-use app\models\accounting\AllocatedMemberSearch;
+use app\models\member\Status;
 use yii\base\InvalidCallException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\base\yii\base;
-use app\models\accounting\app\models\accounting;
+use yii\data\ActiveDataProvider;
+use app\models\accounting\BaseAllocation;
+use app\models\accounting\ReceiptAllocSumm;
 
 
 /**
@@ -20,6 +22,8 @@ use app\models\accounting\app\models\accounting;
  */
 class BaseController extends Controller
 {
+	
+	private $_dbErrors;
 		
 	/** @var array Supplemental data providers */
 	protected $otherProviders = [];
@@ -47,25 +51,11 @@ class BaseController extends Controller
     	return $this->redirect("/accounting");
     }
 
-    /**
-     * Displays a single Receipt model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
+//    public function actionBalance($id, array $fee_types)
+    public function actionBalance($id)
     {
     	$model = $this->findModel($id);
-    	    	
-    	$searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
-    	$membProvider = $searchMemb->search(Yii::$app->request->queryParams);
-
-    	return $this->render('/receipt/view', compact('model', 'membProvider', 'searchMemb'));
-    }
-    
-    public function actionBalance($id, array $fee_types)
-    {
-    	$model = $this->findModel($id);
-    	$model->fee_types = $fee_types;
+//    	$model->fee_types = $fee_types;
     	if ($model->load(Yii::$app->request->post())) {
     		if($model->save()) 
     			return $this->goBack();
@@ -98,38 +88,49 @@ class BaseController extends Controller
     	$model = $this->findModel($id);
 
     	$allocs = $model->duesAllocations;
-    	$save_errors = [];
+    	$this->_dbErrors = [];
     	/* @var $alloc DuesAllocation */
     	foreach ($allocs as $alloc) {
-    		$member = $alloc->member;
-    		$alloc->duesRateFinder = new DuesRateFinder(
-    				$member->currentStatus->lob_cd,
-    				$member->currentClass->rate_class
-    		);
-    		$alloc->months = $alloc->calcMonths();
-    		$alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
-    		if (!$alloc->save()) {
-    			$save_errors = array_merge($save_errors, $alloc->errors);
-    		} else {
-    			$member->dues_paid_thru_dt = $alloc->paid_thru_dt;
-    			if (!$member->save())
-    				$save_errors = array_merge($save_errors, $member->errors);;
+    		if ($this->retainAlloc($alloc)) {
+	    		$member = $alloc->member;
+	    		$alloc->duesRateFinder = new DuesRateFinder(
+	    				$member->currentStatus->lob_cd,
+	    				$member->currentClass->rate_class
+	    		);
+	    		$alloc->months = $alloc->calcMonths();
+	    		$alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
+	    		if (!$alloc->save()) {
+	    			$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
+	    		} else {
+	    			$member->dues_paid_thru_dt = $alloc->paid_thru_dt;
+	    			if ($member->save()) {
+	    				if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed() == 0.00)) {
+	    					$member->addStatus(new Status(['effective_dt' => $model->received_dt, 'member_status' => Status::ACTIVE, 'reason' => Status::REASON_APF]));
+	    					$member->init_dt = $model->received_dt;
+	    					if (!$member->save())
+	    						$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
+	    				}
+	    			} else {
+	    				$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
+	    			} 
+	    		}
     		}
     	}
     	
     	$allocs = $model->assessmentAllocations;
     	/* @var $alloc AssessmentAllocation */
     	foreach ($allocs as $alloc) {
-    		if ($alloc->applyToAssessment()) {
-    			if (!$alloc->save()) {
-    				$save_errors = array_merge($save_errors, $alloc->errors);
-    			}
-    		}	 
+    		if ($this->retainAlloc($alloc)) {
+	    		if ($alloc->applyToAssessment()) {
+	    			if (!$alloc->save()) {
+	    				$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
+	    			}
+	    		}	 
+    		}
     	}   
     	
-    	
-    	if (!empty($save_errors))
-    		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($save_errors, true));
+    	if (!empty($this->_dbErrors))
+    		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($this->_dbErrors, true));
     	return $this->redirect(['view', 'id' => $model->id]);
     	
     }
@@ -143,10 +144,19 @@ class BaseController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
 
+    public function actionPrintPreview($id)
+    {
+    	$this->layout = 'extreport';
+    	$model = $this->findModel($id);
+		$query = ReceiptAllocSumm::find()->where(['receipt_id' => $id])->orderBy('descrip');
+		$allocProvider = new ActiveDataProvider(['query' => $query, 'sort' => false]);
+
+		return $this->render('/receipt/print-preview', compact('model', 'allocProvider'));
+    }
+    
     /**
      * Finds the Receipt model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
@@ -158,4 +168,33 @@ class BaseController extends Controller
     {
         return null;
     }
+    
+    /**
+     * Allows GoBack() to return to the sending page instead of the home page
+     */
+    protected function storeReturnUrl()
+    {
+    	Yii::$app->user->returnUrl = Yii::$app->request->url;
+    }
+    
+    /**
+     * Delete the allocation if the allocated amount is zero
+     * 
+     * @param BaseAllocation $alloc
+     * @return boolean Returns false if a database record deletion is attempted
+     */
+    protected function retainAlloc(BaseAllocation $alloc)
+    {
+    	$result = true;
+    	if ($alloc->allocation_amt == 0.00) {
+    		if (!$alloc->delete()) {
+    			$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
+    		}
+    		$result = false;
+    	} 
+    	return $result;
+    }
+    
+    
+    
 }

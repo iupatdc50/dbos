@@ -24,7 +24,11 @@ use yii\helpers\ArrayHelper;
  */
 class Assessment extends \yii\db\ActiveRecord
 {
-    /**
+
+	protected $_validationRules = [];
+	protected $_labels = [];
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
@@ -45,7 +49,7 @@ class Assessment extends \yii\db\ActiveRecord
      */
     public function rules()
     {
-        return [
+        $common_rules = [
             [['member_id', 'fee_type', 'assessment_amt'], 'required'],
         	['assessment_dt', 'date', 'format' => 'php:Y-m-d'],
             [['assessment_amt'], 'number'],
@@ -54,14 +58,15 @@ class Assessment extends \yii\db\ActiveRecord
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['fee_type'], 'exist', 'targetClass' => FeeType::classname()],
         ];
-    }
+       return array_merge($this->_validationRules, $common_rules);
+     }
 
     /**
      * @inheritdoc
      */
     public function attributeLabels()
     {
-        return [
+        $common_labels = [
             'id' => 'ID',
             'member_id' => 'Member ID',
             'fee_type' => 'Fee Type',
@@ -70,6 +75,7 @@ class Assessment extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'created_by' => 'Created By',
         ];
+        return array_merge($this->_labels, $common_labels);
     }
     
     /**

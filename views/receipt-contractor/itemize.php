@@ -13,36 +13,15 @@ use kartik\editable\Editable;
 $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
 $this->params['breadcrumbs'][] = ['label' => 'Employer Receipts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $modelReceipt->id;
+
+// $url = ["balance", 'id' => $modelReceipt->id, 'fee_types' => $fee_types];
+
 ?>
 <div class="receipt-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
     
-    		<div class="pull-right">
-    		<?php if ($modelReceipt->outOfBalance != 0.00): ?>
-    			<span class="lbl-danger"><?= Html::encode('Out of Balance: ' . $modelReceipt->outOfBalance); ?></span>
-			<?php endif ?>
-    		</div>
-            <div><p>
-            		<?php if ($modelReceipt->outOfBalance == 0.00): ?>
-            			<?= Html::a('Post', ['post', 'id' => $modelReceipt->id], ['class' => 'btn btn-primary']) ?>
-            		<?php else: ?>
-            			<?=  Html::button('<i class="glyphicon glyphicon-check"></i>&nbsp;Balance', 
-							['value' => Url::to(["balance", 'id' => $modelReceipt->id, 'fee_types' => $fee_types]),
-									'id' => 'balanceButton',
-									'class' => 'btn btn-default btn-modal',
-									'data-title' => 'Unallocated',
-							]); ?>
-            		<?php endif ?>
-            		<?= Html::a('Cancel', ['delete', 'id' => $modelReceipt->id], [
-       	            		'class' => 'btn btn-danger',
-	            			'data' => [
-	                			'confirm' => 'Are you sure you want to cancel this receipt?',
-	                			'method' => 'post',
-	            			],
-	           		]) ?>
-			</p></div>
-    
+    <?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt]); ?>
     <?= $this->render('../receipt/_detail', ['modelReceipt' => $modelReceipt]); ?>
     
     <?php

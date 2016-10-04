@@ -13,6 +13,16 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.6.101 Notes
+
+. Added prinatble receipts
+. Added status handling, including updated progressive balance displays for partial payments
+. Added APF-specific assessment handling, including updated progressive balance displays for partial payments
+. Added member class handling
+. Added member-specific receipt handling and display
+. Improved some internal coding organization, cleaned out some dead code
+. Fixed some bugs
+
 0.9.5.701 Notes
 
 . Added dues receipt move forward paid thru date functionality

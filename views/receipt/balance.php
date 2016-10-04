@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use kartik\form\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\accounting\StagedAllocation */
+/* @var $model app\models\accounting\BaseAllocation */
 /* @var $receipt_id string */
 
 ?>

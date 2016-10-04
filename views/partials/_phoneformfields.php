@@ -13,7 +13,7 @@ use kartik\widgets\Select2;
 
     <?= $form->field($phone, 'phone_type')->widget(Select2::className(), [
     		'data' => $phone->typeOptions,
-    		'hideSearch' => true,
+    		'hideSearch' => false,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select Phone Type...'],
     ]) ?>

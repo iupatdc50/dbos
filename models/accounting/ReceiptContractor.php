@@ -10,21 +10,25 @@ class ReceiptContractor extends Receipt
 {
 	
 	protected $_remit_filter = 'employer_remittable';
+	protected $_customAttributes = [
+			[
+					'attribute' => 'helperDuesText',
+					'label' => 'Helper Dues',
+			],
+        	[
+			        'attribute' =>  'feeTypeTexts',
+			        'format' => 'ntext',
+			        'label' => 'Fee Types'
+			],
+			        				
+	];
+
 	/**
 	 * Injected employer object
 	 * @var ResponsibleEmployer
 	 */
 	public $responsible;
-	public $fee_types = [];
 	
-    public function rules()
-    {
-        $this->_validationRules = [
-        	['fee_types', 'required', 'message' => 'Please select at least one Fee Type'],
-        ];
-        return parent::rules();
-    }
-    
     public function beforeSave($insert)
     {
     	if (parent::beforeSave($insert)) {
@@ -46,6 +50,16 @@ class ReceiptContractor extends Receipt
     public function getHelperDuesText()
     {
     	return ($this->helper_dues > 0.00) ? $this->helper_dues . ' (' . $this->helper_hrs . ' hours)' : null;
+    }
+
+    public function getCustomAttributes($forPrint = false)
+    {
+    	$attrs = $this->_customAttributes;
+    	// no feeTypeTexts on printable receipt
+    	if ($forPrint) {
+    		unset($attrs[1]);
+    	};
+    	return $attrs;
     }
     
 }

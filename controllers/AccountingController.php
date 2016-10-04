@@ -73,30 +73,8 @@ class AccountingController extends Controller
     }
     
 	public function actionReinstate() {
-		$modelReceipt = new ReceiptMember;
-		$modelMember = new AllocatedMember();
-		$modelsAllocation = [new BaseAllocation];
 		
-		/* Begin mockup */
-		
-		$modelReceipt->payor_nm = 'Agno, Shawn W.W.U.';
-		$modelReceipt->received_amt = 224.60;
-		
-		$modelsAllocation[0]->fee_type = 'DU';
-		$modelsAllocation[0]->allocation_amt = 174.60;
-		$modelsAllocation[] = new BaseAllocation();
-		$modelsAllocation[1]->fee_type = 'RN';
-		$modelsAllocation[1]->allocation_amt = 50.00;
-		
-		/* End Mockup */
-		
-		
-		
-		return $this->renderAjax('reinstate', [
-				'modelReceipt' => $modelReceipt,
-				'modelMember' => $modelMember,
-				'modelsAllocation' => (empty($modelsAllocation)) ? [new BaseAllocation] : $modelsAllocation,
-		]);
+		// Special receipt with dues, reinstatement fee & revised application dt (optional) amounts on it
 		
 	}
 }

@@ -93,4 +93,22 @@ class DuesRateFinder extends Model
 		return $cmd->query();
 	}
 	
+	public function getCurrentRate($date)
+	{
+		$sql = "SELECT rate FROM DuesRates
+  				  WHERE lob_cd = :lob_cd
+    				AND rate_class = :rate_class
+    				AND effective_dt <= :date
+    				AND (end_dt IS NULL OR end_dt >= :date)
+    			;";
+		$db = yii::$app->db;
+		$cmd = $db->createCommand($sql)
+				  ->bindValues([
+							':lob_cd' => $this->_lob_cd,
+							':rate_class' => $this->_rate_class,
+							':date' => $date,
+				  ]);
+		return $cmd->queryScalar();
+	}
+	
 }

@@ -2,9 +2,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\bootstrap\ActiveForm;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
+use kartik\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $modelReceipt app\models\accounting\ReceiptMember */
@@ -24,10 +24,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php $form = ActiveForm::begin([
 //    		'layout' => 'horizontal',
     		'id' => 'receipt-form',
-    ]); ?>
+    ]); 
+    
+    $full_nm = empty($modelMember->member_id) ? 'Search for a member...' : $modelMember->member->fullName;
+    ?>
     
     <?= $form->field($modelMember, 'member_id')->widget(Select2::classname(), [
-//		'size' => Select2::SMALL,
+		'size' => Select2::SMALL,
+    	'initValueText' => $full_nm,
     	'options' => ['placeholder' => 'Search for a member...'],
 	    'pluginOptions' => [
 	        'allowClear' => true,
@@ -38,28 +42,20 @@ $this->params['breadcrumbs'][] = $this->title;
 				'data' => new JsExpression('function(params) { return {search:params.term}; }'),
 	        ],
 			'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
-			'templateResult' => new JsExpression('function(employer) { return employer.text; }'),
-			'templateSelection' => new JsExpression('function(employer) { return employer.text; }'),
+			'templateResult' => new JsExpression('function(member_id) { return member_id.text; }'),
+			'templateSelection' => new JsExpression('function(member_id) { return member_id.text; }'),
 	    ],
 	]); ?>
     
     <?= $this->render('../receipt/_formfields', [
     	'form' => $form,
-        'model' => $modelReceipt,
+        'model' => $model,
     ]) ?>
 
-	<div class="panel panel-default">
-		<div class="panel-heading"><h4 class="panel-title"><i class="glyphicon glyphicon-tasks"></i> Receipt Allocations</h4></div>
-	    <div class="panel-body">
-    
-    <?= $this->render('../receipt/_formalloc', [
-    		'form' => $form,
-    		'ixM' => -1,
-    		'modelReceipt' => $modelReceipt,
-    		'modelsAllocation' => $modelsAllocation, 
+    <?php // ** Temporary ** Assume 1791 ?>
+    <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions('1791'), [
+    		'multiple' => true,
     ]) ?>
-    
-    </div></div>
     
     
     <div class="form-group">

@@ -18,16 +18,20 @@ use yii\web\UploadedFile;
  * @property string $received_dt
  * @property string $received_amt
  * @property string $unallocated_amt
+ * @property string $helper_dues
+ * @property string $helper_hrs
  * @property integer $created_at
  * @property integer $created_by
  * @property string $remarks
  *
  * @property AllocatedMember[] $members
  * @property ReceiptFeeType[] $feeTypes
+ * @property ReceiptAllocSumm[] $allocSumms
  * @property User $createdBy
  */
 class Receipt extends \yii\db\ActiveRecord
 {
+	CONST SCENARIO_CREATE = 'create';
 	
 	CONST METHOD_CASH = '1';
 	CONST METHOD_CHECK = '2';
@@ -40,6 +44,7 @@ class Receipt extends \yii\db\ActiveRecord
 	protected $_validationRules = [];
 	protected $_labels = [];
 	protected $_remit_filter;
+	protected $_customAttributes = [];
 	
 	public $fee_types = [];
 	
@@ -118,6 +123,7 @@ class Receipt extends \yii\db\ActiveRecord
         	[['tracking_nbr'], 'string', 'max' => 20],
         	[['created_at', 'created_by'], 'integer'],
         	[['remarks', 'fee_types', 'xlsx_file'], 'safe'],
+        	['fee_types', 'required', 'on'  => self::SCENARIO_CREATE, 'message' => 'Please select at least one Fee Type'],
         ];
         return array_merge($this->_validationRules, $common_rules);
     }
@@ -146,6 +152,21 @@ class Receipt extends \yii\db\ActiveRecord
         return array_merge($this->_labels, $common_labels);
     }
     
+	public function beforeSave($insert)
+	{
+		// default does not appear to be working here or at the DB level
+		if (parent::beforeSave($insert)) {
+			if ($insert) {
+				if (empty($this->unallocated_amt))
+					$this->unallocated_amt = 0.00;
+				if (empty($this->helper_dues))
+					$this->helper_dues = 0.00;
+			}
+			return true;
+		}
+		return false;
+	}
+	
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -209,6 +230,11 @@ class Receipt extends \yii\db\ActiveRecord
     public function getAllocatedMembers()
     {
     	return $this->hasMany(AllocatedMember::className(), ['receipt_id' => 'id']);
+    }
+    
+    public function getAllocSumms()
+    {
+    	return $this->hasMany(ReceiptAllocSumm::className(), ['receipt_id' => 'id']);
     }
     
     public function getTotalAllocation()
@@ -293,6 +319,11 @@ class Receipt extends \yii\db\ActiveRecord
     	$this->xlsx_name = null;
     
     	return true;
+    }
+    
+    public function getCustomAttributes($forPrint = false)
+    {
+    	return $this->_customAttributes;
     }
     
 }

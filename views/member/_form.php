@@ -13,6 +13,7 @@ use kartik\datecontrol\DateControl;
 use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
 use app\helpers\OptionHelper;
+use kartik\checkbox\CheckboxX;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
@@ -56,16 +57,6 @@ use app\helpers\OptionHelper;
     
 	<?php endif ?>
     
-    <?= $form->field($model, 'application_dt')->widget(DateControl::className(), [
-    		'type' => DateControl::FORMAT_DATE,
-    ]) ?>
-
-	<?= $form->field($model, 'ssnumber')->textInput(['maxlength' => 11]) ?>
-
-    <?= $form->field($model, 'imse_id')->textInput(['maxlength' => 20]) ?>
-    
-    <?= $form->field($model, 'card_id')->textInput(['maxlength' => 20]) ?>
-    
     <?= $form->field($model, 'last_nm')->textInput(['maxlength' => 30]) ?>
 
     <?= $form->field($model, 'first_nm')->textInput(['maxlength' => 30]) ?>
@@ -80,28 +71,32 @@ use app\helpers\OptionHelper;
 
     <?= $form->field($model, 'gender')->widget(Select2::className(), [
     		'data' => OptionHelper::getGenderOptions(), 
-    		'hideSearch' => true,
+    		'hideSearch' => false,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
+	<?= $form->field($model, 'ssnumber')->textInput(['maxlength' => 11]) ?>
+
+    <?= $form->field($model, 'imse_id')->textInput(['maxlength' => 20]) ?>
+    
     <?= $form->field($model, 'shirt_size')->widget(Select2::className(), [
     		'data' => $model->sizeOptions,
-    		'hideSearch' => true,
+    		'hideSearch' => false,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
     <?= $form->field($model, 'local_pac')->widget(Select2::className(), [
     		'data' => OptionHelper::getTFOptions(), 
-    		'hideSearch' => true,
+    		'hideSearch' => false,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
     <?= $form->field($model, 'hq_pac')->widget(Select2::className(), [
     		'data' => OptionHelper::getTFOptions(), 
-    		'hideSearch' => true,
+    		'hideSearch' => false,
 			'size' => Select2::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
@@ -110,74 +105,46 @@ use app\helpers\OptionHelper;
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
 
+    <?= $form->field($model, 'application_dt')->widget(DateControl::className(), [
+    		'type' => DateControl::FORMAT_DATE,
+    ]) ?>
+
     <hr>
 	    <div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
 	    </div>
     
     </div>
-
+	<div class="rightside fifty-pct">
     <?php if ($model->isNewRecord): ?>
-    	<div class="rightside fifty-pct">
-    	<hr>
-    	<?= $this->render('../partials/_addressformfields',
-    			[
-    				'form'	=> $form,
-    				'address' => $modelAddress,
-    			]
-    	) ?>
-    	<hr>
-    	<?= $this->render('../partials/_phoneformfields',
-    			[
-    				'form'	=> $form,
-    				'phone' => $modelPhone,
-    			]
-    	) ?>
-    	<hr>
-    	<?= $form->field($modelEmail, 'email')->textInput(['maxlength' => 50]) ?>
-    	<?= $form->field($modelStatus, 'lob_cd')->textInput(['maxlength' => 4]) ?>
-    	</div>
-	<?php endif ?>
-
-    <?php ActiveForm::end(); ?>
-
-</div>
-
-    <?php if (!$model->isNewRecord): ?>
-<hr>
-    	<div class="rightside fifty-pct">
-		<?= $this->render(
-	    		'../partials/_addressgrid',
-	    		[
-	    			'modelsAddress' => $modelsAddress,
-	    			'controller' => 'member-address',
-	    			'relation_id' => $model->member_id,	
-	    		]
-	    ) ?>
-        <?= $this->render(
-	    		'../partials/_phonegrid',
-	    		[
-	    			'modelsPhone' => $modelsPhone,
-	    			'controller' => 'member-phone',
-	    			'relation_id' => $model->member_id,	
-	    		]
-	    ) ?>
-	    <?= $this->render(
-	    		'../member-email/_grid',
-	    		[
-	    			'modelsEmail' => $modelsEmail,	
-	    			'relation_id' => $model->member_id,
-	    		]
-	    ) ?>
-        <?= $this->render(
-	    		'../member-specialty/_grid',
-	    		[
-	    			'modelsSpecialty' => $modelsSpecialty,	
-	    			'relation_id' => $model->member_id,
-	    		]
-	    ) ?>
-	    </div>
-	<?php endif ?>
+    	
+    	<?= $this->render('_insertformfields', [
+    			'form' => $form,
+    			'model' => $model,
+    			'modelAddress' => $modelAddress,
+    			'modelPhone' => $modelPhone,
+    			'modelEmail' => $modelEmail,
+    			'modelStatus' => $modelStatus,
+    			'modelClass' => $modelClass,
+    	]) ?>
+    	
+    	
+    <?php else: ?>
     
-    <?= $this->render('../partials/_modal') ?>
+    	<?= $this->render('_updategrids', [
+    			'form' => $form,
+    			'model' => $model,
+    			'modelsAddress' => $modelsAddress,
+    			'modelsPhone' => $modelsPhone,
+    			'modelsEmail' => $modelsEmail,
+    			'modelsSpecialty' => $modelsSpecialty,
+    	]) ?>
+	<?php endif ?>
+
+	<?php ActiveForm::end(); ?>
+	
+	
+	</div>
+	
 	    
+</div>

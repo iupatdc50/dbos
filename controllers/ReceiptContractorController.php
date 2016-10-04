@@ -9,6 +9,7 @@ use app\models\accounting\ReceiptContractorSearch;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\RemittanceExcel;
 use app\models\accounting\AllocatedMember;
+use app\models\accounting\AllocatedMemberSearch;
 use app\models\accounting\StagedAllocationSearch;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\AssessmentAllocation;
@@ -23,9 +24,27 @@ use app\models\accounting\AllocationBuilder;
 class ReceiptContractorController extends \app\controllers\receipt\BaseController
 {
 	
+    /**
+     * Displays a single Receipt model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionView($id)
+    {
+    	$model = $this->findModel($id);
+    	    	
+    	$searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
+    	$membProvider = $searchMemb->search(Yii::$app->request->queryParams);
+
+    	return $this->render('view', compact('model', 'membProvider', 'searchMemb'));
+    }
+    
 	public function actionCreate()
 	{
-		$model = new ReceiptContractor(['responsible' => new ResponsibleEmployer()]);
+		$model = new ReceiptContractor([
+				'responsible' => new ResponsibleEmployer(),
+				'scenario' => Receipt::SCENARIO_CREATE,
+		]);
 		
 		if ($model->load(Yii::$app->request->post()) && $model->responsible->load(Yii::$app->request->post())) {
 			
@@ -146,14 +165,6 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
             throw new NotFoundHttpException('The requested page does not exist.');
         $model->responsible = ResponsibleEmployer::findOne(['receipt_id' => $id]);
         return $model;
-	}
-	
-	/**
-	 * Allows GoBack() to return to the sending page instead of the home page
-	 */
-	protected function storeReturnUrl()
-	{
-		Yii::$app->user->returnUrl = Yii::$app->request->url;
 	}
 	
 	
