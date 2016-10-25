@@ -26,7 +26,7 @@ use yii\helpers\Url;
 
 <? 
 $total_due = number_format($dues_balance + $assessment_balance, 2);
-$bkground = $total_due > 0 ? ' td-danger' : ''; ?>
+?>
 
 	<table class="fifty-pct table table-striped table-bordered detail-view"><tbody>
 		<tr>
@@ -39,7 +39,7 @@ $bkground = $total_due > 0 ? ' td-danger' : ''; ?>
 	   </tr>
 		<tr class="total-border">
 			<th class="right">Total Due</th>
-			<td class="right<?= $bkground ?>"><?= $total_due ?></td>
+			<td class="right<?= $total_due > 0 ? ' td-danger' : ''; ?>"><?= $total_due ?></td>
 	   </tr>
 	   
 	</tbody></table>
