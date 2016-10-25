@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '0.9.6.101',
+		'version' => '0.9.6.501',
 		'basePath' => realpath ( __DIR__ . '/../' ),
 		'modules' => [ 
 			    'datecontrol' => [
@@ -50,6 +50,23 @@ $config = [
 				'docDir' => DIRECTORY_SEPARATOR . 'saa' . DIRECTORY_SEPARATOR,
 				'uploadDir' => DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR,
 		],
+
+		'as beforeRequest' => [
+				'class' => 'yii\filters\AccessControl',
+				'rules' => [
+						[
+								'allow' => true,
+								'actions' => ['login'],
+						],
+						[
+								'allow' => true,
+								'roles' => ['@'],
+						],
+				],
+				'denyCallback' => function () {
+					return Yii::$app->response->redirect(['site/login']);
+				},
+		],		
 ];
 
 if(YII_ENV_DEV) {

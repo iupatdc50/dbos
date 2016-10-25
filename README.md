@@ -13,9 +13,15 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.6.501
+
+. Improved force login if session is lost
+. Added status handling for suspended member who pays dues
+. Improved layout of receipt printing
+
 0.9.6.101 Notes
 
-. Added prinatble receipts
+. Added printatble receipts
 . Added status handling, including updated progressive balance displays for partial payments
 . Added APF-specific assessment handling, including updated progressive balance displays for partial payments
 . Added member class handling

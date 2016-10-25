@@ -25,6 +25,8 @@ class SummaryController extends SubmodelController
     public $summJoinWith = [];
 	/** @var string Order of active data provider */
     public $summOrder = 'effective_dt desc';
+    /** @var array Other parameters to pass to view */
+    public $viewParams = [];
     
     public $summPageSize = 5;
 	
@@ -42,7 +44,8 @@ class SummaryController extends SubmodelController
 				'pagination' => ['pageSize' => $this->summPageSize],
 				'sort' => false,
 		]);
-		echo Json::encode($this->renderPartial('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
+		$params = array_merge(['dataProvider' => $dataProvider, 'id' => $id], $this->viewParams);
+		echo Json::encode($this->renderPartial('_summary', $params));
 	}
 	
 }

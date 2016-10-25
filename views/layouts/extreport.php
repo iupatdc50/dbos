@@ -12,17 +12,25 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	<html lang="<?= Yii::$app->language ?>">
 	<head>
 		<meta charset="<?= Yii::$app->charset ?>" />
-		<title><?= Html::encode($this->title) ?></title>
+		<title>Printable Receipt</title>
     	<?php $this->head()?>
     	<?= Html::csrfMetaTags()?>
 	</head>
 	<body>
 	<?php $this->beginBody()?>
 	    <div class="wrap"> 
-	    	<div class="pull-right pad-rightlink">Print This Page</div>  
+	    	<div class="pull-right pad-rightlink">
+	    		<?= 
+	    			Html::button('Print This', [
+	    					'class' => 'btn btn-default, btn-print',
+	    			]);
+	    		?>
+	    	</div>  
 			<div class="header">
-				<div id="logo-report" class="lion"></div>
-				<div id="logo-title" class="lion-title">District Council 50<span>International Union of Painters and Allied Trades</span></div>
+				<div id="logo-report" class="lion">
+					<?= Html::img('@web/img/dc50_lionhead.jpg') ?>
+				</div>
+				<div id="logo-title" class="lion-title">District Council 50<br /><span>International Union of Painters and Allied Trades</span></div>
 					
 			</div>
 		<hr>

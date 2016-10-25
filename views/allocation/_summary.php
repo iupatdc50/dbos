@@ -56,7 +56,7 @@ use kartik\grid\GridView;
 
 <? if($hrsProvider->getTotalCount() > 0): ?>
 
-<div class="fifty-pct">
+<div>
 
 <?= GridView::widget([
 		'id' => 'hrs_grid',
@@ -75,7 +75,7 @@ use kartik\grid\GridView;
 						'class' => '\kartik\grid\DataColumn',
 						'attribute' => 'allocation_amt',
 						'format' => ['decimal', 1],
-						'pageSummary' => true,
+//						'pageSummary' => true,
 						'hAlign' => 'right',
 						'label' => 'Hours',
 				],

@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
+use app\models\member\Status;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
@@ -19,28 +20,25 @@ use kartik\grid\GridView;
 		'toolbar' => [
 			'content' => 
 				Html::button('<i class="glyphicon glyphicon-repeat"></i>&nbsp;Reinstate', 
-        			['value' => Url::to(["/accounting/reinstate", 'member_id'  => $id]), 
+        			['value' => Url::to(["/member-status/reinstate", 'member_id'  => $id]), 
             		'id' => 'reinstateButton',
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Reinstate',
-//            		'disabled' => true,
-//            		'disabled' => ($status == 'Active'),
+            		'disabled' => ($status != Status::INACTIVE),
     			])
 				. Html::button('<i class="glyphicon glyphicon-warning-sign"></i>&nbsp;Suspend', 
-	        		['value' => Url::to(["/status/suspend", 'member_id'  => $id]), 
+	        		['value' => Url::to(["/member-status/suspend", 'member_id'  => $id]), 
             		'id' => 'suspendButton',
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Suspension',	
-            		'disabled' => true,
-//            		'disabled' => ($status == 'Inactive') || ($status == 'Suspend'),
+            		'disabled' => ($status == Status::INACTIVE) || ($status == Status::SUSPENDED),
             	])
     			. Html::button('<i class="glyphicon glyphicon-hand-down"></i>&nbsp;Drop', 
-            		['value' => Url::to(["/status/drop", 'member_id'  => $id]), 
+            		['value' => Url::to(["/member-status/drop", 'member_id'  => $id]), 
             		'id' => 'dropButton',
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Drop',	
-//            		'disabled' => true,
-//            		'disabled' => ($status == 'Inactive'),
+            		'disabled' => ($status == Status::INACTIVE),
             	]),
 		],
 		'columns' => [

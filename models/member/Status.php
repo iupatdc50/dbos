@@ -29,9 +29,12 @@ class Status extends BaseEndable
 	
 	CONST REASON_NEW = 'New Entry';
 	CONST REASON_APF = 'APF satisfied';
+	CONST REASON_DUES = 'Dues payment made';
 	
 	CONST ACTIVE = 'A';
+	CONST INACTIVE = 'I';
 	CONST IN_APPL = 'N';
+	CONST SUSPENDED = 'S';
 	
 	/**
      * @inheritdoc

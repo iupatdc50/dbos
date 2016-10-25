@@ -72,9 +72,4 @@ class AccountingController extends Controller
         return $receipt;
     }
     
-	public function actionReinstate() {
-		
-		// Special receipt with dues, reinstatement fee & revised application dt (optional) amounts on it
-		
-	}
 }

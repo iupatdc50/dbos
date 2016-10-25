@@ -40,6 +40,16 @@ $(function(){
 });
 
 /**
+ * Standard action for HTML <button> whose class includes btn-print
+ */
+$(function(){
+	$(document).on('click', '.btn-print', function () {
+		window.print();
+	});
+});
+
+
+/**
  * Forces a modal create window to route to that window's action. Identified
  * by form class .ajax-create
  * 
@@ -74,4 +84,3 @@ function fillPanel(event, ui) {
 		});
 	});
 }
-

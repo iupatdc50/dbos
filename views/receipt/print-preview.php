@@ -23,7 +23,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 </div>
 
 <table class="hundred-pct"><tr>
-<td class="forty-pct">
+<td class="seventyfive-pct">
 
 <?php
 	$common_attributes = [
@@ -52,7 +52,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 
 <td></td></table>
 
-<div class="twentyfive-pct">
+<div class="sixty-pct">
 
 <h4>Allocation Summary</h4>
 
@@ -71,6 +71,14 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 				],
 		],
 ]); ?>
+
+</div>
+
+<br /><br />
+
+<div class="sign-block">
+
+<h5>Signature  _____________________________________________________________</h5>
 
 </div>
 
