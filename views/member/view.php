@@ -1,6 +1,7 @@
 <?php
 
-use kartik\detail\DetailView;
+// use kartik\detail\DetailView;
+use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
 use kartik\helpers\Html;
@@ -31,7 +32,8 @@ $this->params['breadcrumbs'][] = $this->title;
     <br />
     <?= DetailView::widget([
     		'model' => $model,
-        	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table text-left'],
+//			'mode'=>DetailView::MODE_VIEW,
+           	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table text-left'],
         	'attributes' => [
         		[
         				'label' => 'Trade', 
@@ -40,7 +42,8 @@ $this->params['breadcrumbs'][] = $this->title;
         		[
         				'attribute' => 'dues_paid_thru_dt',
         				'format' => 'date',
-        				'rowOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
+//        				'rowOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
+        				'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
     			],	
     		],
     ]); ?>
@@ -58,7 +61,8 @@ $this->params['breadcrumbs'][] = $this->title;
         </p></div>
     <?= DetailView::widget([
         'model' => $model,
-        'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
+//		'mode'=>DetailView::MODE_VIEW,
+    	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
         'attributes' => [
             'member_id',
             'report_id',
@@ -75,7 +79,8 @@ $this->params['breadcrumbs'][] = $this->title;
         		[
         				'attribute' => 'init_dt',
         				'format' => $model->isInApplication() ? NULL : 'date',
-        				'rowOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
+//        				'rowOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
+        				'contentOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
         				'value' => $model->isInApplication() ? '** In Application **' : $model->init_dt,
     			],	
         	'specialtyTexts:ntext',

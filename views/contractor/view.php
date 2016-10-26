@@ -1,7 +1,8 @@
 <?php
 
 use yii\helpers\Html;
-use kartik\detail\DetailView;
+use yii\widgets\DetailView;
+// use kartik\detail\DetailView;
 use yii\jui\Accordion;
 
 /* @var $this yii\web\View */
@@ -39,7 +40,8 @@ $this->params['breadcrumbs'][] = $this->title;
 	        [
 	        	'attribute' => 'is_active', 
 	        	'value' => Html::encode($model->statusText),
-	        	'rowOptions' => ($model->is_active == 'T') ? ['class' => 'success'] : ['class' => 'default'],
+//	        	'rowOptions' => ($model->is_active == 'T') ? ['class' => 'success'] : ['class' => 'default'],
+	        	'contentOptions' => ($model->is_active == 'T') ? ['class' => 'success'] : ['class' => 'default'],
 	        ],
 	        'license_nbr',
             'contact_nm',

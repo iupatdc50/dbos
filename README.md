@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.6.504
+
+. Replaced certain Kartik Detail View widgets not rendering properly in member and contractor view
+. Fixed Expand Row display bug in member receipts summary 
+
 0.9.6.501
 
 . Improved force login if session is lost
