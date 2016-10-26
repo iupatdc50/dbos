@@ -8,19 +8,20 @@ use kartik\grid\GridView;
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 ?>
 
-<table class="hundred-pct"><tbody></tbody><tr>
+<table class="hundred-pct"><tr>
 
-<? if(($duesProvider->getTotalCount() > 0) || ($hrsProvider->getTotalCount() > 0)): ?>
+<?php if(($duesProvider->getTotalCount() > 0) || ($hrsProvider->getTotalCount() > 0)): ?>
 
-<td class="thirtyfive-pct pad-six">
+<td class="thirtyfive-pct pad-six"><table>
 
-<? if($duesProvider->getTotalCount() > 0): ?>
+<?php if($duesProvider->getTotalCount() > 0): ?>
 
-<div>
+<tr><td>
 
 <?= GridView::widget([
-		'id' => 'dues_grid',
+		'id' => 'dues-grid',
 		'dataProvider' => $duesProvider,
+		'summary' => '',
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
 				'heading'=>'Dues',
@@ -50,17 +51,18 @@ use kartik\grid\GridView;
 ]);
 ?>
 
-</div>
+</td></tr>
 
-<? endif; ?>
+<?php endif; ?>
 
-<? if($hrsProvider->getTotalCount() > 0): ?>
+<?php if($hrsProvider->getTotalCount() > 0): ?>
 
-<div>
+<tr><td>
 
 <?= GridView::widget([
-		'id' => 'hrs_grid',
+		'id' => 'hrs-grid',
 		'dataProvider' => $hrsProvider,
+		'summary' => '',
 		/*
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
@@ -84,22 +86,21 @@ use kartik\grid\GridView;
 ]);
 ?>
 
+</td></tr>
 
-</div>
-
-<? endif; ?>
+<?php endif; ?>
 
 
-</td><td></td>
+</table></td><td></td>
 
-<? endif; ?>
-
-<? if($allocProvider->getTotalCount() > 0): ?>
+<?php endif; ?>
 
 <td class="fortyfive-pct pad-six">
 
+<?php if($allocProvider->getTotalCount() > 0): ?>
+
 <?= GridView::widget([
-		'id' => 'alloc_grid',
+		'id' => 'alloc-grid',
 		'dataProvider' => $allocProvider,
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
@@ -139,6 +140,6 @@ use kartik\grid\GridView;
 
 </td><td></td>
 
-<? endif; ?>
+<?php endif; ?>
 
 </tr></tbody></table>

@@ -30,7 +30,7 @@ $member_id = $model->payingMember->member_id;
     
     <div class="rightside thirtyfive-pct">
     <?= GridView::widget([
-    	'id' => 'itemize-grid',
+    	'id' => 'alloc-grid',
         'dataProvider' => $allocProvider,		
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
