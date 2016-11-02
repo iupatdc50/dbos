@@ -16,7 +16,7 @@ use kartik\grid\GridView;
 
 <?php if($duesProvider->getTotalCount() > 0): ?>
 
-<tr><td>
+<tr><td class="hundred-pct">
 
 <?= GridView::widget([
 		'id' => 'dues-grid',
@@ -57,7 +57,7 @@ use kartik\grid\GridView;
 
 <?php if($hrsProvider->getTotalCount() > 0): ?>
 
-<tr><td>
+<tr><td class="hundred-pct">
 
 <?= GridView::widget([
 		'id' => 'hrs-grid',

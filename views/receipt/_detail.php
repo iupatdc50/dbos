@@ -2,7 +2,8 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use kartik\detail\DetailView;
+use yii\widgets\DetailView;
+// use kartik\detail\DetailView;
 
 /* @var $modelReceipt app\models\accounting\Receipt */
 
@@ -29,7 +30,8 @@ use kartik\detail\DetailView;
 
     <?= DetailView::widget([
         'model' => $modelReceipt,
-        'attributes' => array_merge($common_attributes, $modelReceipt->customAttributes),
+        'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
+    	'attributes' => array_merge($common_attributes, $modelReceipt->customAttributes),
     ]) ?>
 
 

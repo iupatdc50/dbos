@@ -2,7 +2,8 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use kartik\detail\DetailView;
+use yii\widgets\DetailView;
+// use kartik\detail\DetailView;
 use kartik\grid\GridView;
 
 
@@ -40,11 +41,13 @@ $this->params['breadcrumbs'][] = $this->title;
 <tr><td class="sixty-pct datatop">
     <?= DetailView::widget([
         'model' => $model,
-        'attributes' => [
+        'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
+    	'attributes' => [
             [
             	'attribute' => 'project_status', 
             	'value' => Html::encode($model->statusText),
-            	'rowOptions' => $model->project_status == 'A' ? ['class' => 'success'] : ($model->project_status == 'X' ? ['class' => 'danger'] : ['class' => 'default']),
+//            	'rowOptions' => $model->project_status == 'A' ? ['class' => 'success'] : ($model->project_status == 'X' ? ['class' => 'danger'] : ['class' => 'default']),
+            	'contentOptions' => $model->project_status == 'A' ? ['class' => 'success'] : ($model->project_status == 'X' ? ['class' => 'danger'] : ['class' => 'default']),
             ],
             'project_id',
             'addressTexts:ntext',
