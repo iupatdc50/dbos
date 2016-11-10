@@ -5,6 +5,7 @@ namespace app\models\accounting;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
+use app\models\value\Lob;
 
 /**
  * This is the model class for table "Receipts".
@@ -31,6 +32,7 @@ use yii\web\UploadedFile;
  */
 class Receipt extends \yii\db\ActiveRecord
 {
+	CONST SCENARIO_CONFIG = 'config';
 	CONST SCENARIO_CREATE = 'create';
 	
 	CONST METHOD_CASH = '1';
@@ -46,6 +48,7 @@ class Receipt extends \yii\db\ActiveRecord
 	protected $_remit_filter;
 	protected $_customAttributes = [];
 	
+	public $lob_cd;
 	public $fee_types = [];
 	
 	/**
@@ -112,7 +115,7 @@ class Receipt extends \yii\db\ActiveRecord
         	[['payment_method', 'payor_type', 'received_dt', 'received_amt'], 'required'],
         	[['payment_method'], 'in', 'range' => self::getAllowedMethods()],
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
-            [['received_dt'], 'date', 'format' => 'php:Y-m-d'],
+        	[['received_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['received_amt', 'unallocated_amt'], 'number'],
         	[['unallocated_amt', 'helper_dues'], 'default', 'value' => 0.00],
             ['helper_hrs', 'required', 'when' => function($model) {
@@ -124,6 +127,7 @@ class Receipt extends \yii\db\ActiveRecord
         	[['created_at', 'created_by'], 'integer'],
         	[['remarks', 'fee_types', 'xlsx_file'], 'safe'],
         	['fee_types', 'required', 'on'  => self::SCENARIO_CREATE, 'message' => 'Please select at least one Fee Type'],
+        	['lob_cd', 'required', 'on'  => self::SCENARIO_CONFIG],
         ];
         return array_merge($this->_validationRules, $common_rules);
     }
@@ -148,6 +152,7 @@ class Receipt extends \yii\db\ActiveRecord
         	'remarks' => 'Remarks',
         	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
+            'lob_cd' => 'Union',
         ];
         return array_merge($this->_labels, $common_labels);
     }
@@ -324,6 +329,11 @@ class Receipt extends \yii\db\ActiveRecord
     public function getCustomAttributes($forPrint = false)
     {
     	return $this->_customAttributes;
+    }
+    
+    public function getLobOptions()
+    {
+    	return ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'short_descrip');
     }
     
 }

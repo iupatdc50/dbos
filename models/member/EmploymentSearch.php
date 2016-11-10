@@ -15,6 +15,9 @@ class EmploymentSearch extends Employment
 	// Search place holder
 	public $fullName;
 	public $employer_search;
+	public $lob_cd;
+	
+	public $page_size = 15;
 	
     /**
      * @inheritdoc
@@ -22,7 +25,7 @@ class EmploymentSearch extends Employment
     public function rules()
     {
         return [
-            [['member_id', 'fullName', 'effective_dt', 'end_dt', 'employer', 'dues_payor', 'is_loaned'], 'safe'],
+            [['member_id', 'fullName', 'effective_dt', 'end_dt', 'employer', 'dues_payor', 'is_loaned', 'lob_cd'], 'safe'],
         ];
     }
 
@@ -44,12 +47,12 @@ class EmploymentSearch extends Employment
      */
     public function search($params)
     {
-        $query = Employment::find()->joinWith(['member'])->where(['end_dt' => null]);
+        $query = Employment::find()->joinWith(['member'])->where([Employment::tableName() . '.end_dt' => null]);
         
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
      		'sort'=> ['defaultOrder' => ['fullName' =>SORT_ASC]],
-    		'pagination' => ['pageSize' => 15],
+    		'pagination' => ['pageSize' => $this->page_size],
         ]);
 
         $dataProvider->sort->attributes['fullName'] = [
@@ -64,6 +67,12 @@ class EmploymentSearch extends Employment
         		['and', ['is_loaned' => 'T', 'dues_payor' => $this->employer_search]],	
         	]);
         }
+        
+        if (isset($this->lob_cd)) {
+        	$query->joinWith(['member.currentStatus']);
+        	$query->andFilterWhere(['lob_cd' => $this->lob_cd]);
+        }
+
         
         if (!($this->load($params) && $this->validate())) {
             return $dataProvider;

@@ -10,6 +10,8 @@ use app\models\contractor\Phone;
 use app\models\contractor\ContractorSearch;
 use app\models\contractor\Signatory;
 use app\models\member\EmploymentSearch;
+use app\models\accounting\CreateRemitForm;
+use app\models\accounting\TradeFeeType;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -50,14 +52,69 @@ class ContractorController extends RootController
         ]);
     }
     
-    public function actionRemitTemplate($id)
+    public function actionCreateRemit($id)
     {
-    	$file_nm = $id . 'RemitTemplate';
+    	$modelContractor = $this->findModel($id);
+    	$remitForm = new createRemitForm();
+    	if ($remitForm->load(Yii::$app->request->post()) && $remitForm->validate()) {
+    		return $this->redirect([
+    				'remit-template',
+    				'id' => $remitForm->license_nbr,
+    				'lob_cd' => $remitForm->lob_cd,
+    		]);
+    	}
+    	$remitForm->license_nbr = $modelContractor->license_nbr;
+    	return $this->renderAjax('create-remit', [
+    			'remitForm' => $remitForm,
+    			'modelContractor' => $modelContractor,
+    	]);
+    }
+    
+    public function actionLobPicklist()
+    {
+    	$out = [];
+    	if (isset($_POST['depdrop_parents'])) {
+    		$parents = $_POST['depdrop_parents'];
+    		if ($parents != null) {
+    			$modelContractor = $this->findModel($parents[0]);
+    			$out = $modelContractor->currentLobOptions;
+    			$selected = '';
+    			if (!empty($out) && count($out) > 0)
+    				$selected = $out[0]['id'];
+    			echo Json::encode(['output'=>$out, 'selected'=> $selected]);
+    			return;
+    		}
+    	}
+    	echo Json::encode(['output'=>'', 'selected'=>'']);
+    					 
+    } 
+    
+    /**
+     * Builds exported spreadsheet from Employer model
+     * 
+     * @param string $id Contractor ID
+     * @param string $lob_cd
+     * @return string
+     */
+    public function actionRemitTemplate($id, $lob_cd)
+    {
+    	$modelContractor = $this->findModel($id);
+    	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->all();
     	/* @var $query yii\db\ActiveQuery */
-    	$employeeSearchModel = new EmploymentSearch();
-    	$employeeSearchModel->employer_search = $id;
-    	$employeeProvider = $employeeSearchModel->search([]);
-    	return $this->renderPartial('remit-template', ['dataProvider' => $employeeProvider, 'file_nm' => $file_nm]);
+    	$employeeSearchModel = new EmploymentSearch([
+    			'employer_search' => $id,
+    			'lob_cd' => $lob_cd,
+    			'page_size' => 2000,
+    	]);
+    	
+ 		$dataProvider = $employeeSearchModel->search([]);
+    	return $this->renderPartial('remit-template', [
+    			'dataProvider' => $dataProvider, 
+    			'modelContractor' => $modelContractor, 
+    			'lob_cd' => $lob_cd,
+    			'modelsFeeType' => $modelsFeeType,
+    	]);
+    	
     }
 
     /**

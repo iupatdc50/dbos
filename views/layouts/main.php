@@ -66,8 +66,10 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	                $menuItems[] = ['label' => 'Training', 'url' => ['/site/unavailable'],
 	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'training'),
 	                ];
+	                /*
 	                $menuItems[] = ['label' => 'Admin', 'url' => ['/admin'],
 	                ];
+	                */
 	                $menuItems[] = [
 	                	'label' => 'Logout ' . Yii::$app->user->identity->username,
 	                    'url' => ['/site/logout'],

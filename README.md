@@ -13,6 +13,13 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.6.505
+
+. Revised remittance template export to separate by trades
+. Revised receipts handling to be specific to trade
+. Disabled Admin menu option (was not locked down)
+. Fixed dues standing months-to-current calculations
+
 0.9.6.504
 
 . Replaced certain Kartik Detail View widgets not rendering properly in member and contractor view

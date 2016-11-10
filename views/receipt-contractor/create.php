@@ -59,8 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
     		 ->label('Hours', ['id' => 'helperhrslbl']) ?>
     
     
-    <?php // ** Temporary ** Assume 1791 ?>
-    <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions('1791'), [
+    <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions($model->lob_cd), [
     		'multiple' => true,
     ]) ?>
     

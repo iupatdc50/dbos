@@ -7,6 +7,7 @@ use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use app\models\contractor\Contractor;
 use app\models\member\Members;
+use app\models\member\Standing;
 use app\components\utilities\OpDate;
 use yii\base\InvalidCallException;
 
@@ -26,6 +27,10 @@ use yii\base\InvalidCallException;
  */
 class Employment extends \yii\db\ActiveRecord
 {
+	/**
+	 * @var Standing 	May be injected, if required
+	 */
+	private $_standing;
 	public $member_pays;
 	
     /**
@@ -144,6 +149,18 @@ class Employment extends \yii\db\ActiveRecord
     		$employer = 'Unemployed ('. $this->end_dt .')';
     	}
     	return $employer;
+    }
+    
+    public function getStanding()
+    {
+    	if(!(isset($this->_standing)))
+    		$this->_standing = new Standing(['member' => $this->member]);
+    	return $this->_standing;
+    }
+    
+    public function setStanding(Standing $standing)
+    {
+    	$this->_standing = $standing;
     }
     
     protected function closePrevious()

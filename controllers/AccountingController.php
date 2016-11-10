@@ -40,15 +40,18 @@ class AccountingController extends Controller
     
     public function actionCreateReceipt()
     {
-    	$model = new Receipt();
-    	if ($model->load(Yii::$app->request->post())) 
-    		if ($model->payor_type == Receipt::PAYOR_CONTRACTOR) {
-    			return $this->redirect("/receipt-contractor/create");
-    		} elseif ($model->payor_type == Receipt::PAYOR_MEMBER) {
-    			return $this->redirect("/receipt-member/create");
-    		} else {
-    			throw new HttpException('Feature not supported');
+    	$model = new Receipt(['scenario' => Receipt::SCENARIO_CONFIG]);
+    	if ($model->load(Yii::$app->request->post())) {
+    		if ($model->validate(['lob_cd'])) {
+	    		if ($model->payor_type == Receipt::PAYOR_CONTRACTOR) {
+	    			return $this->redirect(['/receipt-contractor/create', 'lob_cd' => $model->lob_cd]);
+	    		} elseif ($model->payor_type == Receipt::PAYOR_MEMBER) {
+	    			return $this->redirect(['/receipt-member/create', 'lob_cd' => $model->lob_cd]);
+	    		} else {
+	    			throw new HttpException('Feature not supported');
+	    		}
     		}
+    	}
     	return $this->renderAjax('create-receipt', compact('model'));
     }
     

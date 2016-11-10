@@ -270,6 +270,11 @@ class OpDate extends \DateTime
 		return $ordinal ? $this->format ( 'jS' ) : $this->_day;
 	}
 	
+	public function getYearMonth()
+	{
+		return $this->_year . str_pad($this->_month, 2, '0', STR_PAD_LEFT);
+	}
+	
 	/**
 	 * Returns month name of date
 	 *

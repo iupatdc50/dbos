@@ -53,10 +53,15 @@ class Standing extends Model
 	 */
 	public function getMonthsToCurrent()
 	{
+		$start_dt = clone $this->member->duesPaidThruDtObject;
 		$obligation_dt = $this->getDuesObligation();
-		return ($obligation_dt > $this->member->duesPaidThruDtObject) 
-			? $obligation_dt()->diff($this->member->duesPaidThruDtObject)->format('%m') 
-			: 0;
+		$i = 0;
+		while ($start_dt->getYearMonth() < $obligation_dt->getYearMonth()) {
+			$i++;
+			$start_dt->modify('+1 month');
+			$start_dt->setToMonthEnd();
+		}
+		return $i;
 	}
 	
 	/**
@@ -64,11 +69,28 @@ class Standing extends Model
 	 *   
 	 * @return string
 	 */
-	public function getMonthsToCurrentDescrip()
+	public function getBillingDescrip()
 	{
-		$start = $this->member->duesPaidThruDtObject;
-		$end = $this->getDuesObligation();
-		return $start->getMonthName(true) . ' ' . $start->getYear() . ' - ' . $end->getMonthName(true) . ' ' . $end->getYear();
+		$obligation_dt = $this->getDuesObligation();
+		
+		switch ($this->monthsToCurrent) {
+			case 0:
+				$paid_thru_dt = $this->member->duesPaidThruDtObject;
+				$descrip = 'Paid thru ' . $paid_thru_dt->getMonthName(true) . ' ' . $paid_thru_dt->getYear();
+				break;
+			case 1:
+				$descrip = $obligation_dt->getMonthName(true);
+				break;
+			default:
+				$start_dt = clone $this->member->duesPaidThruDtObject;
+				$start_dt->modify('+1 month');
+				$descrip = $start_dt->getMonthName(true) . '-' . $obligation_dt->getMonthName(true) . ' (' . $this->monthsToCurrent . ' months)';
+		}
+		
+		if ($this->getOutStandingAssessment('IN'))
+			$descrip .= ' + Init Fee';
+		
+		return $descrip;
 	}
 	
 	/**

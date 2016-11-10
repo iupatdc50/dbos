@@ -48,8 +48,8 @@ class RemittanceExcel extends Model
 		
 		$this->_feeColumns = [];
 		
-		// assume $headerRow columns are zero based
-		for ($col = 3; $col < $this->maxCol; $col++) {
+		// assume $headerRow columns are zero based (see remit-template for # of base columns 
+		for ($col = 5; $col < $this->maxCol; $col++) {
 			$fee_type = substr($headerRow[0][$col], 0, 2);
 			if(in_array($fee_type, $fee_types))
 				$this->_feeColumns[$fee_type] = $col;

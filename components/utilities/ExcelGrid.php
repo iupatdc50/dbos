@@ -88,6 +88,8 @@ class ExcelGrid extends \yii\grid\GridView
 		->setCreated($created)
 		->setLastModifiedBy($lastModifiedBy);
 		$this->_objPHPExcelSheet = $this->_objPHPExcel->getActiveSheet();
+		if(isset($this->properties['sheetTitle']))
+			$this->_objPHPExcelSheet->setTitle($this->properties['sheetTitle']);
 	}
 	public function initPHPExcelWriter($writer)
 	{
@@ -133,6 +135,11 @@ class ExcelGrid extends \yii\grid\GridView
 				self::columnName($this->_endCol) .
 				$this->_endRow
 		);
+
+		for($col = 1; $col <= $this->_endCol; $col++) {
+			$this->_objPHPExcelSheet->getColumnDimension(self::columnName($col))->setAutoSize(true);
+		}
+
 		return ($this->_endRow > 0) ? count($models) : 0;
 	}
 

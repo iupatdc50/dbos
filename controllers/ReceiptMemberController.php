@@ -27,9 +27,19 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
     	return $this->render('view', compact('model', 'allocProvider'));
     }
     
-	public function actionCreate($id = null)
+    /**
+     * 
+     * @param array $config  Checks for the existings if 'id' (member_id) and 'lob_cd'
+     * @throws \Exception
+     * @return \yii\web\Response|string|Ambigous <string, string>
+     */
+	public function actionCreate($lob_cd, $id = null)
 	{
 		$model = new ReceiptMember(['scenario' => Receipt::SCENARIO_CREATE]);
+		if (!isset($lob_cd))
+			throw new \Exception('lob_cd is required');
+		$model->lob_cd = $lob_cd;
+		
 		$modelMember = new AllocatedMember();
 		if (isset($id))
 			$modelMember->member_id = $id;

@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use kartik\grid\GridView;
 
 /* @var $this yii\web\View */
@@ -34,15 +35,31 @@ $this->params['breadcrumbs'][] = $this->title;
             	'template' => '{export}',
             	'buttons' => [
         			'export' => function ($url, $model) {
-        		    				return Html::a('<span class="glyphicon glyphicon-export"></span>', $url, ['title' => 'Generate remittance template', 'data-pjax' => '0']);
+        				/*
+        		    				return Html::a('<span class="glyphicon glyphicon-export"></span>', $url, [
+        		    						'title' => 'Generate remittance template', 
+        		    						'data-pjax' => '0',
+        		    				]);
+        		    				*/
+            						return Html::button('<i  class="glyphicon glyphicon-export"></i>',
+            								[
+            										'value' => Url::to(['/contractor/create-remit', 'id' => $model->license_nbr]),
+            										'id' => 'remitCreateButton',
+            										'class' => 'btn btn-default btn-modal btn-embedded',
+            										'data-title' => 'Remit',
+            								]);
         		        		},
+        		        		
+        				
         		],
+        		/*
         		'urlCreator' => function ($action, $model, $key, $index) {
         		            		if ($action === 'export') {
-        		            			$url = Yii::$app->urlManager->createUrl(['contractor/remit-template', 'id' => $model->license_nbr]);
+        		            			$url = Yii::$app->urlManager->createUrl(['contractor/create-remit', 'id' => $model->license_nbr]);
         		            			return $url;
         		            		}
         						},
+        						*/
         	],
         		
         	[
@@ -60,7 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
     		[
     			'attribute' => 'lobs',
     			'value' => 'currentSignatory.lobs',
-    			'label' => 'Union(s)',
+    			'label' => 'Trade(s)',
     		],
             'license_nbr',
             [
@@ -90,3 +107,4 @@ $this->params['breadcrumbs'][] = $this->title;
     ]); ?>
 
 </div>
+<?= $this->render('../partials/_modal') ?>

@@ -39,11 +39,12 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
     	return $this->render('view', compact('model', 'membProvider', 'searchMemb'));
     }
     
-	public function actionCreate()
+	public function actionCreate($lob_cd)
 	{
 		$model = new ReceiptContractor([
 				'responsible' => new ResponsibleEmployer(),
 				'scenario' => Receipt::SCENARIO_CREATE,
+				'lob_cd' => $lob_cd,
 		]);
 		
 		if ($model->load(Yii::$app->request->post()) && $model->responsible->load(Yii::$app->request->post())) {

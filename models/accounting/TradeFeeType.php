@@ -10,6 +10,7 @@ use Yii;
  * @property string $lob_cd
  * @property string $fee_type
  * @property string $descrip
+ * @property string $short_descrip
  * @property string $employer_remittable
  * @property string $member_remittable
  */
@@ -51,5 +52,8 @@ class TradeFeeType extends \yii\db\ActiveRecord
         ];
     }
     
-    
+   public function getColHead()
+   {
+   		return $this->fee_type . ': ' . $this->short_descrip;
+   } 
 }

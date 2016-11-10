@@ -9,6 +9,7 @@ use app\helpers\OptionHelper;
 use yii\helpers\ArrayHelper;
 use app\models\project\BaseRegistration;
 use app\models\member\Employment;
+use app\models\value\Lob;
 
 /**
  * This is the model class for table "Contractors".
@@ -128,6 +129,24 @@ class Contractor extends \yii\db\ActiveRecord
     public function getCurrentSignatory()
     {
     	return $this->hasOne(UnionContractor::className(), ['license_nbr' => 'license_nbr']);
+    }
+    
+    /**
+     * Builds a dependent LOB picklist for a DepDrop widget
+     * 
+     * @return NULL|array Array in ['id' => x, 'name' => y] format
+     */
+    public function getCurrentLobOptions()
+    {
+    	$lobs = explode(', ', $this->currentSignatory->lobs);
+    	if (empty($lobs))
+    		return null;
+    	$records = Lob::find()->where(['lob_cd' => $lobs])->orderBy('lob_cd')->all();
+    	$options = [];
+		foreach($records as $record) {
+			$options[] = ['id' => $record['lob_cd'], 'name' => $record['short_descrip']];
+		}
+   		return empty($lobs) ? null : $options;
     }
     
     /**
