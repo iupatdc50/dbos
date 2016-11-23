@@ -7,7 +7,19 @@ use app\models\member\Member;
 
 class ReceiptMember extends Receipt
 {
+	public $other_local;
 	protected $_remit_filter = 'member_remittable';
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function rules()
+	{
+		$this->_validationRules = [
+				[['other_local'], 'safe'],
+		];
+		return parent::rules();
+	}
 	
 	/**
 	 * Assume that member receipt applies to only one member

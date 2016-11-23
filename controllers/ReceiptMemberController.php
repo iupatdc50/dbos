@@ -11,6 +11,7 @@ use app\models\accounting\AllocatedMember;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\AllocationBuilder;
 use app\models\member\Member;
+use app\models\accounting\CcOtherLocal;
 
 class ReceiptMemberController extends \app\controllers\receipt\BaseController
 {
@@ -59,6 +60,14 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
 					$result = $builder->prepareAllocs($modelMember, $model->fee_types);
 					if ($result != true)
 						throw new \Exception('Uncaught validation errors: ' . $result);
+					if ($model->other_local > 0) {
+						$modelPrevLocal = new CcOtherLocal([
+								'alloc_memb_id' => $modelMember->id,
+								'other_local' => $model->other_local,
+						]);
+						if (!$modelPrevLocal->save())
+							throw new \Exception("Error when trying to stage Previous Local `{$modelPrevLocal->alloc_memb_id}`: {$e}");
+					}
 					$transaction->commit();
 					return $this->redirect(['itemize', 'id' => $model->id]); 
 				}

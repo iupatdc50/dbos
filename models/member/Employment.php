@@ -5,6 +5,7 @@ namespace app\models\member;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use app\models\base\BaseEndable;
 use app\models\contractor\Contractor;
 use app\models\member\Members;
 use app\models\member\Standing;
@@ -25,7 +26,7 @@ use yii\base\InvalidCallException;
  * @property Contractor $contractor
  * @property Contractor $duesPayor
  */
-class Employment extends \yii\db\ActiveRecord
+class Employment extends BaseEndable
 {
 	/**
 	 * @var Standing 	May be injected, if required
@@ -41,6 +42,11 @@ class Employment extends \yii\db\ActiveRecord
         return 'Employment';
     }
     
+	public static function qualifier() 
+	{
+		return 'member_id';
+	}
+	
     /**
      * Returns a set of members for Select2 picklist. Full name
      * is returned as text (id, text are required columns for Select2)
@@ -111,12 +117,6 @@ class Employment extends \yii\db\ActiveRecord
     	return false;
     }
     
-    public function afterSave($insert, $changedAttributes)
-    {
-    	if ($insert) 
-    		$this->closePrevious();
-    }
-
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -162,12 +162,5 @@ class Employment extends \yii\db\ActiveRecord
     {
     	$this->_standing = $standing;
     }
-    
-    protected function closePrevious()
-    {
-    	/* @var $end_dt OpDate */
-    	$end_dt = (new OpDate())->setFromMySql($this->effective_dt)->sub(new \DateInterval('P1D'));
-    	$condition = "member_id = '{$this->member_id}' AND end_dt IS NULL AND effective_dt <> '{$this->effective_dt}'";
-    	Employment::updateAll(['end_dt' => $end_dt->getMySqlDate()], $condition);
-    }
+
 }

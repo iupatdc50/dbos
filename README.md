@@ -13,6 +13,13 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.6.601
+
+. Added CC handling
+. Added endable capabilities to close previous entry on insert and open previous when current entry is removed
+. Added admin fee aparatus to auto price line items on receipt with standard fees ('CC', 'RN' to start)
+. Minor bug fixes
+
 0.9.6.505
 
 . Revised remittance template export to separate by trades

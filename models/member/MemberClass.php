@@ -37,6 +37,11 @@ class MemberClass extends BaseEndable
         return 'MemberClasses';
     }
     
+    public static function qualifier()
+    {
+    	return 'member_id';
+    }
+
     /**
      * @var Member
      */

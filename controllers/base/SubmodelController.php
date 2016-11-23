@@ -3,6 +3,7 @@
 namespace app\controllers\base;
 
 use Yii;
+use app\models\base\BaseEndable;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -82,8 +83,20 @@ class SubmodelController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
+        $model = $this->findModel($id);
+        
+        $removing_current = false;
+        if (($model instanceof BaseEndable) && ($model->end_dt == null)) {
+        	$removing_current = true;
+        	$qualifier = $model->qualifier();
+        	$relation_id = $model->$qualifier;
+        }
+        
+        $model->delete();
+        
+        if ($removing_current)
+        	call_user_func([$this->recordClass, 'openLatest'], $relation_id);
+        
         return $this->goBack();
     }
 

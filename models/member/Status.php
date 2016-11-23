@@ -30,6 +30,8 @@ class Status extends BaseEndable
 	CONST REASON_NEW = 'New Entry';
 	CONST REASON_APF = 'APF satisfied';
 	CONST REASON_DUES = 'Dues payment made';
+	CONST REASON_CCG = 'CC granted to local: ';
+	CONST REASON_CCD = 'CC deposited. Previous local: ';
 	
 	CONST ACTIVE = 'A';
 	CONST INACTIVE = 'I';
@@ -42,6 +44,11 @@ class Status extends BaseEndable
     public static function tableName()
     {
         return 'MemberStatuses';
+    }
+    
+    public static function qualifier()
+    {
+    	return 'member_id';
     }
 
     /**
@@ -100,6 +107,11 @@ class Status extends BaseEndable
     public function getStatus()
     {
         return $this->hasOne(StatusCode::className(), ['member_status_cd' => 'member_status']);
+    }
+    
+    public function getStatusOptions()
+    {
+    	return ArrayHelper::map(StatusCode::find()->orderBy('member_status_cd')->all(), 'member_status_cd', 'descrip');
     }
     
 }

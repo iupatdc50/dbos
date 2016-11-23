@@ -15,6 +15,7 @@ use app\models\member\Member;
  * @property Receipt $receipt
  * @property Member $member
  * @property Allocation[] $allocations
+ * @property CcOtherLocal $otherLocal
  */
 class AllocatedMember extends \yii\db\ActiveRecord
 {
@@ -71,6 +72,14 @@ class AllocatedMember extends \yii\db\ActiveRecord
     public function getAllocations()
     {
     	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOtherLocal()
+    {
+    	return $this->hasOne(CcOtherLocal::className(), ['alloc_memb_id' => 'id']);
     }
     
     public function getTotalAllocation()

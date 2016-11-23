@@ -4,7 +4,7 @@ use app\components\utilities\ExcelGrid;
 use yii\bootstrap\Alert;
 
 $file_nm = 'RemitTemplate_' . $modelContractor->license_nbr . '_' . $lob_cd;
-$sheetTitle = $modelContractor->contractor . ' (' . $lob_cd . ')';
+$sheetTitle = substr($modelContractor->contractor, 0, 23) . ' (' . $lob_cd . ')';
 
 // 5 base columns
 $base = [

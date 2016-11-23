@@ -52,11 +52,11 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
     ]) ?>
 
-    <?php // ** Temporary ** Assume 1791 ?>
-    <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions('1791'), [
-    		'multiple' => true,
-    ]) ?>
-    
+    <?= $form->field($model, 'fee_types')->multiselect($model->getFeeOptions($model->lob_cd)) ?>
+
+    <?= $form->field($model, 'other_local')
+    		 ->textInput(['maxlength' => true, 'id' => 'otherlocal'])
+    		 ->label('Previous Local', ['id' => 'otherlocallbl']) ?>
     
     <div class="form-group">
         <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
@@ -65,3 +65,31 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php ActiveForm::end(); ?>
 
 </div>
+
+<?php 
+$script = <<< JS
+
+$(function() {
+		$('#otherlocallbl').hide();
+		$('#otherlocal').hide();
+})
+
+$('#receiptmember-fee_types').change(function() {
+	var ccexists = false;
+	$('#receiptmember-fee_types input:checked').each(function() {
+    	if ($(this).attr('value') == 'CC') {
+			ccexists = true;
+		}
+	});
+	if (ccexists == true) {
+		$('#otherlocallbl').show();
+		$('#otherlocal').show();
+	} else {
+		$('#otherlocallbl').hide();
+		$('#otherlocal').hide();
+	};
+});
+
+JS;
+$this->registerJs($script);
+?>

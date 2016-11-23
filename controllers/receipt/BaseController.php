@@ -15,6 +15,7 @@ use yii\base\yii\base;
 use yii\data\ActiveDataProvider;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
+use app\models\member\app\models\member;
 
 
 /**
@@ -129,6 +130,16 @@ class BaseController extends Controller
 	    			if (!$alloc->save()) {
 	    				$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
 	    			}
+	    		}
+	    		if ($alloc->fee_type == 'CC') {
+	    			$status = new Status([
+	    					'effective_dt' => $model->received_dt,
+	    					'member_status' => Status::ACTIVE,
+	    					'reason' => isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCD . $alloc->allocatedMember->otherLocal->other_local : 'CCD',
+	    			]);
+	    			$member = $alloc->member;
+	    			if (!$member->addStatus($status))
+	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
 	    		}	 
     		}
     	}   

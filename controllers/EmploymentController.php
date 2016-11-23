@@ -35,7 +35,19 @@ class EmploymentController extends SummaryController
 	{
 		$model = Employment::findOne(['member_id' => $member_id, 'effective_dt' => $effective_dt]);
 		if ($model !== null) {
-			$model->delete();
+			
+			$removing_current = false;
+        	if ($model->end_dt == null) {
+        		$removing_current = true;
+        		$qualifier = $model->qualifier();
+        		$relation_id = $model->$qualifier;
+        	}
+			
+        	$model->delete();
+
+        	if ($removing_current)
+        		 Employment::openLatest($member_id);
+			
 			return $this->goBack();
 		}
 		throw new NotFoundHttpException('Unable to locate employment record.');
