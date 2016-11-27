@@ -15,7 +15,8 @@ use yii\base\yii\base;
 use yii\data\ActiveDataProvider;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
-use app\models\member\app\models\member;
+use app\models\member;
+use app\modules\admin\models\FeeType;
 
 
 /**
@@ -131,12 +132,15 @@ class BaseController extends Controller
 	    				$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
 	    			}
 	    		}
-	    		if ($alloc->fee_type == 'CC') {
-	    			$status = new Status([
-	    					'effective_dt' => $model->received_dt,
-	    					'member_status' => Status::ACTIVE,
-	    					'reason' => isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCD . $alloc->allocatedMember->otherLocal->other_local : 'CCD',
-	    			]);
+	    		if (($alloc->fee_type == FeeType::TYPE_CC) || ($alloc->fee_type == FeeType::TYPE_REINST)) {
+	    			$status = new Status(['effective_dt' => $model->received_dt]);
+	    			if ($alloc->fee_type == FeeType::TYPE_CC) {
+	    				$status->member_status = Status::INACTIVE;
+	    				$status->reason = isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCG . $alloc->allocatedMember->otherLocal->other_local : 'CCG';
+	    			} else { // assume FeeType::TYPE_REINST
+	    				$status->member_status = Status::ACTIVE;
+	    				$status->reason = Status::REASON_REINST;
+	    			}
 	    			$member = $alloc->member;
 	    			if (!$member->addStatus($status))
 	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
@@ -146,6 +150,7 @@ class BaseController extends Controller
     	
     	if (!empty($this->_dbErrors))
     		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($this->_dbErrors, true));
+    		Yii::$app->session->setFlash('success', "Receipt successfully posted");
     	return $this->redirect(['view', 'id' => $model->id]);
     	
     }

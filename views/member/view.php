@@ -16,6 +16,12 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="member-view">
 
+<?php 
+	foreach (Yii::$app->session->getAllFlashes() as $key => $messages) {
+		$message = (is_array($messages)) ? implode(', ', $messages) : $messages;
+		echo '<div class="flash-' . $key . '">' . $message . '</div>';
+	} ?>
+	
 <table class="hundred-pct">
 <tr><td class="text-center pad-six">
     <h4><?= Html::encode($this->title) ?></h4>

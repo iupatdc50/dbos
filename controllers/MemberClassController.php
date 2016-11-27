@@ -31,6 +31,7 @@ class MemberClassController extends SummaryController
         	$model->member_id = $relation_id;
         	$model->resolveClasses();
         	if ($model->save()) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
         		return $this->goBack();
         	}
         	throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));

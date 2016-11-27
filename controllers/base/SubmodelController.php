@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\StringHelper;
 
 /**
  * SubmodelController implements the CRUD actions for a primary model's submodel.
@@ -22,6 +23,8 @@ class SubmodelController extends Controller
 	
     /** @var string Name of the attribute which will store the given relation ID */
     public $relationAttribute;
+    
+    private $_basename;
 
 	public function behaviors()
     {
@@ -40,6 +43,7 @@ class SubmodelController extends Controller
      * 
      * Assumes that all submodel creates are ajax 
 	 *
+	 * @todo Add relational attr as a hidden field on each concrete form so that it can be set and validated client side
      * @return mixed
      */
     public function actionCreate($relation_id)
@@ -48,13 +52,16 @@ class SubmodelController extends Controller
     	$model = new $this->recordClass;
         
         if ($model->load(Yii::$app->request->post())) {
-        	// Prepopulate referencing column
+			// Change this vvv
         	$model->{$this->relationAttribute} = $relation_id;
         	if ($model->save()) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
         		return $this->goBack();
         	}
-        	throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+        	throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
         } 
+        $this->initCreate($model);
+//        $model->{$this->relationAttribute} = $relation_id;
         return $this->renderAjax('create', compact('model'));
         
     }
@@ -70,6 +77,7 @@ class SubmodelController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        	Yii::$app->session->addFlash('success', "{$this->getBasename()} entry updated");
             return $this->goBack();
         } 
         return $this->render('update', compact('model'));
@@ -97,6 +105,7 @@ class SubmodelController extends Controller
         if ($removing_current)
         	call_user_func([$this->recordClass, 'openLatest'], $relation_id);
         
+        Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
         return $this->goBack();
     }
 
@@ -114,6 +123,18 @@ class SubmodelController extends Controller
         	throw new NotFoundHttpException('The requested page does not exist.');
         }
         return $model;
+    }
+    
+    protected function initCreate($model)
+    {
+    	
+    }
+    
+    protected function getBasename()
+    {
+    	if (!isset($this->_basename))
+    		$this->_basename = StringHelper::basename($this->recordClass);
+    	return $this->_basename;
     }
     
 }

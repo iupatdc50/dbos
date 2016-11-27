@@ -15,6 +15,10 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="receipt-view">
 
+	<?php if(Yii::$app->session->hasFlash('success')): ?>
+		<div class="flash-success"><?= Yii::$app->session->getFlash('success') ?></div>
+	<?php endif; ?>
+
     <h1><?= Html::encode('Receipt: ' . $this->title) ?></h1>
 
 	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'contractor']); ?>

@@ -37,9 +37,10 @@ class BaseEndable extends \yii\db\ActiveRecord
 		if (null !== static::qualifier())
 			$query->where([static::qualifier() => $id]);
 		$query->orderBy('effective_dt DESC');
-		$model = $query->orderBy('effective_dt DESC')->one();
-		$model->end_dt = null;
-		$model->save();
+		if (($model = $query->orderBy('effective_dt DESC')->one()) != null) {
+			$model->end_dt = null;
+			$model->save();
+		}
 	}
 	
 	public function afterSave($insert, $changedAttributes)

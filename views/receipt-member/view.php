@@ -20,7 +20,11 @@ $member_id = $model->payingMember->member_id;
 ?>
 <div class="receipt-view">
 
-    <h1><?= Html::encode('Receipt: ' . $this->title . ' for ') . Html::a($member_name, ['/member/view', 'id' => $member_id]) ?></h1>
+	<?php if(Yii::$app->session->hasFlash('success')): ?>
+		<div class="flash-success"><?= Yii::$app->session->getFlash('success') ?></div>
+	<?php endif; ?>
+
+	<h1><?= Html::encode('Receipt: ' . $this->title . ' for ') . Html::a($member_name, ['/member/view', 'id' => $member_id]) ?></h1>
     
     <div class="leftside sixty-pct">
     	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'member']); ?>

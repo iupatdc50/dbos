@@ -10,6 +10,9 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use app\models\member\Member;
+use app\models\accounting\Assessment;
+use app\modules\admin\models\FeeType;
+use app\models\accounting\AdminFee;
 
 /**
  * MemberStatusController implements the CRUD actions for Status model.
@@ -19,61 +22,101 @@ class MemberStatusController extends SummaryController
 
 	public $recordClass = 'app\models\member\Status';
 	public $relationAttribute = 'member_id';
+	public $member;
+	
+	public function actionCreate($relation_id)
+	{
+		$this->setMember($relation_id);
+		return parent::actionCreate($relation_id);
+	}
 	
 	public function actionSummaryJson($id)
 	{
-		$member = $this->findMember($id);
-		$status = isset($member->currentStatus) ? $member->currentStatus->member_status : Status::INACTIVE;
+		$this->setMember($id);
+		$status = isset($this->member->currentStatus) ? $this->member->currentStatus->member_status : Status::INACTIVE;
 		$this->viewParams = ['status' => $status];
 		parent::actionSummaryJson($id);
 	}
 
-	public function actionReinstate($id) {
-	
-		// Special receipt with dues, reinstatement fee & revised application dt (optional) amounts on it
-	
-	}
-	
-	public function actionSuspend($id) {
-	
-		// Special receipt with dues, reinstatement fee & revised application dt (optional) amounts on it
+	public function actionReset($member_id) 
+	{
+		
+		return $this->renderAjax('/site/unavailable');
 	
 	}
 	
-	public function actionDrop($id) {
+	public function actionDrop($member_id) 
+	{
 	
-		// Special receipt with dues, reinstatement fee & revised application dt (optional) amounts on it
-	
-	}
-	
-	public function actionGrantCc($member_id) 
-	{	
 		/** @var Model $model */
-		$model = new CcForm();
+		$model = new Status();
+		$this->setMember($member_id);
 		
 		if ($model->load(Yii::$app->request->post())) {
-			$status = new Status([
-					'effective_dt' => $model->effective_dt,
-					'member_status' => Status::INACTIVE,
-					'reason' => Status::REASON_CCG . $model->other_local,
-			]);
-			$member = $this->findMember($member_id);
-			if ($member->addStatus($status)) {
-				return $this->goBack();
+			if ($this->member->addStatus($model)) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added for drop");
+				$assessModel = new Assessment([
+						'member_id' => $member_id,
+						'fee_type' => FeeType::TYPE_REINST,
+						'assessment_dt' => $model->effective_dt,
+						'assessment_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $model->effective_dt),
+						'purpose' => 'Dropped on this date',
+				]);
+				if ($assessModel->save()) {
+					Yii::$app->session->addFlash('success', "Reinstate fee of {$assessModel->assessment_amt} assessed");
+					return $this->goBack();
+				}
+				throw new \Exception	('Problem with post.  Errors: ' . print_r($assessModel->errors, true));
 			}
-			throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
-		return $this->renderAjax('cc-form', compact('model'));
+		$this->initCreate($model);
+		$model->member_status = Status::INACTIVE;
+		$model->reason = Status::REASON_DROP;
+		return $this->renderAjax('create', compact('model'));
 		
 	}
 	
-	public function findMember($id)
-	{
-		if (($model = Member::findOne($id)) == null)
-			throw new NotFoundHttpException('The requested page does not exist.');
-		return $model;
+	public function actionClearIn($member_id) 
+	{	
+		/** @var Model $model */
+		$model = new Status();
+		$this->setMember($member_id); 
+		
+		if ($model->load(Yii::$app->request->post())) {
+			$prev = (($model->other_local > 0) ? $model->other_local : 'Unspecified');
+			$model->reason .= $prev;
+			if ($this->member->addStatus($model)) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} changed for Clear In");
+				return $this->goBack();
+			}
+			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+		}
+		$this->initCreate($model);
+		$model->member_status = Status::ACTIVE;
+		$model->reason = Status::REASON_CCD;
+		return $this->renderAjax('create', compact('model'));
+		
 	}
 	
+	/**
+	 * Allows for injection of $this->member 
+	 * @param string $id
+	 * @throws NotFoundHttpException
+	 * @return \yii\db\static
+	 */
+	public function setMember($id)
+	{
+		if (!isset($this->member))
+			if (($this->member = Member::findOne($id)) == null)
+				throw new NotFoundHttpException('The requested page does not exist.');
+		return $this->member;
+	}
 	
+	protected function initCreate($model)
+	{
+		if (!isset($model->lob_cd) && ($this->member->currentStatus != null))
+			$model->lob_cd = $this->member->currentStatus->lob_cd;
+	}
 	
 }

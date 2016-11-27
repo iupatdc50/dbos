@@ -13,6 +13,16 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.6.604
+
+. Added drop handling with auto assessment of reinstate fee (table driven)
+. Added feature to activate member who pays off reinstate fee
+. Revised CC handling to properly receipt CCG (not CCD) and apply previous local to CCD
+. Added flash messages to member status, employment, member class and others (via submodel controller)
+. Added flash message to receipt post
+. UI cosmetic changes
+. Minor bug fixes
+
 0.9.6.601
 
 . Added CC handling

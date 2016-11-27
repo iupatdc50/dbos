@@ -15,6 +15,11 @@ use app\helpers\OptionHelper;
  */
 class FeeType extends \yii\db\ActiveRecord
 {
+	CONST TYPE_DUES = 'DU';
+	CONST TYPE_REINST = 'RN';
+	CONST TYPE_CC = 'CC';
+	CONST TYPE_HOURS = 'HR';
+	
     /**
      * @inheritdoc
      */

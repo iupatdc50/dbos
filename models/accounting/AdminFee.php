@@ -23,6 +23,28 @@ class AdminFee extends \yii\db\ActiveRecord
     {
         return 'AdminFees';
     }
+    
+	/**
+	 * Return any preset admin fee that matches the fee type
+	 * 
+	 * @param string $fee_type
+	 * @param string $date  MySQL format 
+	 */
+    public static function getFee($fee_type, $date)
+    {
+    	$sql = "SELECT fee FROM " . self::tableName() .
+    	"  WHERE fee_type = :fee_type
+    				AND effective_dt <= :date
+    				AND (end_dt IS NULL OR end_dt >= :date)
+    			;";
+    	$db = yii::$app->db;
+    	$cmd = $db->createCommand($sql)
+    	->bindValues([
+    			':fee_type' => $fee_type,
+    			':date' => $date,
+    	]);
+    	return $cmd->queryScalar();
+    }
 
     /**
      * @inheritdoc

@@ -22,20 +22,14 @@ $controller = 'member-status';
 		    'footer' => false,
 		],
 		'toolbar' => [
-			'content' => 
-				Html::button('<i class="glyphicon glyphicon-repeat"></i>&nbsp;Reinstate', 
-        			['value' => Url::to(["/member-status/reinstate", 'member_id'  => $id]), 
-            		'id' => 'reinstateButton',
+			'content' =>
+				Html::button('<i class="glyphicon glyphicon-refresh"></i>&nbsp;Reset', 
+	        		['value' => Url::to(["/member-status/reset", 'member_id'  => $id]), 
+            		'id' => 'resetButton',
             		'class' => 'btn btn-default btn-modal',
-            		'data-title' => 'Reinstate',
-            		'disabled' => ($status != Status::INACTIVE),
-    			])
-				. Html::button('<i class="glyphicon glyphicon-warning-sign"></i>&nbsp;Suspend', 
-	        		['value' => Url::to(["/member-status/suspend", 'member_id'  => $id]), 
-            		'id' => 'suspendButton',
-            		'class' => 'btn btn-default btn-modal',
-            		'data-title' => 'Suspension',	
-            		'disabled' => ($status == Status::INACTIVE) || ($status == Status::SUSPENDED),
+            		'data-title' => 'Reset',	
+            		'title' => 'Reset Dues Paid Thru',
+	        		'disabled' => ($status == Status::ACTIVE),
             	])
     			. Html::button('<i class="glyphicon glyphicon-hand-down"></i>&nbsp;Drop', 
             		['value' => Url::to(["/member-status/drop", 'member_id'  => $id]), 
@@ -45,11 +39,12 @@ $controller = 'member-status';
             		'disabled' => ($status == Status::INACTIVE),
             	])
     			. Html::button('<i class="glyphicon glyphicon-credit-card"></i>&nbsp;CC', 
-            		['value' => Url::to(["/member-status/grant-cc", 'member_id'  => $id]), 
+            		['value' => Url::to(["/member-status/clear-in", 'member_id'  => $id]), 
             		'id' => 'dropButton',
             		'class' => 'btn btn-default btn-modal',
-            		'data-title' => 'Grant CC',	
-            		'disabled' => ($status == Status::INACTIVE),
+            		'data-title' => 'Clear In',	
+            		'title' => 'Clear In (CCD)',
+            		'disabled' => ($status == Status::ACTIVE),
             	]),
 		],
 		'columns' => [

@@ -56,7 +56,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $form->field($model, 'other_local')
     		 ->textInput(['maxlength' => true, 'id' => 'otherlocal'])
-    		 ->label('Previous Local', ['id' => 'otherlocallbl']) ?>
+    		 ->label('To Local', ['id' => 'otherlocallbl']) ?>
     
     <div class="form-group">
         <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>

@@ -32,11 +32,15 @@ class Status extends BaseEndable
 	CONST REASON_DUES = 'Dues payment made';
 	CONST REASON_CCG = 'CC granted to local: ';
 	CONST REASON_CCD = 'CC deposited. Previous local: ';
+	CONST REASON_DROP = 'Member dropped';
+	CONST REASON_REINST = 'Member reinstated';
 	
 	CONST ACTIVE = 'A';
 	CONST INACTIVE = 'I';
 	CONST IN_APPL = 'N';
 	CONST SUSPENDED = 'S';
+	
+	public $other_local;
 	
 	/**
      * @inheritdoc
@@ -57,13 +61,14 @@ class Status extends BaseEndable
     public function rules()
     {
         return [
-            [['member_id', 'effective_dt', 'lob_cd'], 'required'],
+            [['member_id', 'effective_dt', 'lob_cd', 'member_status'], 'required'],
             [['effective_dt', 'end_dt'], 'date', 'format' => 'php:Y-m-d'],
+ 			[['other_local'], 'safe'],
             [['reason'], 'string'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
         	[['member_status'], 'exist', 'targetClass' => '\app\models\member\StatusCode', 'targetAttribute' => 'member_status_cd'],
         	[['lob_cd'], 'exist', 'targetClass' => '\app\models\value\Lob'],
-            [['member_id', 'effective_dt'], 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The combination of Member ID and Effective Dt has already been taken.']
+            ['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.']
         ];
     }
 
@@ -80,12 +85,13 @@ class Status extends BaseEndable
             'lob_cd' => 'Local',
             'member_status' => 'Status',
             'reason' => 'Reason',
+        	'other_local' => 'Previous Local',
         ];
     }
     
     public function getIsActive()
     {
-    	return $this->member_status == 'A';
+    	return $this->member_status == self::ACTIVE;
     }
 
     /**

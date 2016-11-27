@@ -9,6 +9,7 @@ use app\models\accounting\BaseAllocation;
 use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\DuesAllocation;
 use app\models\member\Standing;
+use app\modules\admin\models\FeeType;
 
 class AllocationBuilder extends Model
 {
@@ -17,7 +18,7 @@ class AllocationBuilder extends Model
 	public function prepareAllocs(AllocatedMember $memb, $fee_types = [])
 	{
 		foreach ($fee_types as $fee_type) {
-			if($fee_type == 'DU') {
+			if($fee_type == FeeType::TYPE_DUES) {
 				$alloc = new DuesAllocation([
 						'alloc_memb_id' => $memb->id,
 						'duesRateFinder' => new DuesRateFinder(
@@ -34,7 +35,7 @@ class AllocationBuilder extends Model
 				if ($assessment = $standing->getOutstandingAssessment($fee_type)) {
 					$alloc->allocation_amt = $assessment->balance;
 				} else {
-					$fee = $this->getFee($fee_type, $memb->receipt->received_dt);
+					$fee = AdminFee::getFee($fee_type, $memb->receipt->received_dt);
 					$alloc->allocation_amt = ($fee == false) ? 0.00 : $fee;
 				}
 			}
@@ -69,28 +70,6 @@ class AllocationBuilder extends Model
 			return false;
 		}
 		return true;
-	}
-	
-	/**
-	 * Return any preset admin fee that matches the fee type
-	 * 
-	 * @param string $fee_type
-	 * @param string $date  MySQL format 
-	 */
-	private function getFee($fee_type, $date)
-	{
-		$sql = "SELECT fee FROM " . AdminFee::tableName() .
-  			   "  WHERE fee_type = :fee_type
-    				AND effective_dt <= :date
-    				AND (end_dt IS NULL OR end_dt >= :date)
-    			;";
-		$db = yii::$app->db;
-		$cmd = $db->createCommand($sql)
-				  ->bindValues([
-							':fee_type' => $fee_type,
-							':date' => $date,
-				  ]);
-		return $cmd->queryScalar();
 	}
 	
 }

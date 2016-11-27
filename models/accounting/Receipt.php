@@ -6,6 +6,7 @@ use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 use app\models\value\Lob;
+use app\modules\admin\models\FeeType;
 
 /**
  * This is the model class for table "Receipts".
@@ -252,7 +253,7 @@ class Receipt extends \yii\db\ActiveRecord
     public function getDuesAllocations()
     {
     	return $this->hasMany(DuesAllocation::className(), ['alloc_memb_id' => 'id'])
-    				->andOnCondition(['fee_type' => 'DU'])
+    				->andOnCondition(['fee_type' => FeeType::TYPE_DUES])
     			    ->via('allocatedMembers')
     	;
     }
@@ -265,7 +266,7 @@ class Receipt extends \yii\db\ActiveRecord
     public function getAssessmentAllocations()
     {
     	return $this->hasMany(AssessmentAllocation::className(), ['alloc_memb_id' => 'id'])
-    		->andOnCondition(['<>', 'fee_type', 'DU'])
+    		->andOnCondition(['<>', 'fee_type', FeeType::TYPE_DUES])
     		->via('allocatedMembers')
     	;
     }

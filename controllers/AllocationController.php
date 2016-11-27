@@ -14,6 +14,7 @@ use yii\helpers\ArrayHelper;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\app\models\accounting;
 use app\models\accounting\TradeFeeType;
+use app\modules\admin\models\FeeType;
 
 class AllocationController extends Controller
 {
@@ -67,22 +68,22 @@ class AllocationController extends Controller
 		
 		$alloc_query = AssessmentAllocation::find();
 		$alloc_query->where(['alloc_memb_id' => $_POST['expandRowKey']])
-			  		->andWhere(['!=', 'fee_type', 'DU'])
-			  		->andWhere(['!=', 'fee_type', 'HR'])
+			  		->andWhere(['!=', 'fee_type', FeeType::TYPE_DUES])
+			  		->andWhere(['!=', 'fee_type', FeeType::TYPE_HOURS])
 			  		;
 		$allocProvider = new ActiveDataProvider(['query' => $alloc_query]);
 		
 		$dues_query = AssessmentAllocation::find();
 		$dues_query->where([
 				'alloc_memb_id' => $_POST['expandRowKey'],
-				'fee_type' => 'DU',
+				'fee_type' => FeeType::TYPE_DUES,
 		]);		
 		$duesProvider = new ActiveDataProvider(['query' => $dues_query]);
 		
 		$hrs_query = AssessmentAllocation::find();
 		$hrs_query->where([
 				'alloc_memb_id' => $_POST['expandRowKey'],
-				'fee_type' => 'HR',
+				'fee_type' => FeeType::TYPE_HOURS,
 		]);		
 		$hrsProvider = new ActiveDataProvider(['query' => $hrs_query]);
 		

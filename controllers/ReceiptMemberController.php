@@ -61,12 +61,12 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
 					if ($result != true)
 						throw new \Exception('Uncaught validation errors: ' . $result);
 					if ($model->other_local > 0) {
-						$modelPrevLocal = new CcOtherLocal([
+						$modelNextLocal = new CcOtherLocal([
 								'alloc_memb_id' => $modelMember->id,
 								'other_local' => $model->other_local,
 						]);
-						if (!$modelPrevLocal->save())
-							throw new \Exception("Error when trying to stage Previous Local `{$modelPrevLocal->alloc_memb_id}`: {$e}");
+						if (!$modelNextLocal->save())
+							throw new \Exception("Error when trying to stage Receiving Local `{$modelNextLocal->alloc_memb_id}`: {$e}");
 					}
 					$transaction->commit();
 					return $this->redirect(['itemize', 'id' => $model->id]); 
