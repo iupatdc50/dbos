@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\DetailView;
 use yii\grid\GridView;
-use SebastianBergmann\CodeCoverage\Report\PHP;
+// use SebastianBergmann\CodeCoverage\Report\PHP;
 
 /* @var $model app\models\accounting\Receipt */
 /* @var $allocProvider ActiveDataProvider */
