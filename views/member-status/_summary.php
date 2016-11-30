@@ -23,7 +23,15 @@ $controller = 'member-status';
 		],
 		'toolbar' => [
 			'content' =>
-				Html::button('<i class="glyphicon glyphicon-refresh"></i>&nbsp;Reset', 
+				Html::button('<i class="glyphicon glyphicon-hand-up"></i>&nbsp;Initiate', 
+	        		['value' => Url::to(["/member-status/initiate", 'member_id'  => $id]), 
+            		'id' => 'initButton',
+            		'class' => 'btn btn-default btn-modal',
+            		'data-title' => 'Initiate',	
+            		'title' => 'Manually set initiation date',
+	        		'disabled' => true,
+            	])
+				. Html::button('<i class="glyphicon glyphicon-refresh"></i>&nbsp;Reset', 
 	        		['value' => Url::to(["/member-status/reset", 'member_id'  => $id]), 
             		'id' => 'resetButton',
             		'class' => 'btn btn-default btn-modal',
