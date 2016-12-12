@@ -11,8 +11,10 @@ use yii\base\InvalidCallException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use yii\base\yii\base;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Json;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
 use app\models\member;
@@ -41,6 +43,38 @@ class BaseController extends Controller
                     'delete' => ['post'],
                 ],
             ],
+        	'access' => [
+        		'class' => AccessControl::className(),
+        		'only' => ['index', 'view', 'create', 'update', 'balance', 'delete', 'print-preview'],
+        		'rules' => [
+        			[
+        				'allow' => true,
+        				'actions' => ['index', 'view'],
+        				'roles' => ['browseReceipt'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['create'],
+        				'roles' => ['createReceipt'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['update', 'balance'],
+        				'roles' => ['updateReceipt'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['print-preview'],
+        				'roles' => ['reportAccounting'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['delete'],
+        				'roles' => ['deleteReceipt'],
+        			],
+        		],
+        	],
+        			
         ];
     }
     
@@ -53,11 +87,9 @@ class BaseController extends Controller
     	return $this->redirect("/accounting");
     }
 
-//    public function actionBalance($id, array $fee_types)
     public function actionBalance($id)
     {
     	$model = $this->findModel($id);
-//    	$model->fee_types = $fee_types;
     	if ($model->load(Yii::$app->request->post())) {
     		if($model->save()) 
     			return $this->goBack();

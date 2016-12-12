@@ -26,6 +26,8 @@ use app\models\base\BaseEndable;
  */
 class Status extends BaseEndable
 {
+	CONST SCENARIO_CCD = 'ccd';
+	CONST SCENARIO_RESET = 'reset';
 	
 	CONST REASON_NEW = 'New Entry';
 	CONST REASON_APF = 'APF satisfied';
@@ -34,6 +36,7 @@ class Status extends BaseEndable
 	CONST REASON_CCD = 'CC deposited. Previous local: ';
 	CONST REASON_DROP = 'Member dropped';
 	CONST REASON_REINST = 'Member reinstated';
+	CONST REASON_RESET = 'Reset paid thru date to: ';
 	
 	CONST ACTIVE = 'A';
 	CONST INACTIVE = 'I';
@@ -41,6 +44,7 @@ class Status extends BaseEndable
 	CONST SUSPENDED = 'S';
 	
 	public $other_local;
+	public $paid_thru_dt;
 	
 	/**
      * @inheritdoc
@@ -62,13 +66,16 @@ class Status extends BaseEndable
     {
         return [
             [['member_id', 'effective_dt', 'lob_cd', 'member_status'], 'required'],
-            [['effective_dt', 'end_dt'], 'date', 'format' => 'php:Y-m-d'],
- 			[['other_local'], 'safe'],
+            [['effective_dt', 'end_dt', 'paid_thru_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['reason'], 'string'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
         	[['member_status'], 'exist', 'targetClass' => '\app\models\member\StatusCode', 'targetAttribute' => 'member_status_cd'],
         	[['lob_cd'], 'exist', 'targetClass' => '\app\models\value\Lob'],
-            ['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.']
+            ['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.'],
+        		
+        	[['other_local'], 'required', 'on' => self::SCENARIO_CCD],
+        	[['paid_thru_dt'], 'required', 'on' => self::SCENARIO_RESET],
+        		
         ];
     }
 
@@ -86,6 +93,7 @@ class Status extends BaseEndable
             'member_status' => 'Status',
             'reason' => 'Reason',
         	'other_local' => 'Previous Local',
+        	'paid_thru_dt' => 'New Paid Thru',
         ];
     }
     

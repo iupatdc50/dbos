@@ -16,12 +16,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="member-view">
 
-<?php 
-	foreach (Yii::$app->session->getAllFlashes() as $key => $messages) {
-		$message = (is_array($messages)) ? implode(', ', $messages) : $messages;
-		echo '<div class="flash-' . $key . '">' . $message . '</div>';
-	} ?>
-	
 <table class="hundred-pct">
 <tr><td class="text-center pad-six">
     <h4><?= Html::encode($this->title) ?></h4>
@@ -32,6 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
 						'id' => 'photoButton',
 						'class' => 'btn btn-default btn-modal btn-embedded',
 						'data-title' => 'Photo',
+						'disabled' => !(Yii::$app->user->can('updateMember')),
 					]) 
 		?>
     </p> 
@@ -48,7 +43,6 @@ $this->params['breadcrumbs'][] = $this->title;
         		[
         				'attribute' => 'dues_paid_thru_dt',
         				'format' => 'date',
-//        				'rowOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
         				'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
     			],	
     		],
@@ -56,14 +50,18 @@ $this->params['breadcrumbs'][] = $this->title;
     </td><td class="seventyfive-pct">
 		<?= $this->render('../partials/_quicksearch', ['className' => 'member']); ?>
         <div><p>
-			<?= Html::a('Update', ['update', 'id' => $model->member_id], ['class' => 'btn btn-primary']) ?>
-	        <?= Html::a('Delete', ['delete', 'id' => $model->member_id], [
-	            'class' => 'btn btn-danger',
-	            'data' => [
-	                'confirm' => 'Are you sure you want to delete this item?',
-	                'method' => 'post',
-	            ],
-	        ]) ?>
+        	<?php if(Yii::$app->user->can('updateMember')): ?>
+				<?= Html::a('Update', ['update', 'id' => $model->member_id], ['class' => 'btn btn-primary']) ?>
+				<?php if(Yii::$app->user->can('deleteMember')) :?>
+			        <?= Html::a('Delete', ['delete', 'id' => $model->member_id], [
+			            'class' => 'btn btn-danger',
+			            'data' => [
+			                'confirm' => 'Are you sure you want to delete this item?',
+			                'method' => 'post',
+			            ],
+			        ]) ?>
+			    <?php endif; ?> 
+			<?php endif; ?>
         </p></div>
     <?= DetailView::widget([
         'model' => $model,

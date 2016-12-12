@@ -3,8 +3,6 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\DetailView;
-// use kartik\detail\DetailView;
-use kartik\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\project\Project */
@@ -17,24 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->project_id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->project_id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-        <?php if($model->project_status == 'A') : ?>
-        <?= Html::button('<i class="glyphicon glyphicon-minus-sign"></i>&nbsp;Cancel Project', 
-	        			['value' => Url::to(["cancel", 'id'  => $model->project_id]),
-            				'id' => 'cancelButton',
-            				'class' => 'btn btn-default btn-modal',
-            				'data-title' => 'Cancellation',	
-        ]) ?>
-        <?php endif; ?>
-    </p>
+	<?= $this->render('../project/_viewtoolbar', ['model' => $model]); ?>
 
 <?php 
 $is_maint = ($model->is_maint == 'T');
@@ -49,7 +30,6 @@ $is_maint = ($model->is_maint == 'T');
             [
             	'attribute' => 'project_status', 
             	'value' => Html::encode($model->statusText),
-//            	'rowOptions' => $model->project_status == 'A' ? ['class' => 'success'] : ($model->project_status == 'X' ? ['class' => 'danger'] : ['class' => 'default']),
             	'contentOptions' => $model->project_status == 'A' ? ['class' => 'success'] : ($model->project_status == 'X' ? ['class' => 'danger'] : ['class' => 'default']),
             ],
             'project_id',
@@ -80,90 +60,29 @@ $is_maint = ($model->is_maint == 'T');
     ]) ?>
     
     <?php 
-    $awarded = '<span class="glyphicon glyphicon-asterisk text-success"></span>';
-    $pending = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
-    $controller = 'registration-lma';
+	$specialColumns = [
+			[
+				'attribute' => 'hourRange',
+				'label' => 'Hours',
+				'hAlign' => 'right',
+			],
+			[
+				'attribute' => 'amountRange',
+				'label' => 'Estimate',
+				'hAlign' => 'right',
+			],
+	];    
+    
+    echo $this->render('../project/_registrationgrid', [
+    		'registrationProvider' => $registrationProvider,
+    		'model' => $model,
+    		'is_maint' => $is_maint,
+    		'controller' => 'registration-lma',
+    		'specialColumns' => $specialColumns,
+     ]);
+	
     ?>
     
-    <?= GridView::widget([
-    	'dataProvider' => $registrationProvider,
-    		'id' => 'registration-grid',
-    		'panel'=>[
-		        'type'=>GridView::TYPE_DEFAULT,
-		        'heading'=>'<i class="glyphicon glyphicon-user"></i>&nbsp;Registrations',
-		        'after' => false,
-		        'footer' => false,
-		    ],
-		    'summaryOptions' => ['id' => 'reg-summary'],
-		    'toolbar' => [
-				'options' => ['class' => 'pull-left'],
-		    	'content' => 
-					Html::button('<i class="glyphicon glyphicon-certificate"></i>&nbsp;Award',
-						['value' => Url::to(['/awarded-bid/award', 'project_id'  => $model->project_id]),
-						'id' => 'awardButton',
-						'class' => 'btn btn-default btn-success btn-award',
-						'data-title' => 'Award',
-					]),
-			],
-		    'columns' => [
-				[ 
-					// rowHighlight defaults to true; rowSelectedClass defaults to GridView::TYPE_SUCCESS
-   					'class'=>'kartik\grid\RadioColumn',
-   					'width'=>'36px',
-				],
-		    	[
-    				'class'=>'kartik\grid\BooleanColumn',
-    				'attribute' => 'awarded',
-    				'value' => function($data) {
-    					return isset($data->isAwarded);
-    				},
-    				'falseIcon' => $pending,
-    				'trueIcon'	=> $awarded,
-    			],
-    			[
-    				'attribute' => 'bidder',
-    				'format' => 'raw',
-    				'value' => function($data) {
-    					$label = $data->biddingContractor->contractor;
-    					return Html::a($label, ['contractor/view', 'id' => $data->bidder]);
-    				},
-            		'contentOptions' => ['style' => 'white-space: nowrap;'],
-    			],
-    			'bid_dt:date',
-    			[ 
-    					'attribute' => 'hourRange', 
-    					'label' => 'Hours',
-    					'hAlign' => 'right',
-    			],
-    			[
-    					'attribute' => 'amountRange',
-    					'label' => 'Estimate',
-    					'hAlign' => 'right',
-    			], 
-    			[
-						'attribute' => 'showPdf',
-						'label' => 'Doc',
-						'format' => 'raw',
-						'value' => function($model) {
-							return (isset($model->doc_id)) ?
-								Html::a(Html::tag('span', '', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show original agreement']),
-									$model->imageUrl, ['target' => '_blank']) : '';
-							},
-            			'contentOptions' => ['style' => 'white-space: nowrap;'],
-				],
-				[
-					'class' => 	'kartik\grid\ActionColumn',
-					'controller' => $controller,
-					'template' => '{update}{delete}',
-					'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
-						['value' => Url::to(["/{$controller}/create" . ($is_maint ? '-maint' : ''), 'relation_id'  => $model->project_id]),
-						'id' => 'registrationCreateButton',
-						'class' => 'btn btn-default btn-modal btn-embedded',
-						'data-title' => 'Registration',
-					]),
-				],
-    	],
-    ]); ?>
     
     </td><td class="forty-pct datatop">
 

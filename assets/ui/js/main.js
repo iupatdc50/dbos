@@ -48,6 +48,15 @@ $(function(){
 	});
 });
 
+/**
+ * Standard action for HTML <button> whose class includes btn-aslink
+ */
+$(function(){
+	$(document).on('click', '.btn-aslink', function () {
+		$(location).attr('href', $(this).attr('value'));
+	});
+});
+
 
 /**
  * Forces a modal create window to route to that window's action. Identified

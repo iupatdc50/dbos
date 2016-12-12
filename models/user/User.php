@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
 use app\components\utilities\OpDate;
+use kartik\password\StrengthValidator;
 
 /**
  * This is the model class for table "Users".
@@ -26,8 +27,15 @@ class User extends \yii\db\ActiveRecord
 				 implements IdentityInterface
 {
 	const SCENARIO_CREATE = 'create';
+	const SCENARIO_CHANGE_PW = 'changepw';
+	const STATUS_ACTIVE = 10;
+	const STATUS_INACTIVE = 0;
+	const RESET_USER_PW = 'TempPassword';
 	
 	public $password_clear = null;
+	public $password_current;
+	public $password_new;
+	public $password_confirm;
 	
     /**
      * @inheritdoc
@@ -57,6 +65,12 @@ class User extends \yii\db\ActiveRecord
             [['username'], 'unique'],
         	[['email'], 'email'],
         	[['auth_key'], 'string', 'max' => 32],
+        		
+        	[['password_current', 'password_new', 'password_confirm'], 'required', 'on' => self::SCENARIO_CHANGE_PW],
+        	[['password_current'], 'validateCurrentPassword'],
+        	[['password_new'], StrengthValidator::className(), 'preset' => 'normal', 'userAttribute' => 'username'],
+        	[['password_confirm'], 'compare', 'compareAttribute' => 'password_new', 'message' => 'Passwords do not match'],
+        		
         ];
     }
 
@@ -76,6 +90,10 @@ class User extends \yii\db\ActiveRecord
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+        		
+        	'password_current' => 'Current Password', 
+        	'password_new' => 'New Password', 
+            'password_confirm' => 'Confirm New Password', 
         ];
     }
     
@@ -105,7 +123,6 @@ class User extends \yii\db\ActiveRecord
      */
     public static function findByUsername($username)
     {
-    	Yii::warning('Reached find with username: ' . $username);
     	return self::findOne(['username' => $username]);
     }
     
@@ -118,6 +135,22 @@ class User extends \yii\db\ActiveRecord
     public function validatePassword($password)
     {
     	return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+    
+    public function validateCurrentPassword()
+    {
+    	if (!$this->validatePassword($this->password_current))
+    		$this->addError('password_current', 'Current password is incorrect');
+    }
+    
+    /**
+     * Tests whether the current user password is the standard temporary one
+     *  
+     * @return boolean
+     */
+    public function requiresReset()
+    {
+    	return $this->validatePassword(self::RESET_USER_PW);
     }
     
     public function getLastLoginDisplay()

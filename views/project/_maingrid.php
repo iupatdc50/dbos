@@ -73,8 +73,9 @@ $actionColumn = [
 	'panel'=>[
 		'type'=>GridView::TYPE_PRIMARY,
 	    'heading'=> $heading,
-	    'before' => isset($before) ? Html::tag('span', $before, ['class' => 'btn pull-right']) : null,
-		'after' => false,
+		// workaround to prevent 1 in the before section
+		'before' => (Yii::$app->user->can('manageProject')) ? '' : false,
+		'after' => isset($before) ? '<p class="pad-six">' . Html::tag('span', $before, ['class' => 'pull-right']) . '</p>' : false,
 	],
 	'toolbar' => [
 		'content' => Html::a('Create Project', ['create'], ['class' => 'btn btn-success']),

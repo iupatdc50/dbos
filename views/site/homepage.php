@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use yii\helpers\Url;
 use kartik\dropdown\DropdownX;
 ?>
 
@@ -19,12 +20,24 @@ use kartik\dropdown\DropdownX;
 	        <div class="panel-body">
 		<table class="table-striped">
 			<tr class="three-em">
-				<td class="twelve-em"><?= Html::a('Membership', '/member', ['class' => 'btn btn-info ten-em']); ?></td>
+				<td class="twelve-em">
+					<?= Html::button('Membership', [
+							'value' => '/member', 
+							'class' => 'btn btn-info ten-em btn-aslink',
+							'disabled' => !(Yii::$app->user->can('browseMember')),
+					]); ?>
+				</td>
 				<td>For viewing and editing member records by trade. Depending on
 					permissions, individual payments may be posted here also.</td>
 			</tr>
 			<tr class="three-em">
-				<td class="twelve-em"><?= Html::a('Contractors', '/contractor', ['class' => 'btn btn-info ten-em']); ?></td>
+				<td class="twelve-em">
+					<?= Html::button('Contractors', [
+							'value' => '/contractor',
+							'class' => 'btn btn-info ten-em btn-aslink',
+							'disabled' => !(Yii::$app->user->can('browseContractor')),
+					]); ?>
+				</td>
 				<td>For viewing and editing contractor records. Depending on
 					permissions, contractor payments may be posted here.</td>
 			</tr>
@@ -35,6 +48,7 @@ use kartik\dropdown\DropdownX;
 						'type' => 'button',
 						'class' => 'btn btn-info ten-em',
 						'data-toggle' => 'dropdown',
+						'disabled' => !(Yii::$app->user->can('browseProject')),
 					]); ?>
 					<?= DropdownX::widget([
 					    'items' => [
@@ -47,13 +61,25 @@ use kartik\dropdown\DropdownX;
 				<td>For managing special ancillary agreement projects. </td>
 			</tr>
 			<tr class="three-em">
-				<td class="twelve-em"><?= Html::a('Accounting', 'unavailable', ['class' => 'btn btn-info ten-em']); ?></td>
+				<td class="twelve-em">
+					<?= Html::button('Accounting', [
+							'value' => '/accounting', 
+							'class' => 'btn btn-info ten-em btn-aslink',
+							'disabled' => !(Yii::$app->user->can('browseReceipt')),
+					]); ?>
+				</td>
 				<td>For tracking payment activity and general payment posting.
 					Receipt book balancing and adjustment transactions can also be
 					accessed from here.</td>
 			</tr>
 			<tr class="three-em">
-				<td class="twelve-em"><?= Html::a('Training', 'unavailable', ['class' => 'btn btn-info ten-em']); ?></td>
+				<td class="twelve-em">
+					<?= Html::button('Training', [
+							'value' => 'unavailable', 
+							'class' => 'btn btn-info ten-em btn-aslink',
+							'disabled' => !(Yii::$app->user->can('manageTraining')),
+					]); ?>
+				</td>
 				<td>For tracking compliance, training schedules and apprenticeship.</td>
 			</tr>
 		</table>

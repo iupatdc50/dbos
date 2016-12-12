@@ -170,6 +170,7 @@ ul.noBullets {list-style: none;}
 .fifty-pct {width: 50%;}
 .sixty-pct {width: 60%;}
 .seventyfive-pct {width: 75%;}
+.ninety-pct {width: 90%;}
 .hundred-pct {width: 100%;}
 
 .datatop {vertical-align: top;} 
@@ -252,6 +253,10 @@ a span.loaned {
 
 .select2-container--krajee .select2-selection--single .select2-selection__arrow {
 	height: 28px;
+}
+
+.navbar .container {
+	width: 90%;	
 }
 
 #dues_grid .summary {

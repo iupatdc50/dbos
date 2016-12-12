@@ -16,7 +16,6 @@ $this->params['breadcrumbs'][] = $this->title;
 	        <div class="panel-body">
 		        <h5 class="text-warning">Security</h5>
 		        <ul>
-		        	<li>Security RBAC not active.  Disabled blocked features.</li>
 		        	<li>User identity resets on occasion.</li>
 		        </ul>
 		        <h5 class="text-warning">Navigation</h5>

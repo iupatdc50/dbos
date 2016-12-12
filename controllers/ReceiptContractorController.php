@@ -140,14 +140,18 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 	
 	public function actionSummaryJson($id)
 	{
-		$searchModel = new ReceiptContractorSearch();
-		$searchModel->license_nbr = $id;
-		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-		echo Json::encode($this->renderPartial('_summary', [
-				'dataProvider' => $dataProvider,
-				'searchModel' => $searchModel, 
-				'id' => $id,
-		]));
+    	if (!Yii::$app->user->can('browseReceipt')) {
+    		echo Json::encode($this->renderAjax('/partials/_deniedview'));
+    	} else {
+			$searchModel = new ReceiptContractorSearch();
+			$searchModel->license_nbr = $id;
+			$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+			echo Json::encode($this->renderPartial('_summary', [
+					'dataProvider' => $dataProvider,
+					'searchModel' => $searchModel, 
+					'id' => $id,
+			]));
+		}
 	}
 	
 	

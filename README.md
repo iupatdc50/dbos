@@ -13,6 +13,14 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.7.101
+
+. Added RBAC security
+. Added password reset feature
+. Added ability to reset dues paid thru date
+. Added flash messages apparatus to main layout
+. Minor bug fixes and performance improvements
+
 0.9.6.604
 
 . Added drop handling with auto assessment of reinstate fee (table driven)

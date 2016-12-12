@@ -37,6 +37,16 @@ class SiteController extends Controller
 		]);
 	} 
 	
+	/**
+	 * Standard user login action
+	 * 
+	 * If successful, sets a session variable to hold last login time and 
+	 * stores current login time. Also forces a password reset if the current
+	 * password is User::RESET_USER_PW
+	 * 
+	 * @throws \Exception
+	 * @return \yii\web\Response|Ambigous <string, string>
+	 */
 	public function actionLogin()
 	{
 		$this->layout = 'login';
@@ -48,10 +58,11 @@ class SiteController extends Controller
 			/* @var $user User */
 			$user = User::findByUsername(Yii::$app->user->identity->username);
 			$this->session->set('user.last_login', $user->lastLoginDisplay);
-//			$this->session->set('user.login_dt', $this->today);
 			$user->last_login = $this->today->getMySqlDate(false);
 			if (!$user->save(true, ['last_login']))
 				throw new \Exception('Problem with last_login update.  Messages: ' . print_r($user->errors, true));
+			if ($user->requiresReset())
+				return $this->redirect('/user/reset-pw');
 			return $this->goBack();
 		}
 	

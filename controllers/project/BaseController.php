@@ -12,6 +12,7 @@ use app\models\project\CancelForm;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
 use app\models\project\jtp\Registration;
 use app\helpers\OptionHelper;
@@ -48,6 +49,28 @@ class BaseController extends RootController
                     'delete' => ['post'],
                 ],
             ],
+        	'access' => [
+        		'class' => AccessControl::className(),
+        		'only' => ['index', 'view', 'create', 'update', 'cancel', 'delete'],
+        		'rules' => [
+        			[
+        				'allow' => true,
+        				'actions' => ['index', 'view'],
+        				'roles' => ['browseProject'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['create', 'update', 'cancel'],
+        				'roles' => ['manageProject'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['delete'],
+        				'roles' => ['deleteProject'],
+        			],
+        		],
+        	],
+        		
         ];
     }
 

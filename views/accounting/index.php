@@ -24,6 +24,8 @@ $this->params['breadcrumbs'][] = $this->title;
 		'panel'=>[
 	        'type'=>GridView::TYPE_PRIMARY,
 	        'heading'=> $this->title,
+			// workaround to prevent 1 in the before section
+			'before' => (Yii::$app->user->can('createReceipt')) ? '' : false,
 		    'after' => false,
 		],
 		'toolbar' => [
@@ -78,22 +80,16 @@ $this->params['breadcrumbs'][] = $this->title;
         	],
     		[
     			'class' => 'yii\grid\ActionColumn',
-    			'template' => '{view} {update}',
+    			'template' => '{view}',
     			'buttons' => [
     				'view' => function($url, $model, $key) {
     							return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, ['title' => 'View']);
-    				},
-    				'update' => function($url, $model, $key) {
-    							  return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url, ['title' => 'Update']);
     				},
     			],
     			'urlCreator' => function ($action, $model, $key, $index) {
 					    			if ($action === 'view') {
 					    				$route = ($model->payor_type == 'C') ? '/receipt-contractor' : '/receipt-member';
 					    				$url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model->id]);
-					    				return $url;
-					    			} elseif ($action === 'update') {
-					    				$url = Yii::$app->urlManager->createUrl(['/receipt/update', 'id' => $model->id]);
 					    				return $url;
 					    			}
 				},

@@ -7,7 +7,10 @@ use app\models\user\User;
 use app\models\user\UserSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\web\yii\web;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -17,12 +20,35 @@ class UserController extends Controller
     public function behaviors()
     {
         return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
-                ],
-            ],
+	            'verbs' => [
+	                'class' => VerbFilter::className(),
+	                'actions' => [
+	                    'delete' => ['post'],
+	                ],
+	            ],
+        		'access' => [
+        				'class' => AccessControl::className(),
+        				'only' => ['index', 'create', 'view', 'delete'],
+        				'rules' => [
+        						[
+        								'allow' => true,
+        								'actions' => ['index', 'create'],
+        								'roles' => ['assignRole'],
+        						],
+        						[
+        								'allow' => true,
+        								'actions' => ['view'],
+        								'roles' => ['updateUser'],
+        						],
+        						[
+        								'allow' => true,
+        								'actions' => ['delete'],
+        								'roles' => ['deleteUser'],
+        						],
+        				],
+        		],
+        		
+        		
         ];
     }
 
@@ -48,9 +74,10 @@ class UserController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+    	$model = $this->findModel($id);
+    	if (Yii::$app->user->can('updateUser', ['user' => $model]))
+        	return $this->render('view', ['model' => $model]);
+    	throw new ForbiddenHttpException("You are not allowed to view this record ({$model->id})");
     }
 
     /**
@@ -81,13 +108,12 @@ class UserController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+    	if (Yii::$app->user->can('updateUser', ['user' => $model])) {
+	        if ($model->load(Yii::$app->request->post()) && $model->save()) 
+	            return $this->redirect(['view', 'id' => $model->id]);
+	        return $this->render('update', ['model' => $model]);
         }
+    	throw new ForbiddenHttpException("You are not allowed to perform this action ({$model->id})");
     }
 
     /**
@@ -101,6 +127,20 @@ class UserController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+    
+    public function actionResetPw()
+    {
+    	$model = Yii::$app->user->identity;
+
+	    $model->scenario = User::SCENARIO_CHANGE_PW;
+	    if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+	    	$model->setPassword($model->password_new);
+	    	$model->save(false);
+	    	Yii::$app->session->addFlash('success', "Successfully changed password.  Please logout and back in.");
+	    	return $this->goBack();
+	    }
+	    return $this->render('change-pw', ['model' => $model]);
     }
 
     /**

@@ -47,33 +47,53 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	            if (Yii::$app->user->isGuest) {
 	                $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
 	            } else {
-	            	$menuItems[] = ['label' => 'Membership', 'url' => ['/member/'], 
-	            			'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'member'),
-	            	];
-	                $menuItems[] = ['label' => 'Contractors', 'url' => ['/contractor/'],
-	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'contractor'),
-	                ];
-	                $menuItems[] = ['label' => 'Projects',
-	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'project'),
-	                		'items' => [
-	                				['label' => 'LMA Projects', 'url' => ['/project-lma/']],
-	                				['label' => 'JTP Projects', 'url' => ['/project-jtp/']],
-	                		],
-	                ];
-	                $menuItems[] = ['label' => 'Accounting', 'url' => ['/accounting/'],
-	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'accounting'),
-	                ];
-	                $menuItems[] = ['label' => 'Training', 'url' => ['/site/unavailable'],
-	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'training'),
-	                ];
-	                /*
-	                $menuItems[] = ['label' => 'Admin', 'url' => ['/admin'],
-	                ];
-	                */
+	            	if(Yii::$app->user->can('browseMember'))
+		            	$menuItems[] = [
+		            			'label' => 'Membership', 'url' => ['/member/'], 
+		            			'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'member'),
+		            	];
+	            	if(Yii::$app->user->can('browseContractor'))
+		            	$menuItems[] = [
+		                		'label' => 'Contractors', 'url' => ['/contractor/'],
+		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'contractor'),
+		                ];
+	            	if(Yii::$app->user->can('browseProject'))
+		            	$menuItems[] = [
+		                		'label' => 'Projects',
+		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'project'),
+		                		'items' => [
+		                				['label' => 'LMA Projects', 'url' => ['/project-lma/']],
+		                				['label' => 'JTP Projects', 'url' => ['/project-jtp/']],
+		                		],
+		                ];
+	            	if(Yii::$app->user->can('browseReceipt'))
+		            	$menuItems[] = [
+		                		'label' => 'Accounting', 'url' => ['/accounting/'],
+		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'accounting'),
+		                ];
+	            	if(Yii::$app->user->can('browseTraining'))
+		            	$menuItems[] = [
+		                		'label' => 'Training', 'url' => ['/site/unavailable'],
+		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'training'),
+		                ];
+		            if(Yii::$app->user->can('manageSupport'))		 
+		                $menuItems[] = [
+		                		'label' => 'Admin', 'url' => ['/admin'],
+		                ];
 	                $menuItems[] = [
-	                	'label' => 'Logout ' . Yii::$app->user->identity->username,
-	                    'url' => ['/site/logout'],
-	                    'linkOptions' => ['data-method' => 'post'],
+	                	'label' => 'Account: ' . Yii::$app->user->identity->username,
+	                	'items' => [
+	                			[
+	                					'label' => 'Logout',		
+	                    				'url' => ['/site/logout'],
+	                    				'linkOptions' => ['data-method' => 'post'],
+	                			],
+	                			[
+			                			'label' => 'Reset Password',
+			                			'url' => ['/user/reset-pw'],
+	                			],
+	                			
+	                	],
 	                ];
 	            }
 	            echo Nav::widget([
@@ -83,11 +103,20 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	            NavBar::end();
 	        ?>
 
-			<div class="container">
+	        
+	        
+			<div class="container ninety-pct">
 	        <?= Breadcrumbs::widget([
 	            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 	        ]) ?>
- 			<?= $content; ?>
+
+	        <?php 
+				foreach (Yii::$app->session->getAllFlashes() as $key => $messages) {
+					$message = (is_array($messages)) ? implode(', ', $messages) : $messages;
+					echo '<div class="flash-' . $key . '">' . $message . '</div>';
+				} ?>
+	        
+	        <?= $content; ?>
 			</div>
 			<footer class="footer clearfix">
 			    <div class="container">

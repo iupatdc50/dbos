@@ -31,9 +31,10 @@ echo GridView::widget([
 						},
 				],
 				[
-					'class' => 	'kartik\grid\ActionColumn',
-							'controller' => $controller,
-							'template' => '{delete}',
+						'class' => 	'kartik\grid\ActionColumn',
+						'visible' => Yii::$app->user->can('updateMember'),
+						'controller' => $controller,
+						'template' => '{delete}',
 						'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
 							['value' => Url::to(["/{$controller}/create", 'relation_id'  => $id]),
 													'id' => 'documentCreateButton',

@@ -4,6 +4,9 @@ namespace app\controllers;
 
 use Yii;
 use app\controllers\basedoc\SubmodelController;
+use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+
 
 /**
  * Implements the CRUD actions for Registration model.
@@ -14,6 +17,36 @@ class RegistrationLmaController extends SubmodelController
 	/* Base controller properties - All are required */
 	public $recordClass = 'app\models\project\lma\Registration';
 	public $relationAttribute = 'project_id';
+	
+	public function behaviors()
+	{
+		return [
+				'verbs' => [
+						'class' => VerbFilter::className(),
+						'actions' => [
+								'delete' => ['post'],
+						],
+				],
+	
+				'access' => [
+						'class' => AccessControl::className(),
+						'only' => ['create', 'create-maint', 'update', 'delete'],
+						'rules' => [
+								[
+										'allow' => true,
+										'actions' => ['create', 'create-maint', 'update'],
+										'roles' => ['manageProject'],
+								],
+								[
+										'allow' => true,
+										'actions' => ['delete'],
+										'roles' => ['deleteProject'],
+								],
+						],
+				],
+		];
+	}
+	
 	
 	public function actionCreateMaint($relation_id)
 	{

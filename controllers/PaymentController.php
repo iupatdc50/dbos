@@ -27,6 +27,18 @@ class PaymentController extends Controller
 								'delete' => ['post'],
 						],
 				],
+				'access' => [
+						'class' => AccessControl::className(),
+						'only' => ['create', 'delete'],
+						'rules' => [
+								[
+										'allow' => true,
+										'actions' => ['create', 'delete'],
+										'roles' => ['manageProject'],
+								],
+						],
+				],
+				
 		];
 	}
 	

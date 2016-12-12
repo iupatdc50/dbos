@@ -9,10 +9,12 @@ use app\models\member\CcForm;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use app\models\member\Member;
 use app\models\accounting\Assessment;
 use app\modules\admin\models\FeeType;
 use app\models\accounting\AdminFee;
+use app\components\utilities\OpDate;
 
 /**
  * MemberStatusController implements the CRUD actions for Status model.
@@ -23,6 +25,30 @@ class MemberStatusController extends SummaryController
 	public $recordClass = 'app\models\member\Status';
 	public $relationAttribute = 'member_id';
 	public $member;
+
+	public function behaviors()
+	{
+		return [
+				'verbs' => [
+						'class' => VerbFilter::className(),
+						'actions' => [
+								'delete' => ['post'],
+						],
+				],
+				'access' => [
+						'class' => AccessControl::className(),
+						'only' => ['create', 'drop', 'clear-in'],
+						'rules' => [
+								[
+										'allow' => true,
+										'actions' => ['create', 'drop', 'clear-in'],
+										'roles' => ['createMember', 'updateMember'],
+								],
+						],
+				],
+	
+		];
+	}
 	
 	public function actionCreate($relation_id)
 	{
@@ -40,8 +66,32 @@ class MemberStatusController extends SummaryController
 
 	public function actionReset($member_id) 
 	{
+		if (!Yii::$app->user->can('resetPT'))
+			return $this->renderAjax('/partials/_deniedaction');
 		
-		return $this->renderAjax('/site/unavailable');
+		/** @var Model $model */
+		$model = new Status(['scenario' => Status::SCENARIO_RESET]);
+		$this->setMember($member_id);
+		
+		if ($model->load(Yii::$app->request->post())) {
+			$pt_dt = (new OpDate)->setFromMySql($model->paid_thru_dt)->getDisplayDate(false, '/');
+			if (isset($model->reason))
+				$model->reason .= PHP_EOL;
+			$model->reason .= Status::REASON_RESET . $pt_dt;
+			if ($this->member->addStatus($model)) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} activated");
+				$this->member->dues_paid_thru_dt = $model->paid_thru_dt;
+				if ($this->member->save()) {
+					Yii::$app->session->addFlash('success', "Dues Thru Date reset to {$pt_dt}");
+					return $this->goBack();
+				}
+				throw new \Exception	('Problem with post.  Errors: ' . print_r($this->member->errors, true));
+			}
+			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+		}
+		$this->initCreate($model);
+		$model->member_status = Status::ACTIVE;
+		return $this->renderAjax('create', compact('model'));
 	
 	}
 	
@@ -80,12 +130,12 @@ class MemberStatusController extends SummaryController
 	public function actionClearIn($member_id) 
 	{	
 		/** @var Model $model */
-		$model = new Status();
+		$model = new Status(['scenario' => Status::SCENARIO_CCD]);
 		$this->setMember($member_id); 
 		
 		if ($model->load(Yii::$app->request->post())) {
 			$prev = (($model->other_local > 0) ? $model->other_local : 'Unspecified');
-			$model->reason .= $prev;
+			$model->reason = Status::REASON_CCD . $prev;
 			if ($this->member->addStatus($model)) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} changed for Clear In");
 				return $this->goBack();
@@ -94,7 +144,6 @@ class MemberStatusController extends SummaryController
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::ACTIVE;
-		$model->reason = Status::REASON_CCD;
 		return $this->renderAjax('create', compact('model'));
 		
 	}

@@ -16,7 +16,9 @@ use kartik\grid\GridView;
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=>'Employment History',
-		    'after' => false,
+			// workaround to prevent 1 in the before section
+			'before' => (Yii::$app->user->can('updateMember')) ? '' : false,
+			'after' => false,
 		    'footer' => false,
 		],
 		'toolbar' => [
@@ -67,6 +69,7 @@ use kartik\grid\GridView;
 				],
 				[
 						'class' => 'kartik\grid\ActionColumn',
+						'visible' => Yii::$app->user->can('updateMember'),
 						 'template' => '{remove}',
 						 'buttons' => [
 						 		'remove' => function ($url, $model) {
@@ -82,6 +85,7 @@ use kartik\grid\GridView;
 						        	return $url;
 						    	}
 						  }
+						  
 				],
 				
 				

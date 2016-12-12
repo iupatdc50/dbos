@@ -19,6 +19,7 @@ use app\models\member\MemberSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use yii\web\UploadedFile;
 use yii\helpers\ArrayHelper;
 use app\helpers\OptionHelper;
@@ -37,6 +38,33 @@ class MemberController extends RootController
                     'delete' => ['post'],
                 ],
             ],
+	        'access' => [
+	            'class' => AccessControl::className(),
+	        	'only' => ['index', 'view', 'create', 'update', 'delete', 'photo'],
+	            'rules' => [
+	                [
+	                    'allow' => true,
+	                    'actions' => ['index', 'view'],
+	                    'roles' => ['browseMember'],
+	                ],
+	                [
+	                    'allow' => true,
+	                    'actions' => ['create'],
+	                    'roles' => ['createMember'],
+	                ],
+	                [
+	                    'allow' => true,
+	                    'actions' => ['update', 'photo'],
+	                    'roles' => ['updateMember'],
+	                ],
+	                [
+	                    'allow' => true,
+	                    'actions' => ['delete'],
+	                    'roles' => ['deleteMember'],
+	                ],
+	            ],
+	        ],
+        		
         ];
     }
 

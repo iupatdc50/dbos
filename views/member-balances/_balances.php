@@ -14,6 +14,7 @@ use yii\helpers\Url;
 							'id' => 'receiptCreateButton',
 							'value' => Url::to(['receipt-member/create', 'lob_cd' => $member->currentStatus->lob_cd, 'id'  => $member->member_id]),
 							'data-title' => 'Receipt',
+    						'disabled' => !(Yii::$app->user->can('createReceipt')),
 		]) . ' ' .
 		
     	Html::button('<i class="glyphicon glyphicon-th-list"></i>&nbsp;Show Receipts',[
@@ -21,7 +22,8 @@ use yii\helpers\Url;
 						'id' => 'receiptsButton',
 						'class' => 'btn btn-default btn-modal',
 						'data-title' => 'receipts',
-		]) ?>
+    					'disabled' => !(Yii::$app->user->can('browseReceipt')),
+    	]) ?>
     </p> 
 
 	<table class="fifty-pct table table-striped table-bordered detail-view"><tbody>

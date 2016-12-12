@@ -56,6 +56,7 @@ echo GridView::widget([
 				],
 				[
 					'class' => 	'kartik\grid\ActionColumn',
+					'visible' => Yii::$app->user->can('updateContractor'),
 					'controller' => $controller,
 					'template' => '{update}{delete}',
 					'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',

@@ -1,0 +1,1 @@
+<p><span class="lbl-danger">You are not allowed to perform this action</span><p>

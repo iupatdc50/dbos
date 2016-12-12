@@ -19,11 +19,11 @@ $this->params['breadcrumbs'][] = $this->title;
 		'panel'=>[
 	        'type'=>GridView::TYPE_PRIMARY,
 	        'heading'=> $this->title,
-		    'after' => false,
+			// workaround to prevent 1 in the before section
+			'before' => (Yii::$app->user->can('createContractor')) ? '' : false,
+			'after' => false,
 		],
-		'toolbar' => [
-			'content' => Html::a('Create Contractor', ['create'], ['class' => 'btn btn-success']),
-		],
+		'toolbar' => ['content' => Html::a('Create Contractor', ['create'], ['class' => 'btn btn-success'])],
         'rowOptions' => function($model) {
         					if($model->is_active == 'F') {
         						return ['class' => 'text-muted'];
@@ -32,15 +32,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
         	[
         		'class' => 'yii\grid\ActionColumn',
+        		'visible' => Yii::$app->user->can('createInvoice'),
             	'template' => '{export}',
             	'buttons' => [
         			'export' => function ($url, $model) {
-        				/*
-        		    				return Html::a('<span class="glyphicon glyphicon-export"></span>', $url, [
-        		    						'title' => 'Generate remittance template', 
-        		    						'data-pjax' => '0',
-        		    				]);
-        		    				*/
             						return Html::button('<i  class="glyphicon glyphicon-export"></i>',
             								[
             										'value' => Url::to(['/contractor/create-remit', 'id' => $model->license_nbr]),
@@ -52,14 +47,6 @@ $this->params['breadcrumbs'][] = $this->title;
         		        		
         				
         		],
-        		/*
-        		'urlCreator' => function ($action, $model, $key, $index) {
-        		            		if ($action === 'export') {
-        		            			$url = Yii::$app->urlManager->createUrl(['contractor/create-remit', 'id' => $model->license_nbr]);
-        		            			return $url;
-        		            		}
-        						},
-        						*/
         	],
         		
         	[

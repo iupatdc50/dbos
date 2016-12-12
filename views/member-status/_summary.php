@@ -18,6 +18,8 @@ $controller = 'member-status';
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=>'Status History',
+			// workaround to prevent 1 in the before section
+			'before' => (Yii::$app->user->can('updateMember')) ? '' : false,
 		    'after' => false,
 		    'footer' => false,
 		],
@@ -37,7 +39,7 @@ $controller = 'member-status';
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Reset',	
             		'title' => 'Reset Dues Paid Thru',
-	        		'disabled' => ($status == Status::ACTIVE),
+//	        		'disabled' => ($status == Status::ACTIVE),
             	])
     			. Html::button('<i class="glyphicon glyphicon-hand-down"></i>&nbsp;Drop', 
             		['value' => Url::to(["/member-status/drop", 'member_id'  => $id]), 
@@ -63,8 +65,8 @@ $controller = 'member-status';
 				],
 				[
 						'attribute' => 'effective_dt',
-						/* Future to make this field updatable inline
 						'format' => 'date',
+						/* Future to make this field updatable inline
 						'class' => 'kartik\grid\EditableColumn',
 						'editableOptions' => [
 								'inputType' => \kartik\editable\Editable::INPUT_WIDGET,
@@ -107,6 +109,7 @@ $controller = 'member-status';
 								'class' => 'btn btn-default btn-modal btn-embedded',
 								'data-title' => 'Member Status',
 						]),
+						'visible' => Yii::$app->user->can('updateMember'),
 				],
 				
 		],

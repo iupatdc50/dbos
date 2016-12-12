@@ -8,7 +8,7 @@ return [
 						'rules' => [
 						],
 				],
-//				'authManager' => require(__DIR__ . '/auth.php'),
+				'authManager' => require(__DIR__ . '/auth.php'),
 				'formatter' => [
 						'timeZone' => 'UTC',
 						'dateFormat' => 'php:m/d/Y',

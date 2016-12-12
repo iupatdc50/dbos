@@ -35,8 +35,15 @@ use app\models\member\Status;
     <?= $form->field($model, 'effective_dt')->widget(DateControl::className(), [
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
+
+    <?php if($model->scenario == Status::SCENARIO_RESET): ?>
+	    <?= $form->field($model, 'paid_thru_dt')->widget(DateControl::className(), [
+	    		'type' => DateControl::FORMAT_DATE,
+	    ])  ?>
+	<?php endif; ?>
+	    
     
-    <?php if($model->reason == Status::REASON_CCD): ?>
+    <?php if($model->scenario == Status::SCENARIO_CCD): ?>
     	<?= $form->field($model, 'reason')->hiddenInput()->label(false) ?>
     	<?= $form->field($model, 'other_local')->textInput(['maxlength' => 10])->label('Previous Local') ?>    
     <?php else: ?>

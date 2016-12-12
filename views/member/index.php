@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use kartik\grid\GridView;
 use app\helpers\OptionHelper;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\member\MemberSearch */
@@ -23,11 +24,11 @@ $this->params['breadcrumbs'][] = $this->title;
 		'panel'=>[
 	        'type'=>GridView::TYPE_PRIMARY,
 	        'heading'=> $this->title,
-		    'after' => false,
+			// workaround to prevent 1 in the before section
+			'before' => (Yii::$app->user->can('createMember')) ? '' : false,
+			'after' => false,
 		],
-		'toolbar' => [
-			'content' => Html::a('Create Member', ['create'], ['class' => 'btn btn-success']),
-		],
+		'toolbar' => ['content' => Html::a('Create Member', ['create'], ['class' => 'btn btn-success'])],
 		'rowOptions' => function($model) {
 							$css = ['verticalAlign' => 'middle'];
         					if(!isset($model->currentStatus) || ($model->currentStatus->member_status == 'I')) 

@@ -69,6 +69,8 @@ echo GridView::widget([
 								'class' => 'btn btn-default btn-modal btn-embedded',
 								'data-title' => 'Assessment',
 					]),
+					'visible' =>  Yii::$app->user->can('updateReceipt'),
+					
 				],
 		],
 ]);

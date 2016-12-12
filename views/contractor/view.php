@@ -22,14 +22,18 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="sixty-pct">
 		<?= $this->render('../partials/_quicksearch', ['className' => 'contractor']); ?>
     	<div><p>
-	        <?= Html::a('Update', ['update', 'id' => $model->license_nbr], ['class' => 'btn btn-primary']) ?>
-	        <?= Html::a('Delete', ['delete', 'id' => $model->license_nbr], [
-	            'class' => 'btn btn-danger',
-	            'data' => [
-	                'confirm' => 'Are you sure you want to delete this item?',
-	                'method' => 'post',
-	            ],
-	        ]) ?>
+        	<?php if(Yii::$app->user->can('updateContractor')): ?>
+				<?= Html::a('Update', ['update', 'id' => $model->license_nbr], ['class' => 'btn btn-primary']) ?>
+				<?php if(Yii::$app->user->can('deleteContractor')) :?>
+			        <?= Html::a('Delete', ['delete', 'id' => $model->license_nbr], [
+			            'class' => 'btn btn-danger',
+			            'data' => [
+			                'confirm' => 'Are you sure you want to delete this item?',
+			                'method' => 'post',
+			            ],
+			        ]) ?>
+			    <?php endif; ?> 
+			<?php endif; ?>
     	</p></div>
 	</div>
    	<div class= "leftside sixty-pct" >

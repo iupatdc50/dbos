@@ -1,0 +1,1 @@
+<span class="lbl-danger">You are not allowed to view this section</span>

@@ -8,7 +8,7 @@ use kartik\widgets\SideNav;
 <?php $this->beginContent('@app/views/layouts/main.php'); ?>
 
 			
-	<div class="container">
+	<div class="container hundred-pct">
 		<div class="col-sm-3">
 		<?php
 			$type = SideNav::TYPE_DEFAULT;
@@ -17,10 +17,8 @@ use kartik\widgets\SideNav;
 				'heading' => 'Operations',
 				'items' => [
 						[
-							'label' => 'Member Assessment', 'icon' => '',
-						],
-						[
 							'label' => 'Employer Invoices', 
+							'visible' => Yii::$app->user->can('createInvoice'),
 							'icon' => '',
 							'items' => [
 								['label' => 'All Employers'],		
@@ -29,12 +27,28 @@ use kartik\widgets\SideNav;
 						],
 						[
 							'label' => 'Reports',
+							'visible' => Yii::$app->user->can('reportAccounting'),
 							'icon' => 'book',
 							'items' => [
-								['label' => 'Receipt Book Balance', 'url'=>'#'],
-								['label' => 'Member Statuses', 'url'=>'#'],
-								['label' => 'Arrears Report', 'url'=>'#'],
-								['label' => 'Generate PAC Export', 'url'=>'#'],
+								[
+										'label' => 'Receipt Book Balance', 
+										'url'=>'/site/unavailable',										
+								],
+								[
+										'label' => 'Member Statuses', 
+										'url'=>'/site/unavailable',
+										
+								],
+								[
+										'label' => 'Arrears Report', 
+										'url'=>'/site/unavailable',
+										
+								],
+								[
+										'label' => 'Generate PAC Export', 
+										'url'=>'/site/unavailable',
+										
+								],
 							],
 						],
 					],

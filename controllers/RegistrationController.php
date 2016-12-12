@@ -29,29 +29,33 @@ class RegistrationController extends SubmodelController
 	 */
 	public function actionSummaryJson($id, $awarded_only = null)
 	{
-		if (isset($awarded_only)) 
-			Yii::$app->session['awarded_only'] = $awarded_only;
-		elseif (isset(Yii::$app->session['awarded_only'])) 
-			$awarded_only = Yii::$app->session['awarded_only'];
-		else  // Parameter not passed or previously saved
-			$awarded_only = true;
-		
-		$query = call_user_func([$this->recordClass, 'find'])
-					->where([$this->relationAttribute => $id])
-					->andWhere(['project_status' => 'A'])
-					->joinWith(['project', 'isAwarded'])
-					->orderBy($this->summOrder);
-		
-		if ($awarded_only)
-			$query->andWhere(['not', ['start_dt' => null]]);
+    	if (!Yii::$app->user->can('browseProject')) {
+    		echo Json::encode($this->renderAjax('/partials/_deniedview'));
+    	} else {
+			if (isset($awarded_only)) 
+				Yii::$app->session['awarded_only'] = $awarded_only;
+			elseif (isset(Yii::$app->session['awarded_only'])) 
+				$awarded_only = Yii::$app->session['awarded_only'];
+			else  // Parameter not passed or previously saved
+				$awarded_only = true;
 			
-		$dataProvider = new ActiveDataProvider([
-				'query' => $query,
-				'pagination' => ['pageSize' => $this->summPageSize],
-				'sort' => false,
-		]);
-	
-		echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id, 'awarded_only' => $awarded_only]));
+			$query = call_user_func([$this->recordClass, 'find'])
+						->where([$this->relationAttribute => $id])
+						->andWhere(['project_status' => 'A'])
+						->joinWith(['project', 'isAwarded'])
+						->orderBy($this->summOrder);
+			
+			if ($awarded_only)
+				$query->andWhere(['not', ['start_dt' => null]]);
+				
+			$dataProvider = new ActiveDataProvider([
+					'query' => $query,
+					'pagination' => ['pageSize' => $this->summPageSize],
+					'sort' => false,
+			]);
+		
+			echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id, 'awarded_only' => $awarded_only]));
+    	}
 	}
 	
 }

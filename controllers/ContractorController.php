@@ -16,6 +16,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\helpers\Json;
 use app\helpers\OptionHelper;
 use yii\data\yii\data;
@@ -34,6 +35,38 @@ class ContractorController extends RootController
                     'delete' => ['post'],
                 ],
             ],
+        	'access' => [
+        		'class' => AccessControl::className(),
+        		'only' => ['index', 'view', 'create', 'update', 'delete', 'create-remit'],
+        		'rules' => [
+        			[
+        				'allow' => true,
+        				'actions' => ['index', 'view'],
+        				'roles' => ['browseContractor'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['create'],
+        				'roles' => ['createContractor'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['update'],
+        				'roles' => ['updateContractor'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['create-remit', 'remit-template'],
+        				'roles' => ['createInvoice'],
+        			],
+        			[
+        				'allow' => true,
+        				'actions' => ['delete'],
+        				'roles' => ['deleteContractor'],
+        			],
+        		],
+        	],
+        		
         ];
     }
 
