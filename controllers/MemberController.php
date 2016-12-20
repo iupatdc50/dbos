@@ -163,8 +163,8 @@ class MemberController extends RootController
         			}
         		    $transaction->rollBack();
         		} catch (\Exception $e) {
+        			Yii::$app->session->addFlash('error', 'Could not save record. Please report the following to Tech Support: [errno: ' . $e->getCode() . ']');
         			$transaction->rollBack();
-        			throw new \Exception('Error when trying to save created Member: ' . $e);
         		}
         	}
         	/* when you need to debug non-client errors or those not associated with a field  */

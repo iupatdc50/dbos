@@ -14,8 +14,12 @@ $this->title = $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Receipts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$member_name = $model->payingMember->fullName;
-$member_id = $model->payingMember->member_id;
+$receipt_for = ' <span class="lbl-danger">Incomplete Receipt</span>';
+if(isset($model->payingMember)) {
+	$member_name = $model->payingMember->fullName;
+	$member_id = $model->payingMember->member_id;
+	$receipt_for = ' for ' . Html::a($member_name, ['/member/view', 'id' => $member_id]);
+} 
 
 ?>
 <div class="receipt-view">
@@ -24,7 +28,7 @@ $member_id = $model->payingMember->member_id;
 		<div class="flash-success"><?= Yii::$app->session->getFlash('success') ?></div>
 	<?php endif; ?>
 
-	<h1><?= Html::encode('Receipt: ' . $this->title . ' for ') . Html::a($member_name, ['/member/view', 'id' => $member_id]) ?></h1>
+	<h1><?= Html::encode('Receipt: ' . $this->title . ' for ') . $receipt_for ?></h1>
     
     <div class="leftside sixty-pct">
     	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'member']); ?>

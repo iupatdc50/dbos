@@ -211,9 +211,15 @@ class ContractorController extends RootController
         			}
         			$transaction->rollBack();
         		} catch (\Exception $e) {
+        			Yii::$app->session->addFlash('error', 'Could not save record. Possible duplicate License Number. [errno: ' . $e->getCode() . ']');
         			$transaction->rollBack();
         		}
         	}
+        	/* when you need to debug non-client errors or those not associated with a field  */
+			/*
+        	$errors = print_r($model->errors, true) . print_r($modelSig->errors, true) . print_r($modelAddress->errors, true) . print_r($modelPhone->errors, true);
+        	throw new \Exception('Uncaught validation exception: ' . $errors);
+        	*/
         }
         
         $modelAddress->address_type = OptionHelper::ADDRESS_MAILING;

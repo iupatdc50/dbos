@@ -5,6 +5,7 @@ namespace app\models\accounting;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
+use app\models\user\User;
 use app\models\value\Lob;
 use app\modules\admin\models\FeeType;
 
@@ -149,7 +150,7 @@ class Receipt extends \yii\db\ActiveRecord
             'helper_dues' => 'Helper Dues',
             'helper_hrs' => 'Hours',
         	'created_at' => 'Created At',
-            'created_by' => 'Created By',
+            'created_by' => 'Entered by',
         	'remarks' => 'Remarks',
         	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
