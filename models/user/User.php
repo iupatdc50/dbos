@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
 use app\components\utilities\OpDate;
+use app\models\rbac\AuthAssignment;
 use kartik\password\StrengthValidator;
 
 /**
@@ -22,6 +23,9 @@ use kartik\password\StrengthValidator;
  * @property integer $created_at
  * @property integer $updated_at
  * @property datetime $last_login
+ * 
+ * @property AuthAssignment[] $assignments
+ * 
  */
 class User extends \yii\db\ActiveRecord
 				 implements IdentityInterface
@@ -188,5 +192,25 @@ class User extends \yii\db\ActiveRecord
     {
     	throw new NotSupportedException('You can only login by username/password pair for now.');
     }
+    
+    public function getStatusOptions()
+    {
+    	return [
+    			self::STATUS_ACTIVE => 'Active',
+    			self::STATUS_INACTIVE => 'Disabled',
+    	];
+    }
+    
+    public function getStatusText()
+    {
+    	$options = $this->getStatusOptions();
+    	return isset($options[$this->status]) ? $options[$this->status] : "Unknown status ({$this->status})";
+    }
+    
+    public function getAssignments()
+    {
+    	return $this->hasMany(AuthAssignment::className(), ['user_id' => 'id']);
+    }
+    
     
 }

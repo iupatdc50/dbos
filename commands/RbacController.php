@@ -53,12 +53,12 @@ class RbacController extends Controller
 		$auth->addChild($memberEditor, $createMember);
 		$auth->addChild($memberEditor, $reportMember);
 		$auth->addChild($memberEditor, $updateMember);
-		$auth->addChild($memberEditor, $resetPT);
 		$memberAdmin = $auth->createRole('memberAdmin');
 		$memberAdmin->description = 'Member/Employment Admin'; 
 		$auth->add($memberAdmin);
 		$auth->addChild($memberAdmin, $memberEditor);
 		$auth->addChild($memberAdmin, $deleteMember);
+		$auth->addChild($memberAdmin, $resetPT);
 		echo "...complete\n";
 
 		// Contractor permissions
@@ -198,9 +198,6 @@ class RbacController extends Controller
 		$manageSupport = $auth->createPermission('manageSupport');
 		$manageSupport->description = 'Manage support information';
 		$auth->add($manageSupport);
-		$browseEditor = $auth->createPermission('browseUser');
-		$browseEditor->description = 'Browse user records';
-		$auth->add($browseEditor);
 		echo "...complete\n";
 		
 		// Support roles
@@ -213,6 +210,9 @@ class RbacController extends Controller
 		
 		// User account permissions
 		echo "Preparing user account permissions";
+		$browseUser = $auth->createPermission('browseUser');
+		$browseUser->description = 'Browse user records';
+		$auth->add($browseUser);
 		$updateUser = $auth->createPermission('updateUser');
 		$updateUser->description = 'Update user account information';
 		$auth->add($updateUser);
@@ -266,6 +266,14 @@ class RbacController extends Controller
 		$auth->addChild($officeMgr, $accountingViewer);
 		$auth->addChild($officeMgr, $projectAdmin);
 		echo "...complete\n";
+		
+		//Business Rep role
+		echo "Preparing Business Rep role";
+		$bizMgr = $auth->createRole('bizRep');
+		$bizMgr->description = 'Business Rep';
+		$auth->add($bizMgr);
+		$auth->addChild($bizMgr, $memberViewer); 
+		$auth->addChild($bizMgr, $contractorViewer);
 		
 		// System Admin role
 		echo "Preparing System Admin role";

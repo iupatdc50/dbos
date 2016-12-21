@@ -5,12 +5,14 @@ namespace app\controllers;
 use Yii;
 use app\models\user\User;
 use app\models\user\UserSearch;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\web\yii\web;
+use yii\data\yii\data;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -75,8 +77,15 @@ class UserController extends Controller
     public function actionView($id)
     {
     	$model = $this->findModel($id);
-    	if (Yii::$app->user->can('updateUser', ['user' => $model]))
-        	return $this->render('view', ['model' => $model]);
+    	if (Yii::$app->user->can('updateUser', ['user' => $model])) {
+    		$rolesModel = new ActiveDataProvider([
+    				'query' => $model->getAssignments(),
+    		]);
+        	return $this->render('view', [
+        			'model' => $model,
+        			'rolesModel' => $rolesModel,
+         	]);
+    	}
     	throw new ForbiddenHttpException("You are not allowed to view this record ({$model->id})");
     }
 
