@@ -274,6 +274,7 @@ class RbacController extends Controller
 		$auth->add($bizMgr);
 		$auth->addChild($bizMgr, $memberViewer); 
 		$auth->addChild($bizMgr, $contractorViewer);
+		echo "...complete\n";
 		
 		// System Admin role
 		echo "Preparing System Admin role";

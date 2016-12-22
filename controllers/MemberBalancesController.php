@@ -36,6 +36,10 @@ class MemberBalancesController extends Controller
 					'query' => $query,
 			]);
 			
+			$apf = $member->currentApf;
+			if ($member->isInApplication() && (!isset($apf)))
+				Yii::$app->session->setFlash('balance', 'Member is in application but has no current APF assessment.  Balance due may be incorrect.');
+			
 			echo Json::encode($this->renderPartial('_balances', [
 					'member' => $member,
 					'dues_balance' => $dues_balance,

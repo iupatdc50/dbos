@@ -48,6 +48,7 @@ $controller = '*';
             'role',
             'created_at:date',
             'updated_at:date',
+        	'last_login',
         ],
     ]) ?>
     

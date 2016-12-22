@@ -8,6 +8,11 @@ use yii\helpers\Url;
 
 ?>
 
+	<?php if(Yii::$app->session->hasFlash('balance')): ?>
+		<div class="flash-notice"><?= Yii::$app->session->getFlash('balance') ?></div>
+	<?php endif; ?>
+
+
     <p class="pull-right">
     	<?= Html::button('Create Receipt', [
 							'class' => 'btn btn-default btn-modal',

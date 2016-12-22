@@ -9,6 +9,7 @@ use app\models\contractor\Address;
 use app\models\contractor\Phone;
 use app\models\contractor\ContractorSearch;
 use app\models\contractor\Signatory;
+use app\models\member\Employment;
 use app\models\member\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
 use app\models\accounting\TradeFeeType;
@@ -76,7 +77,9 @@ class ContractorController extends RootController
      */
     public function actionIndex()
     {
-        $searchModel = new ContractorSearch();
+    	$this->storeReturnUrl();
+    	 
+    	$searchModel = new ContractorSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -89,13 +92,39 @@ class ContractorController extends RootController
     {
     	$modelContractor = $this->findModel($id);
     	$remitForm = new createRemitForm();
+    	
     	if ($remitForm->load(Yii::$app->request->post()) && $remitForm->validate()) {
-    		return $this->redirect([
-    				'remit-template',
-    				'id' => $remitForm->license_nbr,
-    				'lob_cd' => $remitForm->lob_cd,
-    		]);
+    		
+    		$employees = Employment::find()
+    			->joinWith(['member', 'member.currentStatus'])
+    			->where([
+    					Employment::tableName() . '.end_dt' => null,
+    					'dues_payor' => $remitForm->license_nbr,
+    					'lob_cd' => $remitForm->lob_cd,
+    			])
+    			->all()
+    		;
+    		
+    		$invalid = '';
+    		foreach ($employees as $employee) {
+	    		$member = $employee->member;
+	    		if ($member->isInApplication() && (!isset($employee->member->currentApf)))
+	    				$invalid .= '<li>' .$member->report_id . ': ' . $member->fullName . '</li>';
+    		}
+    			
+    		if (empty($invalid)) {
+	    		return $this->redirect([
+	    				'remit-template',
+	    				'id' => $remitForm->license_nbr,
+	    				'lob_cd' => $remitForm->lob_cd,
+	    		]);
+    		} else {
+    			$message = 'The following members are in application but have no current APF Assessment: <ul>' . $invalid . '</ul>';
+    			Yii::$app->session->addFlash('error', $message);
+    			return $this->goBack();
+    		}
     	}
+    	
     	$remitForm->license_nbr = $modelContractor->license_nbr;
     	return $this->renderAjax('create-remit', [
     			'remitForm' => $remitForm,

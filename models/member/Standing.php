@@ -155,17 +155,19 @@ class Standing extends Model
 	 * date.  Otherwise, the current month end is used.
 	 * 
 	 * @see Member::getDuesStartDt
-	 * @throws InvalidConfigException
 	 * @return \app\components\utilities\OpDate
 	 */
 	private function getDuesObligation()
 	{
 		if ($this->member->isInApplication()) {
 			$apf = $this->member->currentApf;
-			if (!isset($apf))
-				throw new InvalidConfigException('No current APF for member: ' . $this->member->member_id);
-			$obligation_dt = $this->member->getDuesStartDt();
-			$obligation_dt->modify('+' . $apf->months . ' month');
+			if (isset($apf)) {
+				$obligation_dt = $this->member->getDuesStartDt();
+				$obligation_dt->modify('+' . $apf->months . ' month');
+			} else {
+				Yii::warning("Member `{$this->member->member_id}` is in application but does not have a current APF Assessment.");
+				$obligation_dt = $this->getCurrentMonthEnd();
+			}
 		} else {
 			$obligation_dt = $this->getCurrentMonthEnd();
 		}
