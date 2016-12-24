@@ -159,17 +159,20 @@ class Standing extends Model
 	 */
 	private function getDuesObligation()
 	{
+		$monthend_dt = $this->getCurrentMonthEnd();
 		if ($this->member->isInApplication()) {
 			$apf = $this->member->currentApf;
 			if (isset($apf)) {
 				$obligation_dt = $this->member->getDuesStartDt();
 				$obligation_dt->modify('+' . $apf->months . ' month');
+				if (OpDate::dateDiff($obligation_dt, $monthend_dt) > 0)
+					$obligation_dt = $monthend_dt;
 			} else {
 				Yii::warning("Member `{$this->member->member_id}` is in application but does not have a current APF Assessment.");
-				$obligation_dt = $this->getCurrentMonthEnd();
+				$obligation_dt = $monthend_dt;
 			}
 		} else {
-			$obligation_dt = $this->getCurrentMonthEnd();
+			$obligation_dt = $monthend_dt;
 		}
 		return $obligation_dt;
 	}

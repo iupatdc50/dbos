@@ -52,11 +52,16 @@ class Assessment extends \yii\db\ActiveRecord
         $common_rules = [
             [['member_id', 'fee_type', 'assessment_amt'], 'required'],
         	['assessment_dt', 'date', 'format' => 'php:Y-m-d'],
-            [['assessment_amt'], 'number'],
+            [['assessment_amt', 'months'], 'number'],
             [['purpose'], 'string'],
             [['created_at', 'created_by'], 'integer'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['fee_type'], 'exist', 'targetClass' => FeeType::classname()],
+        	['months', 'required', 'when' => function($model) {
+            	return ($model->fee_type == 'IN');
+            }, 'whenClient' => "function (attribute, value) {
+            	return $('#feetype').val() == 'IN';
+    		}"],	
         ];
        return array_merge($this->_validationRules, $common_rules);
      }
@@ -72,6 +77,7 @@ class Assessment extends \yii\db\ActiveRecord
             'fee_type' => 'Fee Type',
             'assessment_amt' => 'Assessment',
             'purpose' => 'Purpose',
+        	'months' => 'Dues Months',
             'created_at' => 'Created At',
             'created_by' => 'Created By',
         ];

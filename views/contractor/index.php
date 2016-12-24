@@ -41,6 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
             										'value' => Url::to(['/contractor/create-remit', 'id' => $model->license_nbr]),
             										'id' => 'remitCreateButton',
             										'class' => 'btn btn-default btn-modal btn-embedded',
+            										'title' => 'Generate Remittance Template',
             										'data-title' => 'Remit',
             								]);
         		        		},

@@ -54,11 +54,13 @@ class SubmodelController extends Controller
         if ($model->load(Yii::$app->request->post())) {
 			// Change this vvv
         	$model->{$this->relationAttribute} = $relation_id;
-        	if ($model->save()) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
-        		return $this->goBack();
+        	if ($model->validate()) {
+	        	if ($model->save()) {
+					Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
+	        		return $this->goBack();
+	        	}
+	        	throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
         	}
-        	throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
         } 
         $this->initCreate($model);
 //        $model->{$this->relationAttribute} = $relation_id;
