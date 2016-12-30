@@ -8,6 +8,7 @@
 
 use yii\helpers\Html;
 use kartik\form\ActiveForm;
+use kartik\widgets\Select2;
 use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
@@ -38,6 +39,12 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'email')->textInput(['maxlength' => 50]) ?>
 
     <?= $form->field($model, 'url')->textInput(['maxlength' => 100]) ?>
+    
+    <?= $form->field($model, 'is_active')->widget(Select2::className(), [
+    		'data' => $model->statusOptions, 
+			'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select Status...'],
+    ]) ?>
     
     <?php if ($model->isNewRecord): ?>
     	<?= $this->render('../contractor-signatory/_formfields', ['modelSig' => $modelSig, 'form' => $form]); ?>

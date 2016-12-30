@@ -30,10 +30,9 @@ return [
 								'all_messages' => [
 										'class' => 'yii\log\FileTarget',
 										'levels' => [
-//		                    					'trace',
-//		                    					'info',
-												'warning',
-												'error',
+//												'trace', 
+//												'info', 
+												'warning', 'error',
 										],
 								],
 								'problems' => [

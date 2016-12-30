@@ -63,9 +63,9 @@ class User extends \yii\db\ActiveRecord
     {
         return [
         	[['password_clear'], 'required', 'on' => self::SCENARIO_CREATE],
-        	[['username', 'email'], 'required'],
+        	[['username', 'email', 'last_nm', 'first_nm'], 'required'],
         	[['role', 'status'], 'integer'],
-            [['username', 'password_clear', 'email'], 'string', 'max' => 255],
+            [['username', 'password_clear', 'email', 'last_nm', 'first_nm'], 'string', 'max' => 255],
             [['username'], 'unique'],
         	[['email'], 'email'],
         	[['auth_key'], 'string', 'max' => 32],
@@ -94,6 +94,8 @@ class User extends \yii\db\ActiveRecord
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+        	'last_nm' => 'Last Name',
+        	'first_nm' => 'First Name',
         		
         	'password_current' => 'Current Password', 
         	'password_new' => 'New Password', 

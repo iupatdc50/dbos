@@ -9,7 +9,7 @@ use app\models\user\User;
 /* @var $this yii\web\View */
 /* @var $model app\models\user\User */
 
-$this->title = $model->username;
+$this->title = $model->last_nm . ', ' . $model->first_nm;
 $this->params['breadcrumbs'][] = ['label' => 'User Records', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -40,7 +40,7 @@ $controller = '*';
             	'contentOptions' => $model->status == User::STATUS_ACTIVE ? ['class' => 'success'] : ['class' => 'danger'],
             ],
         	'id',
-//            'username',
+            'username',
 //            'auth_key',
 //            'password_hash',
 //            'password_reset_token',

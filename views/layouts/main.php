@@ -81,7 +81,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 		                		'label' => 'Admin', 'url' => ['/admin'],
 		                ];
 	                $menuItems[] = [
-	                	'label' => 'Account: ' . Yii::$app->user->identity->username,
+	                	'label' => 'Account: ' . Yii::$app->user->identity->first_nm,
 	                	'items' => [
 	                			[
 	                					'label' => 'Logout',		
