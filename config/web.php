@@ -68,7 +68,7 @@ $config = [
 				},
 		],		
 		
-		'catchAll' => file_exists(dirname(__DIR__) . '/.maintenance.on') && !(isset($_COOKIE['secret']) && $_COOKIE['secret'] == "dbosmaint") ? ['maintenance/index'] : null,
+		'catchAll' => file_exists(dirname(__DIR__) . '/.maintenance.on') && !(isset($_COOKIE['secret']) && $_COOKIE['secret'] == "dbosmaint") ? ['/maintenance/index'] : null,
 ];
 
 if(YII_ENV_DEV) {
