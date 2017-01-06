@@ -292,6 +292,14 @@ a span.loaned {
 	height: 31.15px;
 }
 
+/* override Kartik multi-select */
+/* doesn't work
+.input-multiselect {
+	min-height: 75px;
+	height: 75px;
+}
+*/
+
 .note {
 	margin-bottom: 1em;	
 }

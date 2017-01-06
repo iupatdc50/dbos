@@ -20,7 +20,7 @@ use yii\helpers\ArrayHelper;
 class AccountingController extends Controller
 {
 	
- 	public $layout = 'accounting';
+// 	public $layout = 'accounting';
 	
     /**
      * @return mixed

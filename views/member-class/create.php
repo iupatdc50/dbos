@@ -23,7 +23,7 @@ use kartik\datecontrol\DateControl;
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
     
-    	<?= $this->render('../partials/_memberclassformfields', [
+    	<?= $this->render('_formfields', [
     			'form' => $form,
     			'modelClass' => $model,
     	]) ?>

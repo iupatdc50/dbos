@@ -45,7 +45,7 @@ use kartik\checkbox\CheckboxX;
     		'options' => ['placeholder' => 'Select...'],
     	]); ?>
     	
-    	<?= $this->render('../partials/_memberclassformfields', [
+    	<?= $this->render('../member-class/_formfields', [
     			'form' => $form,
     			'modelClass' => $modelClass,
     	]) ?>

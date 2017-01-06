@@ -116,9 +116,12 @@ class MemberStatusController extends SummaryController
 					Yii::$app->session->addFlash('success', "Reinstate fee of {$assessModel->assessment_amt} assessed");
 					return $this->goBack();
 				}
-				throw new \Exception	('Problem with post.  Errors: ' . print_r($assessModel->errors, true));
+				Yii::$app->session->addFlash('error', 'Problem saving assessment. Check log for details. Code `MSC010`'); 
+				Yii::error("*** MSC010  member-status-controller/drop(`{$member_id}`).  Messages: " . print_r($assessModel->errors, true));
+			} else {
+				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC020`');
+				Yii::error("*** MSC020  member-status-controller/drop(`{$member_id}`).  Messages: " . print_r($model->errors, true));
 			}
-			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::INACTIVE;

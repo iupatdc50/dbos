@@ -76,7 +76,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
 		                		'label' => 'Training', 'url' => ['/site/unavailable'],
 		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'training'),
 		                ];
-		            if(Yii::$app->user->can('manageSupport'))		 
+	            	$menuItems[] = [
+	                		'label' => 'Reporting', 'url' => ['/report/'],
+	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'reporting'),
+	                ];
+	            	if(Yii::$app->user->can('manageSupport'))		 
 		                $menuItems[] = [
 		                		'label' => 'Admin', 'url' => ['/admin'],
 		                ];

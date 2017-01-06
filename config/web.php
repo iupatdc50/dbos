@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '0.9.7.204',
+		'version' => '0.9.7.205',
 		'basePath' => realpath ( __DIR__ . '/../' ),
 		'modules' => [ 
 			    'datecontrol' => [
@@ -67,6 +67,8 @@ $config = [
 					return Yii::$app->response->redirect(['site/login']);
 				},
 		],		
+		
+		'catchAll' => file_exists(dirname(__DIR__) . '/.maintenance.on') && !(isset($_COOKIE['secret']) && $_COOKIE['secret'] == "dbosmaint") ? ['maintenance/index'] : null,
 ];
 
 if(YII_ENV_DEV) {

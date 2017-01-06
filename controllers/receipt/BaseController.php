@@ -182,7 +182,7 @@ class BaseController extends Controller
     	
     	if (!empty($this->_dbErrors))
     		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($this->_dbErrors, true));
-    		Yii::$app->session->setFlash('success', "Receipt successfully posted");
+    	Yii::$app->session->setFlash('success', "Receipt successfully posted");
     	return $this->redirect(['view', 'id' => $model->id]);
     	
     }

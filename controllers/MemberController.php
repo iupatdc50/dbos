@@ -154,10 +154,10 @@ class MemberController extends RootController
         					if (!$model->addClass($modelClass))
         						throw new \Exception('Error when adding Member Class: ' . print_r($modelClass->errors, true));
         					if ($model->isInApplication()) {
-        						if(!$model->createApfAssessment())
-        							throw new \Exception('Uncaught errors saving assessment');
+        						$model->createApfAssessment();
         					}
         					$transaction->commit();
+        					Yii::$app->session->setFlash('success', "Member record successfully created");
 							return $this->redirect(['view', 'id' => $model->member_id]);
         				}
         			}
@@ -197,6 +197,7 @@ class MemberController extends RootController
         $model = $this->findModel($id);
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        	Yii::$app->session->setFlash('success', "Member record successfully updated");
         	return $this->redirect(['view', 'id' => $model->member_id]);
         } 
         return $this->render('update', [
@@ -248,6 +249,7 @@ class MemberController extends RootController
         	if (!$model->deleteImage())	
         		Yii::$app->session->setFlash('error', 'Could not delete image');
         }
+        Yii::$app->session->setFlash('success', "Member record deleted");
         return $this->redirect(['index']);
     }
 

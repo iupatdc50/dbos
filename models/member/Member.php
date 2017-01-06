@@ -240,14 +240,10 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	if (parent::beforeSave($insert)) {
     		if ($insert) {
-    			if (isset($this->imse_id)) {
-    				$this->member_id = $this->imse_id;
-    			} else {
-    				try {
-    					$this->member_id = $this->idGenerator->newId();
-    				} catch (Exception $e) {
-    					throw new \yii\base\InvalidConfigException('Missing ID generator');
-    				}
+    			try {
+    				$this->member_id = $this->idGenerator->newId();
+    			} catch (Exception $e) {
+    				throw new \yii\base\InvalidConfigException('Missing ID generator');
     			}
     			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
     				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
@@ -626,7 +622,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     
     /**
      * A active member is "in application" if his initiation date is null for a new member,
-     * and less than the application date if he has been assessed a new APF after reinstatement
+     * or less than the application date if he has been assessed a new APF after reinstatement
      * 
      * @return boolean
      */
@@ -681,15 +677,18 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     			'lob_cd' => $lob_cd,
     			'member_class' => $class->member_class,
     	]);
-    	$amount = $init->getAssessmentAmount(new DuesRateFinder($lob_cd, $class->rate_class));
-    	$apf_assessment = new ApfAssessment([
-    			'member_id' => $this->member_id,
-    			'fee_type' => 'IN',
-    			'assessment_dt' => $this->application_dt,
-    			'assessment_amt' => $amount,
-    			'months' => $init->dues_months,
-    	]);
-    	return $apf_assessment->save();
+    	if (!is_null($init)) {
+	    	$amount = $init->getAssessmentAmount(new DuesRateFinder($lob_cd, $class->rate_class));
+	    	$apf_assessment = new ApfAssessment([
+	    			'member_id' => $this->member_id,
+	    			'fee_type' => 'IN',
+	    			'assessment_dt' => $this->application_dt,
+	    			'assessment_amt' => $amount,
+	    			'months' => $init->dues_months,
+	    	]);
+	    	return $apf_assessment->save();
+    	}
+    	return false;
     }
     
 	/**

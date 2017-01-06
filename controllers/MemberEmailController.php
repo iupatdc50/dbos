@@ -36,6 +36,7 @@ class MemberEmailController extends Controller
 	
 		if ($model->load(Yii::$app->request->post())) {
 			if ($model->save()) {
+				Yii::$app->session->setFlash('success', "Email entry created");
 				return $this->goBack();
 			}
 			throw new \Exception ('Problem with post.  Errors: ' . print_r($model->errors, true));
@@ -55,6 +56,7 @@ class MemberEmailController extends Controller
 		if (($model = Email::findOne($id)) == null) 
 			throw new NotFoundHttpException('The requested page does not exist');
 		$model->delete();
+    	Yii::$app->session->setFlash('success', "Email entry deleted");
 		return $this->goBack();
 	}
 	

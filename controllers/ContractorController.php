@@ -235,6 +235,7 @@ class ContractorController extends RootController
         						$image->saveAs($path);
         					}
         					$transaction->commit();
+        					Yii::$app->session->setFlash('success', "Contractor record successfully created");
         					return $this->redirect(['view', 'id' => $model->license_nbr]);
         				}
         			}
@@ -272,6 +273,7 @@ class ContractorController extends RootController
         $model = $this->findModel($id);
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        	Yii::$app->session->setFlash('success', "Contractor record successfully updated");
             return $this->redirect(['view', 'id' => $model->license_nbr]);
         } 
         return $this->render('update', [
@@ -292,6 +294,7 @@ class ContractorController extends RootController
     {
         $this->findModel($id)->delete();
 
+        Yii::$app->session->setFlash('success', "Contractor record deleted");
         return $this->redirect(['index']);
     }
     
