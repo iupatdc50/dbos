@@ -1,28 +1,15 @@
 <?php
 
-use yii\helpers\Html;
-use kartik\widgets\ActiveForm;
-
-
-/* @var $this yii\web\View */
-/* @var $model app\models\report\BaseSettingsForm */
-
+	$reportico = Yii::$app->getModule('reportico');
+	$engine = $reportico->getReporticoEngine();        // Fetches reportico engine
+	$engine->access_mode = "ONEREPORT";                // Allows access to single specified report
+	$engine->initial_execute_mode = "PREPARE";         // Starts user in report criteria selection mode
+	$engine->initial_project = "contractorrpts";            // Name of report project folder
+	$engine->initial_report = "contractorinfo";           // Name of report to run
+	$engine->bootstrap_styles = "3";                   // Set to "3" for bootstrap v3, "2" for V2 or false for no bootstrap
+	$engine->force_reportico_mini_maintains = true;    // Often required
+	$engine->bootstrap_preloaded = true;               // true if you dont need Reportico to load its own bootstrap
+	$engine->clear_reportico_session = true;           // Normally required
+	$engine->execute();
 ?>
 
-<h1>Contractor Information Report Settings</h1>
-
-<div class="contractor-info">
-
-    <?php $form = ActiveForm::begin([
-//    		'layout' => 'horizontal',
-       		'id' => 'contractor-info', 
-    ]); ?>
-
-    <?= $this->render('_baseformfields', [
-        'model' => $model,
-    	'form' => $form,
-    ]) ?>
-
-    <?php ActiveForm::end(); ?>
-    
-</div>

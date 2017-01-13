@@ -25,12 +25,7 @@ class ReportController extends Controller
 	
 	public function actionContractorInfo()
 	{
-		$model = new BaseSettingsForm;
-		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-				
-		}
-		
-		return $this->render('contractor-info', ['model' => $model]);
+		return $this->render('contractor-info');
 	}
 	
 	public function actionReceiptsJournal()
@@ -45,12 +40,7 @@ class ReportController extends Controller
 	
 	public function actionDuesStatus()
 	{
-		$model = new DuesStatusForm;
-		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-			die(var_dump($model));
-		}
-		
-		return $this->render('dues-status', ['model' => $model]);
+		return $this->render('dues-status');
 	}
 	
 }

@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '0.9.7.205',
+		'version' => '0.9.8.101',
 		'basePath' => realpath ( __DIR__ . '/../' ),
 		'modules' => [ 
 			    'datecontrol' => [
@@ -39,6 +39,14 @@ $config = [
 				'gridview' => [
 						'class' => '\kartik\grid\Module',
 				],
+				'reportico' => [
+						'class' => 'reportico\reportico\Module' ,
+						'controllerMap' => [
+								'reportico' => 'reportico\reportico\controllers\ReporticoController',
+								'mode' => 'reportico\reportico\controllers\ModeController',
+								'ajax' => 'reportico\reportico\controllers\AjaxController',
+						],
+				],				
 				'admin' => [
 						'class' => 'app\modules\admin\AdminModule',
 				],

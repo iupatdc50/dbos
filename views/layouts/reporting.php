@@ -60,16 +60,12 @@ use kartik\widgets\SideNav;
 								'visible' => Yii::$app->user->can('reportAccounting'),
 								'items' => [
 										[
-												'label' => 'Cash Receipts Journal', 
+												'label' => 'Cash Receipts', // All, contractors only
 												'url'=>'/report/receipts-journal',
 												'active' => (yii::$app->requestedRoute == 'report/receipts-journal'),
 										],
 										[
-												'label' => 'Receipt Book Balancing', 
-												'url'=>'/site/unavailable',										
-										],
-										[
-												'label' => 'Dues Status', 
+												'label' => 'Dues Status', // All, delinquent
 												'url'=>'/report/dues-status',
 												'active' => (yii::$app->requestedRoute == 'report/dues-status'),
 										],
@@ -92,7 +88,7 @@ use kartik\widgets\SideNav;
 			
 			?>
 		</div>
-		<div class="col-sm-6">
+		<div class="col-sm-9">
 			<?= $content; ?>
 		</div>
 	
