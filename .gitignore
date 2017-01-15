@@ -39,6 +39,7 @@ composer.lock
 /config/host-env.php
 /migrations
 /runtime/*
+!/runtime/reportico
 /tests
 /web/saa/*
 /web/idc/*
