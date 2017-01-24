@@ -54,4 +54,9 @@ class Phone extends BasePhone
         return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
     }
 
+    public function getIsDefault()
+    {
+    	return $this->hasOne(PhoneDefault::className(), ['phone_id' => 'id']);
+    }
+
 }

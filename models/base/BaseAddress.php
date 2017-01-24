@@ -17,7 +17,8 @@ use app\helpers\OptionHelper;
  *
  * @property ZipCode $zipCd
  */
-class BaseAddress extends \yii\db\ActiveRecord
+abstract class BaseAddress extends \yii\db\ActiveRecord
+                           implements iDefaultableInterface
 {
 	protected $_validationRules = [];
 	protected $_labels = [];

@@ -257,6 +257,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	parent::afterSave($insert, $changedAttributes); 
     	if (isset($changedAttributes['application_dt'])) {
+    		// APF for insert is created in controller after status and class entries are posted
+    		if (!$insert) {
+    			if ($this->isInApplication() && (!isset($this->currentApf))) {
+    				$this->createApfAssessment();
+    			}	
+    		}
     		unset($this->_application_dt);
     	}
     }

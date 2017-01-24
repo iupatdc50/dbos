@@ -74,15 +74,25 @@ class MemberStatusController extends SummaryController
 		$this->setMember($member_id);
 		
 		if ($model->load(Yii::$app->request->post())) {
-			$pt_dt = (new OpDate)->setFromMySql($model->paid_thru_dt)->getDisplayDate(false, '/');
-			if (isset($model->reason))
-				$model->reason .= PHP_EOL;
-			$model->reason .= Status::REASON_RESET . $pt_dt;
+			if (!empty($model->reason))
+				$model->reason .= '; ';
+			$messages = [];
+			if (!empty($model->paid_thru_dt)) {
+				$this->member->dues_paid_thru_dt = $model->paid_thru_dt;
+				$pt_dt = (new OpDate)->setFromMySql($model->paid_thru_dt)->getDisplayDate(false, '/');
+				$messages[] = Status::REASON_RESET_PT . $pt_dt;
+			}
+			if (!empty($model->init_dt)) {
+				$this->member->init_dt = $model->init_dt;
+				$init_dt = (new OpDate)->setFromMySql($model->init_dt)->getDisplayDate(false, '/');
+				$messages[] =  Status::REASON_RESET_INIT . $init_dt;
+			}
+			$model->reason .= implode('; ', $messages);
 			if ($this->member->addStatus($model)) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} activated");
-				$this->member->dues_paid_thru_dt = $model->paid_thru_dt;
+				
 				if ($this->member->save()) {
-					Yii::$app->session->addFlash('success', "Dues Thru Date reset to {$pt_dt}");
+					Yii::$app->session->addFlash('success', implode('; ', $messages));
 					return $this->goBack();
 				}
 				throw new \Exception	('Problem with post.  Errors: ' . print_r($this->member->errors, true));

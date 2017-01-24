@@ -19,7 +19,7 @@ use app\models\member\Status;
     		'enableClientValidation' => true,
     		
     ]); ?>
-
+    
     <?= $form->field($model, 'lob_cd')->widget(Select2::className(), [
     		'data' => $model->lobOptions, 
 			'size' => Select2::SMALL,
@@ -40,7 +40,10 @@ use app\models\member\Status;
 	    <?= $form->field($model, 'paid_thru_dt')->widget(DateControl::className(), [
 	    		'type' => DateControl::FORMAT_DATE,
 	    ])  ?>
-	<?php endif; ?>
+	    <?= $form->field($model, 'init_dt')->widget(DateControl::className(), [
+	    		'type' => DateControl::FORMAT_DATE,
+	    ])  ?>
+	    <?php endif; ?>
 	    
     
     <?php if($model->scenario == Status::SCENARIO_CCD): ?>

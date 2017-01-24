@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.201
+
+. Added default address and phone designation for contractors and members
+. Added initiation date to Reset function in Status History
+. Added autogeneration of APF when application date changes
+
 0.9.7.101
 
 . Added RBAC security

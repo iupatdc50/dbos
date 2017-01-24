@@ -6,6 +6,10 @@ use kartik\grid\GridView;
 /* @var $modelsAddress \yii\db\ActiveQuery */
 /* @var $controller string */
 /* @var $relation_id string */
+
+$default = '<span class="glyphicon glyphicon-ok text-success"></span>';
+$other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
+
 ?>
 
         <div class="form-group">
@@ -23,7 +27,19 @@ use kartik\grid\GridView;
    					],
 					'summary' => '',
 					'columns' => [
-							['attribute' => 'address_type', 'value' => 'typeText'],
+							[
+									'class' => 'kartik\grid\BooleanColumn',
+									'attribute' => 'default',
+									'value' => function($data) {
+										return isset($data->isDefault);
+									},
+									'falseIcon' => $other,
+									'trueIcon' => $default,
+							],
+							[
+									'attribute' => 'address_type', 
+									'value' => 'typeText',
+							],
 							[
 									'label' => 'Address',
 									'value' => 'addressText',

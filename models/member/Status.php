@@ -9,6 +9,7 @@ use app\models\value\Lob;
 use app\models\member\Member;
 use app\models\member\StatusCode;
 use app\models\base\BaseEndable;
+use app\components\validators\AtLeastValidator;
 
 /**
  * This is the model class for table "MemberStatuses".
@@ -36,7 +37,8 @@ class Status extends BaseEndable
 	CONST REASON_CCD = 'CC deposited. Previous local: ';
 	CONST REASON_DROP = 'Member dropped';
 	CONST REASON_REINST = 'Member reinstated';
-	CONST REASON_RESET = 'Reset paid thru date to: ';
+	CONST REASON_RESET_INIT = 'Initiation Date reset to: ';
+	CONST REASON_RESET_PT = 'Dues Thru Date reset to: ';
 	
 	CONST ACTIVE = 'A';
 	CONST INACTIVE = 'I';
@@ -45,6 +47,7 @@ class Status extends BaseEndable
 	
 	public $other_local;
 	public $paid_thru_dt;
+	public $init_dt;
 	
 	/**
      * @inheritdoc
@@ -66,7 +69,7 @@ class Status extends BaseEndable
     {
         return [
             [['member_id', 'effective_dt', 'lob_cd', 'member_status'], 'required'],
-            [['effective_dt', 'end_dt', 'paid_thru_dt'], 'date', 'format' => 'php:Y-m-d'],
+            [['effective_dt', 'end_dt', 'paid_thru_dt', 'init_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['reason'], 'string'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
         	[['member_status'], 'exist', 'targetClass' => '\app\models\member\StatusCode', 'targetAttribute' => 'member_status_cd'],
@@ -74,7 +77,7 @@ class Status extends BaseEndable
             ['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.'],
         		
         	[['other_local'], 'required', 'on' => self::SCENARIO_CCD],
-        	[['paid_thru_dt'], 'required', 'on' => self::SCENARIO_RESET],
+        	['init_dt', AtLeastValidator::className(), 'in' => ['paid_thru_dt', 'init_dt'], 'on' => self::SCENARIO_RESET],
         		
         ];
     }
@@ -94,9 +97,10 @@ class Status extends BaseEndable
             'reason' => 'Reason',
         	'other_local' => 'Previous Local',
         	'paid_thru_dt' => 'New Paid Thru',
+        	'init_dt' => 'New Initiation',
         ];
     }
-    
+        
     public function getIsActive()
     {
     	return $this->member_status == self::ACTIVE;

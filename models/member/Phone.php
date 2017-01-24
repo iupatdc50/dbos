@@ -51,5 +51,10 @@ class Phone extends BasePhone
     {
         return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
     }
+    
+    public function getIsDefault()
+    {
+    	return $this->hasOne(PhoneDefault::className(), ['phone_id' => 'id']);
+    }
 
 }

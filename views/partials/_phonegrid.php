@@ -7,6 +7,10 @@ use kartik\grid\GridView;
 /* @var $controller string */
 /* @var $relation_id string */
 
+$default = '<span class="glyphicon glyphicon-ok text-success"></span>';
+$other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
+
+
 ?>
         <div class="form-group">
 				<?= GridView::widget([
@@ -23,21 +27,33 @@ use kartik\grid\GridView;
 					        'footer' => false,
 	   					],
 						'columns' => [
-			        	['attribute' => 'phone_type', 'value' => 'phoneType.descrip'],
-			        	'phone',
-			        	'ext',
-			        	[
-			                'class' => \yii\grid\ActionColumn::className(),
-			                'controller' => $controller,
-			                'template' => '{update}{delete}',
-			            	'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', 
-			            			['value' => Url::to(["/{$controller}/create", 'relation_id'  => $relation_id]), 
-			            				'id' => 'phoneCreateButton',
-			            				'class' => 'btn btn-default btn-modal btn-embedded',
-			            				'data-title' => 'Phone',	
-			    					]),
-			            ],
-			        ],
+							[
+									'class' => 'kartik\grid\BooleanColumn',
+									'attribute' => 'default',
+									'value' => function($data) {
+										return isset($data->isDefault);
+									},
+									'falseIcon' => $other,
+									'trueIcon' => $default,
+							],
+			        		[
+			        				'attribute' => 'phone_type', 
+			        				'value' => 'phoneType.descrip',
+			        		],
+			        		'phone',
+			        		'ext',
+				        	[
+				                'class' => \yii\grid\ActionColumn::className(),
+				                'controller' => $controller,
+				                'template' => '{update}{delete}',
+				            	'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', 
+				            			['value' => Url::to(["/{$controller}/create", 'relation_id'  => $relation_id]), 
+				            				'id' => 'phoneCreateButton',
+				            				'class' => 'btn btn-default btn-modal btn-embedded',
+				            				'data-title' => 'Phone',	
+				    					]),
+				            ],
+			        	],
 			    ]);?>
 	    </div>
 			    

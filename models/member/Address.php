@@ -64,4 +64,10 @@ class Address extends BaseAddress
     			OptionHelper::ADDRESS_LOCATION => 'Location',
     	];
     }
+    
+    public function getIsDefault()
+    {
+    	return $this->hasOne(AddressDefault::className(), ['address_id' => 'id']);
+    }
+
 }

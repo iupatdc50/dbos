@@ -67,4 +67,9 @@ class Address extends BaseAddress
     	];
     }
     
+    public function getIsDefault()
+    {
+    	return $this->hasOne(AddressDefault::className(), ['address_id' => 'id']);
+    }
+
 }

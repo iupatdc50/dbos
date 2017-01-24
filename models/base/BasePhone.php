@@ -18,7 +18,8 @@ use app\models\value\PhoneType;
  *
  * @property PhoneType $phoneType
  */
-class BasePhone extends \yii\db\ActiveRecord
+abstract class BasePhone extends \yii\db\ActiveRecord
+                         implements iDefaultableInterface
 {
 	protected $_validationRules = []; 
 	protected $_labels = [];
