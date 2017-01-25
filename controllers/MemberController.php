@@ -110,7 +110,7 @@ class MemberController extends RootController
     public function actionCreate()
     {
     	$idGenerator = new MemberId();
-        $model = new Member(['idGenerator' => $idGenerator]);
+        $model = new Member(['idGenerator' => $idGenerator, 'scenario' => Member::SCENARIO_CREATE]);
         $modelAddress = new Address;
         $modelPhone = new Phone;
         $modelEmail = new Email;

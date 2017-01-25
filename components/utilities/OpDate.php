@@ -195,6 +195,7 @@ class OpDate extends \DateTime
 	 *
 	 * @param string $dateString
 	 *        	Expects YYYY-MM-DD hh:mm:ss for ISO US English dates
+	 * @return OpDate
 	 */
 	public function setFromMySql($dateString) {
 		if (! is_string ( $dateString )) {

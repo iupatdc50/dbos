@@ -13,10 +13,10 @@ use app\models\member\Status;
 
 <div class="status-form">
 
-    <?php $form = ActiveForm::begin([
+	<?php $form = ActiveForm::begin([
     		'options' => ['class' => 'ajax-create'], // Required for modal within an update
     		'id' => 'member-status-form',
-    		'enableClientValidation' => true,
+    		'enableAjaxValidation' => true,
     		
     ]); ?>
     

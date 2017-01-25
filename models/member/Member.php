@@ -61,6 +61,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	CONST UNCHECKED = 0;
 	CONST CHECKED = 1;
 	
+	CONST SCENARIO_CREATE = 'create';
+	
 	/*
 	 * @var OpDate
 	 */
@@ -153,9 +155,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         return [
             [['last_nm', 'first_nm', 'birth_dt', 'gender', 'shirt_size', 'local_pac', 'hq_pac', 'application_dt'], 'required'],
             [['birth_dt', 'application_dt', 'init_dt', 'dues_paid_thru_dt', 'drug_test_dt'], 'date', 'format' => 'php:Y-m-d'],
+			/*
         	[['application_dt'], 'validateApplicationDt', 'when' => function ($model, $attribute) {
         		return $model->{$attribute} !== $model->getOldAttribute($attribute);
         	}],
+        	*/
+        	[['application_dt'], 'validateApplicationDt', 'on' => self::SCENARIO_CREATE],
         	[['birth_dt'], 'validateBirthDt'],
 			[['gender'], 'in', 'range' => OptionHelper::getAllowedGender()],
         	[['local_pac', 'hq_pac'], 'in', 'range' => OptionHelper::getAllowedTF()],

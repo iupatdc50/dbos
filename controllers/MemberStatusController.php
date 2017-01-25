@@ -10,6 +10,8 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\bootstrap\ActiveForm;
+
 use app\models\member\Member;
 use app\models\accounting\Assessment;
 use app\modules\admin\models\FeeType;
@@ -73,6 +75,12 @@ class MemberStatusController extends SummaryController
 		$model = new Status(['scenario' => Status::SCENARIO_RESET]);
 		$this->setMember($member_id);
 		
+		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			$model->member_id = $this->member->member_id;
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
+		
 		if ($model->load(Yii::$app->request->post())) {
 			if (!empty($model->reason))
 				$model->reason .= '; ';
@@ -95,9 +103,12 @@ class MemberStatusController extends SummaryController
 					Yii::$app->session->addFlash('success', implode('; ', $messages));
 					return $this->goBack();
 				}
-				throw new \Exception	('Problem with post.  Errors: ' . print_r($this->member->errors, true));
+				Yii::$app->session->addFlash('error', 'Problem saving Member. Check log for details. Code `MSC010`'); 
+				Yii::error("*** MSC010  member-status-controller/reset(`{$member_id}`).  Messages: " . print_r($this->member->errors, true));
+			} else {
+				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC015`');
+				Yii::error("*** MSC015  member-status-controller/reset(`{$member_id}`).  Messages: " . print_r($model->errors, true));
 			}
-			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::ACTIVE;
@@ -111,6 +122,12 @@ class MemberStatusController extends SummaryController
 		/** @var Model $model */
 		$model = new Status();
 		$this->setMember($member_id);
+		
+		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			$model->member_id = $this->member->member_id;
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
 		
 		if ($model->load(Yii::$app->request->post())) {
 			if ($this->member->addStatus($model)) {
@@ -126,11 +143,11 @@ class MemberStatusController extends SummaryController
 					Yii::$app->session->addFlash('success', "Reinstate fee of {$assessModel->assessment_amt} assessed");
 					return $this->goBack();
 				}
-				Yii::$app->session->addFlash('error', 'Problem saving assessment. Check log for details. Code `MSC010`'); 
-				Yii::error("*** MSC010  member-status-controller/drop(`{$member_id}`).  Messages: " . print_r($assessModel->errors, true));
+				Yii::$app->session->addFlash('error', 'Problem saving assessment. Check log for details. Code `MSC020`'); 
+				Yii::error("*** MSC020  member-status-controller/drop(`{$member_id}`).  Messages: " . print_r($assessModel->errors, true));
 			} else {
-				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC020`');
-				Yii::error("*** MSC020  member-status-controller/drop(`{$member_id}`).  Messages: " . print_r($model->errors, true));
+				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC025`');
+				Yii::error("*** MSC025  member-status-controller/drop(`{$member_id}`).  Messages: " . print_r($model->errors, true));
 			}
 		}
 		$this->initCreate($model);
