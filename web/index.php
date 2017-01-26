@@ -2,7 +2,7 @@
 
 $host_env = __DIR__ . '/../config/host-env.php';
 if (file_exists($host_env))
-	@include $host_env;
+	include $host_env;
 
 require(__DIR__ . '/../vendor/autoload.php');
 // Including the Yii framework itself
