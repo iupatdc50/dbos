@@ -10,6 +10,8 @@ use app\models\value\PhoneType;
 
 /**
  * This is the base model class for Phone tables.
+ * 
+ * ** NOTE: Class identified as `aggregate` in concrete class must implement getPhoneDefault() 
  *
  * @property integer $id
  * @property string $phone
@@ -24,6 +26,11 @@ abstract class BasePhone extends \yii\db\ActiveRecord
 	protected $_validationRules = []; 
 	protected $_labels = [];
 	
+	/** @var string Name of the attribute which will store the part-of class key */
+    public $relationAttribute;
+	
+    public $set_as_default;
+	
     /**
      * @inheritdoc
      */
@@ -36,6 +43,7 @@ abstract class BasePhone extends \yii\db\ActiveRecord
 			// Allows for client validation, 'exist' core validator does not
             [['phone_type'], 'in', 'range' => PhoneType::find()->select('phone_type')->asArray()->column()],
         	[['ext'], 'default'],
+        	['set_as_default', 'safe'],
         ];
         return array_merge($this->_validationRules, $common_rules);
     }
@@ -61,6 +69,29 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     		return true;
     	}
     	return false;		    	
+    }
+    
+    public function afterSave($insert, $changedAttributes)
+    {
+    	parent::afterSave($insert, $changedAttributes);
+    	if (isset($changedAttributes['set_as_default'])) {
+    		if ($this->set_as_default) {
+    			$default = $this->aggregate->phoneDefault;
+    			if (!isset($default))
+    				$default = self::createDefaultObj();
+    			$this->makeDefault($default);
+    		}
+    		unset($this->set_as_default);
+    	}
+    }
+    
+    public function makeDefault($default)
+    {
+    	if (!($default instanceof PhoneDefault))
+    		throw new \BadMethodCallException('Not an instance of Phone Default');
+    	$default->{$this->relationAttribute} = $this->{$this->relationAttribute};
+    	$default->phone_id = $this->id;
+    	return $default->save();
     }
 
     public function getTypeOptions()

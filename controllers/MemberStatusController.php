@@ -46,6 +46,11 @@ class MemberStatusController extends SummaryController
 										'actions' => ['create', 'drop', 'clear-in'],
 										'roles' => ['createMember', 'updateMember'],
 								],
+								[
+										'allow' => true,
+										'actions' => ['reset'],
+										'roles' => ['resetPT'],
+								],
 						],
 				],
 	

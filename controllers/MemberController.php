@@ -111,8 +111,8 @@ class MemberController extends RootController
     {
     	$idGenerator = new MemberId();
         $model = new Member(['idGenerator' => $idGenerator, 'scenario' => Member::SCENARIO_CREATE]);
-        $modelAddress = new Address;
-        $modelPhone = new Phone;
+        $modelAddress = new Address(['set_as_default' => true]);
+        $modelPhone = new Phone(['set_as_default' => true]);
         $modelEmail = new Email;
         $modelStatus = new Status;
         $modelClass = new MemberClass(['scenario' => MemberClass::SCENARIO_CREATE]);

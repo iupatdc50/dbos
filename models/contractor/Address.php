@@ -16,12 +16,19 @@ use app\helpers\OptionHelper;
 
 class Address extends BaseAddress
 {
-    /**
+	public $relationAttribute = 'license_nbr';
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'ContractorAddresses';
+    }
+
+    public static function createDefaultObj()
+    {
+    	return new AddressDefault;
     }
 
     /**
@@ -53,7 +60,7 @@ class Address extends BaseAddress
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContractor()
+    public function getAggregate()
     {
         return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
     }
@@ -67,6 +74,9 @@ class Address extends BaseAddress
     	];
     }
     
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getIsDefault()
     {
     	return $this->hasOne(AddressDefault::className(), ['address_id' => 'id']);

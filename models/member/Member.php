@@ -291,6 +291,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getAddressDefault()
+    {
+    	return $this->hasOne(AddressDefault::className(), ['member_id' => 'member_id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getMailingAddress()
     {
     	return $this->hasOne(Address::className(), ['member_id' => 'member_id'])->where("address_type = 'M'");
@@ -302,6 +310,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getPhones()
     {
     	return $this->hasMany(Phone::className(), ['member_id' => 'member_id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPhoneDefault()
+    {
+    	return $this->hasOne(PhoneDefault::className(), ['member_id' => 'member_id']);
     }
     
     /**

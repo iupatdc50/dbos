@@ -31,7 +31,7 @@ $controller = 'member-status';
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Reset',	
             		'title' => 'Reset Dues Paid Thru and/or Initiation',
-//	        		'disabled' => ($status == Status::ACTIVE),
+	        		'disabled' => !(Yii::$app->user->can('resetPT')),
             	])
     			. Html::button('<i class="glyphicon glyphicon-hand-down"></i>&nbsp;Drop', 
             		['value' => Url::to(["/member-status/drop", 'member_id'  => $id]), 

@@ -14,12 +14,19 @@ use app\models\base\BasePhone;
  */
 class Phone extends BasePhone
 {
-    /**
+	public $relationAttribute = 'member_id';
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'MemberPhones';
+    }
+    
+    public static function createDefaultObj()
+    {
+    	return new PhoneDefault;
     }
 
     /**
@@ -47,11 +54,14 @@ class Phone extends BasePhone
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMember()
+    public function getAggregate()
     {
         return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
     }
     
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getIsDefault()
     {
     	return $this->hasOne(PhoneDefault::className(), ['phone_id' => 'id']);

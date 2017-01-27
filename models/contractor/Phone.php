@@ -14,12 +14,19 @@ use app\models\base\BasePhone;
  */
 class Phone extends BasePhone
 {
-    /**
+	public $relationAttribute = 'license_nbr';
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'ContractorPhones';
+    }
+
+    public static function createDefaultObj()
+    {
+    	return new PhoneDefault;
     }
 
     /**
@@ -49,11 +56,14 @@ class Phone extends BasePhone
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContractor()
+    public function getAggregate()
     {
         return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getIsDefault()
     {
     	return $this->hasOne(PhoneDefault::className(), ['phone_id' => 'id']);

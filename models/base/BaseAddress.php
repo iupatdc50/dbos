@@ -8,6 +8,8 @@ use app\helpers\OptionHelper;
 
 /**
  * This is the base model class for Address classes.
+ * 
+ * ** NOTE: Class identified as `aggregate` in concrete class must implement getAddressDefault()
  *
  * @property integer $id
  * @property string $address_type
@@ -23,7 +25,12 @@ abstract class BaseAddress extends \yii\db\ActiveRecord
 	protected $_validationRules = [];
 	protected $_labels = [];
 	
-    /**
+	/** @var string Name of the attribute which will store the part-of class key */
+    public $relationAttribute;
+	
+	public $set_as_default;
+	
+	/**
      * @inheritdoc
      */
     public function rules()
@@ -34,6 +41,7 @@ abstract class BaseAddress extends \yii\db\ActiveRecord
         	[['address_ln2'], 'default'],
 			// Allows for client validation, 'exist' core validator does not
             [['zip_cd'], 'in', 'range' => ZipCode::find()->select('zip_cd')->asArray()->column()],
+        	['set_as_default', 'safe'],
         ];
         return array_merge($this->_validationRules, $common_rules);
     }
@@ -54,6 +62,30 @@ abstract class BaseAddress extends \yii\db\ActiveRecord
         return array_merge($this->_labels, $common_labels);
     }
 
+    
+    public function afterSave($insert, $changedAttributes)
+    {
+    	parent::afterSave($insert, $changedAttributes);
+    	if (isset($changedAttributes['set_as_default'])) {
+    		if ($this->set_as_default) {
+    			$default = $this->aggregate->addressDefault;
+    			if (!isset($default))
+    				$default = self::createDefaultObj();
+    			$this->makeDefault($default);
+    		}
+    		unset($this->set_as_default);
+    	}
+    }
+    
+    public function makeDefault($default)
+    {
+    	if (!($default instanceof AddressDefault))
+    		throw new \BadMethodCallException('Not an instance of Phone Default');
+    	$default->{$this->relationAttribute} = $this->{$this->relationAttribute};
+    	$default->address_id = $this->id;
+    	return $default->save();
+    }
+    
     /**
      * @return \yii\db\ActiveQuery
      */

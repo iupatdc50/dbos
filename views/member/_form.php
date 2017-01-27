@@ -13,7 +13,6 @@ use kartik\datecontrol\DateControl;
 use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
 use app\helpers\OptionHelper;
-use kartik\checkbox\CheckboxX;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */

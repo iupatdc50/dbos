@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.203
+
+. Added defaultable functionailty to address and phones
+. Added Reset button RBAC rule to interface 
+
 0.9.8.201
 
 . Added default address and phone designation for contractors and members

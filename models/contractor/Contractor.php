@@ -113,9 +113,25 @@ class Contractor extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getAddressDefault()
+    {
+    	return $this->hasOne(AddressDefault::className(), ['member_id' => 'member_id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getPhones()
     {
     	return $this->hasMany(Phone::className(), ['license_nbr' => 'license_nbr']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPhoneDefault()
+    {
+    	return $this->hasOne(PhoneDefault::className(), ['member_id' => 'member_id']);
     }
     
     /**

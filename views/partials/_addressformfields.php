@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use kartik\form\ActiveForm;
 use kartik\widgets\Select2;
 use app\helpers\OptionHelper;
+use kartik\checkbox\CheckboxX;
 
 /* @var $this yii\web\View */
 /* @var $address app\models\base\BaseAddress */
@@ -37,6 +38,13 @@ use app\helpers\OptionHelper;
     	<label class="control-label col-sm-3" for="city-ln"></label>
     	<div id="city-ln" class="col-sm-6"></div>
     </div>
+    
+    <?php if (!$address->isDefault): ?>
+    <br />
+    
+    <?= $form->field($address, 'set_as_default')->widget(CheckboxX::className(), ['pluginOptions' => ['threeState' => false]]) ?>
+    
+    <?php endif; ?>
 
 </div>
 
