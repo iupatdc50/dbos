@@ -66,21 +66,19 @@ abstract class BaseAddress extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
     	parent::afterSave($insert, $changedAttributes);
-    	if (isset($changedAttributes['set_as_default'])) {
-    		if ($this->set_as_default) {
-    			$default = $this->aggregate->addressDefault;
-    			if (!isset($default))
-    				$default = self::createDefaultObj();
-    			$this->makeDefault($default);
-    		}
-    		unset($this->set_as_default);
+    	if ($this->set_as_default) {
+    		$default = $this->aggregate->addressDefault;
+    		if (!isset($default))
+    			$default = self::createDefaultObj();
+    		if (!$this->makeDefault($default)) {
+    			Yii::$app->session->addFlash('error', 'Problem changing address default. Check log for details. Code `BA010`');
+    			Yii::error("*** BA010  BaseAddress::afterSave().  Messages: " . print_r($default->errors, true));
+    		}	
     	}
     }
     
     public function makeDefault($default)
     {
-    	if (!($default instanceof AddressDefault))
-    		throw new \BadMethodCallException('Not an instance of Phone Default');
     	$default->{$this->relationAttribute} = $this->{$this->relationAttribute};
     	$default->address_id = $this->id;
     	return $default->save();

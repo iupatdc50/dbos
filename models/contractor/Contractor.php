@@ -115,7 +115,7 @@ class Contractor extends \yii\db\ActiveRecord
      */
     public function getAddressDefault()
     {
-    	return $this->hasOne(AddressDefault::className(), ['member_id' => 'member_id']);
+    	return $this->hasOne(AddressDefault::className(), ['license_nbr' => 'license_nbr']);
     }
     
     /**
@@ -131,7 +131,7 @@ class Contractor extends \yii\db\ActiveRecord
      */
     public function getPhoneDefault()
     {
-    	return $this->hasOne(PhoneDefault::className(), ['member_id' => 'member_id']);
+    	return $this->hasOne(PhoneDefault::className(), ['license_nbr' => 'license_nbr']);
     }
     
     /**

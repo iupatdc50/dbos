@@ -74,21 +74,19 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
     	parent::afterSave($insert, $changedAttributes);
-    	if (isset($changedAttributes['set_as_default'])) {
-    		if ($this->set_as_default) {
-    			$default = $this->aggregate->phoneDefault;
-    			if (!isset($default))
-    				$default = self::createDefaultObj();
-    			$this->makeDefault($default);
-    		}
-    		unset($this->set_as_default);
+        if ($this->set_as_default) {
+    		$default = $this->aggregate->phoneDefault;
+    		if (!isset($default))
+    			$default = self::createDefaultObj();
+    		if (!$this->makeDefault($default)) {
+    			Yii::$app->session->addFlash('error', 'Problem changing phone default. Check log for details. Code `BP010`');
+    			Yii::error("*** BP010  BasePhone::afterSave().  Messages: " . print_r($default->errors, true));
+    		}	
     	}
     }
     
     public function makeDefault($default)
     {
-    	if (!($default instanceof PhoneDefault))
-    		throw new \BadMethodCallException('Not an instance of Phone Default');
     	$default->{$this->relationAttribute} = $this->{$this->relationAttribute};
     	$default->phone_id = $this->id;
     	return $default->save();

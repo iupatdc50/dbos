@@ -10,7 +10,7 @@ use Yii;
  * @property string $license_nbr
  * @property integer $phone_id
  *
- * @property Contractor $licenseNbr
+ * @property Contractor $contractor
  * @property Phones $phone
  */
 class PhoneDefault extends \yii\db\ActiveRecord
@@ -51,7 +51,7 @@ class PhoneDefault extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getLicenseNbr()
+    public function getContractor()
     {
         return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
     }
