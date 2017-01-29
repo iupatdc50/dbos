@@ -102,12 +102,12 @@ class SubmodelController extends Controller
         	$relation_id = $model->$qualifier;
         }
         
-        $model->delete();
-        
+        if ($model->delete())
+        	Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
+        		
         if ($removing_current)
         	call_user_func([$this->recordClass, 'openLatest'], $relation_id);
         
-        Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
         return $this->goBack();
     }
 
