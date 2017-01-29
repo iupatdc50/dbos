@@ -62,6 +62,17 @@ abstract class BaseAddress extends \yii\db\ActiveRecord
         return array_merge($this->_labels, $common_labels);
     }
 
+    public function beforeDelete()
+    {
+    	if (parent::beforeDelete()) {
+	    	if ($this->isDefault) {
+	    		Yii::$app->session->addFlash('error', 'Cannot delete default address');
+	    		return false;
+	    	}
+	    	return true;
+    	}
+    	return false;
+    }
     
     public function afterSave($insert, $changedAttributes)
     {
@@ -69,7 +80,7 @@ abstract class BaseAddress extends \yii\db\ActiveRecord
     	if ($this->set_as_default) {
     		$default = $this->aggregate->addressDefault;
     		if (!isset($default))
-    			$default = self::createDefaultObj();
+    			$default = $this->createDefaultObj();
     		if (!$this->makeDefault($default)) {
     			Yii::$app->session->addFlash('error', 'Problem changing address default. Check log for details. Code `BA010`');
     			Yii::error("*** BA010  BaseAddress::afterSave().  Messages: " . print_r($default->errors, true));

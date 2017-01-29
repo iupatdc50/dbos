@@ -26,7 +26,7 @@ class Address extends BaseAddress
         return 'ContractorAddresses';
     }
 
-    public static function createDefaultObj()
+    public function createDefaultObj()
     {
     	return new AddressDefault;
     }

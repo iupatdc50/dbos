@@ -10,7 +10,7 @@ namespace app\models\base;
  */
 interface iDefaultableInterface {
 	
-	public static function createDefaultObj();
+	public function createDefaultObj();
 	public function getAggregate();
 	public function getIsDefault();
 	public function makeDefault($default);

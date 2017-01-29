@@ -123,7 +123,15 @@ class BaseProject extends \yii\db\ActiveRecord implements iNotableInterface
         return $this->hasMany(Address::className(), ['project_id' => 'project_id']);
     }
 
-	public function getStatusText()
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAddressDefault()
+    {
+    	return $this->hasOne(AddressDefault::className(), ['project_id' => 'project_id']);
+    }
+    
+    public function getStatusText()
 	{
 		return OptionHelper::getStatusText($this->project_status);
 	}

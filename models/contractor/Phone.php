@@ -24,7 +24,7 @@ class Phone extends BasePhone
         return 'ContractorPhones';
     }
 
-    public static function createDefaultObj()
+    public function createDefaultObj()
     {
     	return new PhoneDefault;
     }

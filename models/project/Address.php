@@ -15,12 +15,19 @@ use app\helpers\OptionHelper;
  */
 class Address extends BaseAddress
 {
-    /**
+	public $relationAttribute = 'project_id';
+	
+	/**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'ProjectAddresses';
+    }
+
+    public function createDefaultObj()
+    {
+    	return new AddressDefault;
     }
 
     /**
@@ -51,9 +58,9 @@ class Address extends BaseAddress
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProject()
+    public function getAggregate()
     {
-        return $this->hasOne(Project::className(), ['project_id' => 'project_id']);
+        return $this->hasOne(BaseProject::className(), ['project_id' => 'project_id']);
     }
 
     public function getAddressTypeOptions()
@@ -64,4 +71,12 @@ class Address extends BaseAddress
     	];
     }
     
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getIsDefault()
+    {
+    	return $this->hasOne(AddressDefault::className(), ['address_id' => 'id']);
+    }
+
 }

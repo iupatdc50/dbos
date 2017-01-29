@@ -71,13 +71,25 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     	return false;		    	
     }
     
+   public function beforeDelete()
+    {
+    	if (parent::beforeDelete()) {
+	    	if ($this->isDefault) {
+	    		Yii::$app->session->addFlash('error', 'Cannot delete default phone');
+	    		return false;
+	    	}
+	    	return true;
+    	}
+    	return false;
+    }
+    
     public function afterSave($insert, $changedAttributes)
     {
     	parent::afterSave($insert, $changedAttributes);
         if ($this->set_as_default) {
     		$default = $this->aggregate->phoneDefault;
     		if (!isset($default))
-    			$default = self::createDefaultObj();
+    			$default = $this->createDefaultObj();
     		if (!$this->makeDefault($default)) {
     			Yii::$app->session->addFlash('error', 'Problem changing phone default. Check log for details. Code `BP010`');
     			Yii::error("*** BP010  BasePhone::afterSave().  Messages: " . print_r($default->errors, true));
