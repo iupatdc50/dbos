@@ -168,6 +168,12 @@ class MemberStatusController extends SummaryController
 		$model = new Status(['scenario' => Status::SCENARIO_CCD]);
 		$this->setMember($member_id); 
 		
+		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			$model->member_id = $this->member->member_id;
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
+		
 		if ($model->load(Yii::$app->request->post())) {
 			$prev = (($model->other_local > 0) ? $model->other_local : 'Unspecified');
 			$model->reason = Status::REASON_CCD . $prev;

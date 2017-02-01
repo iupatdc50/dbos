@@ -14,9 +14,10 @@ use app\models\member\Status;
 <div class="status-form">
 
 	<?php $form = ActiveForm::begin([
-    		'options' => ['class' => 'ajax-create'], // Required for modal within an update
+ //   		'options' => ['class' => 'ajax-create'], // Required for modal within an update
     		'id' => 'member-status-form',
-    		'enableAjaxValidation' => true,
+    		'enableClientValidation' => true,
+			'enableAjaxValidation' => true,
     		
     ]); ?>
     
@@ -43,7 +44,7 @@ use app\models\member\Status;
 	    <?= $form->field($model, 'init_dt')->widget(DateControl::className(), [
 	    		'type' => DateControl::FORMAT_DATE,
 	    ])  ?>
-	    <?php endif; ?>
+	<?php endif; ?>
 	    
     
     <?php if($model->scenario == Status::SCENARIO_CCD): ?>
