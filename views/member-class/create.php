@@ -13,9 +13,10 @@ use kartik\datecontrol\DateControl;
 
     <?php $form = ActiveForm::begin([
     		'layout' => 'horizontal',
-    		'options' => ['class' => 'ajax-create'], // Required for modal within an update
+//    		'options' => ['class' => 'ajax-create'], // Required for modal within an update
     		'id' => 'member-class-form',
     		'enableClientValidation' => true,
+    		'enableAjaxValidation' => true,
     		
     ]); ?>
 

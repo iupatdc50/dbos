@@ -8,6 +8,8 @@ use app\models\member\MemberClass;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\bootstrap\ActiveForm;
+
 
 /**
  * MemberClassController implements the CRUD actions for MemberClass model.
@@ -27,14 +29,21 @@ class MemberClassController extends SummaryController
     {
     	$model = new MemberClass(['scenario' => MemberClass::SCENARIO_CREATE]);
         
-        if ($model->load(Yii::$app->request->post())) {
+    	if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			$model->member_id = $relation_id;
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
+		
+    	if ($model->load(Yii::$app->request->post())) {
         	$model->member_id = $relation_id;
         	$model->resolveClasses();
         	if ($model->save()) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
         		return $this->goBack();
         	}
-        	throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			Yii::$app->session->addFlash('error', 'Problem adding Member Class. Check log for details. Code `MCC010`');
+			Yii::error("*** MSC010  member-class-controller/create(`{$relation_id}`).  Messages: " . print_r($model->errors, true));
         } 
         return $this->renderAjax('create', compact('model'));
         

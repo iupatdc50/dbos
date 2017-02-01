@@ -65,7 +65,9 @@ class MemberClass extends BaseEndable
             [['member_class'], 'exist', 'targetClass' => '\app\models\member\ClassCode', 'targetAttribute' => 'member_class_cd'],
             [['rate_class'], 'string', 'max' => 2],
             ['class_id', 'required', 'on' => self::SCENARIO_CREATE],
-        	[['member_id', 'effective_dt'], 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The combination of Member ID and Effective Dt has already been taken.']
+        	['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.'],
+        		
+        		
         ];
     }
 
