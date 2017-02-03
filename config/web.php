@@ -13,7 +13,7 @@ $config = [
 			 
 			        // format settings for displaying each date attribute
 			        'displaySettings' => [
-			            Module::FORMAT_DATE => 'php:m/d/Y',
+			            Module::FORMAT_DATE => 'php:n/j/Y',
 			            Module::FORMAT_TIME => 'php:H:i:s',
 			            Module::FORMAT_DATETIME => 'php:m/d/Y H:i:s A',
 			        ],
