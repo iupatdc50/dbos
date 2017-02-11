@@ -29,11 +29,8 @@ return [
 						'targets' => [
 								'all_messages' => [
 										'class' => 'yii\log\FileTarget',
-										'levels' => [
-//												'trace', 
-//												'info', 
-												'warning', 'error',
-										],
+										'categories' => ['application'],
+										'levels' => YII_DEBUG ? ['trace', 'info', 'warning', 'error'] : ['warning', 'error'],
 								],
 								'problems' => [
 										'class' => \yii\log\EmailTarget::className(),
