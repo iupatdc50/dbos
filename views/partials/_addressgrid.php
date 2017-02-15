@@ -49,7 +49,8 @@ $other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
 									'controller' => $controller,
 									'template' => '{update}{delete}',
 									'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
-											['value' => Url::to(["/{$controller}/create", 'relation_id'  => $relation_id]),
+											[
+													'value' => Url::to(["/{$controller}/create", 'relation_id'  => $relation_id]),
 													'id' => 'addressCreateButton',
 													'class' => 'btn btn-default btn-modal btn-embedded',
 													'data-title' => 'Address',

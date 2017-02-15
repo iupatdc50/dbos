@@ -1,32 +1,17 @@
 <?php
 namespace app\controllers;
 
+use app\controllers\base\RootController;
 use app\models\user\LoginForm;
 use app\models\user\User;
 use app\models\Announcement;
 use app\components\utilities\OpDate;
-use \yii\web\Controller;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Response;
 
-class SiteController extends Controller
+class SiteController extends RootController
 {
-	
-	public $session;
-	
-	/*
-	 * OpDate
-	 */
-	public $today;
-	
-	public function init()
-	{
-		if (!isset($this->session))
-			$this->session = Yii::$app->session;
-		if (!isset($this->today))
-			$this->today = new OpDate;
-	}
 	
 	public function actionIndex() {
     	$announcementModel = $this->createAnnouncement();
@@ -50,14 +35,15 @@ class SiteController extends Controller
 	public function actionLogin()
 	{
 		$this->layout = 'login';
-		if (!\Yii::$app->user->isGuest)
+		if (!\Yii::$app->user->isGuest) {
 			return $this->goHome();
+		}
 			
 		$model = new LoginForm();
 		if ($model->load(Yii::$app->request->post()) && $model->login()) {
 			/* @var $user User */
-			$user = User::findByUsername(Yii::$app->user->identity->username);
-			$this->session->set('user.last_login', $user->lastLoginDisplay);
+			$this->setSessionInfo();
+			$user = $this->getUser();
 			$user->last_login = $this->today->getMySqlDate(false);
 			$msg = "User `{$user->username}` successfully logged in on `{$user->last_login}`";
 			Yii::info($msg);
@@ -107,7 +93,5 @@ class SiteController extends Controller
 		}
 		return $announcement;
 	}
-	
-	
 	
 }

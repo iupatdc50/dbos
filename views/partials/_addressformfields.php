@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use kartik\form\ActiveForm;
 use kartik\widgets\Select2;
 use app\helpers\OptionHelper;
@@ -32,7 +33,19 @@ use kartik\checkbox\CheckboxX;
 
     <?= $form->field($address, 'address_ln2')->textInput(['maxlength' => 50])->label('Address Line 2') ?>
 
-    <?= $form->field($address, 'zip_cd')->textInput(['maxlength' => 5])->label('Zip Code') ?>
+    <?= $form->field($address, 'zip_cd', [
+    		'addon' => [
+    				'append' => [
+    						'content' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
+    								'value' => Url::to(["/admin/zip-code/create", 'zip_cd' => $address->zip_cd]),
+    								'class' => 'btn btn-modal btn-primary', 
+    								'id' => 'add-zip',
+    								'data-title' => 'Zip Code',
+    						]),
+    						'asButton' => true,
+   					],
+    		],
+    ])->textInput(['maxlength' => 5])->label('Zip Code') ?>
     
     <div class="form-group generated-city-ln">
     	<label class="control-label col-sm-3" for="city-ln"></label>
@@ -47,6 +60,8 @@ use kartik\checkbox\CheckboxX;
     <?php endif; ?>
 
 </div>
+
+<?= $this->render('../partials/_modal') ?>
 
 <?php 
 $script = <<< JS

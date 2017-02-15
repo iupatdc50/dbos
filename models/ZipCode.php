@@ -30,7 +30,7 @@ class ZipCode extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['zip_cd', 'city'], 'required'],
+            [['zip_cd', 'city', 'st'], 'required'],
             [['zip_cd'], 'string', 'max' => 5],
             [['city'], 'string', 'max' => 30],
             [['island'], 'default', 'value' => null],
@@ -40,7 +40,7 @@ class ZipCode extends \yii\db\ActiveRecord
             	return $('#zipcode-st').val() == 'HI';
     		}"],
         	[['island'], 'exist', 'targetClass' => 'app\models\value\Island'],
-            [['st'], 'string', 'max' => 2]
+            [['st'], 'exist', 'targetClass' => 'app\models\value\State'],
         ];
     }
 
@@ -55,6 +55,16 @@ class ZipCode extends \yii\db\ActiveRecord
             'island' => 'Island',
             'st' => 'State',
         ];
+    }
+    
+    public function beforeSave($insert)
+    {
+    	if (parent::beforeSave($insert)) {
+    		if (!($this->st == 'HI') && !($this->island == 'NA'))
+    			$this->island = 'NA';
+    		return true;
+    	}
+    	return false;
     }
 
     /**

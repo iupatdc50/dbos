@@ -1,7 +1,8 @@
 <?php
 
 use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
+// use yii\bootstrap\ActiveForm;
+use kartik\form\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\base\BaseAddress */
@@ -11,7 +12,8 @@ use yii\bootstrap\ActiveForm;
 <div class="address-form">
 
     <?php $form = ActiveForm::begin([
-    		'layout' => 'horizontal',
+//    		'layout' => 'horizontal',
+    		'type' => ActiveForm::TYPE_HORIZONTAL,
     		'options' => ['class' => 'ajax-create'], // Required for modal within an update
        		'id' => 'address-form', 
     		'enableClientValidation' => true,

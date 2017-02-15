@@ -109,6 +109,8 @@ class MemberController extends RootController
      */
     public function actionCreate()
     {
+    	$this->storeReturnUrl();
+    	
     	$idGenerator = new MemberId();
         $model = new Member(['idGenerator' => $idGenerator, 'scenario' => Member::SCENARIO_CREATE]);
         $modelAddress = new Address(['set_as_default' => true]);

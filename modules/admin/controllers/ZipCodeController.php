@@ -55,20 +55,23 @@ class ZipCodeController extends Controller
 
     /**
      * Creates a new ZipCode model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * 
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($zip_cd = NULL)
     {
         $model = new ZipCode();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->zip_cd]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
+        if ($model->load(Yii::$app->request->post()) && $model->save())
+            return $this->goBack();
+            
+        if (isset($zip_cd) && !isset($model->zip_cd))
+        	$model->zip_cd = $zip_cd;
+        
+        if (Yii::$app->request->isAjax)
+        	return $this->renderAjax('create', ['model' => $model]);
+        
+        return $this->render('create', ['model' => $model]);
     }
 
     /**
