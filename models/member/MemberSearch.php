@@ -7,6 +7,7 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\member\Member;
 use app\models\member\Specialty;
+use app\helpers\CriteriaHelper;
 
 /**
  * MemberSearch represents the model behind the search form about `app\models\member\Member`.
@@ -81,14 +82,17 @@ class MemberSearch extends Member
         $query->joinWith(['currentStatus', 'currentClass', 'specialties', 'employer.duesPayor']);
 
         $query->andFilterWhere(['lob_cd' => $this->lob_cd])
-        	->andFilterWhere(['member_status' => $this->status])
         	->andFilterWhere(['member_class' => $this->class])
         	->andFilterWhere(['like', 'ssnumber', $this->ssnumber])
         	->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]])
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         	->andFilterWhere(['like', 'contractor', $this->employer])
         ;
-
+        
+        if ($this->status == CriteriaHelper::TOKEN_NOTSET)
+        	$query->andWhere(['member_status' => null]);
+        else 
+        	$query->andFilterWhere(['member_status' => $this->status]);
         
         return $dataProvider;
     }

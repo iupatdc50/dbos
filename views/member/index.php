@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use kartik\grid\GridView;
 use app\helpers\OptionHelper;
 use yii\helpers\Url;
+use app\helpers\CriteriaHelper;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\member\MemberSearch */
@@ -51,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
     			'width' => '140px',
     			'value' => 'currentStatus.status.descrip',
             	'filterType' => GridView::FILTER_SELECT2,
-            	'filter' => array_merge(["" => ""], $statusPicklist),
+            	'filter' => array_merge([CriteriaHelper::TOKEN_NOTSET => "(not set)"], $statusPicklist),
             	'filterWidgetOptions' => [
             			'size' => \kartik\widgets\Select2::SMALL,
             			'hideSearch' => true,

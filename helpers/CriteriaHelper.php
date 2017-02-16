@@ -6,6 +6,8 @@ use Yii;
 
 class CriteriaHelper
 {
+	CONST TOKEN_NOTSET = '_';
+	
 	public static function parseMixed($column, $value)
 	{
 		if (preg_match('/^(?:\s*(<>|<=|>=|<|>|=))?(.*)$/', $value, $matches))
