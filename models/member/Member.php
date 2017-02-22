@@ -18,6 +18,8 @@ use app\models\accounting\BaseAllocation;
 use app\models\accounting\InitFee;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\ApfAssessment;
+use app\helpers\SsnHelper;
+use app\components\validators\SsnValidator;
 
 /**
  * This is the model class for table "Members".
@@ -164,7 +166,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	[['birth_dt'], 'validateBirthDt'],
 			[['gender'], 'in', 'range' => OptionHelper::getAllowedGender()],
         	[['local_pac', 'hq_pac'], 'in', 'range' => OptionHelper::getAllowedTF()],
-            [['ssnumber', 'report_id'], 'string', 'max' => 11],
+        	['ssnumber', SsnValidator::className()],
+            [['report_id'], 'string', 'max' => 11],
             [['last_nm', 'first_nm'], 'string', 'max' => 30],
             [['middle_inits', 'suffix'], 'string', 'max' => 7],
         	[['shirt_size'], 'exist', 'targetClass' => Size::className(), 'targetAttribute' => 'size_cd'],
@@ -234,7 +237,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	if (parent::beforeValidate()) {
     		if ($this->isAttributeChanged('ssnumber')) {
-    			$this->report_id = 'xxx-xx-' . substr($this->ssnumber, 7);
+    			$this->ssnumber = SsnHelper::format_us($this->ssnumber);
     		}
     		return true;
     	}
@@ -252,6 +255,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     			}
     			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
     				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
+    		}
+    		if ($this->isAttributeChanged('ssnumber')) {
+    			$this->report_id = 'xxx-xx-' . substr($this->ssnumber, 7);
     		}
     		return true;
     	}

@@ -177,7 +177,7 @@ class User extends \yii\db\ActiveRecord
     
     public static function findIdentity($id)
     {
-    	return static::findOne($id);
+    	return self::findOne($id);
     }
     
     public function getAuthKey()

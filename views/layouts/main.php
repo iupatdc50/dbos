@@ -123,12 +123,12 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	        <?= $content; ?>
 			</div>
 			<footer class="footer clearfix">
-			    <div class="container">
+			    <div class="container ninety-pct">
        				<p class="pull-left">&copy; <?= date('Y') ?> 
        				   <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
        				</p>
        				<?php if (!Yii::$app->user->isGuest): ?>
-	        			<p class="pull-right">Last logged in: <?= Yii::$app->session->get('user.last_login'); ?></p>
+	        			<p class="pull-right">Session started: <?= Yii::$app->session->get('user.session_start'); ?></p>
     				<?php endif; ?>	
  			    </div>
 			</footer>
