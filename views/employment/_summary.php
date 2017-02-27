@@ -53,15 +53,15 @@ use kartik\grid\GridView;
 						},
 				],
 				[
-						'attribute' => 'duesPayor',
+						'label' => 'Fees Payor',
 						'format' => 'raw',
 						'value' => function($model) {
-							$result = 'Member';
-							if (isset($model->dues_payor)) {
-								if ($model->is_loaned == 'T') {
+							$result = 'Employer';
+							if ($model->is_loaned == 'T') {
+								if (isset($model->dues_payor)) {
 							        $result = Html::a(Html::encode($model->duesPayor->contractor), '/contractor/view?id=' . $model->dues_payor);
 								} else {
-									$result = 'Employer';
+									$result = '** Check misconfigured loan_to';
 								}
 							}
 							return $result;

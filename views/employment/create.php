@@ -48,8 +48,6 @@ $url = Url::to(['/contractor/contractor-list']);
 	    ],
 	]); ?>
     
-    <?= $form->field($model, 'member_pays')->checkbox() ?>
-
     <div class="form-group">
         <?= Html::submitButton('Employ', ['class' => 'btn btn-success']) ?>
     </div>

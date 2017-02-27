@@ -44,7 +44,6 @@ $this->params['breadcrumbs'][] = $this->title;
 	        [
 	        	'attribute' => 'is_active', 
 	        	'value' => Html::encode($model->statusText),
-//	        	'rowOptions' => ($model->is_active == 'T') ? ['class' => 'success'] : ['class' => 'default'],
 	        	'contentOptions' => ($model->is_active == 'T') ? ['class' => 'success'] : ['class' => 'default'],
 	        ],
 	        'license_nbr',
@@ -53,6 +52,10 @@ $this->params['breadcrumbs'][] = $this->title;
             'phoneTexts:ntext',
             'email:email',
             'url:url',
+        	[
+        		'attribute' => 'deducts_dues',
+        		'value' => Html::encode($model->deductsDuesText),
+        	],
         ],
     ]) ?>
     

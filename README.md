@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.301
+
+. Added contractor deducts dues option
+. Removed member pays option in employment
+
 0.9.8.203
 
 . Added defaultable functionailty to address and phones

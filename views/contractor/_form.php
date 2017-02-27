@@ -40,6 +40,13 @@ use app\helpers\OptionHelper;
 
     <?= $form->field($model, 'url')->textInput(['maxlength' => 100]) ?>
     
+    <?= $form->field($model, 'deducts_dues')->widget(Select2::className(), [
+    		'data' => OptionHelper::getTFOptions(), 
+    		'hideSearch' => false,
+			'size' => Select2::SMALL,
+    		'options' => ['placeholder' => 'Select...'],
+    ]) ?>
+
     <?= $form->field($model, 'is_active')->widget(Select2::className(), [
     		'data' => $model->statusOptions, 
 			'size' => Select2::SMALL,

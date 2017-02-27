@@ -118,7 +118,8 @@ class Receipt extends \yii\db\ActiveRecord
         	[['payment_method'], 'in', 'range' => self::getAllowedMethods()],
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
         	[['received_dt'], 'date', 'format' => 'php:Y-m-d'],
-            [['received_amt', 'unallocated_amt'], 'number'],
+        	[['received_dt'], 'validateReceivedDt'],
+        		[['received_amt', 'unallocated_amt'], 'number'],
         	[['unallocated_amt', 'helper_dues'], 'default', 'value' => 0.00],
             ['helper_hrs', 'required', 'when' => function($model) {
             	return $model->helper_dues > 0.00;
@@ -159,7 +160,14 @@ class Receipt extends \yii\db\ActiveRecord
         return array_merge($this->_labels, $common_labels);
     }
     
-	public function beforeSave($insert)
+    public function validateReceivedDt($attribute, $params)
+    {
+    	$dt = (new OpDate)->setFromMySql($this->$attribute);
+    	if (OpDate::dateDiff($this->today, $dt) > 0)
+    	    $this->addError($attribute, 'Received date cannot be future');
+    }
+    
+    public function beforeSave($insert)
 	{
 		// default does not appear to be working here or at the DB level
 		if (parent::beforeSave($insert)) {
@@ -336,6 +344,16 @@ class Receipt extends \yii\db\ActiveRecord
     public function getLobOptions()
     {
     	return ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'short_descrip');
+    }
+    
+    /**
+     * Override this function when testing with fixed date
+     *
+     * @return \app\components\utilities\OpDate
+     */
+    protected function getToday()
+    {
+    	return new OpDate();
     }
     
 }

@@ -32,7 +32,6 @@ class Employment extends BaseEndable
 	 * @var Standing 	May be injected, if required
 	 */
 	private $_standing;
-	public $member_pays;
 	
     /**
      * @inheritdoc
@@ -88,7 +87,6 @@ class Employment extends BaseEndable
             [['effective_dt', 'end_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['employer', 'dues_payor'], 'exist', 'targetClass' => '\app\models\contractor\Contractor', 'targetAttribute' => 'license_nbr'],
-        	[['member_pays'], 'boolean'],
         ];
     }
 
@@ -102,7 +100,7 @@ class Employment extends BaseEndable
             'effective_dt' => 'Effective',
             'end_dt' => 'End',
             'employer' => 'Employer',
-            'dues_payor' => 'Dues Payor',
+            'dues_payor' => 'Fees Payor',
         ];
     }
     
@@ -110,7 +108,7 @@ class Employment extends BaseEndable
     {
     	if (parent::beforeSave($insert))
     	{
-    		if (($insert) && !($this->member_pays) && !($this->is_loaned))
+    		if (($insert) && !($this->is_loaned))
     			$this->dues_payor = $this->employer;
     		return true;
     	}

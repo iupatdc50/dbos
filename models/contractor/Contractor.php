@@ -19,6 +19,7 @@ use app\models\value\Lob;
  * @property string $contact_nm
  * @property string $email
  * @property string $url
+ * @property string deducts_dues
  * @property string $is_active
  * @property UnionContractor $currentSignatory
  * @property Address[] $addresses
@@ -80,8 +81,8 @@ class Contractor extends \yii\db\ActiveRecord
             [['email'], 'email'],
         	[['url'], 'url'],
             [['email', 'url'], 'default'],
-        	[['is_active'], 'in', 'range' => OptionHelper::getAllowedTF()],
-        	[['is_active'], 'default', 'value' => 'F'],
+        	[['is_active', 'deducts_dues'], 'in', 'range' => OptionHelper::getAllowedTF()],
+        	[['is_active', 'deducts_dues'], 'default', 'value' => 'F'],
         ];
     }
 
@@ -206,6 +207,11 @@ class Contractor extends \yii\db\ActiveRecord
     {
     	return $this->hasMany(Member::className(), ['member_id' => 'member_id'])
     			->viaTable('CurrentEmployees', ['employer' => 'license_nbr']);
+    }
+    
+    public function getDeductsDuesText()
+    {
+    	return OptionHelper::getTFText($this->deducts_dues);
     }
     
     /**
