@@ -76,6 +76,12 @@ $this->params['breadcrumbs'][] = $this->title;
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
         	[
+        		'attribute' => 'dues_paid_thru_dt',
+        		'format' => 'date',
+        		'label' => 'Paid Thru',
+        	],
+        		
+        	[
         			'attribute' => 'employer', 
         			'value' => 'employer.descrip',
         			'contentOptions' => ['style' => 'white-space: nowrap;'],

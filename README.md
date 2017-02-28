@@ -13,10 +13,17 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.302
+
+. Added searchable dues paid thru date in member index
+. Revised received date search on receipt index to allow range criteria	
+. Minor bug fixes
+
 0.9.8.301
 
 . Added contractor deducts dues option
 . Removed member pays option in employment
+. Added receipt future date audit
 
 0.9.8.203
 

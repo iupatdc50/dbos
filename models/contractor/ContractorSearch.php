@@ -48,9 +48,9 @@ class ContractorSearch extends Contractor
     {
         $query = Contractor::find();
         $empl_subquery = Employment::find()
-        			->select('employer, COUNT(*) AS employee_count')
+        			->select('dues_payor AS employer, COUNT(*) AS employee_count')
         			->where('end_dt IS NULL')
-        			->groupBy('employer')
+        			->groupBy('dues_payor')
         ;
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

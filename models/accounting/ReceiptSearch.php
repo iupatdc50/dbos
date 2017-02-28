@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\accounting\Receipt;
+use app\helpers\CriteriaHelper;
 
 /**
  * ReceiptSearch represents the model behind the search form about `app\models\accounting\Receipt`.
@@ -65,11 +66,13 @@ class ReceiptSearch extends Receipt
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'received_dt' => $this->received_dt,
             'received_amt' => $this->received_amt,
             'unallocated_amt' => $this->unallocated_amt,
         ]);
 
+       	$criteria = CriteriaHelper::parseMixed('received_dt', $this->received_dt, true);
+       	$query->andFilterWhere($criteria);
+        
         $query->andFilterWhere(['like', 'payor_nm', $this->payor_nm])
             ->andFilterWhere(['like', 'payment_method', $this->payment_method])
             ->andFilterWhere(['like', 'payor_type', $this->payor_type_filter])

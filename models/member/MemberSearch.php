@@ -31,7 +31,11 @@ class MemberSearch extends Member
             [['member_id', 'ssnumber', 'report_id', 'fullName', 'middle_inits', 
             		'suffix', 'birth_dt', 'gender', 
             		'shirt_size', 'local_pac', 'hq_pac', 'remarks', 
-            		'lob_cd', 'status', 'class', 'specialties', 'employer'], 'safe'],
+            		'lob_cd', 'status', 'class', 'specialties', 'employer', 'dues_paid_thru_dt',
+            		
+            ], 'safe'],
+//        	[['dues_paid_thru_dt'], 'date', 'format' => 'php:m/d/Y', 'message' => 'Invalid date'],
+        		
         ];
     }
 
@@ -81,9 +85,12 @@ class MemberSearch extends Member
         
         $query->joinWith(['currentStatus', 'currentClass', 'specialties', 'employer.duesPayor']);
 
+       	$criteria = CriteriaHelper::parseMixed('dues_paid_thru_dt', $this->dues_paid_thru_dt, true);
+       	$query->andFilterWhere($criteria);
+        
         $query->andFilterWhere(['lob_cd' => $this->lob_cd])
         	->andFilterWhere(['member_class' => $this->class])
-        	->andFilterWhere(['like', 'ssnumber', $this->ssnumber])
+        	->andFilterWhere(['like', 'report_id', $this->report_id])
         	->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]])
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         	->andFilterWhere(['like', 'contractor', $this->employer])
