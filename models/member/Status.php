@@ -36,6 +36,7 @@ class Status extends BaseEndable
 	CONST REASON_CCG = 'CC granted to local: ';
 	CONST REASON_CCD = 'CC deposited. Previous local: ';
 	CONST REASON_DROP = 'Member dropped';
+	CONST REASON_FORFEIT = 'Forfeited';
 	CONST REASON_REINST = 'Member reinstated';
 	CONST REASON_RESET_INIT = 'Initiation Date reset to: ';
 	CONST REASON_RESET_PT = 'Dues Thru Date reset to: ';

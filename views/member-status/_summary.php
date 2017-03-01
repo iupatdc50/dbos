@@ -33,7 +33,15 @@ $controller = 'member-status';
             		'title' => 'Reset Dues Paid Thru and/or Initiation',
 	        		'disabled' => !(Yii::$app->user->can('resetPT')),
             	])
-    			. Html::button('<i class="glyphicon glyphicon-hand-down"></i>&nbsp;Drop', 
+    			. Html::button('<i class="glyphicon glyphicon-minus-sign"></i>&nbsp;Forfeit', 
+            		['value' => Url::to(["/member-status/forfeit", 'member_id'  => $id]), 
+            		'id' => 'forfeitButton',
+            		'class' => 'btn btn-default btn-modal',
+            		'data-title' => 'Forfeit',	
+            		'title' => 'Applicant forfeits membership',
+            		'disabled' => ($status == Status::INACTIVE),
+            	])
+				. Html::button('<i class="glyphicon glyphicon-hand-down"></i>&nbsp;Drop', 
             		['value' => Url::to(["/member-status/drop", 'member_id'  => $id]), 
             		'id' => 'dropButton',
             		'class' => 'btn btn-default btn-modal',
