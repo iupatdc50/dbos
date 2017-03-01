@@ -39,11 +39,11 @@ class MemberStatusController extends SummaryController
 				],
 				'access' => [
 						'class' => AccessControl::className(),
-						'only' => ['create', 'drop', 'clear-in'],
+						'only' => ['create', 'forfeit', 'drop', 'clear-in'],
 						'rules' => [
 								[
 										'allow' => true,
-										'actions' => ['create', 'drop', 'clear-in'],
+										'actions' => ['create', 'forfeit', 'drop', 'clear-in'],
 										'roles' => ['createMember', 'updateMember'],
 								],
 								[
