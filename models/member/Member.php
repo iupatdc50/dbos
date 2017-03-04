@@ -65,6 +65,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	
 	CONST SCENARIO_CREATE = 'create';
 	
+	CONST MONTHS_GRACE_PERIOD = 6;
+	CONST MONTHS_DELINQUENT = 3;
+	
 	/*
 	 * @var OpDate
 	 */
@@ -736,7 +739,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'A')) {
     		if (!isset($this->dues_paid_thru_dt)) 
     			throw new \Exception("Dues paid thru date is not set for member: {$member_id}");
-    		$result = $this->isOlderThanCutoff(3);
+    		$result = $this->isOlderThanCutoff(self::MONTHS_DELINQUENT);
     	}
     	return $result;
     }
@@ -753,7 +756,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'S')) {
     		if (!isset($this->dues_paid_thru_dt))
     			throw new \Exception("Dues paid thru date is not set for member: {$member_id}");
-    		$result = $this->isOlderThanCutoff(6);
+    		$result = $this->isOlderThanCutoff(self::MONTHS_GRACE_PERIOD);
     	}
     	return $result;	
     }
@@ -770,7 +773,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$cutoff = $this->getToday();
     	$cutoff->modify('-' . $months . ' month');
     	$cutoff->setToMonthEnd();
-    	return (OpDate::dateDiff($this->getDuesPaidThruDtObject(), $cutoff) >= 0);
+    	return (OpDate::dateDiff($this->getDuesPaidThruDtObject(), $cutoff) > 0);
     }
     
     public function getGenderText()

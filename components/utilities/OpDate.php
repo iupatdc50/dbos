@@ -152,8 +152,13 @@ class OpDate extends \DateTime
 	public function setToMonthEnd()
 	{
 		$this->modify('+1 month');
-		$this->setDate($this->_year, $this->_month, 1);
+		$this->setToMonthBegin();
 		$this->modify('-1 day');
+	}
+	
+	public function setToMonthBegin()
+	{
+		$this->setDate($this->_year, $this->_month, 1);
 	}
 	
 	/**

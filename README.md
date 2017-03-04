@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.310
+
+. Added auto-suspend functionality (batch)
+. Fixed delinquent dues computations
+
 0.9.8.302
 
 . Added searchable dues paid thru date in member index
