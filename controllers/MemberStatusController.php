@@ -166,19 +166,8 @@ class MemberStatusController extends SummaryController
 		if ($model->load(Yii::$app->request->post())) {
 			if ($this->member->addStatus($model)) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added for drop");
-				$assessModel = new Assessment([
-						'member_id' => $member_id,
-						'fee_type' => FeeType::TYPE_REINST,
-						'assessment_dt' => $model->effective_dt,
-						'assessment_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $model->effective_dt),
-						'purpose' => 'Dropped on this date',
-				]);
-				if ($assessModel->save()) {
-					Yii::$app->session->addFlash('success', "Reinstate fee of {$assessModel->assessment_amt} assessed");
+				if ($this->AssessReinstFee($model))
 					return $this->goBack();
-				}
-				Yii::$app->session->addFlash('error', 'Problem saving assessment. Check log for details. Code `MSC020`'); 
-				Yii::error("*** MSC020  Assessment save error (`{$member_id}`).  Messages: " . print_r($assessModel->errors, true));
 			} else {
 				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC025`');
 				Yii::error("*** MSC025  Status save error (`{$member_id}`).  Messages: " . print_r($model->errors, true));
@@ -236,6 +225,26 @@ class MemberStatusController extends SummaryController
 	{
 		if (!isset($model->lob_cd) && ($this->member->currentStatus != null))
 			$model->lob_cd = $this->member->currentStatus->lob_cd;
+	}
+	
+	protected function AssessReinstFee(Status $model)
+	{
+		$action = ($model->member_status == Status::SUSPENDED) ? 'Suspended' : 'Dropped'; 
+		$assessModel = new Assessment([
+				'fee_type' => FeeType::TYPE_REINST,
+				'assessment_dt' => $model->effective_dt,
+				'assessment_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $model->effective_dt),
+				'purpose' => $action . ' on this date',
+		]);
+		if ($this->member->addAssessment($assessModel))  {
+			Yii::$app->session->addFlash('success', "Reinstate fee of {$assessModel->assessment_amt} assessed");
+			return true;
+		}
+		
+		Yii::$app->session->addFlash('error', 'Problem saving assessment. Check log for details. Code `MSC020`');
+		Yii::error("*** MSC020  Assessment save error (`{$this->member->member_id}`).  Messages: " . print_r($assessModel->errors, true));
+		return false;
+	
 	}
 	
 }

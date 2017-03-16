@@ -143,10 +143,12 @@ class BaseController extends Controller
 	    					$member->init_dt = $model->received_dt;
 	    					if (!$member->save())
 	    						$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
+	    				/*
 	    				} elseif ($member->currentStatus->member_status == Status::SUSPENDED) {
 	    					$member->addStatus(new Status(['effective_dt' => $model->received_dt, 'member_status' => Status::ACTIVE, 'reason' => Status::REASON_DUES]));
 	    					if (!$member->save())
 	    						$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
+	    				 */
 	    				}
 	    			} else {
 	    				$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);

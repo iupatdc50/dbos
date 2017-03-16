@@ -7,6 +7,8 @@ use yii\console\Controller;
 use yii\base\InvalidParamException;
 use app\components\utilities\OpDate;
 use app\models\member\Member;
+use app\models\accounting\AdminFee;
+use app\modules\admin\models\FeeType;
 
 class MaintenanceController extends Controller
 {
@@ -20,6 +22,7 @@ class MaintenanceController extends Controller
 		if (isset ($today))
 			$effective_dt->setFromMySql($today);
 		$effective_dt->setToMonthBegin();
+		$effective_dt->modify('-1 day');
 		$cutoff_dt = clone $effective_dt;
 		$cutoff_dt->modify('-' . Member::MONTHS_DELINQUENT . ' month');
 		$cutoff_dt->setToMonthEnd();
@@ -34,12 +37,23 @@ class MaintenanceController extends Controller
 		
 		try {
 			$db->createCommand($this->stageSuspSql())
-			   ->bindValues([':effective_dt' => $effective_dt->getMySqlDate(), ':cutoff_dt' => $cutoff_dt->getMySqlDate()])
+			   ->bindValues([':cutoff_dt' => $cutoff_dt->getMySqlDate()])
 			   ->execute();	
+			Yii::info(self::STAGE_TABLE_NM . "table generated");
 			$count = $db->createCommand($this->insertStatusSql())->execute();
 			Yii::info("Members suspended as of {$effective_dt->getDisplayDate()}: {$count}");
 			$db->createCommand($this->stagePrevCloseSql())->execute();
-			$db->createCommand($this->updateStatusSql())->execute();
+			Yii::info(self::CLOSE_PREV_TABLE_NM . "table generated");
+			$count = $db->createCommand($this->updateStatusSql())->execute();
+			Yii::info("Previous status entries closed: {$count}");
+			$count = $db->createCommand($this->insertAssessSql())
+			   ->bindValues([
+			   		':assess_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $effective_dt->getMySqlDate()), 
+			   		':run_stamp' => time(),
+			   ])
+			   ->execute();
+			Yii::info("Reinstatement assessments inserted: {$count}");
+			   
 			$drop_close_prev_cmd->execute();
 			$drop_stage_cmd->execute();
 			Yii::info('Monthly suspend run completed');
@@ -54,7 +68,7 @@ class MaintenanceController extends Controller
 		return "  CREATE TABLE " . self::STAGE_TABLE_NM . " AS "
 			  ."    SELECT "
 			  ."        Me.member_id, "
-			  ."        :effective_dt AS effective_dt,  "
+			  ."        DATE_ADD(dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL 3 MONTH - INTERVAL 1 DAY AS effective_dt,  "
 			  ."        MS.lob_cd, "
 			  ."        'S' AS member_status, "
 			  ."        'Dues over " . Member::MONTHS_DELINQUENT  . " months delinquent' AS reason   "
@@ -70,6 +84,15 @@ class MaintenanceController extends Controller
 	{
 		return " INSERT INTO dc50.MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) "
 			  ."   SELECT distinct member_id, effective_dt, lob_cd, member_status, reason "
+			  ."     FROM " . self::STAGE_TABLE_NM . ";"
+		;
+		
+	}
+	
+	private function insertAssessSql()
+	{
+		return " INSERT INTO dc50.Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) "
+			  ."   SELECT distinct member_id, '" . FeeType::TYPE_REINST . "', effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 "
 			  ."     FROM " . self::STAGE_TABLE_NM . ";"
 		;
 		

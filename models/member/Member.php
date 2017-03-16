@@ -17,6 +17,7 @@ use app\models\value\DocumentType;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\InitFee;
 use app\models\accounting\DuesRateFinder;
+use app\models\accounting\Assessment;
 use app\models\accounting\ApfAssessment;
 use app\helpers\SsnHelper;
 use app\components\validators\SsnValidator;
@@ -686,6 +687,22 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (!isset($this->_application_dt))
     		$this->_application_dt = (new OpDate)->setFromMySql($this->application_dt);
     	return $this->_application_dt;
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAssessments()
+    {
+    	return $this->hasMany(Assessment::classname(), ['member_id' => 'member_id']);	
+    }
+    
+    public function addAssessment(Assessment $class, $config = [])
+    {
+    	if (!($class instanceof Assessment))
+    		throw new \BadMethodCallException('Not an instance of Assessment');
+    	$class->member_id = $this->member_id;
+    	return $class->save(); 
     }
     
     /**

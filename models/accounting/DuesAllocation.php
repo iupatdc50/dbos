@@ -119,6 +119,7 @@ class DuesAllocation extends BaseAllocation
     		$months = $this->calcMonths();
     	$paid_thru = (new OpDate)->setFromMySql($this->getStartDt());
     	$paid_thru->modify('+' . $months . ' month');
+    	$paid_thru->setToMonthEnd();
     	return $paid_thru->getMySqlDate();
     }
     

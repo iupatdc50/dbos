@@ -30,10 +30,8 @@ class MemberBalancesController extends Controller
 			$dues_balance = number_format($standing->getDuesBalance($rate_finder), 2);
 			$assessment_balance = number_format($standing->totalAssessmentBalance, 2); 
 			
-			$query = Assessment::find()->joinWith('allocatedPayments');
-			$query->where(['member_id' => $member->member_id]);
 			$assessProvider = new ActiveDataProvider([
-					'query' => $query,
+					'query' => $member->getAssessments(),
 			]);
 			
 			$apf = $member->currentApf;

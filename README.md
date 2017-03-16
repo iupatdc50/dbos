@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.311
+
+. Revised computation of suspend to month end of cutoff month
+. Revised reinstate fee to apply to suspend also
+. Removed auto-reactivate for suspends where dues are paid
+
 0.9.8.310
 
 . Added auto-suspend functionality (batch)

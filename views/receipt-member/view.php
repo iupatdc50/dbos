@@ -24,10 +24,6 @@ if(isset($model->payingMember)) {
 ?>
 <div class="receipt-view">
 
-	<?php if(Yii::$app->session->hasFlash('success')): ?>
-		<div class="flash-success"><?= Yii::$app->session->getFlash('success') ?></div>
-	<?php endif; ?>
-
 	<h1><?= Html::encode('Receipt: ' . $this->title . ' for ') . $receipt_for ?></h1>
     
     <div class="leftside sixty-pct">
