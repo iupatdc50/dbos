@@ -76,7 +76,7 @@ class MaintenanceController extends Controller
 			  ."        JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id "
 			  ."                                   AND MS.member_status = 'A' "
 			  ."                                   AND MS.end_dt IS NULL "
-			  ."      WHERE dues_paid_thru_dt < :cutoff_dt ;"
+			  ."      WHERE dues_paid_thru_dt <= :cutoff_dt ;"
 		;
 	}
 	

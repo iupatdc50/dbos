@@ -13,6 +13,14 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.312
+
+. Added update capability for Status History entries
+. Fixed bug where Status window closes before reason can be entered
+. Added update capability for Employment History entries
+. Fixed bug in auto-suspend cutoff date computation 
+. Minor bug fixes and performance improvements
+
 0.9.8.311
 
 . Revised computation of suspend to month end of cutoff month

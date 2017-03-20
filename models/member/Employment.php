@@ -32,6 +32,7 @@ class Employment extends BaseEndable
 	 * @var Standing 	May be injected, if required
 	 */
 	private $_standing;
+	public $loan_ckbox;
 	
     /**
      * @inheritdoc
@@ -77,6 +78,16 @@ class Employment extends BaseEndable
     	return $command->queryAll();
     }
     
+    public static function findCurrentEmployer($member_id)
+    {
+    	return self::findOne(['member_id' => $member_id, 'end_dt' => null]);
+    }
+    
+    public static function findEmployerByDate($member_id, $effective_dt)
+    {
+    	return self::findOne(['member_id' => $member_id, 'effective_dt' => $effective_dt]);
+    }
+    
     /**
      * @inheritdoc
      */
@@ -87,6 +98,7 @@ class Employment extends BaseEndable
             [['effective_dt', 'end_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['employer', 'dues_payor'], 'exist', 'targetClass' => '\app\models\contractor\Contractor', 'targetAttribute' => 'license_nbr'],
+        	['loan_ckbox', 'safe'],
         ];
     }
 
@@ -101,15 +113,30 @@ class Employment extends BaseEndable
             'end_dt' => 'End',
             'employer' => 'Employer',
             'dues_payor' => 'Fees Payor',
+        	'loan_ckbox' => 'Loaned Out',
         ];
+    }
+    
+    public function afterFind()
+    {
+    	$this->loan_ckbox = ($this->is_loaned == 'T');
     }
     
     public function beforeSave($insert)
     {
     	if (parent::beforeSave($insert))
     	{
-    		if (($insert) && !($this->is_loaned))
-    			$this->dues_payor = $this->employer;
+    		if ($insert) { 
+    			if ($this->is_loaned == 'F')
+    				$this->dues_payor = $this->employer;
+    		} else {  // assume update
+    			if (($this->loan_ckbox == '0') && ($this->is_loaned == 'T')) {
+    				$this->is_loaned = 'F';
+    				$this->dues_payor = $this->employer;
+    			} elseif (($this->loan_ckbox == '1') && ($this->is_loaned == 'F')) {
+    				$this->is_loaned = 'T';
+    			}
+    		}
     		return true;
     	}
     	return false;

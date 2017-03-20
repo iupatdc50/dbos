@@ -15,6 +15,7 @@ $controller = 'member-status';
 <?= GridView::widget([
 		'id' => 'edit-grid',
 		'dataProvider' => $dataProvider,
+		'pjax' => true,
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=>'Status History',
@@ -102,7 +103,7 @@ $controller = 'member-status';
 				[
 						'class' => \yii\grid\ActionColumn::className(),
 						'controller' => $controller,
-						'template' => '{delete}',
+						'template' => '{update} {delete}',
 						'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
 								'value' => Url::to(["/{$controller}/create", 'relation_id'  => $id]),
 								'id' => 'classCreateButton',

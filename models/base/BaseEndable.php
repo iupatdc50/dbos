@@ -36,7 +36,6 @@ class BaseEndable extends \yii\db\ActiveRecord
 		$query = call_user_func([self::className(), 'find']);
 		if (null !== static::qualifier())
 			$query->where([static::qualifier() => $id]);
-		$query->orderBy('effective_dt DESC');
 		if (($model = $query->orderBy('effective_dt DESC')->one()) != null) {
 			$model->end_dt = null;
 			$model->save();
@@ -48,6 +47,8 @@ class BaseEndable extends \yii\db\ActiveRecord
 		parent::afterSave($insert, $changedAttributes);
 		if ($insert)
 			$this->closePrevious();
+		elseif (isset($changedAttributes['effective_dt']))
+			$this->restripe();
 	}
 	
 	protected function closePrevious()
@@ -57,6 +58,26 @@ class BaseEndable extends \yii\db\ActiveRecord
 		$qualifier = $this->qualifier();
 		$condition = "{$qualifier} = '{$this->$qualifier}' AND end_dt IS NULL AND effective_dt <> '{$this->effective_dt}'";
 		call_user_func([$this->className(), 'updateAll'], ['end_dt' => $end_dt->getMySqlDate()], $condition);
+	}
+	
+	protected function restripe()
+	{
+		$qualifier = $this->qualifier();
+		$condition = "{$qualifier} = '{$this->$qualifier}'";
+		/* @var $query yii\db\ActiveQuery */
+		$query = call_user_func([self::className(), 'find']);
+		$end_dt = null;
+		$rows = $query->where($condition)->orderBy('effective_dt DESC')->all();
+		foreach ($rows as $row) {
+			try {
+			    $row->end_dt = (is_null($end_dt)) ? null : $end_dt->getMySqlDate();
+			    $row->save();
+			} catch (\Exception $e) {
+				Yii::error('Problem with row save. Messages: ' . print_r($e->getMessage(), true));
+			}
+			$end_dt = (new OpDate())->setFromMySql($row->effective_dt)->sub(new \DateInterval('P1D'));
+		}
+		
 	}
 	
 }

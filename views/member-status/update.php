@@ -1,5 +1,5 @@
 
-<div class="memberstatus-create">
+<div class="memberstatus-update">
 
     <?= $this->render('_form', [
         'model' => $model,

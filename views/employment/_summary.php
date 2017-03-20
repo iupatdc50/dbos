@@ -34,13 +34,15 @@ use kartik\grid\GridView;
 					'id' => 'loanButton',
 					'class' => 'btn btn-default btn-modal',
 					'data-title' => 'Lender',
+					'disabled' => substr($employer, 0, 10) == 'Unemployed',
 				])
 				. Html::button('<i class="glyphicon glyphicon-minus-sign"></i>&nbsp;Terminate',
 					['value' => Url::to(["/employment/terminate", 'relation_id'  => $id]),
 					'id' => 'terminateButton',
 					'class' => 'btn btn-default btn-modal',
 					'data-title' => 'Terminate',
-				]),			
+					'disabled' => substr($employer, 0, 10) == 'Unemployed',
+					]),			
 		],
 		'columns' => [
 				'effective_dt:date',
@@ -70,17 +72,26 @@ use kartik\grid\GridView;
 				[
 						'class' => 'kartik\grid\ActionColumn',
 						'visible' => Yii::$app->user->can('updateMember'),
-						 'template' => '{remove}',
+						// Change the action template because the signatures are not by `id`
+						 'template' => '{edit} {remove}',
 						 'buttons' => [
+						 		'edit' => function ($url, $model) {
+					 				return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url, [
+					 					'title' => Yii::t('app', 'Update'),
+					 				]);
+						 		}, 
 						 		'remove' => function ($url, $model) {
-						        		return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
-						                'title' => Yii::t('app', 'Remove'),
-						        		'data-confirm' => 'Are you sure you want to delete this item?',
-						        ]);
+					        		return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+					                	'title' => Yii::t('app', 'Remove'),
+					        			'data-confirm' => 'Are you sure you want to delete this item?',
+					        		]);
 						    }
 						  ],
 						  'urlCreator' => function ($action, $model, $key, $index) {
-						    	if ($action === 'remove') {
+						    	if ($action == 'edit') {
+						    		$url ='/employment/edit?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
+						    		return $url;
+						    	} elseif ($action === 'remove') {
 						        	$url ='/employment/remove?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
 						        	return $url;
 						    	}

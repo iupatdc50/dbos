@@ -59,8 +59,28 @@ class MemberStatusController extends SummaryController
 	
 	public function actionCreate($relation_id)
 	{
+		/** @var Model $model */
+		$model = new Status();
 		$this->setMember($relation_id);
-		return parent::actionCreate($relation_id);
+		
+		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			$model->member_id = $this->member->member_id;
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
+		
+		if ($model->load(Yii::$app->request->post())) {
+			if ($this->member->addStatus($model)) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added");
+				return $this->goBack();
+			} else {
+				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC001`');
+				Yii::error("*** MSC001  Status save error (`{$member_id}`).  Messages: " . print_r($model->errors, true));
+			}
+		}
+		$this->initCreate($model);
+		return $this->renderAjax('create', compact('model'));
+		
 	}
 	
 	public function actionSummaryJson($id)

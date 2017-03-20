@@ -23,6 +23,25 @@ class EmploymentController extends SummaryController
 		throw new NotFoundHttpException('Non-supported feature.  Cannot update employment this way.');
 	}
 	
+	public function actionSummaryJson($id)
+	{
+		$member = Member::findOne($id);
+		$employer = isset($member->employer) ? $member->employer->descrip : 'Unemployed';
+		$this->viewParams = ['employer' => $employer];
+		parent::actionSummaryJson($id);
+	}
+
+	public function actionEdit($member_id, $effective_dt)
+	{
+		$model = $this->findByDate($member_id, $effective_dt);
+				
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        	Yii::$app->session->addFlash('success', "{$this->getBasename()} entry updated");
+            return $this->goBack();
+        } 
+        return $this->render('edit', compact('model'));
+	}
+	
 	/**
 	 * Replaces the inherited controller actionDelete with a different signature
 	 * 
@@ -33,7 +52,7 @@ class EmploymentController extends SummaryController
 	 */
 	public function actionRemove($member_id, $effective_dt)
 	{
-		$model = Employment::findOne(['member_id' => $member_id, 'effective_dt' => $effective_dt]);
+		$model = $this->findByDate($member_id, $effective_dt);
 		if ($model !== null) {
 			
 			$removing_current = false;
@@ -104,6 +123,12 @@ class EmploymentController extends SummaryController
 	
 	protected function findCurrent($id)
 	{
-		return Employment::find()->where(['member_id' => $id])->andWhere(['end_dt' => null])->one();
+		return Employment::findCurrentEmployer($id);
 	}
+	
+	protected function findByDate($id, $dt)
+	{
+		return Employment::findEmployerByDate($id, $dt);
+	}
+	
 }
