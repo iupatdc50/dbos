@@ -13,6 +13,10 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.320
+
+. Added NCFS ID handling
+
 0.9.8.312
 
 . Added update capability for Status History entries

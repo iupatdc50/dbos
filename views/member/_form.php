@@ -90,8 +90,12 @@ use app\helpers\OptionHelper;
     		'data' => OptionHelper::getTFOptions(), 
     		'hideSearch' => false,
 			'size' => Select2::SMALL,
-    		'options' => ['placeholder' => 'Select...'],
+    		'options' => ['placeholder' => 'Select...', 'id' => 'localpac'],
     ]) ?>
+
+    <?= $form->field($model, 'ncfs_id')
+        	 ->textInput(['maxlength' => true, 'id' => 'ncfsid'])
+    		 ->label('NCFS ID', ['id' => 'ncfslbl']) ?>
 
     <?= $form->field($model, 'hq_pac')->widget(Select2::className(), [
     		'data' => OptionHelper::getTFOptions(), 
@@ -147,3 +151,28 @@ use app\helpers\OptionHelper;
 	
 	    
 </div>
+
+<?php 
+$script = <<< JS
+
+$(function() {
+	toggle($('#localpac').val());
+})
+
+$('#localpac').change(function() {
+	toggle($(this).val());
+});
+ 		
+function toggle(pac) {
+	if(pac == 'T') {
+		$('#ncfslbl').show();
+		$('#ncfsid').show();
+	} else {
+		$('#ncfslbl').hide();
+		$('#ncfsid').hide();
+	};
+}
+
+JS;
+$this->registerJs($script);
+?>

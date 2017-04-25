@@ -36,6 +36,7 @@ use app\components\validators\SsnValidator;
  * @property string $gender
  * @property string $shirt_size
  * @property string $local_pac
+ * @property string $ncfs_id
  * @property string $hq_pac
  * @property string $remarks
  * @property string $photo_id Stored the generated filename
@@ -177,8 +178,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	[['shirt_size'], 'exist', 'targetClass' => Size::className(), 'targetAttribute' => 'size_cd'],
             [['photo_id'], 'string', 'max' => 20],
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
-        	[['middle_inits', 'suffix', 'photo_id', 'imse_id'], 'default'],
-        	[['ssnumber', 'imse_id'], 'unique'],
+        	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id'], 'default'],
+        	[['ssnumber', 'imse_id', 'ncfs_id'], 'unique'],
             [['exempt_apf', 'wage_percent'], 'safe'],            
         ];
     }
@@ -208,6 +209,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
             'addressTexts' => 'Address(es)',
         	'phoneTexts' => 'Phone(s)',
         	'emailTexts' => 'Email(s)',
+        	'ncfs_id' => 'NCFS ID',
         	'pacTexts' => 'PAC Participation',
         	'specialtyTexts' => 'Specialties',
         	'lob_cd' => 'Local',
@@ -553,7 +555,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	$texts = [];
     	if ($this->local_pac == 'T')
-    		$texts[] = 'Local';
+    		$texts[] = isset($this->ncfs_id) ? "Local [NCFS ID: {$this->ncfs_id}]" : 'Local';
     	if ($this->hq_pac == 'T')
     		$texts[] = 'HQ';
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
