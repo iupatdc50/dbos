@@ -83,6 +83,7 @@ class ZipCode extends \yii\db\ActiveRecord
     public function getCityLn($showZip = TRUE)
     {
     	$zip_cd = $showZip ? ' ' . $this->zip_cd : '';
-    	return implode(', ', array_filter($this->getAttributes(['city', 'island', 'st']))) . $zip_cd;
+    	$attrs = $this->getAttributes(['city', 'island', 'st'], ($this->island) == 'NA' ? ['island'] : []);
+    	return implode(', ', array_filter($attrs)) . $zip_cd;
     }
 }
