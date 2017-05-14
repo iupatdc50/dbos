@@ -32,7 +32,20 @@ use kartik\widgets\SideNav;
 										],
 										[
 												'label' => 'PAC Reporting', 
-												'url'=>'/site/unavailable',
+												'items'=> [
+														[
+																'label' => 'Summary Report',
+																'url'=>'/site/unavailable',
+														],
+														[
+																'label' => 'Members not in PAC',
+																'url'=>'/site/unavailable',
+														],
+														[
+																'label' => 'Export Data',
+																'url'=>'/site/unavailable',
+														],
+												],
 												
 										],
 										[
