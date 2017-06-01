@@ -23,6 +23,11 @@ class ReportController extends Controller
 		return $this->render('index');
 	}
 	
+	public function actionPacSummary()
+	{
+		return $this->render('pac-summary');
+	}
+	
 	public function actionContractorInfo()
 	{
 		return $this->render('contractor-info');
