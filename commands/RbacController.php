@@ -126,13 +126,16 @@ class RbacController extends Controller
 		$accountingViewer->description = 'Accounting Viewer';
 		$auth->add($accountingViewer);
 		$auth->addChild($accountingViewer, $browseReceipt);
+		$accountingReviewer = $auth->createRole('accountingReviewer');
+		$accountingReviewer->description = 'Accounting Reviewer';
+		$auth->add($accountingReviewer);
+		$auth->addChild($accountingReviewer, $reportAccounting);
 		$accountingEditor = $auth->createRole('accountingEditor');
 		$accountingEditor->description = 'Accounting Editor';
 		$auth->add($accountingEditor);
-		$auth->addChild($accountingEditor, $accountingViewer);
+		$auth->addChild($accountingEditor, $accountingReviewer);
 		$auth->addChild($accountingEditor, $createReceipt);
 		$auth->addChild($accountingEditor, $createInvoice);
-		$auth->addChild($accountingEditor, $reportAccounting);
 		$auth->addChild($accountingEditor, $updateReceipt);
 		$accountingAdmin = $auth->createRole('accountingAdmin');
 		$accountingAdmin->description = 'Accounting Admin';
@@ -263,7 +266,7 @@ class RbacController extends Controller
 		$auth->addChild($officeMgr, $assignRole);
 		$auth->addChild($officeMgr, $memberAdmin);
 		$auth->addChild($officeMgr, $contractorAdmin);
-		$auth->addChild($officeMgr, $accountingViewer);
+		$auth->addChild($officeMgr, $accountingReviewer);
 		$auth->addChild($officeMgr, $projectAdmin);
 		echo "...complete\n";
 		
