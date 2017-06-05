@@ -40,11 +40,18 @@ use kartik\widgets\SideNav;
 														],
 														[
 																'label' => 'Members not in PAC',
-																'url'=>'/site/unavailable',
+																'url'=>'/report/not-pac',
+																'active' => (yii::$app->requestedRoute == 'report/not-pac'),
 														],
 														[
-																'label' => 'Export Data',
-																'url'=>'/site/unavailable',
+																'label' => 'Export Local PAC Data',
+																'url'=>'/report/pac-export',
+																'active' => (yii::$app->requestedRoute == 'report/pac-export'),
+														],
+														[
+																'label' => 'Glaziers Contributions',
+																'url'=>'/report/glaziers',
+																'active' => (yii::$app->requestedRoute == 'report/glaziers'),
 														],
 												],
 												
@@ -53,7 +60,10 @@ use kartik\widgets\SideNav;
 												'label' => 'International Report', 
 												'url'=>'/site/unavailable',										
 										],
-										['label' => 'Mailing Labels'],
+										[
+												'label' => 'Mailing Labels',
+												'url'=>'/site/unavailable',
+										],
 								],
 						],
 						[
@@ -65,7 +75,10 @@ use kartik\widgets\SideNav;
 												'url'=>'/report/contractor-info',										
 												'active' => (yii::$app->requestedRoute == 'report/contractor-info'),
 										],
-										['label' => 'Mailing Labels'],
+										[
+												'label' => 'Mailing Labels',
+												'url'=>'/site/unavailable',
+										],
 										
 								],
 						],
@@ -75,8 +88,7 @@ use kartik\widgets\SideNav;
 								'items' => [
 										[
 												'label' => 'Cash Receipts', // All, contractors only
-												'url'=>'/report/receipts-journal',
-												'active' => (yii::$app->requestedRoute == 'report/receipts-journal'),
+												'url'=>'/site/unavailable',
 										],
 										[
 												'label' => 'Dues Status', // All, delinquent
@@ -86,6 +98,8 @@ use kartik\widgets\SideNav;
 										[
 												'label' => 'Employer Invoices',
 												'visible' => Yii::$app->user->can('createInvoice'),
+												'url'=>'/site/unavailable',
+												
 										],
 								],
 						],

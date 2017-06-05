@@ -24,16 +24,6 @@ use kartik\widgets\Select2;
     <?php endif; ?>
     
     
-    <?= $form->field($model, 'output_to')->widget(Select2::className(), [
-    		'data' => $model->outputToOptions, 
-			'size' => Select2::SMALL,
-    		'options' => ['placeholder' => 'Select Destination...'],    		
-    ]) ?>
-    
-    <div class="form-group">
-        <?= Html::submitButton('Generate Report', ['class' => 'btn btn-primary']) ?>
-    </div>
-    
     
 
 </div>
