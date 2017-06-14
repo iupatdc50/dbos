@@ -20,7 +20,8 @@ class ExportCsvForm extends DateSettingsForm
 	{
 		$common_rules = parent::rules();
 		$class_rules = [
-				[['delimiter', 'enclosure'], 'required'],
+				[['delimiter', 'enclosure'], 'safe'],
+				['lob_cd', 'required'],
 		];
 		return array_merge($common_rules, $class_rules);
 	}

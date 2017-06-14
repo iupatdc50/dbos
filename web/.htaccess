@@ -10,3 +10,5 @@
    RewriteCond %{REQUEST_FILENAME} !-d
    RewriteRule . index.php 
 </IfModule>
+
+AddType application/octet-stream .txt

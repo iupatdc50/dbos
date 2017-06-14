@@ -91,9 +91,20 @@ use kartik\widgets\SideNav;
 												'url'=>'/site/unavailable',
 										],
 										[
-												'label' => 'Dues Status', // All, delinquent
-												'url'=>'/report/dues-status',
-												'active' => (yii::$app->requestedRoute == 'report/dues-status'),
+												'label' => 'Dues',
+												'items' => [
+														[
+															'label' => 'Dues Status', 
+															'url'=>'/report/dues-status',
+															'active' => (yii::$app->requestedRoute == 'report/dues-status'),
+														],
+														[
+															'label' => 'Delinquent Dues', 
+															'url'=>'/report/delinquent-dues',
+															'active' => (yii::$app->requestedRoute == 'report/delinquent-dues'),
+														],
+														
+												],
 										],
 										[
 												'label' => 'Employer Invoices',

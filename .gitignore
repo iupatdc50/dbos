@@ -43,6 +43,7 @@ composer.lock
 /tests
 /web/saa/*
 /web/idc/*
+/web/tmp/*
 /web/assets/*
 /web/uploads/*
 /web/index-test.php

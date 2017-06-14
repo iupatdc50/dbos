@@ -57,6 +57,7 @@ $config = [
 				'imageDir' => DIRECTORY_SEPARATOR . 'idc' . DIRECTORY_SEPARATOR,
 				'docDir' => DIRECTORY_SEPARATOR . 'saa' . DIRECTORY_SEPARATOR,
 				'uploadDir' => DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR,
+				'tempDir' => DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR,
 		],
 
 		'as beforeRequest' => [

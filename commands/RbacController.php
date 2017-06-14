@@ -129,6 +129,7 @@ class RbacController extends Controller
 		$accountingReviewer = $auth->createRole('accountingReviewer');
 		$accountingReviewer->description = 'Accounting Reviewer';
 		$auth->add($accountingReviewer);
+		$auth->addChild($accountingReviewer, $accountingViewer);
 		$auth->addChild($accountingReviewer, $reportAccounting);
 		$accountingEditor = $auth->createRole('accountingEditor');
 		$accountingEditor->description = 'Accounting Editor';

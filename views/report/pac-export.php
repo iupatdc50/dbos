@@ -42,7 +42,10 @@ use kartik\widgets\Select2;
     ]) ?>
  
     <div class="form-group">
-        <?= Html::submitButton('Export', ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton('Generate Export', ['class' => 'btn btn-primary']) ?>
+        <?php if($fqdn): ?>
+        	<?= Html::a('<i class="glyphicon glyphicon-save"></i>&nbsp;Download', ['download', 'fqdn' => $fqdn], ['class' => 'btn btn-default']) ?>
+        <?php endif; ?>
     </div>
     
     <?php ActiveForm::end(); ?>

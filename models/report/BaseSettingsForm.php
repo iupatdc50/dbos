@@ -22,8 +22,7 @@ class BaseSettingsForm extends Model
 	public function rules()
 	{
 		return [
-				[['lob_cd', 'island'], 'safe'],
-				[['output_to'], 'required'],
+				[['island', 'output_to'], 'safe'],
 				['lob_cd', 'exist', 'targetClass' => '\app\models\value\Lob'],
         		[['island'], 'exist', 'targetClass' => 'app\models\value\Island'],
 				[['output_to'], 'in', 'range' => self::getAllowedOutputTo()],

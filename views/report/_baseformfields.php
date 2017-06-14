@@ -10,7 +10,6 @@ use kartik\widgets\Select2;
     <?= $form->field($model, 'lob_cd')->widget(Select2::className(), [
     		'data' => $model->lobOptions, 
 			'size' => Select2::SMALL,
-    		'options' => ['placeholder' => 'All'],
     		'pluginOptions' => ['allowClear' => true],
     ]) ?>
 
