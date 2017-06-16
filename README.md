@@ -13,6 +13,14 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.8.350
+
+. Fixed accounting RBAC hierarchy
+. Added dues status & delinquent reports
+. Added hardcopy PAC reporting (.331)
+. Added PAC export functionality
+. Revised auto-suspend to ignore suspending members where contractor withholds dues
+
 0.9.8.320
 
 . Added NCFS ID handling
