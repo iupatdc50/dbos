@@ -88,7 +88,35 @@ use kartik\widgets\SideNav;
 								'items' => [
 										[
 												'label' => 'Cash Receipts', // All, contractors only
-												'url'=>'/site/unavailable',
+												'items' => [
+														[
+																'label' => 'Receipt Book Balances',
+																'items' => [
+																		[
+																				'label' => 'Painters, Floor Layers, Tapers',
+																				'url'=>['/report/receipts-journal'],
+																		],
+																		[
+																				'label' => 'Glaziers',
+																				'url'=>['/report/receipts-journal', 'trade' => '1889'],
+																		],
+																],
+														],
+														[
+																'label' => 'International Report',
+																'items' => [
+																		[
+																				'label' => 'Painters, Floor Layers, Tapers',
+																				'url'=>'/site/unavailable',
+																		],
+																		[
+																				'label' => 'Glaziers',
+																				'url'=>'/site/unavailable',
+																		],
+																],
+														],
+												],
+												
 										],
 										[
 												'label' => 'Dues',

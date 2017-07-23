@@ -9,6 +9,7 @@ use app\models\report\ExportCsvForm;
 use app\models\member\PacExport;
 use yii2tech\csvgrid\CsvGrid;
 use yii\data\ArrayDataProvider;
+use app\models\accounting\ReceiptFlattenedAlloc;
 
 class ReportController extends Controller
 {
@@ -114,9 +115,14 @@ class ReportController extends Controller
 		return $this->render('contractor-info');
 	}
 	
-	public function actionReceiptsJournal()
+	/**
+	 * 
+	 * @param string $trade  Should be either 1889 or blank
+	 * @return Ambigous <string, string>
+	 */
+	public function actionReceiptsJournal($trade = '')
 	{
-
+		return $this->render('receipts-journal', ['trade' => $trade]);
 	}
 	
 	public function actionDuesStatus()
