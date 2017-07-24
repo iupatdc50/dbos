@@ -91,14 +91,17 @@ use kartik\widgets\SideNav;
 												'items' => [
 														[
 																'label' => 'Receipt Book Balances',
+																'active' => (yii::$app->requestedRoute == 'report/receipts-journal'),
 																'items' => [
 																		[
 																				'label' => 'Painters, Floor Layers, Tapers',
 																				'url'=>['/report/receipts-journal'],
+																				'active' => false,
 																		],
 																		[
 																				'label' => 'Glaziers',
 																				'url'=>['/report/receipts-journal', 'trade' => '1889'],
+																				'active' => false,
 																		],
 																],
 														],
