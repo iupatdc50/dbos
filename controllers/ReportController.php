@@ -135,4 +135,14 @@ class ReportController extends Controller
 		return $this->render('delinquent-dues');
 	}
 	
+	public function actionCandidateSuspends()
+	{
+		return $this->render('candidate-suspends');
+	}
+	
+	public function actionCandidateDrops()
+	{
+		return $this->render('candidate-drops');
+	}
+	
 }

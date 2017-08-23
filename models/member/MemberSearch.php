@@ -91,7 +91,12 @@ class MemberSearch extends Member
         $query->andFilterWhere(['lob_cd' => $this->lob_cd])
         	->andFilterWhere(['member_class' => $this->class])
         	->andFilterWhere(['like', 'report_id', $this->report_id])
-        	->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]])
+        	->andFilterWhere([
+        			'or', 
+        			['like', 'last_nm', $this->fullName], 
+        			['like', 'first_nm', $this->fullName], 
+        			[Member::tableName() . '.member_id' => $this->fullName],
+        	])
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         	->andFilterWhere(['like', 'contractor', $this->employer])
         ;
