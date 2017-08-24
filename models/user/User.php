@@ -34,7 +34,7 @@ class User extends \yii\db\ActiveRecord
 	const SCENARIO_CHANGE_PW = 'changepw';
 	const STATUS_ACTIVE = 10;
 	const STATUS_INACTIVE = 0;
-	const RESET_USER_PW = 'TempPassword';
+	const RESET_USER_PW = 'DC50-temp';
 	
 	public $password_clear = null;
 	public $password_current;
