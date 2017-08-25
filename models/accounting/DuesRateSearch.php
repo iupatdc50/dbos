@@ -46,6 +46,7 @@ class DuesRateSearch extends DuesRate
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+        	'sort'=> ['defaultOrder' => ['lob_cd'=>SORT_ASC, 'rate_class' => SORT_ASC, 'effective_dt' => SORT_DESC]]	
         ]);
 
         $this->load($params);

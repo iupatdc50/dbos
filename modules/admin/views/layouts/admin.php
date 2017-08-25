@@ -74,7 +74,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
 							'label' => 'Accounting',
 							'icon' => 'usd',
 							'items' => [
-								['label' => 'Rate Classes', 'url'=>'#'],
+								[		
+										'label' => 'Rate Classes',
+										'url'=>'/admin/rate-class',
+										'active' => (yii::$app->requestedRoute == 'admin/rate-class'),
+								],
 								[
 										'label' => 'Fee Types', 
 										'url' => '/admin/fee-type',

@@ -3,18 +3,17 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\accounting\DuesRate;
-use app\models\accounting\DuesRateSearch;
-use app\models\value\Lob;
+use app\models\value\RateClass;
+use app\models\value\RateClassSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 
 /**
- * DuesRateController implements the CRUD actions for DuesRate model.
+ * RateClassController implements the CRUD actions for RateClass model.
  */
-class DuesRateController extends Controller
+class RateClassController extends Controller
 {
     public function behaviors()
     {
@@ -29,24 +28,22 @@ class DuesRateController extends Controller
     }
 
     /**
-     * Lists all DuesRate models.
+     * Lists all RateClass models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new DuesRateSearch();
+        $searchModel = new RateClassSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $lobPicklist = ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'lob_cd');
         
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-        	'lobPicklist' => $lobPicklist,
         ]);
     }
 
     /**
-     * Displays a single DuesRate model.
+     * Displays a single RateClass model.
      * @param integer $id
      * @return mixed
      */
@@ -58,13 +55,13 @@ class DuesRateController extends Controller
     }
 
     /**
-     * Creates a new DuesRate model.
+     * Creates a new RateClass model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new DuesRate();
+        $model = new RateClass();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['index']);
@@ -76,7 +73,7 @@ class DuesRateController extends Controller
     }
 
     /**
-     * Updates an existing DuesRate model.
+     * Updates an existing RateClass model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -95,7 +92,7 @@ class DuesRateController extends Controller
     }
 
     /**
-     * Deletes an existing DuesRate model.
+     * Deletes an existing RateClass model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -108,15 +105,15 @@ class DuesRateController extends Controller
     }
 
     /**
-     * Finds the DuesRate model based on its primary key value.
+     * Finds the RateClass model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return DuesRate the loaded model
+     * @return RateClass the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = DuesRate::findOne($id)) !== null) {
+        if (($model = RateClass::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
