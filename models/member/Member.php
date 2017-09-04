@@ -19,6 +19,7 @@ use app\models\accounting\InitFee;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 use app\models\accounting\ApfAssessment;
+use app\models\accounting\LastDuesReceipt;
 use app\helpers\SsnHelper;
 use app\components\validators\SsnValidator;
 
@@ -58,6 +59,7 @@ use app\components\validators\SsnValidator;
  * @property CurrentEmployment $employer
  * @property BaseAllocation[] $allocations
  * @property ApfAssessment $currentApf
+ * @property LastDuesReceipt $lastDuesReceipt
  * @property Note[] $notes
  */
 class Member extends \yii\db\ActiveRecord implements iNotableInterface
@@ -744,6 +746,11 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	    	return $apf_assessment->save();
     	}
     	return false;
+    }
+    
+    public function getLastDuesReceipt()
+    {
+    	return $this->hasOne(LastDuesReceipt::className(), ['member_id' => 'member_id']);
     }
     
 	/**

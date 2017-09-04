@@ -27,12 +27,18 @@ class ReportController extends Controller
 	
 	public function actionPacSummary()
 	{
-		return $this->render('pac-summary');
+		return $this->render('reportico', [
+				'folder' => 'memberrpts',
+				'report_nm' => 'pacsummary',
+		]);
 	}
 	
 	public function actionNotPac()
 	{
-		return $this->render('not-pac');
+		return $this->render('reportico', [
+				'folder' => 'memberrpts',
+				'report_nm' => 'notinpac',
+		]);
 	}
 	
 	public function actionPacExport()
@@ -107,12 +113,18 @@ class ReportController extends Controller
 	
 	public function actionGlaziers()
 	{
-		return $this->render('glaziers');
+		return $this->render('reportico', [
+				'folder' => 'memberrpts',
+				'report_nm' => 'glaziers',
+		]);
 	}
 	
 	public function actionContractorInfo()
 	{
-		return $this->render('contractor-info');
+		return $this->render('reportico', [
+				'folder' => 'contractorrpts',
+				'report_nm' => 'contractorinfo',
+		]);
 	}
 	
 	/**
@@ -122,27 +134,44 @@ class ReportController extends Controller
 	 */
 	public function actionReceiptsJournal($trade = '')
 	{
-		return $this->render('receipts-journal', ['trade' => $trade]);
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'receiptsjournal' . $trade,
+		]);
 	}
 	
 	public function actionDuesStatus()
 	{
-		return $this->render('dues-status');
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'duesstatus',
+		]);
 	}
 	
+	/*
 	public function actionDelinquentDues()
 	{
-		return $this->render('delinquent-dues');
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'delinquentdues',
+		]);
 	}
+	*/
 	
 	public function actionCandidateSuspends()
 	{
-		return $this->render('candidate-suspends');
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'candidatesusps',
+		]);
 	}
 	
 	public function actionCandidateDrops()
 	{
-		return $this->render('candidate-drops');
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'candidatedrops',
+		]);
 	}
 	
 }

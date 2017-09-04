@@ -5,6 +5,7 @@ use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
 use kartik\helpers\Html;
+use app\models\accounting\Receipt;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
@@ -42,7 +43,10 @@ $this->params['breadcrumbs'][] = $this->title;
     			],
         		[
         				'attribute' => 'dues_paid_thru_dt',
-        				'format' => 'date',
+        				'value' => Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)), 
+        						'/receipt-'. (($model->lastDuesReceipt->payor_type == Receipt::PAYOR_MEMBER) ? 'member' : 'contractor') 
+        						.'/view?id=' . $model->lastDuesReceipt->receipt_id),
+        				'format' => 'raw',
         				'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
     			],	
     		],

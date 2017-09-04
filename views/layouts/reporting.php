@@ -130,11 +130,6 @@ use kartik\widgets\SideNav;
 															'active' => (yii::$app->requestedRoute == 'report/dues-status'),
 														],
 														[
-															'label' => 'Delinquent Dues', 
-															'url'=>'/report/delinquent-dues',
-															'active' => (yii::$app->requestedRoute == 'report/delinquent-dues'),
-														],
-														[
 															'label' => 'Candidates for Suspend Action',
 															'url'=>'/report/candidate-suspends',
 															'active' => (yii::$app->requestedRoute == 'report/candidate-suspends'),

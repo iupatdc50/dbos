@@ -95,6 +95,12 @@ class AllocationController extends Controller
 		
 	}
 	
+	public function actionDetailAjax()
+	{
+		$model = DuesAllocation::findOne($_POST['expandRowKey']);
+		return $this->renderAjax('_detail', ['duesProvider' => $model]);
+	}
+	
 	/**
 	 * Deletes an existing ActiveRecord model.
 	 * If deletion is successful, the browser will be redirected to the 'index' page.

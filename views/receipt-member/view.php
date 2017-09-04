@@ -44,6 +44,17 @@ if(isset($model->payingMember)) {
 				'footer' => false,
 		],
         'columns' => [
+        		[
+        				'class'=>'kartik\grid\ExpandRowColumn',
+        				'width'=>'50px',
+        				'value'=>function ($model, $key, $index, $column) {
+        							return ($model['fee_type'] == 'DU') ? GridView::ROW_COLLAPSED : '';
+        				        },
+        				'detailUrl'=> Yii::$app->urlManager->createUrl(['allocation/detail-ajax']),
+        				'headerOptions'=>['class'=>'kartik-sheet-style'],
+        				'expandOneOnly'=>true,
+        		],
+        		
         		'fee_type',
         		[
         				'attribute' => 'allocation_amt',
