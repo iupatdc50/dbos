@@ -26,11 +26,6 @@ use kartik\widgets\SideNav;
 												
 										],
 										[
-												'label' => 'Member Statuses', 
-												'url'=>'/site/unavailable',
-												
-										],
-										[
 												'label' => 'PAC Reporting', 
 												'items'=> [
 														[
@@ -107,16 +102,8 @@ use kartik\widgets\SideNav;
 														],
 														[
 																'label' => 'International Report',
-																'items' => [
-																		[
-																				'label' => 'Painters, Floor Layers, Tapers',
-																				'url'=>'/site/unavailable',
-																		],
-																		[
-																				'label' => 'Glaziers',
-																				'url'=>'/site/unavailable',
-																		],
-																],
+																'url' => '/report/international',
+																'active' => (yii::$app->requestedRoute == 'report/international'),
 														],
 												],
 												

@@ -50,7 +50,7 @@ define('SW_DB_DATABASE', 'N/A');
 
 define('SW_DB_CONNECT_FROM_CONFIG', true);
 define('SW_DB_DATEFORMAT', 'Y-m-d');
-define('SW_PREP_DATEFORMAT', 'Y-m-d');
+define('SW_PREP_DATEFORMAT', 'm/d/Y');
 define('SW_DB_SERVER', 'N/A');
 define('SW_DB_PROTOCOL', 'N/A');
 define('SW_DB_ENCODING', 'UTF8');
@@ -67,7 +67,8 @@ define('SW_SOAP_SERVICEBASEURL', 'http://www.reportico.co.uk/swsite/site/tutoria
 
 // Parameter Defaults
 define('SW_DEFAULT_PageSize', 'A4');
-define('SW_DEFAULT_PageOrientation', 'Portrait');
+// define('SW_DEFAULT_PageOrientation', 'Portrait');
+define('SW_DEFAULT_PageOrientation', 'Landscape');
 define('SW_DEFAULT_TopMargin', "1cm");
 define('SW_DEFAULT_BottomMargin', "2cm");
 define('SW_DEFAULT_LeftMargin', "1cm");

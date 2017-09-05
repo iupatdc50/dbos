@@ -148,6 +148,14 @@ class ReportController extends Controller
 		]);
 	}
 	
+	public function actionInternational()
+	{
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'international',
+		]);
+	}
+	
 	/*
 	public function actionDelinquentDues()
 	{

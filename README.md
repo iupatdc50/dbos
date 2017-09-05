@@ -13,6 +13,16 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.9.100
+
+. Added receipts journal reports
+. Added International reports
+. Added auto-action support reports
+. Added some navigation improvements
+. Added some reporting code optimization
+. Added new rate class for GF life members ($5 rate)
+. Fixed minor bugs
+
 0.9.8.350
 
 . Fixed accounting RBAC hierarchy
