@@ -43,9 +43,10 @@ $this->params['breadcrumbs'][] = $this->title;
     			],
         		[
         				'attribute' => 'dues_paid_thru_dt',
-        				'value' => Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)), 
+        				'value' => isset($model->lastDuesReceipt) ?
+        						Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)), 
         						'/receipt-'. (($model->lastDuesReceipt->payor_type == Receipt::PAYOR_MEMBER) ? 'member' : 'contractor') 
-        						.'/view?id=' . $model->lastDuesReceipt->receipt_id),
+        						.'/view?id=' . $model->lastDuesReceipt->receipt_id) : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
         				'format' => 'raw',
         				'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
     			],	

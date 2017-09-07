@@ -19,7 +19,7 @@ class CcOtherLocal extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'CcOtherLocals';
+        return 'CCOtherLocals';
     }
 
     /**

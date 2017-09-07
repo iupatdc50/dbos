@@ -126,13 +126,16 @@ class MaintenanceController extends Controller
 
 	private function stageStatusSql($months, $status, $new_status)
 	{
+		$reason = 'Dues over ' . $months . ' months delinquent';
+		if ($new_status == Status::INACTIVE)
+			$reason = 'Member dropped. ' . $reason; 
 		return "  CREATE TEMPORARY TABLE " . self::STAGE_TABLE_NM . " AS "
 			  ."    SELECT "
 			  ."        Me.member_id, "
 			  ."        DATE_ADD(dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL {$months} MONTH - INTERVAL 1 DAY AS effective_dt,  "
 			  ."        MS.lob_cd, "
 			  ."        '{$new_status}' AS member_status, "
-			  ."        'Dues over {$months} months delinquent' AS reason   "
+			  ."        '{$reason}' AS reason   "
 			  ."      FROM Members AS Me "
 			  ."        JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id "
 			  ."                                   AND MS.member_status = '{$status}' "

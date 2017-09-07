@@ -24,7 +24,7 @@ if(isset($model->payingMember)) {
 ?>
 <div class="receipt-view">
 
-	<h1><?= Html::encode('Receipt: ' . $this->title . ' for ') . $receipt_for ?></h1>
+	<h1><?= Html::encode('Receipt: ' . $this->title) . $receipt_for ?></h1>
     
     <div class="leftside sixty-pct">
     	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'member']); ?>
