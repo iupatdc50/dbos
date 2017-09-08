@@ -11,7 +11,7 @@ echo GridView::widget([
 		'dataProvider' => $dataProvider,
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
-				'heading'=>'Open Assessments',
+				'heading'=>'Assessments',
 				'before' => false,
 				'after' => false,
 				'footer' => false,

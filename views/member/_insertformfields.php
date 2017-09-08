@@ -10,6 +10,8 @@ use yii\helpers\Html;
 use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
 use kartik\checkbox\CheckboxX;
+use kartik\datecontrol\DateControl;
+
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
@@ -51,6 +53,11 @@ use kartik\checkbox\CheckboxX;
     	]) ?>
     	    	
     	<hr>
+    	
+	    <?= $form->field($model, 'application_dt')->widget(DateControl::className(), [
+	    		'type' => DateControl::FORMAT_DATE,
+	    ]) ?>
+
     	
     	<?= $form->field($model, 'exempt_apf')->widget(CheckboxX::className(), ['pluginOptions' => ['threeState' => false]]); ?>
     

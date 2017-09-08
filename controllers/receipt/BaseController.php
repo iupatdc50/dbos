@@ -139,7 +139,10 @@ class BaseController extends Controller
 	    			$member->dues_paid_thru_dt = $alloc->paid_thru_dt;
 	    			if ($member->save()) {
 	    				if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed() == 0.00)) {
-	    					$member->addStatus(new Status(['effective_dt' => $model->received_dt, 'member_status' => Status::ACTIVE, 'reason' => Status::REASON_APF]));
+	    					$status = $this->prepareStatus($member, $model->received_dt);
+	    					$status->member_status = Status::ACTIVE;
+	    					$status->reason = Status::REASON_APF;
+	    					$member->addStatus($status);
 	    					$member->init_dt = $model->received_dt;
 	    					if (!$member->save())
 	    						$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
@@ -167,7 +170,8 @@ class BaseController extends Controller
 	    			}
 	    		}
 	    		if (($alloc->fee_type == FeeType::TYPE_CC) || ($alloc->fee_type == FeeType::TYPE_REINST)) {
-	    			$status = new Status(['effective_dt' => $model->received_dt]);
+	    			$member = $alloc->member;
+	    			$status = $this->prepareStatus($member, $model->received_dt);
 	    			if ($alloc->fee_type == FeeType::TYPE_CC) {
 	    				$status->member_status = Status::INACTIVE;
 	    				$status->reason = isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCG . $alloc->allocatedMember->otherLocal->other_local : 'CCG';
@@ -175,7 +179,6 @@ class BaseController extends Controller
 	    				$status->member_status = Status::ACTIVE;
 	    				$status->reason = Status::REASON_REINST;
 	    			}
-	    			$member = $alloc->member;
 	    			if (!$member->addStatus($status))
 	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
 	    		}	 
@@ -249,6 +252,19 @@ class BaseController extends Controller
     	return $result;
     }
     
-    
+    /**
+     * Look for existing status to overlay to avoid date conflicts
+     * 
+     * @param Member $member
+     * @param string $date
+     * @return \yii\db\static|\app\models\member\Status
+     */
+    protected function prepareStatus(Member $member, $date)
+    {
+        if (($status = Status::findOne(['member_id' => $member_id, 'effective_dt' => $date])) !== null) 
+            return $status;
+    	;
+    	return new Status(['effective_dt' => $date]);
+    }
     
 }

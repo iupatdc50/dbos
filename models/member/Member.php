@@ -20,6 +20,7 @@ use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 use app\models\accounting\ApfAssessment;
 use app\models\accounting\LastDuesReceipt;
+use app\modules\admin\models\FeeType;
 use app\helpers\SsnHelper;
 use app\components\validators\SsnValidator;
 
@@ -674,6 +675,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		if ($this->currentStatus->member_status == 'N') {
     			$result = true;
     		} elseif ($this->currentStatus->member_status == 'A') {
+    			$result = is_null($this->init_dt);
+    			/*
 	    		$application_dt = $this->getApplicationDtObject();
     			if (isset($this->init_dt)) {
 	    			$init_dt = (new OpDate)->setFromMySql($this->init_dt);
@@ -681,6 +684,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     			} else { // no init_dt
     				$result = true;
     			}
+    			*/
     		}
     	}
     	return $result;
@@ -715,7 +719,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getCurrentApf()
     {
     	return $this->hasOne(ApfAssessment::className(), ['member_id' => 'member_id'])
-    		 		->andOnCondition(['fee_type' => 'IN'])
+    		 		->andOnCondition(['fee_type' => FeeType::TYPE_INIT])
     		 		->andOnCondition(['assessment_dt' => $this->application_dt])
     	;
     }
@@ -738,7 +742,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	    	$amount = $init->getAssessmentAmount(new DuesRateFinder($lob_cd, $class->rate_class));
 	    	$apf_assessment = new ApfAssessment([
 	    			'member_id' => $this->member_id,
-	    			'fee_type' => 'IN',
+	    			'fee_type' => FeeType::TYPE_INIT,
 	    			'assessment_dt' => $this->application_dt,
 	    			'assessment_amt' => $amount,
 	    			'months' => $init->dues_months,

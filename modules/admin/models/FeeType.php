@@ -19,6 +19,7 @@ class FeeType extends \yii\db\ActiveRecord
 	CONST TYPE_REINST = 'RN';
 	CONST TYPE_CC = 'CC';
 	CONST TYPE_HOURS = 'HR';
+	CONST TYPE_INIT = 'IN';
 	
     /**
      * @inheritdoc

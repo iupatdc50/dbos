@@ -108,10 +108,6 @@ use app\helpers\OptionHelper;
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
 
-    <?= $form->field($model, 'application_dt')->widget(DateControl::className(), [
-    		'type' => DateControl::FORMAT_DATE,
-    ]) ?>
-
     <hr>
 	    <div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
