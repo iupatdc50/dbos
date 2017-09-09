@@ -32,7 +32,7 @@ echo GridView::widget([
 				],
 				[
 						'class' => 	'kartik\grid\ActionColumn',
-						'visible' => Yii::$app->user->can('updateMember'),
+						'visible' => Yii::$app->user->can('uploadDocs'),
 						'controller' => $controller,
 						'template' => '{delete}',
 						'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',

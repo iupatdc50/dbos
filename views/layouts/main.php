@@ -47,7 +47,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	            if (Yii::$app->user->isGuest) {
 	                $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
 	            } else {
-	            	if(Yii::$app->user->can('browseMember'))
+	            	if(Yii::$app->user->can('browseMember') || Yii::$app->user->can('uploadDocs'))
 		            	$menuItems[] = [
 		            			'label' => 'Membership', 'url' => ['/member/'], 
 		            			'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'member'),
@@ -76,10 +76,12 @@ app\assets\ApplicationUiAssetBundle::register($this);
 		                		'label' => 'Training', 'url' => ['/site/unavailable'],
 		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'training'),
 		                ];
-	            	$menuItems[] = [
-	                		'label' => 'Reporting', 'url' => ['/report/'],
-	                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'reporting'),
-	                ];
+		            	
+		            if(Yii::$app->user->can('showReportMenu'))
+		            	$menuItems[] = [
+		                		'label' => 'Reporting', 'url' => ['/report/'],
+		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'reporting'),
+		                ];
 	            	if(Yii::$app->user->can('manageSupport'))		 
 		                $menuItems[] = [
 		                		'label' => 'Admin', 'url' => ['/admin'],

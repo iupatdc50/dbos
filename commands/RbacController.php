@@ -19,6 +19,11 @@ class RbacController extends Controller
 		$auth = Yii::$app->authManager;
 		$auth->removeAll();
 		
+		echo "Preparing limited guest permissions";
+		$uploadDocs = $auth->createPermission('uploadDocs');
+		$uploadDocs->description = 'Upload scanned documents';
+		$auth->add($uploadDocs);
+		
 		// Member permissions
 		echo "Preparing member permissions";
 		$browseMember = $auth->createPermission('browseMember');
@@ -42,6 +47,10 @@ class RbacController extends Controller
 		echo "...complete\n";
 		// Member roles
 		echo "Preparing member roles";
+		$memberDocLoader = $auth->createRole('memberDocLoader');
+		$memberDocLoader->description = 'Member Document Loader';
+		$auth->add($memberDocLoader);
+		$auth->addChild($memberDocLoader, $uploadDocs);
 		$memberViewer = $auth->createRole('memberViewer');
 		$memberViewer->description = 'Member/Employment Viewer'; 
 		$auth->add($memberViewer);
@@ -49,6 +58,7 @@ class RbacController extends Controller
 		$memberEditor = $auth->createRole('memberEditor');
 		$memberEditor->description = 'Member/Employment Editor'; 
 		$auth->add($memberEditor);
+		$auth->addChild($memberEditor, $memberDocLoader);
 		$auth->addChild($memberEditor, $memberViewer);
 		$auth->addChild($memberEditor, $createMember);
 		$auth->addChild($memberEditor, $reportMember);
@@ -210,6 +220,24 @@ class RbacController extends Controller
 		$supportEditor->description = 'Support Editor';
 		$auth->add($supportEditor);
 		$auth->addChild($supportEditor, $manageSupport);
+		echo "...complete\n";
+		
+		// Special permissions
+		echo "Preparing special permissions";
+		$showReportMenu = $auth->createPermission('showReportMenu');
+		$showReportMenu->description = 'Show Report Menu';
+		$auth->add($showReportMenu);
+		$auth->addChild($reportAccounting, $showReportMenu);
+		$auth->addChild($reportContractor, $showReportMenu);
+		$auth->addChild($reportMember, $showReportMenu);
+		echo "...complete\n";
+		
+		// Limited roles
+		echo "Preparing limited access roles";
+		$uploadUser = $auth->createRole('uploadUser');
+		$uploadUser->description = 'Document uploader';
+		$auth->add($uploadUser);
+		$auth->addChild($uploadUser, $memberDocLoader);
 		echo "...complete\n";
 		
 		// User account permissions

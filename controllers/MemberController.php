@@ -15,6 +15,7 @@ use app\models\member\MemberClass;
 use app\models\member\AllowableClassDescription;
 use app\models\member\Employment;
 use app\models\member\Note;
+use app\models\member\Document;
 use app\models\member\MemberSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -23,6 +24,7 @@ use yii\filters\AccessControl;
 use yii\web\UploadedFile;
 use yii\helpers\ArrayHelper;
 use app\helpers\OptionHelper;
+use yii\data\ActiveDataProvider;
 
 /**
  * MemberController implements the CRUD actions for Member model.
@@ -45,7 +47,7 @@ class MemberController extends RootController
 	                [
 	                    'allow' => true,
 	                    'actions' => ['index', 'view'],
-	                    'roles' => ['browseMember'],
+	                    'roles' => ['browseMember', 'uploadDocs'],
 	                ],
 	                [
 	                    'allow' => true,
@@ -94,12 +96,25 @@ class MemberController extends RootController
     {
     	parent::actionView($id);
     	
+    	$view = Yii::$app->user->can('browseMember') ? 'view' : 'viewext';
     	$model = $this->findModel($id);
+    	$params = [];
+    	$params['model'] = $model;
+    	if (Yii::$app->user->can('browseMember')) {
+    		$params['noteModel'] = $this->createNote($model);
+    	} else {
+	    	$query = Document::find()
+	    						->where(['member_id' => $id])
+	    						->orderBy('doc_type asc');
+	    	
+	    	$params['docProvider'] = new ActiveDataProvider([
+	    			'query' => $query,
+	    			'sort' => false,
+	    	]);
+    	}
+    	 
 
-        return $this->render('view', [
-            'model' => $model,
-        	'noteModel' => $this->createNote($model),
-        ]);
+    	return $this->render($view, $params);
     }
 
     /**
