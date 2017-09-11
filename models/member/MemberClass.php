@@ -28,6 +28,7 @@ class MemberClass extends BaseEndable
 	CONST SCENARIO_CREATE = 'create';
 	
 	CONST APPRENTICE = 'A';
+	CONST MATERIALHANDLER = 'M';
 	
     /**
      * @inheritdoc
@@ -127,7 +128,7 @@ class MemberClass extends BaseEndable
     
     public function getMClassDescrip()
     {
-    	return $this->mClass->descrip . ($this->member_class == self::APPRENTICE ? ' [' . $this->wage_percent . '%]' : '');
+    	return $this->mClass->descrip . (($this->member_class == self::APPRENTICE || $this->member_class == self::MATERIALHANDLER) ? ' [' . $this->wage_percent . '%]' : '');
     }
     
     /**

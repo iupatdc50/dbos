@@ -26,7 +26,7 @@ $(function() {
 
 $('#mclass').change(function() {
 	var classid = $(this).val();
-	if(classid == 'AR') {
+	if(classid == 'AR' || classid == 'MR') {
 		$('#wagepctlbl').show();
 		$('#wagepct').show();
 	} else {
