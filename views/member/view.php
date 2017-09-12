@@ -84,7 +84,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ['attribute' => 'gender', 'value' => Html::encode($model->genderText)],
             'shirt_size',
         	'pacTexts:ntext',
-        	'application_dt:date',
+//        	'application_dt:date',
         		[
         				'attribute' => 'init_dt',
         				'format' => $model->isInApplication() ? NULL : 'date',
