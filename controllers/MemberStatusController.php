@@ -186,7 +186,7 @@ class MemberStatusController extends SummaryController
 		if ($model->load(Yii::$app->request->post())) {
 			if ($this->member->addStatus($model)) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added for drop");
-				if ($this->AssessReinstFee($model))
+				if ($this->assessReinstFee($model))
 					return $this->goBack();
 			} else {
 				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC025`');
@@ -247,7 +247,7 @@ class MemberStatusController extends SummaryController
 			$model->lob_cd = $this->member->currentStatus->lob_cd;
 	}
 	
-	protected function AssessReinstFee(Status $model)
+	protected function assessReinstFee(Status $model)
 	{
 		$action = ($model->member_status == Status::SUSPENDED) ? 'Suspended' : 'Dropped'; 
 		$assessModel = new Assessment([
