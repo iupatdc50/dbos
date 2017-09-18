@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
+use yii\widgets\Pjax;
 
 // Employment
 
@@ -11,7 +12,14 @@ use kartik\grid\GridView;
 /* @var $id string Relational ID around which data is summarized */
 ?>
 
-<?= GridView::widget([
+<div id="employment-history">
+
+<?php
+// 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
+Pjax::begin(['id' => 'employment-history', 'enablePushState' => false]);
+
+echo GridView::widget([
+		'id' => 'employment-history',
 		'dataProvider' => $dataProvider,
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
@@ -19,7 +27,7 @@ use kartik\grid\GridView;
 			// workaround to prevent 1 in the before section
 			'before' => (Yii::$app->user->can('updateMember')) ? '' : false,
 			'after' => false,
-		    'footer' => false,
+		    // 'footer' => false,
 		],
 		'toolbar' => [
 			'content' => 
@@ -103,4 +111,9 @@ use kartik\grid\GridView;
 		],
 ]);
 
+?>
+</div>
+<?php
+
+Pjax::end();
 

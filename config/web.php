@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '0.9.9.100',
+		'version' => '0.9.9.200',
 		'basePath' => realpath ( __DIR__ . '/../' ),
 		'modules' => [ 
 			    'datecontrol' => [
@@ -14,27 +14,33 @@ $config = [
 			        // format settings for displaying each date attribute
 			        'displaySettings' => [
 			            Module::FORMAT_DATE => 'php:n/j/Y',
-			            Module::FORMAT_TIME => 'php:H:i:s',
-			            Module::FORMAT_DATETIME => 'php:m/d/Y H:i:s A',
+			            Module::FORMAT_TIME => 'php:h:i A',
+			            Module::FORMAT_DATETIME => 'php:m/d/Y h:i:s A',
 			        ],
 			 
 			        // format settings for saving each date attribute
 			        'saveSettings' => [
 			            Module::FORMAT_DATE => 'php:Y-m-d',
-			            Module::FORMAT_TIME => 'php:H:i:s',
-			            Module::FORMAT_DATETIME => 'php:Y-m-d H:i:s A',
+			            Module::FORMAT_TIME => 'php:H:i',
+			            Module::FORMAT_DATETIME => 'php:Y-m-d H:i:s',
 			        ],
 			    	'displayTimezone' => 'UTC',
 			    	'saveTimezone' => 'UTC',
 			        // automatically use kartik\widgets for each of the above formats
 			        'autoWidget' => true,
 
-			    	'autoWidgetSettings' =>  ['date' => ['pluginOptions' => [
-                		'autoclose' => true,
-                		'todayHighlight' => true,
-                		'todayBtn' => false,
-			    		'options' => ['placeholder' => 'mm/dd/yyyy'],
-           		 	]]],
+			    	'autoWidgetSettings' =>  [
+			    			'date' => ['pluginOptions' => [
+		                		'autoclose' => true,
+		                		'todayHighlight' => true,
+		                		'todayBtn' => false,
+					    		'options' => ['placeholder' => 'mm/dd/yyyy'],
+           		 			]],
+			    			'time' => ['pluginOptions' => [
+			    					'template' => false,
+			    					'defaultTime' => '12:00 AM',
+			    			]],
+			    	],
 			    ],
 				'gridview' => [
 						'class' => '\kartik\grid\Module',

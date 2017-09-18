@@ -5,18 +5,37 @@ use app\controllers\base\RootController;
 use app\models\user\LoginForm;
 use app\models\user\User;
 use app\models\Announcement;
+use app\models\HomeEvent;
 use app\components\utilities\OpDate;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Response;
+use app\components\utilities\app\components\utilities;
+use app\helpers\OptionHelper;
 
 class SiteController extends RootController
 {
 	
 	public function actionIndex() {
+
+		$homeEvents = HomeEvent::find()->all();
+		$events = [];
+		foreach ($homeEvents as $homeEvent) {
+			$event = new \yii2fullcalendar\models\Event([
+					'id' => $homeEvent->id,
+					'title' => $homeEvent->title,
+					'allDay' => ($homeEvent->all_day == OptionHelper::TF_TRUE) ? true : false,
+					'start' => $homeEvent->start_dt,
+					'end' => $homeEvent->end_dt,
+					'editable' => true,
+					'className' => ($homeEvent->all_day == OptionHelper::TF_TRUE) ? 'fc-event-allday' : null,
+			]);
+			$events[] = $event;
+		}
     	$announcementModel = $this->createAnnouncement();
     	$announcements = Announcement::find()->orderBy(['created_at' => SORT_DESC])->all();
 		return $this->render('homepage', [
+				'events' => $events,
 				'announcementModel' => $announcementModel,
 				'announcements' => $announcements, 
 		]);

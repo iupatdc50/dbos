@@ -4,7 +4,8 @@
 use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
-use kartik\helpers\Html;
+// use kartik\helpers\Html;
+use yii\helpers\Html;
 use app\models\accounting\Receipt;
 
 /* @var $this yii\web\View */

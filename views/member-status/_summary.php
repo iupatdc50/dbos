@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use kartik\grid\GridView;
 use kartik\editable\Editable;
 use app\models\member\Status;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
@@ -12,8 +13,14 @@ use app\models\member\Status;
 $controller = 'member-status';
 ?>
 
-<?= GridView::widget([
-		'id' => 'edit-grid',
+<div id="statuses">
+
+<?php
+// 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
+Pjax::begin(['id' => 'status-history', 'enablePushState' => false]);
+
+echo GridView::widget([
+		'id' => 'status-history',
 		'dataProvider' => $dataProvider,
 		'pjax' => true,
 		'panel'=>[
@@ -22,7 +29,7 @@ $controller = 'member-status';
 			// workaround to prevent 1 in the before section
 			'before' => (Yii::$app->user->can('updateMember')) ? '' : false,
 		    'after' => false,
-		    'footer' => false,
+		    // 'footer' => false,
 		],
 		'toolbar' => [
 			'content' =>
@@ -115,3 +122,10 @@ $controller = 'member-status';
 				
 		],
 ]);
+
+?>
+</div>
+<?php
+
+Pjax::end();
+

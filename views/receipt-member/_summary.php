@@ -4,9 +4,17 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
 use kartik\select2\Select2;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
+
+?>
+<div id="receipt-popup">
+
+<?php
+// 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
+Pjax::begin(['id' => 'receipt-grid', 'enablePushState' => false]);
 
 echo GridView::widget([
 		'id' => 'receipt-grid',
@@ -90,4 +98,7 @@ echo GridView::widget([
 
 
 ?>
+</div>
+<?php
 
+Pjax::end();

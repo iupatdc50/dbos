@@ -191,7 +191,8 @@ class OpDate extends \DateTime
 			} else {
 				$hour = strtolower ( $divs [1] ) == 'pm' ? $parts [0] + 12 : $parts [0];
 			}
-		}
+		} else
+			$hour = $parts [0];
 		$this->setTime ( $hour, $parts [1] );
 	}
 	

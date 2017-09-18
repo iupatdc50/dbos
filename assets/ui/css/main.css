@@ -240,7 +240,7 @@ a span.loaned {
 
 .kv-panel-before {
 	border-bottom: 1px solid #ddd;
-	padding: 1px;
+	padding: 1px !important;
 }
 
 .select2-container--krajee .select2-selection {
@@ -265,6 +265,17 @@ a span.loaned {
 
 #hrs_grid .summary {
 	visibility: hidden;
+}
+
+.fc-event-allday {
+	/*
+	background-color:#FFF6BF;
+	color:#514721;
+	border-color:#FFD324;
+	*/
+	background:#FBE3E4;
+	color:#8a1f11;
+	border-color:#FBC2C4;
 }
 
 #journal {

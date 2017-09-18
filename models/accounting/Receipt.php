@@ -119,7 +119,7 @@ class Receipt extends \yii\db\ActiveRecord
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
         	[['received_dt'], 'date', 'format' => 'php:Y-m-d'],
         	[['received_dt'], 'validateReceivedDt'],
-        		[['received_amt', 'unallocated_amt'], 'number'],
+        	[['received_amt', 'unallocated_amt'], 'number'],
         	[['unallocated_amt', 'helper_dues'], 'default', 'value' => 0.00],
             ['helper_hrs', 'required', 'when' => function($model) {
             	return $model->helper_dues > 0.00;

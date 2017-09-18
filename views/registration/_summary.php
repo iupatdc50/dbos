@@ -26,7 +26,7 @@ $toggle_awarded_only = !$awarded_only;
 echo  GridView::widget([
 		'id' => 'bid-projects',
 		'dataProvider' => $dataProvider,
-		'floatHeader' => true,
+		// 'floatHeader' => true,
 		'panel'=>[
 		        'type'=>GridView::TYPE_DEFAULT,
 		        'heading'=> $heading,

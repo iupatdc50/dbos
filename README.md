@@ -13,6 +13,11 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.100
+. Added site calendar to home page with event creator
+. Added navigation function to employment & status history panels
+. Fixed bugs in time classes, pop-ups, provider projects panel 
+
 0.9.9.100
 
 . Added receipts journal reports
