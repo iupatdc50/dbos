@@ -252,6 +252,14 @@ class MemberController extends RootController
     	return $this->renderAjax('photo', ['model' => $model]);
     	 
     }
+    
+    public function actionPhotoClear($id)
+    {
+    	$model = $this->findModel($id);
+    	$model->photo_id = null;
+    	$model->save();
+    	return $this->redirect(['view', 'id' => $model->member_id]);
+    }
 
     /**
      * Deletes an existing Member model.

@@ -36,7 +36,7 @@ class HomeEventController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
+        return $this->renderAjax('view', [
             'model' => $this->findModel($id),
         ]);
     }
@@ -54,7 +54,7 @@ class HomeEventController extends Controller
         	if ($model->validate()) {
         		if ($model->save()) {
         			Yii::$app->session->addFlash('success', "Calendar event created");
-        			return $this->goBack();
+        			return $this->redirect(['/']);
         		}
 	        	throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
         	}
@@ -73,7 +73,7 @@ class HomeEventController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        return $this->redirect(['/']);
     }
 
     /**

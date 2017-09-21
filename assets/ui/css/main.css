@@ -267,7 +267,18 @@ a span.loaned {
 	visibility: hidden;
 }
 
-.fc-event-allday {
+.fc-event:hover {
+	color: #31708F;
+	font-weight: bold;
+}
+
+.fc-event {
+	background-color:#D9EDF7;
+	color:#31708F;
+	border-color:#BCE8F1;
+}
+
+.fc-event-allday, .fc-event-allday:hover {
 	/*
 	background-color:#FFF6BF;
 	color:#514721;

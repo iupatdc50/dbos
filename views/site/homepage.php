@@ -1,7 +1,17 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\JsExpression;
 use kartik\dropdown\DropdownX;
+
+$js_event_click = <<<EOF
+	function(calEvent, jsEvent, view) {
+		var modal = $('#modalCreate').modal('show');
+		modal.find('#modalContent').load('/home-event/view?id=' + calEvent.id);
+		modal.find('#title-model').html(calEvent.title);
+	}
+EOF;
+
 ?>
 
 <div id="welcome">
@@ -23,7 +33,9 @@ use kartik\dropdown\DropdownX;
 					   <?= \yii2fullcalendar\yii2fullcalendar::widget([
 					            'events' => $events,
 					            'id' => 'home-calendar',
-					   		    
+					   		    'clientOptions' => [
+					   		    		'eventClick' => new JsExpression($js_event_click),
+					   			],
 					        ]);
 					   ?> 
 		        </div>

@@ -5,16 +5,19 @@ namespace app\models;
 use Yii;
 use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
+use app\models\user\User;
 
 /**
  * This is the model class for table "HomeEvents".
  *
  * @property integer $id
  * @property string $title
- * @property integer $all_day
+ * @property string $all_day
  * @property string $start_dt
  * @property string $end_dt
  * @property integer $created_by
+ * 
+ * @property User $createdBy
  */
 class HomeEvent extends \yii\db\ActiveRecord
 {
@@ -66,6 +69,7 @@ class HomeEvent extends \yii\db\ActiveRecord
             'start_dt_part' => 'Start Date',
         	'start_tm_part' => 'Start Time',
             'end_dt' => 'End Date',
+            'created_by' => 'Entered by',
         ];
     }
     
@@ -83,4 +87,12 @@ class HomeEvent extends \yii\db\ActiveRecord
     	return false;
     }
     
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
 }

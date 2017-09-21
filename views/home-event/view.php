@@ -2,20 +2,17 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\HomeEvent */
 
-$this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Home Events', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+$dtformat = ['datetime', 'php:n/d/Y h:i A'];
+
 ?>
 <div class="home-event-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
@@ -28,11 +25,20 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
             'title',
-            'all_day',
-            'start_dt',
-            'end_dt',
+            [
+            		'attribute' => 'start_dt',
+            		'format' => ($model->all_day == OptionHelper::TF_TRUE) ? 'date' : $dtformat,
+    		],
+            [
+            		'attribute' => 'end_dt',
+            		'format' => ($model->all_day == OptionHelper::TF_TRUE) ? 'date' : $dtformat,
+    		],
+        	[
+        			'attribute' => 'created_by',
+        			'value' => $model->createdBy->username,
+        	],
+        		
         ],
     ]) ?>
 

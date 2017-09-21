@@ -23,6 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h4><?= Html::encode($this->title) ?></h4>
 	<p><?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width'=>'150', 'height'=>'200']) ?></p>
     <p>
+       	<?php if(Yii::$app->user->can('updateMember')): ?>
     	<?= Html::button('<i class="glyphicon glyphicon-camera"></i>&nbsp;Update Photo',
 						['value' => Url::to(['photo', 'id'  => $model->member_id]),
 						'id' => 'photoButton',
@@ -31,6 +32,13 @@ $this->params['breadcrumbs'][] = $this->title;
 						'disabled' => !(Yii::$app->user->can('updateMember')),
 					]) 
 		?>
+    	<?= Html::a('Clear', ['photo-clear', 'id' => $model->member_id], [
+    			'class' => 'btn btn-default',
+    			'data' => [
+    					'confirm' => 'Are you sure you want to clear photo?  This cannot be undone.',
+    					'method' => 'post',
+    	]]) ?>
+    	<?php endif; ?>
     </p> 
     <br />
     <?= DetailView::widget([
