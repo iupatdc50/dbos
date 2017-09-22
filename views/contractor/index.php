@@ -71,6 +71,10 @@ $this->params['breadcrumbs'][] = $this->title;
             [
             	'attribute' => 'contractor',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
+				'format' => 'raw',
+				'value' => function($model) {
+					return Html::a(Html::encode($model->contractor), '/contractor/view?id=' . $model->license_nbr);
+				},
             ],
         	[
             	'attribute' => 'contact_nm',
@@ -90,6 +94,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
             	'class' => 'yii\grid\ActionColumn',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
+            	'visible' => Yii::$app->user->can('updateContractor'),
             ],
         ],
     ]); ?>

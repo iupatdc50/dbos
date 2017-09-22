@@ -42,7 +42,7 @@ class MemberController extends RootController
             ],
 	        'access' => [
 	            'class' => AccessControl::className(),
-	        	'only' => ['index', 'view', 'create', 'update', 'delete', 'photo'],
+	        	'only' => ['index', 'view', 'create', 'update', 'delete', 'photo', 'photo-clear'],
 	            'rules' => [
 	                [
 	                    'allow' => true,
@@ -56,7 +56,7 @@ class MemberController extends RootController
 	                ],
 	                [
 	                    'allow' => true,
-	                    'actions' => ['update', 'photo'],
+	                    'actions' => ['update', 'photo', 'photo-clear'],
 	                    'roles' => ['updateMember'],
 	                ],
 	                [

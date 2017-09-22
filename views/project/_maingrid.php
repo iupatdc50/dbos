@@ -6,6 +6,7 @@
  */
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use kartik\grid\GridView;
 use kartik\grid\GridViewAsset;
 use app\helpers\OptionHelper;
@@ -30,8 +31,12 @@ $baseColumns = [
             ],
 		],
         [
-            'attribute' => 'project_nm',
-            'contentOptions' => ['style' => 'white-space: nowrap; '],
+            	'attribute' => 'project_nm',
+            	'contentOptions' => ['style' => 'white-space: nowrap; '],
+				'format' => 'raw',
+				'value' => function($model) {
+					return Html::a(Html::encode($model->project_nm), Url::to(['view', 'id' => $model->project_id]));
+				},
         ],
         [
             'attribute' => 'general_contractor',
@@ -60,8 +65,9 @@ $baseColumns = [
 
 $actionColumn = [
 		[
-		'class' => 'yii\grid\ActionColumn',
+				'class' => 'yii\grid\ActionColumn',
 				'contentOptions' => ['style' => 'white-space: nowrap;'],
+				'visible' => Yii::$app->user->can('updateProject'),				
         ],
 ];
 
