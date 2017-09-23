@@ -34,12 +34,12 @@ class UserController extends Controller
         				'rules' => [
         						[
         								'allow' => true,
-        								'actions' => ['index', 'create'],
+        								'actions' => ['index', 'view', 'default-pw'],
         								'roles' => ['assignRole'],
         						],
         						[
         								'allow' => true,
-        								'actions' => ['view'],
+        								'actions' => ['create', 'reset-pw'],
         								'roles' => ['updateUser'],
         						],
         						[
@@ -77,7 +77,7 @@ class UserController extends Controller
     public function actionView($id)
     {
     	$model = $this->findModel($id);
-    	if (Yii::$app->user->can('updateUser', ['user' => $model])) {
+    	if (Yii::$app->user->can('assignRole', ['user' => $model])) {
     		$rolesModel = new ActiveDataProvider([
     				'query' => $model->getAssignments(),
     		]);
@@ -98,13 +98,13 @@ class UserController extends Controller
     {
         $model = new User(['scenario' => User::SCENARIO_CREATE]);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) 
             return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
+        $model->password_clear = User::RESET_USER_PW;
+        $model->role = 10;
+        if (!isset($model->status))
+         	$model->status = User::STATUS_ACTIVE;
+        return $this->render('create', ['model' => $model]);
     }
 
     /**
@@ -140,6 +140,7 @@ class UserController extends Controller
     
     public function actionResetPw()
     {
+		$this->layout = 'login';
     	$model = Yii::$app->user->identity;
 
 	    $model->scenario = User::SCENARIO_CHANGE_PW;
@@ -150,6 +151,15 @@ class UserController extends Controller
 	    	return $this->goBack();
 	    }
 	    return $this->render('change-pw', ['model' => $model]);
+    }
+    
+    public function actionDefaultPw($id)
+    {
+    	$model = $this->findModel($id);
+    	$model->setPassword(User::RESET_USER_PW);
+    	$model->save(false);
+    	Yii::$app->session->addFlash('success', "Successfully set password to system default.");
+    	return $this->redirect(['view', 'id' => $model->id]);
     }
 
     /**

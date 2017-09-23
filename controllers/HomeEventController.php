@@ -72,7 +72,7 @@ class HomeEventController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
+        Yii::$app->session->addFlash('success', "Calendar event deleted");
         return $this->redirect(['/']);
     }
 

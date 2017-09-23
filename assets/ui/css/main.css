@@ -255,6 +255,10 @@ a span.loaned {
 	height: 28px;
 }
 
+.qsearch {
+	margin-bottom: 10px;
+}
+
 .navbar .container {
 	width: 90%;	
 }

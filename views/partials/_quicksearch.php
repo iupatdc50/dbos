@@ -22,7 +22,7 @@ use kartik\widgets\Select2;
 
 ?>
 
-<div class="pull-right">
+<div class="qsearch pull-right">
 	<?= Select2::widget([
 		'name' => 'quicksearch',
 		'size' => Select2::SMALL,

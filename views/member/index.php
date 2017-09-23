@@ -68,7 +68,6 @@ $this->params['breadcrumbs'][] = $this->title;
             [
             	'attribute' => 'fullName',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
-//				'label'	=> 'Name',
 				'format' => 'raw',
 				'value' => function($model) {
 					return Html::a(Html::encode($model->fullName), '/member/view?id=' . $model->member_id);

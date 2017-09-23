@@ -27,18 +27,33 @@ $this->params['breadcrumbs'][] = $this->title;
 			'after' => false,
 		],
 		'toolbar' => ['content' => Html::a('Create User', ['create'], ['class' => 'btn btn-success'])],
+    	'rowOptions' => 
+    			function ($model) {
+    		       $css = [];
+    		       $css['class'] = ($model->status == 10) ? 'default' : 'text-muted';
+    		       return $css;
+    			},
+
     	'columns' => [
             [
             		'attribute' => 'id',
             		'width' => '70px',
     		],
-            'username',
+            [
+            	'attribute' => 'username',
+				'format' => 'raw',
+				'value' => function($model) {
+					return Html::a(Html::encode($model->username), '/user/view?id=' . $model->id);
+				},
+            ],
+            
         	'last_nm',
         	'first_nm',
             // 'auth_key',
             // 'password_hash',
             // 'password_reset_token',
             // 'email:email',
+/*
             [
             		'attribute' => 'role',
             		'width' => '140px',
@@ -47,11 +62,15 @@ $this->params['breadcrumbs'][] = $this->title;
 	        		'attribute' => 'status',
 	        		'width' => '140px',
             ],
+            */
             // 'created_at',
             // 'updated_at',
             'last_login',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+            		'class' => 'yii\grid\ActionColumn',
+            		'visible' => Yii::$app->user->can('updateUser'),
+			],
         ],
     ]); ?>
 

@@ -21,7 +21,8 @@ $controller = '*';
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+       	<?php if(Yii::$app->user->can('updateUser')): ?>
+    	<?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
@@ -29,6 +30,10 @@ $controller = '*';
                 'method' => 'post',
             ],
         ]) ?>
+        <?php endif; ?>
+        <?php if(Yii::$app->user->can('assignRole')): ?>
+    	<?= Html::a('Reset Password', ['default-pw', 'id' => $model->id], ['class' => 'btn btn-default']) ?>
+        <?php endif; ?>
     </p>
 
     <?= DetailView::widget([
