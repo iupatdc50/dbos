@@ -22,7 +22,7 @@ use yii\helpers\Url;
 									'value' => Url::to(["balance", 'id' => $modelReceipt->id]),
 									'id' => 'balanceButton',
 									'class' => 'btn btn-default btn-modal',
-									'data-title' => 'Unallocated',
+									'data-title' => 'Adjustments',
 							]); ?>
         <?php endif ?>
             	<?= Html::a('Cancel', ['delete', 'id' => $modelReceipt->id], [

@@ -43,9 +43,10 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
         				'attribute' => 'allocation_amt',
         				'class' => 'kartik\grid\EditableColumn',
         				'editableOptions' => [
-        						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
+//        						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
         						'formOptions' => ['action' => '/allocation/edit-alloc'],
         						'showButtons' => false,
+        						'asPopover' => false,
         				],
         				'hAlign' => 'right',
         				'vAlign' => 'middle',

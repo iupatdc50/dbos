@@ -15,6 +15,9 @@ namespace app\components\utilities;
  */
 class OpDate extends \DateTime 
 {
+	const OP_ADD = '+';
+	const OP_SUBSTRACT = '-';
+	
 	protected $_year;
 	protected $_month;
 	protected $_day;

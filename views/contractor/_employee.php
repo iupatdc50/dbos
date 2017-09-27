@@ -31,6 +31,10 @@ echo GridView::widget ( [
 							] );
 						} 
 				],
+				[
+						'attribute' => 'status',
+						'value' => 'member.currentStatus.status.descrip',
+				],
 				[ 
 						'attribute' => 'is_loaned',
 						'label' => 'Special',

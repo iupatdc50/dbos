@@ -17,8 +17,10 @@ use kartik\form\ActiveForm;
     		'enableClientValidation' => true,
     ]); ?>
     
+    <?=  $form->field($model, 'received_amt') ?>
     <?=  $form->field($model, 'unallocated_amt') ?>
-
+    <?=  $form->field($model, 'helper_dues') ?>
+    
     <div class="form-group">
         <?= Html::submitButton('Balance', ['class' => 'btn btn-success']) ?>
     </div>

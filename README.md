@@ -13,6 +13,15 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.500
+. Added reset paid thru when dues receipt deleted
+. Added paid thru date on member dues receipts
+. Added ability to add fee type columns to contractor receipt in progress
+. Added member status to contractor view employee list
+. Added ability to add inactive members to contractor receipt
+. Added ability to adjust total receipt amount in balance
+. Fixed bugs in editable receipt money fields 
+
 0.9.10.100
 . Added site calendar to home page with event creator
 . Added navigation function to employment & status history panels

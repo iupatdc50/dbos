@@ -16,6 +16,7 @@ class EmploymentSearch extends Employment
 	public $fullName;
 	public $employer_search;
 	public $lob_cd;
+	public $status;
 	
 	public $page_size = 15;
 	
@@ -25,7 +26,7 @@ class EmploymentSearch extends Employment
     public function rules()
     {
         return [
-            [['member_id', 'fullName', 'effective_dt', 'end_dt', 'employer', 'dues_payor', 'is_loaned', 'lob_cd'], 'safe'],
+            [['member_id', 'fullName', 'effective_dt', 'end_dt', 'employer', 'dues_payor', 'is_loaned', 'lob_cd', 'status'], 'safe'],
         ];
     }
 
@@ -68,8 +69,10 @@ class EmploymentSearch extends Employment
         	]);
         }
         
+        $query->joinWith(['member.currentStatus']);
+        
         if (isset($this->lob_cd)) {
-        	$query->joinWith(['member.currentStatus']);
+        	
         	$query->andFilterWhere(['lob_cd' => $this->lob_cd]);
         }
 
@@ -80,6 +83,7 @@ class EmploymentSearch extends Employment
         
         $query->andFilterWhere(['or', ['like', 'last_nm', $this->fullName], ['like', 'first_nm', $this->fullName]]);
         $query->andFilterWhere(['is_loaned' => $this->is_loaned]);
+        $query->andFilterWhere(['member_status' => $this->status]);
         
         return $dataProvider;
     }

@@ -13,6 +13,7 @@ use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocationBuilder;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\StagedAllocation;
+use app\models\accounting\TradeFeeType;
 
 /**
  * StagedAllocationController implements the CRUD actions for accouting\StagedAllocation model.
@@ -50,6 +51,61 @@ class StagedAllocationController extends SubmodelController
 		}
 		return $this->renderAjax('add', compact('model', 'license_nbr'));
 	
+	}
+	
+	public function actionAddType($receipt_id, array $fee_types)
+	{
+		
+		/** @var ReceiptContractor $receipt */
+		$receipt = $this->findReceiptModel($receipt_id);		
+				
+		/** @var ActiveRecord $model */
+		$model = new \app\models\accounting\AddTypeForm([
+				'fee_types' => $fee_types,
+		]);
+		
+		if ($model->load(Yii::$app->request->post())) {
+			foreach ($receipt->members as $alloc_memb) {
+				$builder = new AllocationBuilder();
+				if (!$builder->prepareAllocs($alloc_memb, [$model->new_fee_type]))
+					throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));;
+			}
+			$fee_types[] = $model->new_fee_type;
+			return $this->redirect([
+					'/receipt-contractor/itemize',
+					'id' => $receipt_id,
+					'fee_types' => $fee_types,
+			]);
+				
+		}
+		return $this->renderAjax('add-type', compact('model'));
+	}
+	
+	/**
+	 * Provides a filtered list of available Fee Types
+	 * 
+	 * Note that format of the JSON out must be built from an array in in this format: 
+	 * 		['id' => $key, 'name' => $value]
+	 * in order to work with a Select2
+	 */
+	public function actionFeeType()
+	{
+		$out = [];
+		if (isset($_POST['depdrop_parents']) && !empty($_POST['depdrop_params'])) {
+			$parents = $_POST['depdrop_parents'];
+			if ($parents != null) {
+				$lob_cd = $parents[0];
+				$fee_types = $_POST['depdrop_params'][0];
+				$trade_types = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => 'T'])->orderBy('descrip')->all();
+				foreach($trade_types as $row) {
+					if (strpos($fee_types, $row['fee_type']) === false)
+					    $out[] = ['id' => $row['fee_type'], 'name' => $row['descrip']];
+				}
+				echo Json::encode(['output' => $out, 'selected' => '']);
+				return;
+			}
+		}
+		echo Json::encode(['output' => '', 'selected' => '']);
 	}
 
 	/**

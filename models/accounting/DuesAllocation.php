@@ -60,6 +60,13 @@ class DuesAllocation extends BaseAllocation
     }
     */
     
+    public function beforeDelete()
+    {
+    	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBSTRACT);
+    	$this->member->dues_paid_thru_dt = $dt;
+    	$this->member->save();
+    }
+    
 	/**
 	 * Uses Standing class to estimate the dues owed for a member
 	 * 
@@ -113,12 +120,14 @@ class DuesAllocation extends BaseAllocation
      * 
      * @return string Paid thru date in MySql format
      */
-    public function calcPaidThru($months = NULL)
+    public function calcPaidThru($months = null, $op = null)
     {
     	if ($months === null)
     		$months = $this->calcMonths();
+    	if ($op === null)
+    		$op = OpDate::OP_ADD;
     	$paid_thru = (new OpDate)->setFromMySql($this->getStartDt());
-    	$paid_thru->modify('+' . $months . ' month');
+    	$paid_thru->modify($op . $months . ' month');
     	$paid_thru->setToMonthEnd();
     	return $paid_thru->getMySqlDate();
     }

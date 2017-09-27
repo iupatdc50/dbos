@@ -46,9 +46,10 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     				'class' => 'kartik\grid\EditableColumn',
     				'editableOptions' => [
     						'header' => strtoupper($fee_type),
-    						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
+//    						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
     						'formOptions' => ['action' => '/staged-allocation/edit-alloc'],
     						'showButtons' => false,
+    						'asPopover' => false,
     				],
     				'hAlign' => 'right',
     				'vAlign' => 'middle',
@@ -57,17 +58,27 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 //    				'refreshGrid' => true,
     		];
     	} 
+    	$header =   
+    		Html::button('<i class="glyphicon glyphicon-option-horizontal"></i>',
+      			['value' => Url::to(["/staged-allocation/add-type", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
+      					'id' => 'allocationCreateTypeButton',
+      					'class' => 'btn btn-default btn-modal',
+      					'data-title' => 'Fee Type',
+      		]) .' '.
+    		Html::button('<i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-user"></i>',
+      			['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
+      					'id' => 'allocationCreateButton',
+      					'class' => 'btn btn-default btn-modal',
+      					'data-title' => 'Allocation',
+      		]);
+      	
     	$actionColumn[] = [
 					'class' => 'kartik\grid\ActionColumn',
 					'controller' => 'staged-allocation',
 					'template' => '{delete}',
-					'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
-							['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
-									'id' => 'allocationCreateButton',
-									'class' => 'btn btn-default btn-modal btn-embedded',
-									'data-title' => 'Allocation',
-							]),
-				];
+					'header' => $header,
+            	'width' => '110px',
+    	];
     ?>
     
     <?= GridView::widget([

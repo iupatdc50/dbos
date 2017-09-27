@@ -19,6 +19,8 @@ use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
 use app\models\member;
 use app\modules\admin\models\FeeType;
+use app\helpers\ClassHelper;
+use app\models\accounting\DuesAllocation;
 
 
 /**
@@ -200,7 +202,22 @@ class BaseController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        $errors = [];
+        foreach($model->members as $alloc_memb) {
+        	foreach($alloc_memb->allocations as $alloc) {
+        		
+        		if ($alloc->fee_type == FeeType::TYPE_DUES) {
+        			$dues_alloc = ClassHelper::cast(DuesAllocation::className(), $alloc);
+        			// fire event triggers associated with allocations
+        			$dues_alloc->delete();
+        		}
+        	}
+        }
+        if (!empty($errors))
+        	throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($errors, true));
+        
+        $model->delete();
         return $this->redirect(['index']);
     }
 
