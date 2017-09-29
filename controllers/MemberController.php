@@ -16,6 +16,8 @@ use app\models\member\AllowableClassDescription;
 use app\models\member\Employment;
 use app\models\member\Note;
 use app\models\member\Document;
+use app\models\accounting\DuesRateFinder;
+use app\models\member\Standing;
 use app\models\member\MemberSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -99,10 +101,20 @@ class MemberController extends RootController
     	$view = Yii::$app->user->can('browseMember') ? 'view' : 'viewext';
     	$model = $this->findModel($id);
     	$params = [];
-    	$params['model'] = $model;
+    	$params['model'] = $model;    
+
+    	$balance = 'Pending';
+    	if (isset($model->currentStatus) && isset($model->currentClass)) {
+    		$rate_finder = new DuesRateFinder($model->currentStatus->lob_cd, $model->currentClass->rate_class);
+    		$standing = new Standing(['member' => $model]);
+    		$balance = number_format($standing->getDuesBalance($rate_finder) + $standing->totalAssessmentBalance, 2);
+    	}
+    	$params['balance'] = $balance;
+    	
     	if (Yii::$app->user->can('browseMember')) {
     		$params['noteModel'] = $this->createNote($model);
     	} else {
+    		// Specific for doc uploader view
 	    	$query = Document::find()
 	    						->where(['member_id' => $id])
 	    						->orderBy('doc_type asc');

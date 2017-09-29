@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
     		'model' => $model,
 //			'mode'=>DetailView::MODE_VIEW,
-           	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table text-left'],
+           	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table-sm text-left'],
         	'attributes' => [
         		[
         				'label' => 'Trade', 
@@ -59,6 +59,11 @@ $this->params['breadcrumbs'][] = $this->title;
         				'format' => 'raw',
         				'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
     			],	
+        		[
+        				'label' => 'Balance Due',
+        				'value' => Html::encode($balance),
+        				'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
+    			],
     		],
     ]); ?>
     </td><td class="seventyfive-pct">

@@ -138,8 +138,13 @@ table .total-border {
 }
 .btn.margin-lft-25 {margin-left: 25%;}
 
+.op-dv-table-sm th {
+	width: 40%;
+	text-align: right;
+}
+
 .op-dv-table th {
-	width: 20%;
+	width: 25%;
 	text-align: right;
 }
 
