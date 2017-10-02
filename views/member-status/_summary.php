@@ -62,7 +62,15 @@ echo GridView::widget([
             		'class' => 'btn btn-default btn-modal',
             		'data-title' => 'Clear In',	
             		'title' => 'Clear In (CCD)',
-            		'disabled' => ($status == Status::ACTIVE),
+            		'disabled' => ($status != Status::INACTIVE),
+            	])
+				. Html::button('Dep In Svc', 
+            		['value' => Url::to(["/member-status/dep-insvc", 'member_id'  => $id]), 
+            		'id' => 'dropButton',
+            		'class' => 'btn btn-default btn-modal',
+            		'data-title' => 'Deposit In Service',	
+            		'title' => 'Deposit In Svc Card',
+            		'disabled' => ($status != Status::GRANTINSVC),
             	]),
 		],
 		'columns' => [

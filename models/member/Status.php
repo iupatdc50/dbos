@@ -28,6 +28,7 @@ use app\components\validators\AtLeastValidator;
 class Status extends BaseEndable
 {
 	CONST SCENARIO_CCD = 'ccd';
+	CONST SCENARIO_DEPINSVC = 'dep-insvc';
 	CONST SCENARIO_RESET = 'reset';
 	
 	CONST REASON_NEW = 'New Entry';
@@ -37,6 +38,7 @@ class Status extends BaseEndable
 	CONST REASON_CCD = 'CC deposited. Previous local: ';
 	CONST REASON_DROP = 'Member dropped';
 	CONST REASON_FORFEIT = 'Forfeited';
+	CONST REASON_DEPINSVC = 'In svc card deposited';
 	CONST REASON_REINST = 'Member reinstated';
 	CONST REASON_RESET_INIT = 'Initiation Date reset to: ';
 	CONST REASON_RESET_PT = 'Dues Thru Date reset to: ';
@@ -45,6 +47,7 @@ class Status extends BaseEndable
 	CONST INACTIVE = 'I';
 	CONST IN_APPL = 'N';
 	CONST SUSPENDED = 'S';
+	CONST GRANTINSVC = 'M';
 	
 	public $other_local;
 	public $paid_thru_dt;

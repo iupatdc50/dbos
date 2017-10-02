@@ -43,7 +43,7 @@ class MemberStatusController extends SummaryController
 						'rules' => [
 								[
 										'allow' => true,
-										'actions' => ['create', 'forfeit', 'drop', 'clear-in'],
+										'actions' => ['create', 'forfeit', 'drop', 'clear-in', 'dep-insvc'],
 										'roles' => ['createMember', 'updateMember'],
 								],
 								[
@@ -217,6 +217,32 @@ class MemberStatusController extends SummaryController
 			$model->reason = Status::REASON_CCD . $prev;
 			if ($this->member->addStatus($model)) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} changed for Clear In");
+				return $this->goBack();
+			}
+			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+		}
+		$this->initCreate($model);
+		$model->member_status = Status::ACTIVE;
+		return $this->renderAjax('create', compact('model'));
+		
+	}
+	
+	public function actionDepInsvc($member_id) 
+	{	
+		/** @var Model $model */
+		$model = new Status();
+		$this->setMember($member_id); 
+		
+		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			$model->member_id = $this->member->member_id;
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
+		
+		if ($model->load(Yii::$app->request->post())) {
+			$model->reason = Status::REASON_DEPINSVC;
+			if ($this->member->addStatus($model)) {
+				Yii::$app->session->addFlash('success', "{$this->getBasename()} changed for Dep In Svc");
 				return $this->goBack();
 			}
 			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));

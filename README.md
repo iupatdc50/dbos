@@ -13,6 +13,10 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.550
+. Added "In Service Card" handling
+. Cleaned out some dead code
+
 0.9.10.500
 . Added reset paid thru when dues receipt deleted
 . Added paid thru date on member dues receipts

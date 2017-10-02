@@ -6,7 +6,9 @@ use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptSearch;
+use app\models\member\Member;
 use app\models\member\Status;
+use app\models\member\Standing;
 use yii\base\InvalidCallException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -17,7 +19,6 @@ use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
-use app\models\member;
 use app\modules\admin\models\FeeType;
 use app\helpers\ClassHelper;
 use app\models\accounting\DuesAllocation;
@@ -133,7 +134,8 @@ class BaseController extends Controller
 	    				$member->currentStatus->lob_cd,
 	    				$member->currentClass->rate_class
 	    		);
-	    		$alloc->months = $alloc->calcMonths();
+	    		$standing = new Standing(['member' => $member]);
+	    		$alloc->months = $alloc->calcMonths() + $standing->getDiscountedMonths();
 	    		$alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
 	    		if (!$alloc->save()) {
 	    			$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);

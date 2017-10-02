@@ -403,6 +403,22 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
+     * Query for a grant in-svc status that would forgive qualifying dues during that period
+     * Status must effective after member's current dues paid thru date
+     * 
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInServicePeriod()
+    {
+    	return $this->hasOne(Status::className(), ['member_id' => 'member_id'])
+    		->from(Status::tableName() . ' St')
+    		->where(['and', 
+    					['St.member_status' => Status::GRANTINSVC],
+    					['or', 'St.end_dt > ' . $this->dues_paid_thru_dt, ['St.end_dt' => null]]
+    		]);
+    }
+    
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getStatuses()

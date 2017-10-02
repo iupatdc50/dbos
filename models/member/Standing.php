@@ -13,7 +13,7 @@ use app\models\accounting\Assessment;
 /** 
  * Model class for managing the financial status of a member
  * 
- * Requires the injection of a Member and a DuesRateFinder object 
+ * Requires the injection of a Member 
  */
 class Standing extends Model
 {
@@ -31,19 +31,10 @@ class Standing extends Model
 	 */
 	public $member;
 	
-	/**
-	 * @var DuesRateFinder
-	 */
-//	public $duesRateFinder;
-	
 	public function init()
 	{
 		if(!(isset($this->member) && ($this->member instanceof Member)))
 			throw new \yii\base\InvalidConfigException('No member object injected');
-		/*
-		if(!(isset($this->duesRateFinder) && ($this->duesRateFinder instanceof DuesRateFinder)))
-			throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
-			*/
 	}
 	
 	/**
@@ -55,13 +46,25 @@ class Standing extends Model
 	{
 		$start_dt = clone $this->member->duesPaidThruDtObject;
 		$obligation_dt = $this->getDuesObligation();
-		$i = 0;
-		while ($start_dt->getYearMonth() < $obligation_dt->getYearMonth()) {
-			$i++;
-			$start_dt->modify('+1 month');
-			$start_dt->setToMonthEnd();
+		return $this->calcMonths($start_dt, $obligation_dt);
+	}
+	
+	/**
+	 * Compute discounted months for granted in service card
+	 * 
+	 * @return number
+	 */
+	public function getDiscountedMonths()
+	{
+		$months = 0;
+		$status = $this->member->inServicePeriod;
+		if (isset($status)) {
+			$start_dt = ($status->effective_dt > $this->member->dues_paid_thru_dt) ? $status->effective_dt : $this->member->dues_paid_thru_dt;
+			$start_dt_obj = (new OpDate)->setFromMySql($start_dt);
+			$end_dt_obj = ($status->end_dt === null) ? $this->getDuesObligation() : (new OpDate)->setFromMySql($status->end_dt); 
+			$months = $this->calcMonths($start_dt_obj, $end_dt_obj);
 		}
-		return $i;
+		return $months;
 	}
 	
 	/**
@@ -101,7 +104,9 @@ class Standing extends Model
 	public function getDuesBalance(DuesRateFinder $rateFinder)
 	{
 		$obligation_dt = $this->getDuesObligation();
-		return ($obligation_dt > $this->member->duesPaidThruDtObject) ? $rateFinder->computeBalance($this->member->dues_paid_thru_dt, $obligation_dt->getMySqlDate()) : 0.00;
+		$adjusted_pt_dt = clone $this->member->duesPaidThruDtObject;
+		$adjusted_pt_dt->modify('+' . $this->getDiscountedMonths() . ' month');
+		return ($obligation_dt > $this->member->duesPaidThruDtObject) ? $rateFinder->computeBalance($adjusted_pt_dt->getMySqlDate(), $obligation_dt->getMySqlDate()) : 0.00;
 	}
 	
 	public function getOutstandingAssessment($fee_type)
@@ -175,6 +180,25 @@ class Standing extends Model
 			$obligation_dt = $monthend_dt;
 		}
 		return $obligation_dt;
+	}
+	
+	/**
+	 * Difference in months between 2 date objects
+	 * 
+	 * @param OpDate $start
+	 * @param OpDate $end
+	 * @return number
+	 */
+	private function calcMonths(OpDate $start, OpDate $end)
+	{
+		$i = 0;
+		while ($start->getYearMonth() < $end->getYearMonth()) {
+			$i++;
+			$start->modify('+1 month');
+			$start->setToMonthEnd();
+		}
+		return $i;
+		
 	}
 	
 }

@@ -62,6 +62,10 @@ class DuesAllocation extends BaseAllocation
     
     public function beforeDelete()
     {
+    	if($this->months === null) {
+    		Yii::error('*** DA010 Malformed allocation record for ID: ' . $this->id);
+    		throw new \yii\base\ErrorException('Problem with allocation record.  Contact tech support: [DA010] ');
+    	}
     	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBSTRACT);
     	$this->member->dues_paid_thru_dt = $dt;
     	$this->member->save();
