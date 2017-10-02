@@ -35,10 +35,10 @@ class Status extends BaseEndable
 	CONST REASON_APF = 'APF satisfied';
 	CONST REASON_DUES = 'Dues payment made';
 	CONST REASON_CCG = 'CC granted to local: ';
-	CONST REASON_CCD = 'CC deposited. Previous local: ';
+	CONST REASON_CCD = 'Deposit CC. Previous local: ';
 	CONST REASON_DROP = 'Member dropped';
 	CONST REASON_FORFEIT = 'Forfeited';
-	CONST REASON_DEPINSVC = 'In svc card deposited';
+	CONST REASON_DEPINSVC = 'Deposit ISC';
 	CONST REASON_REINST = 'Member reinstated';
 	CONST REASON_RESET_INIT = 'Initiation Date reset to: ';
 	CONST REASON_RESET_PT = 'Dues Thru Date reset to: ';

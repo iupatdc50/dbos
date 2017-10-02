@@ -227,7 +227,7 @@ class MemberStatusController extends SummaryController
 		
 	}
 	
-	public function actionDepInsvc($member_id) 
+	public function actionDepIsc($member_id) 
 	{	
 		/** @var Model $model */
 		$model = new Status();

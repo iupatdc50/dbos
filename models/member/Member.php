@@ -414,7 +414,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		->from(Status::tableName() . ' St')
     		->where(['and', 
     					['St.member_status' => Status::GRANTINSVC],
-    					['or', 'St.end_dt > ' . $this->dues_paid_thru_dt, ['St.end_dt' => null]]
+    					['or', "St.end_dt > '{$this->dues_paid_thru_dt}'" , ['St.end_dt' => null]]
     		]);
     }
     
