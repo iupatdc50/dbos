@@ -284,7 +284,7 @@ class RbacController extends Controller
 		$auth->add($frontDesk);
 		$auth->addChild($frontDesk, $memberEditor);
 		$auth->addChild($frontDesk, $contractorEditor);
-		$auth->addChild($frontDesk, $accountingViewer);
+		$auth->addChild($frontDesk, $accountingEditor);
 		echo "...complete\n";
 		
 		// Office Manager role
@@ -295,7 +295,7 @@ class RbacController extends Controller
 		$auth->addChild($officeMgr, $assignRole);
 		$auth->addChild($officeMgr, $memberAdmin);
 		$auth->addChild($officeMgr, $contractorAdmin);
-		$auth->addChild($officeMgr, $accountingReviewer);
+		$auth->addChild($officeMgr, $accountingAdmin);
 		$auth->addChild($officeMgr, $projectAdmin);
 		echo "...complete\n";
 		
@@ -306,6 +306,16 @@ class RbacController extends Controller
 		$auth->add($bizMgr);
 		$auth->addChild($bizMgr, $memberViewer); 
 		$auth->addChild($bizMgr, $contractorViewer);
+		echo "...complete\n";
+		
+		//Training role
+		echo "Preparing Training role";
+		$training = $auth->createRole('training');
+		$training->description = 'Training Staff';
+		$auth->add($training);
+		$auth->addChild($training, $memberViewer); 
+		$auth->addChild($training, $contractorViewer);
+		$auth->addChild($training, $trainingViewer);
 		echo "...complete\n";
 		
 		// System Admin role
