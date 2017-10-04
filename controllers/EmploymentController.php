@@ -18,6 +18,33 @@ class EmploymentController extends SummaryController
 	public $recordClass = 'app\models\member\Employment';
 	public $relationAttribute = 'member_id';
 	
+	/**
+	 * Overrides summary controller action to process image attachment
+	 * 
+	 * (non-PHPdoc)
+	 * @see \app\controllers\base\SubmodelController::actionCreate()
+	 */
+    public function actionCreate($relation_id)
+    {
+    	/** @var ActiveRecord $model */
+        $model = new Employment;
+        
+        if ($model->load(Yii::$app->request->post())) {
+	        // Prepopulate referencing column
+	        $model->member_id = $relation_id;
+        	$image = $model->uploadImage();
+        	if	($model->save()) {
+        		if ($image !== false) {
+        			$path = $model->imagePath;
+        			$image->saveAs($path);
+        		}
+        		return $this->goBack();
+        	}
+        } 
+        return $this->renderAjax('create', compact('model'));
+
+    }
+	
 	public function actionUpdate($id)
 	{
 		throw new NotFoundHttpException('Non-supported feature.  Cannot update employment this way.');
@@ -34,11 +61,26 @@ class EmploymentController extends SummaryController
 	public function actionEdit($member_id, $effective_dt)
 	{
 		$model = $this->findByDate($member_id, $effective_dt);
-				
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-        	Yii::$app->session->addFlash('success', "{$this->getBasename()} entry updated");
-            return $this->goBack();
+		
+	    $oldPath = $model->imagePath;
+        $oldId = $model->doc_id;
+        
+        if ($model->load(Yii::$app->request->post())) {
+        	$image = $model->uploadImage();
+        	
+        	if($image === false)
+        		$model->doc_id = $oldId;
+         
+        	if	($model->save()) {
+            	if ($image !== false && (($oldPath === null) || unlink($oldPath))) {
+    				$path = $model->imagePath;
+    				$image->saveAs($path);
+    			}
+    			Yii::$app->session->addFlash('success', "{$this->getBasename()} entry updated");
+        		return $this->goBack();
+        	}
         } 
+        		
         return $this->render('edit', compact('model'));
 	}
 	

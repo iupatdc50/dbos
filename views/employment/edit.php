@@ -11,6 +11,8 @@ use yii\web\JsExpression;
 use kartik\datecontrol\DateControl;
 use kartik\select2\Select2;
 use kartik\checkbox\CheckboxX;
+use kartik\widgets\FileInput;
+
 
 
 /* @var $this yii\web\View */
@@ -87,6 +89,14 @@ $url = Url::to(['/contractor/contractor-list']);
 	    ],
 	])->label('Loan to', ['id' => 'duespayorlbl']); ?>
 	</div>
+	
+	<?= $form->field($model, "doc_file")->widget(FileInput::className(), [
+    		'options' => ['accept' => 'application/pdf'],
+    		'pluginOptions'=> [
+    				'allowedFileExtensions'=>['pdf','png'],
+    				'showUpload' => false,
+    		],
+    ]); ?>
 	
     <div class="form-group">
         <?= Html::submitButton('Update', ['class' => 'btn btn-success']) ?>

@@ -21,6 +21,7 @@ use yii\base\InvalidCallException;
  * @property string $employer
  * @property string $dues_payor
  * @property string $is_loaned
+ * @property string $doc_id
  *
  * @property Member $member
  * @property Contractor $contractor
@@ -33,6 +34,11 @@ class Employment extends BaseEndable
 	 */
 	private $_standing;
 	public $loan_ckbox;
+	/**
+	 * @var mixed	Stages document to be uploaded
+	 */
+	public $doc_file;
+	
 	
     /**
      * @inheritdoc
@@ -88,6 +94,18 @@ class Employment extends BaseEndable
     	return self::findOne(['member_id' => $member_id, 'effective_dt' => $effective_dt]);
     }
     
+	/**
+	 * Handles all the document attachment processing functions for the model
+	 * 
+	 * @see \yii\base\Component::behaviors()
+	 */
+	public function behaviors()
+	{
+		return [
+				\app\components\behaviors\OpImageBehavior::className(),
+		];
+	}
+
     /**
      * @inheritdoc
      */
@@ -98,7 +116,9 @@ class Employment extends BaseEndable
             [['effective_dt', 'end_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['employer', 'dues_payor'], 'exist', 'targetClass' => '\app\models\contractor\Contractor', 'targetAttribute' => 'license_nbr'],
-        	['loan_ckbox', 'safe'],
+        	[['loan_ckbox'], 'safe'],
+            [['doc_id'], 'string', 'max' => 20],
+        	[['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],        		
         ];
     }
 

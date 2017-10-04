@@ -77,6 +77,18 @@ echo GridView::widget([
 							return $result;
 						},
 				],
+				
+				[
+						'attribute' => 'showPdf',
+						'label' => 'Doc',
+						'format' => 'raw',
+						'value' => function($model) {
+							return (isset($model->doc_id)) ?
+								Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show referral']),
+									$model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
+						},
+				],
+				
 				[
 						'class' => 'kartik\grid\ActionColumn',
 						'visible' => Yii::$app->user->can('updateMember'),
