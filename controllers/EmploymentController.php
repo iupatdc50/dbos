@@ -29,6 +29,8 @@ class EmploymentController extends SummaryController
     	/** @var ActiveRecord $model */
         $model = new Employment;
         
+        // Loan has its own action
+		$model->is_loaned = 'F';
         if ($model->load(Yii::$app->request->post())) {
 	        // Prepopulate referencing column
 	        $model->member_id = $relation_id;
@@ -38,6 +40,7 @@ class EmploymentController extends SummaryController
         			$path = $model->imagePath;
         			$image->saveAs($path);
         		}
+        		Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
         		return $this->goBack();
         	}
         } 
@@ -109,6 +112,7 @@ class EmploymentController extends SummaryController
         	if ($removing_current)
         		 Employment::openLatest($member_id);
 			
+        	Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
 			return $this->goBack();
 		}
 		throw new NotFoundHttpException('Unable to locate employment record.');
@@ -124,6 +128,7 @@ class EmploymentController extends SummaryController
 		$model->employer = $this->findCurrent($relation_id)->employer;
 		$model->is_loaned = 'T';
 		if ($model->load(Yii::$app->request->post()) && $model->save()) {
+			Yii::$app->session->addFlash('success', "{$this->getBasename()} Loan entry created");
 			return $this->goBack();
 		}
 		

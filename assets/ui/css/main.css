@@ -315,7 +315,7 @@ a span.loaned {
 }
 /* override Kartik file input caption container */
 .file-caption-name {
-	height: auto;
+	height: auto !important;
 	font-size: 12px;
 }
 
