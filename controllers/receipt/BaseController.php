@@ -120,12 +120,46 @@ class BaseController extends Controller
         }
     }
     
+    /**
+     * Posts the staged receipt
+     * 
+     * Assessment allocations are applied first because APF status is checked when dues are applied
+     * 
+     * @param integer $id
+     * @throws \yii\base\ErrorException
+     * @return \yii\web\Response
+     */
     public function actionPost($id)
     {
     	$model = $this->findModel($id);
-
-    	$allocs = $model->duesAllocations;
     	$this->_dbErrors = [];
+    	 
+        $allocs = $model->assessmentAllocations;
+    	/* @var $alloc AssessmentAllocation */
+    	foreach ($allocs as $alloc) {
+    		if ($this->retainAlloc($alloc)) {
+	    		if ($alloc->applyToAssessment()) {
+	    			if (!$alloc->save()) {
+	    				$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
+	    			}
+	    		}
+	    		if (($alloc->fee_type == FeeType::TYPE_CC) || ($alloc->fee_type == FeeType::TYPE_REINST)) {
+	    			$member = $alloc->member;
+	    			$status = $this->prepareStatus($member, $model->received_dt);
+	    			if ($alloc->fee_type == FeeType::TYPE_CC) {
+	    				$status->member_status = Status::INACTIVE;
+	    				$status->reason = isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCG . $alloc->allocatedMember->otherLocal->other_local : 'CCG';
+	    			} else { // assume FeeType::TYPE_REINST
+	    				$status->member_status = Status::ACTIVE;
+	    				$status->reason = Status::REASON_REINST;
+	    			}
+	    			if (!$member->addStatus($status))
+	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
+	    		}	 
+    		}
+    	}   
+    	
+    	$allocs = $model->duesAllocations;
     	/* @var $alloc DuesAllocation */
     	foreach ($allocs as $alloc) {
     		if ($this->retainAlloc($alloc)) {
@@ -163,31 +197,6 @@ class BaseController extends Controller
 	    		}
     		}
     	}
-    	
-    	$allocs = $model->assessmentAllocations;
-    	/* @var $alloc AssessmentAllocation */
-    	foreach ($allocs as $alloc) {
-    		if ($this->retainAlloc($alloc)) {
-	    		if ($alloc->applyToAssessment()) {
-	    			if (!$alloc->save()) {
-	    				$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
-	    			}
-	    		}
-	    		if (($alloc->fee_type == FeeType::TYPE_CC) || ($alloc->fee_type == FeeType::TYPE_REINST)) {
-	    			$member = $alloc->member;
-	    			$status = $this->prepareStatus($member, $model->received_dt);
-	    			if ($alloc->fee_type == FeeType::TYPE_CC) {
-	    				$status->member_status = Status::INACTIVE;
-	    				$status->reason = isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCG . $alloc->allocatedMember->otherLocal->other_local : 'CCG';
-	    			} else { // assume FeeType::TYPE_REINST
-	    				$status->member_status = Status::ACTIVE;
-	    				$status->reason = Status::REASON_REINST;
-	    			}
-	    			if (!$member->addStatus($status))
-	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
-	    		}	 
-    		}
-    	}   
     	
     	if (!empty($this->_dbErrors))
     		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($this->_dbErrors, true));
@@ -280,7 +289,7 @@ class BaseController extends Controller
      */
     protected function prepareStatus(Member $member, $date)
     {
-        if (($status = Status::findOne(['member_id' => $member_id, 'effective_dt' => $date])) !== null) 
+        if (($status = Status::findOne(['member_id' => $member->member_id, 'effective_dt' => $date])) !== null) 
             return $status;
     	;
     	return new Status(['effective_dt' => $date]);

@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.570
+. Updated RBAC to include training roles
+. Added the ability to attach a document to an employment record
+. Improved "in application" handling
+. Fixed bugs in employment create, ISC handling
+
 0.9.10.550
 . Added "In Service Card" handling
 . Cleaned out some dead code

@@ -264,6 +264,10 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     			}
     			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
     				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
+    		} else {
+    			// Don't override if dues_paid_thru_dt was reset
+    			if ($this->isAttributeChanged('application_dt') && (!$this->isAttributeChanged('dues_paid_thru_dt')))
+    				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
     		}
     		if ($this->isAttributeChanged('ssnumber')) {
     			$this->report_id = 'xxx-xx-' . substr($this->ssnumber, 7);

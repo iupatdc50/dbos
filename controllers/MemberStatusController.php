@@ -72,6 +72,26 @@ class MemberStatusController extends SummaryController
 		if ($model->load(Yii::$app->request->post())) {
 			if ($this->member->addStatus($model)) {
 				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added");
+				
+				if ($model->member_status == Status::IN_APPL) {
+					$this->member->application_dt = $model->effective_dt;
+					$this->member->save();
+					Yii::$app->session->addFlash('success', "APF assessment created");
+					$assessment = Assessment::findOne([
+							'member_id' => $this->member->member_id,
+							'fee_type' => FeeType::TYPE_REINST,
+					]);
+					if (isset($assessment)) {
+						try {
+							$assessment->delete();
+							Yii::$app->session->addFlash('success', "Reinstatement fee assessment removed");
+						} catch (Exception $e) {
+							Yii::$app->session->addFlash('error', "Could not remove reinstatement fee assessment. Check if payments already made.");
+						}
+					}
+					
+				}
+					
 				return $this->goBack();
 			} else {
 				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC001`');
