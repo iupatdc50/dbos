@@ -45,7 +45,8 @@ $this->params['breadcrumbs'][] = $this->title;
 			'templateResult' => new JsExpression('function(member_id) { return member_id.text; }'),
 			'templateSelection' => new JsExpression('function(member_id) { return member_id.text; }'),
 	    ],
-	]); ?>
+    	
+	])->label('Member'); ?>
     
     <?= $this->render('../receipt/_formfields', [
     	'form' => $form,

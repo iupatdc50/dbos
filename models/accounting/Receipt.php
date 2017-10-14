@@ -5,6 +5,8 @@ namespace app\models\accounting;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
+use app\helpers\OptionHelper;
+
 use app\models\user\User;
 use app\models\value\Lob;
 use app\modules\admin\models\FeeType;
@@ -27,6 +29,8 @@ use app\components\utilities\OpDate;
  * @property integer $created_at
  * @property integer $created_by
  * @property string $remarks
+ * @property string $lob_cd
+ * @property string $acct_month
  *
  * @property AllocatedMember[] $members
  * @property ReceiptFeeType[] $feeTypes
@@ -51,7 +55,7 @@ class Receipt extends \yii\db\ActiveRecord
 	protected $_remit_filter;
 	protected $_customAttributes = [];
 	
-	public $lob_cd;
+//	public $lob_cd;
 	public $fee_types = [];
 	
 	/**
@@ -115,7 +119,7 @@ class Receipt extends \yii\db\ActiveRecord
         $common_rules = [
             [['payor_nm'], 'string', 'max' => 100],
         	[['payor_nm', 'helper_hrs'], 'default', 'value' => null],
-        	[['payment_method', 'payor_type', 'received_dt', 'received_amt'], 'required'],
+        	[['payment_method', 'payor_type', 'received_dt', 'received_amt', 'acct_month'], 'required'],
         	[['payment_method'], 'in', 'range' => self::getAllowedMethods()],
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
         	[['received_dt'], 'date', 'format' => 'php:Y-m-d'],
@@ -156,7 +160,8 @@ class Receipt extends \yii\db\ActiveRecord
         	'remarks' => 'Remarks',
         	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
-            'lob_cd' => 'Union',
+            'lob_cd' => 'Trade',
+        	'acct_month' => 'Account Month',
         ];
         return array_merge($this->_labels, $common_labels);
     }
@@ -197,6 +202,20 @@ class Receipt extends \yii\db\ActiveRecord
     public function getCreatedBy()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+    
+    public function getAcctMonthText()
+    {
+    	return OptionHelper::getPrettyMonthYear($this->acct_month);
+    }
+    
+    public function getAcctMonthOptions(OpDate $base_dt = null)
+    {
+    	if (!isset($base_dt)) {
+    		$base_dt = new OpDate();
+    		$base_dt = (isset($this->received_dt)) ? $base_dt->setFromMySql($this->received_dt) : $base_dt->setFromMySql($this->getToday());
+    	}
+    	return OpDate::getMonthsList($base_dt, 2);
     }
 
     public function getMethodOptions()

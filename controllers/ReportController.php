@@ -156,6 +156,14 @@ class ReportController extends Controller
 		]);
 	}
 	
+	public function actionPaymentMethod()
+	{
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'paymethodsumm',
+		]);
+	}
+	
 	/*
 	public function actionDelinquentDues()
 	{

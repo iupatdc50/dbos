@@ -105,6 +105,11 @@ use kartik\widgets\SideNav;
 																'url' => '/report/international',
 																'active' => (yii::$app->requestedRoute == 'report/international'),
 														],
+														[
+																'label' => 'Payment Method Summary',
+																'url' => '/report/payment-method',
+																'active' => (yii::$app->requestedRoute == 'report/payment-method'),
+														],
 												],
 												
 										],

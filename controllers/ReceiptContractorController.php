@@ -39,10 +39,10 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
     	return $this->render('view', compact('model', 'membProvider', 'searchMemb'));
     }
     
-	public function actionCreate($lob_cd)
+	public function actionCreate($lob_cd, $id = null)
 	{
 		$model = new ReceiptContractor([
-				'responsible' => new ResponsibleEmployer(),
+				'responsible' => new ResponsibleEmployer(['license_nbr' => $id]),
 				'scenario' => Receipt::SCENARIO_CREATE,
 				'lob_cd' => $lob_cd,
 		]);
@@ -115,6 +115,9 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 			}
 					
 		}
+		
+		$this->initCreate($model);
+		
 		return $this->render('create', [
 				'model' => $model,
 		]);

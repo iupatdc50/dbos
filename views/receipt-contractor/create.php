@@ -28,10 +28,14 @@ $this->params['breadcrumbs'][] = $this->title;
     		'options' => ['enctype' => 'multipart/form-data'],
     ]); ?>
     
+    <?php 
+    $contractor = empty($model->responsible->license_nbr) ? 'Search for an employer...' : $model->responsible->employer->contractor;
+    ?>
+    
     <?= $form->field($model->responsible, 'license_nbr')->widget(Select2::classname(), [
 		'size' => Select2::SMALL,
-    	'options' => ['placeholder' => 'Search for an employer...'],
-	    'pluginOptions' => [
+    	'initValueText' => $contractor,
+    	'pluginOptions' => [
 	        'allowClear' => true,
 	        'minimumInputLength' => 3,
 	        'ajax' => [

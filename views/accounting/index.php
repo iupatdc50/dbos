@@ -13,6 +13,12 @@ use kartik\select2\Select2;
 
 $this->title = 'Receipts';
 $this->params['breadcrumbs'][] = $this->title;
+
+$show_class = $mine_only ? 'glyphicon glyphicon-expand' : 'glyphicon glyphicon-user';
+$show_label = $mine_only ? 'All' : 'Mine Only';
+$toggle_mine_only = !$mine_only;
+
+
 ?>
 
 <div class="receipt-index">
@@ -29,7 +35,12 @@ $this->params['breadcrumbs'][] = $this->title;
 		    'after' => false,
 		],
 		'toolbar' => [
-			'content' => Html::button('Create Receipt', 
+			'content' => 
+				Html::a(Html::tag('span', '', ['class' => $show_class]) . '&nbsp;Show ' . $show_label, 
+							['index', 'mine_only' => $toggle_mine_only],
+							['class' => 'btn btn-default'])
+				.
+				Html::button('Create Receipt', 
 					[
 							'class' => 'btn btn-success btn-modal',
 							'id' => 'receiptCreateButton',
@@ -46,6 +57,7 @@ $this->params['breadcrumbs'][] = $this->title;
     				'attribute' => 'id',
     				'label' => 'Nbr',
     		],
+    		'lob_cd',
     		[
     				'attribute' => 'received_dt',
     				'format' => 'date',

@@ -14,6 +14,10 @@ use yii\widgets\DetailView;
 	<?php
 	$common_attributes = [
             'received_dt:date',
+			[
+					'attribute' => 'acct_month',
+					'value' => $modelReceipt->acctMonthText,
+			],
         	[
             		'attribute' => 'payor_nm',
             		'value' => $modelReceipt->payor_nm . ($modelReceipt->payor_type == 'O' ? ' (for ' . $modelReceipt->responsible->employer->contractor . ')' : ''),

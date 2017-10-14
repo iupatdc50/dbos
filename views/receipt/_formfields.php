@@ -17,6 +17,11 @@ use kartik\datecontrol\DateControl;
 			'type' => DateControl::FORMAT_DATE,
 	])   ?>
        
+    <?= $form->field($model, 'acct_month')->widget(Select2::className(), [
+    		'data' => $model->acctMonthOptions,
+    		'options' => ['placeholder' => 'Select month...'],
+    ]) ?>
+	
 	<?= $form->field($model, 'payor_nm')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'payment_method')->widget(Select2::className(), [

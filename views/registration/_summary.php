@@ -19,7 +19,7 @@ $heading = 'Bid Projects';
 // 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
 Pjax::begin(['id' => 'bid-projects', 'enablePushState' => false]);
 
-$show_class = $awarded_only ? 'glyphicon glyphicon-expand' : 'glyphicon glyphicon-certificate';
+$show_class = $awarded_only ? 'glyphicon glyphicon-expand' : 'glyphicon glyphicon-user';
 $show_label = $awarded_only ? 'All' : 'Awarded Only';
 $toggle_awarded_only = !$awarded_only;
 

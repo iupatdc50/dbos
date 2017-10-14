@@ -13,6 +13,13 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.610
+. Added filters on receipts list for trade and logged in user
+. Revised receipt creation wizards to accommodate trade
+. Added provision for an accounting month on receipts
+. Modified the cash journals and International selection criteria to use accounting month
+. Added a report summarizing receipts by payment method
+
 0.9.10.570
 . Updated RBAC to include training roles
 . Added the ability to attach a document to an employment record

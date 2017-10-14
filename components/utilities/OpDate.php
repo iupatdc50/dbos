@@ -15,8 +15,8 @@ namespace app\components\utilities;
  */
 class OpDate extends \DateTime 
 {
-	const OP_ADD = '+';
-	const OP_SUBSTRACT = '-';
+	CONST OP_ADD = '+';
+	CONST OP_SUBTRACT = '-';
 	
 	protected $_year;
 	protected $_month;
@@ -37,6 +37,17 @@ class OpDate extends \DateTime
 		$start = gmmktime ( 0, 0, 0, $date1->_month, $date1->_day, $date1->_year );
 		$end = gmmktime ( 0, 0, 0, $date2->_month, $date2->_day, $date2->_year );
 		return ($end - $start) / (60 * 60 * 24);
+	}
+	
+	static public function getMonthsList(OpDate $date, $span = 3) {
+		$base_dt = clone  $date;
+		$base_dt->modify(self::OP_SUBTRACT . $span . ' month');
+		$list = [];
+		for ($i = 0; $i < ($span*2); $i++) {
+			$list[$base_dt->getYearMonth()] = $base_dt->getMonthName() . ' ' . $base_dt->getYear();
+			$base_dt->modify(self::OP_ADD . '1 month');
+		}
+		return $list;
 	}
 	
 	/**

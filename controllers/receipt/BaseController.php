@@ -22,6 +22,7 @@ use app\models\accounting\ReceiptAllocSumm;
 use app\modules\admin\models\FeeType;
 use app\helpers\ClassHelper;
 use app\models\accounting\DuesAllocation;
+use app\components\utilities\OpDate;
 
 
 /**
@@ -293,6 +294,25 @@ class BaseController extends Controller
             return $status;
     	;
     	return new Status(['effective_dt' => $date]);
+    }
+    
+    /**
+     * Override this function when testing with fixed date
+     *
+     * @return \app\components\utilities\OpDate
+     */
+    protected function getToday()
+    {
+    	return new OpDate();
+    }
+    
+    protected function initCreate($model)
+    {
+    	if (!isset($model->received_dt)) {
+    		$model->received_dt = $this->today->getMySqlDate();
+    		if (!isset($model->acct_month))
+    			$model->acct_month = $this->today->getYearMonth();
+    	}
     }
     
 }

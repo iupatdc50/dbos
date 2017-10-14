@@ -24,7 +24,7 @@ class ReceiptSearch extends Receipt
     {
         return [
             [['id', 'created_at', 'created_by'], 'integer'],
-            [['payor_nm', 'payment_method', 'payor_type_filter', 'received_dt', 'feeTypes', 'remarks'], 'safe'],
+            [['payor_nm', 'payment_method', 'payor_type_filter', 'received_dt', 'feeTypes', 'remarks', 'lob_cd'], 'safe'],
             [['received_amt', 'unallocated_amt'], 'number'],
         ];
     }
@@ -45,7 +45,7 @@ class ReceiptSearch extends Receipt
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $mine_only)
     {
         $query = Receipt::find();
 
@@ -77,8 +77,13 @@ class ReceiptSearch extends Receipt
             ->andFilterWhere(['like', 'payment_method', $this->payment_method])
             ->andFilterWhere(['like', 'payor_type', $this->payor_type_filter])
             ->andFilterWhere(['like', ReceiptFeeType::tableName() . '.fee_type', $this->feeTypes])
+            ->andFilterWhere(['lob_cd' => $this->lob_cd])
 //            ->andFilterWhere(['like', 'remarks', $this->remarks])
         ;
+        
+        if ($mine_only)
+        	$query->andWhere(['created_by' => Yii::$app->user->id]);
+    
 
         return $dataProvider;
     }

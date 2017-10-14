@@ -77,8 +77,9 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
 				throw new \Exception('Error when trying to save created Receipt: ' . $e);
 			}
 		} 
-
 		
+		$this->initCreate($model);
+
 		if (Yii::$app->request->isAjax)
 			return $this->renderAjax('create', [
 					'model' => $model,
