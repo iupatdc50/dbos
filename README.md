@@ -19,6 +19,7 @@ Modules are setup for:
 . Added provision for an accounting month on receipts
 . Modified the cash journals and International selection criteria to use accounting month
 . Added a report summarizing receipts by payment method
+. Minor bug fixes & performance improvements
 
 0.9.10.570
 . Updated RBAC to include training roles
