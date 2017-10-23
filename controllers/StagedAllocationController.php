@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
+use yii\db\Exception;
 use kartik\grid\EditableColumnAction;
 use app\controllers\base\SubmodelController;
 use app\models\accounting\ReceiptContractor;
@@ -47,7 +48,7 @@ class StagedAllocationController extends SubmodelController
 				if ($result)
 					return $this->goBack();
 			}
-			throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			throw new Exception	('Problem with post.  Errors: ' . print_r($builder->errors, true));
 		}
 		return $this->renderAjax('add', compact('model', 'license_nbr'));
 	
@@ -84,7 +85,7 @@ class StagedAllocationController extends SubmodelController
 	/**
 	 * Provides a filtered list of available Fee Types
 	 * 
-	 * Note that format of the JSON out must be built from an array in in this format: 
+	 * Note that format of the JSON out must be built from an array in this format: 
 	 * 		['id' => $key, 'name' => $value]
 	 * in order to work with a Select2
 	 */
@@ -106,6 +107,26 @@ class StagedAllocationController extends SubmodelController
 			}
 		}
 		echo Json::encode(['output' => '', 'selected' => '']);
+	}
+	
+	public function actionReassign($id)
+	{
+		$model = $this->findModel($id);
+		/** @var ReceiptContractor $receipt */
+		$receipt = $this->findReceiptModel($model->receipt_id);
+		$license_nbr = $receipt->responsible->license_nbr;
+		
+		if ($model->load(Yii::$app->request->post())) {
+			$alloc_memb = AllocatedMember::findOne($model->alloc_memb_id);
+			$alloc_memb->member_id = $model->member_id;
+			if (!$alloc_memb->save())
+				throw new Exception	('Problem with post.  Errors: ' . print_r($alloc_memb->errors, true));
+			
+			$this->goBack();
+			
+		}
+		
+		return $this->renderAjax('reassign', compact('model', 'license_nbr'));
 	}
 
 	/**

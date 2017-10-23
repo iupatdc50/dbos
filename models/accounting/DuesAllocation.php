@@ -52,23 +52,13 @@ class DuesAllocation extends BaseAllocation
         return parent::attributeLabels();
     }
     
-    /*
-    public function afterDelete() {
-    	if (parent::afterDelete()) {
-    		// adjust paid thru on member
-    	}
-    }
-    */
-    
     public function beforeDelete()
     {
-    	if($this->months === null) {
-    		Yii::error('*** DA010 Malformed allocation record for ID: ' . $this->id);
-    		throw new \yii\base\ErrorException('Problem with allocation record.  Contact tech support: [DA010] ');
+    	if($this->months != null) {
+	    	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
+	    	$this->member->dues_paid_thru_dt = $dt;
+	    	$this->member->save();
     	}
-    	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
-    	$this->member->dues_paid_thru_dt = $dt;
-    	$this->member->save();
     }
     
 	/**

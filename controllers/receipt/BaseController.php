@@ -95,8 +95,9 @@ class BaseController extends Controller
     {
     	$model = $this->findModel($id);
     	if ($model->load(Yii::$app->request->post())) {
-    		if($model->save()) 
+    		if($model->save()) {
     			return $this->goBack();
+    		}
     		throw new \yii\base\Exception('Problem with post.  Errors: ' . print_r($model->errors, true)); 
     	}		
     	return $this->renderAjax('/receipt/balance', compact('model'));
@@ -133,6 +134,11 @@ class BaseController extends Controller
     public function actionPost($id)
     {
     	$model = $this->findModel($id);
+    	
+    	// Can't post an out of balance receipt
+    	if($model->outOfBalance != 0.00)
+    		return $this->goBack();
+    	
     	$this->_dbErrors = [];
     	 
         $allocs = $model->assessmentAllocations;

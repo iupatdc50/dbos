@@ -11,7 +11,12 @@ use yii\helpers\Url;
 <p>
 
         	<?php if(Yii::$app->user->can('updateReceipt')): ?>
-				<?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+				<?= Html::a('Update', [
+						'*', 
+//						'itemize', 
+						'id' => $model->id,
+						'fee_types' => $model->feeTypesArray,
+				], ['class' => 'btn btn-primary']) ?>
 				<?php if(Yii::$app->user->can('deleteReceipt')) :?>
 			        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
 			            'class' => 'btn btn-danger',

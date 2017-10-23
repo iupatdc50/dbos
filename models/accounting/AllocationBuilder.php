@@ -15,6 +15,16 @@ class AllocationBuilder extends Model
 {
 	private $_errors;
 	
+	/**
+	 * Generates a base set of allocation "buckets" for a receipt's allocated member
+	 * 
+	 * If there are dues owed or existing assessments for the fee types provided, these amounts will 
+	 * be filled in
+	 * 
+	 * @param AllocatedMember $memb 	Member to which the allocations will apply
+	 * @param array $fee_types			Allocation fee types to be generated
+	 * @return multitype:|boolean
+	 */
 	public function prepareAllocs(AllocatedMember $memb, $fee_types = [])
 	{
 		foreach ($fee_types as $fee_type) {
@@ -46,7 +56,15 @@ class AllocationBuilder extends Model
 		return true;
 	}
 
+	/**
+	 * Generates a base set of allocation "buckets" from an input array
+	 * 
+	 * @param AllocatedMember $memb		Member to which the allocations will apply
+	 * @param array $array				Data used to create the allocations
+	 * @return multitype:|boolean
+	 */
 	public function prepareAllocsFromArray(AllocatedMember $memb, $array = []) {
+		// Specify non allocation columns to ignore 
 		$strip = ['last_nm' => 'remove', 'first_nm' => 'remove', 'report_id' => 'remove'];
 		$allocs = array_diff_key($array, $strip);
 		foreach ($allocs as $fee_type => $amt) {

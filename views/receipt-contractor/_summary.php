@@ -47,6 +47,13 @@ echo GridView::widget([
 		    			'class' => 'yii\grid\ActionColumn',
 //    					'contentOptions' => ['style' => 'white-space: nowrap;'],
     					'template' => '{view}',
+    					'buttons' => [
+    							'view' => function ($url, $model) {
+    								return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', '/receipt-contractor/view?id='.$model->receipt_id, [
+    										'title' => Yii::t('app', 'View'),
+    								]);
+    							}
+    					],    					
             	],
 		],
 ]);

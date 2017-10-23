@@ -10,7 +10,7 @@ use yii\helpers\Url;
 
 <div class="pull-right">
     		<?php if ($modelReceipt->outOfBalance != 0.00): ?>
-    			<span class="lbl-danger"><?= Html::encode('Out of Balance: ' . $modelReceipt->outOfBalance); ?></span>
+    			<span class="lbl-danger"><?= Html::encode('Out of Balance: ' . number_format($modelReceipt->outOfBalance, 2)); ?></span>
 			<?php endif ?>
 </div>
 <div><p>

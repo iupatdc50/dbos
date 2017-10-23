@@ -26,7 +26,26 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     
     <?php
     	$baseColumns = [
-        		[
+	        	[
+	        		'class' => 'yii\grid\ActionColumn',
+	        		'contentOptions' => ['style' => 'width:50px'],
+	            	'template' => '{reassign}',
+	            	'buttons' => [
+	        			'reassign' => function ($url, $model) {
+	            						return Html::button('<i class="glyphicon glyphicon-transfer"></i><i class="glyphicon glyphicon-user"></i>',
+	            								[
+	            										'value' => Url::to(['/staged-allocation/reassign', 'id' => $model->alloc_memb_id]),
+	            										'id' => 'reassignButton',
+	            										'class' => 'btn btn-default btn-modal btn-embedded',
+	            										'title' => 'Re-assign allocation',
+	            										'data-title' => 'Reassign',
+	            								]);
+	        		        		},
+	        		        		
+	        				
+	        		],
+	        	],
+    			[
         				'attribute' => 'fullName', 
         				'value' => 'member.fullName',
         				
@@ -46,7 +65,6 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     				'class' => 'kartik\grid\EditableColumn',
     				'editableOptions' => [
     						'header' => strtoupper($fee_type),
-//    						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
     						'formOptions' => ['action' => '/staged-allocation/edit-alloc'],
     						'showButtons' => false,
     						'asPopover' => false,
@@ -54,8 +72,6 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     				'hAlign' => 'right',
     				'vAlign' => 'middle',
     				'format' => ['decimal', 2],
-//    				'pageSummary' => true,
-//    				'refreshGrid' => true,
     		];
     	} 
     	$header =   
@@ -63,12 +79,14 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
       			['value' => Url::to(["/staged-allocation/add-type", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
       					'id' => 'allocationCreateTypeButton',
       					'class' => 'btn btn-default btn-modal',
+      					'title' => 'Add fee type column',
       					'data-title' => 'Fee Type',
       		]) .' '.
     		Html::button('<i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-user"></i>',
       			['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id, 'fee_types' => $fee_types]),
       					'id' => 'allocationCreateButton',
       					'class' => 'btn btn-default btn-modal',
+      					'title' => 'Add member allocation line',
       					'data-title' => 'Allocation',
       		]);
       	
@@ -77,7 +95,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 					'controller' => 'staged-allocation',
 					'template' => '{delete}',
 					'header' => $header,
-            	'width' => '110px',
+            		'width' => '110px',
     	];
     ?>
     

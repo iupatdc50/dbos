@@ -11,7 +11,7 @@
     <?= $this->render('_empllookup', [
         'model' => $model,
     	'license_nbr' => $license_nbr,
-    	'label' => 'Add',
+    	'label' => 'Re-Assign',
     ]) ?>
 
     

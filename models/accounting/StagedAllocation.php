@@ -14,6 +14,8 @@ use app\models\accounting\BaseAllocation;
  * @property string $member_id
  * 
  * (Properties for each fee_type selected)
+ * 
+ * @property Member $member
  *
  */
 class StagedAllocation extends \yii\db\ActiveRecord
@@ -102,6 +104,7 @@ class StagedAllocation extends \yii\db\ActiveRecord
     	return false;
     }
     
+    /*
     public function beforeDelete()
     {
     	$allocs = BaseAllocation::findAll(['alloc_memb_id' => $this->alloc_memb_id]);
@@ -109,5 +112,5 @@ class StagedAllocation extends \yii\db\ActiveRecord
     		$alloc->delete();
     	return parent::beforeDelete();
     }
-    
+    */
 }

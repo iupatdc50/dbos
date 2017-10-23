@@ -253,6 +253,11 @@ class Receipt extends \yii\db\ActiveRecord
     	return $this->hasMany(ReceiptFeeType::className(), ['receipt_id' => 'id']);
     }
     
+    public function getFeeTypesArray()
+    {
+    	return ArrayHelper::getColumn($this->feeTypes, 'fee_type');
+    }
+    
     public function getFeeTypeTexts()
     {
     	$texts = [];
