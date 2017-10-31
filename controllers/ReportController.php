@@ -119,6 +119,14 @@ class ReportController extends Controller
 		]);
 	}
 	
+	public function actionWrongPayor()
+	{
+		return $this->render('reportico', [
+				'folder' => 'accountingrpts',
+				'report_nm' => 'nonemployee',
+		]);
+	}
+	
 	public function actionContractorInfo()
 	{
 		return $this->render('reportico', [

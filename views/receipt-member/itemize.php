@@ -90,3 +90,13 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 </div>
 <?= $this->render('../partials/_modal') ?>
 
+<?php
+$script = <<< JS
+
+$('.kv-editable-link').on('focus', function() {
+	$(this).trigger('click');	
+});
+
+JS;
+$this->registerJs($script);
+?>

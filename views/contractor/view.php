@@ -101,11 +101,23 @@ $this->params['breadcrumbs'][] = $this->title;
 	    'clientEvents' => ['activate' => 'fillPanel'],
 	    ]);
 ?>
-    
-   
-   	</div><div class="rightside thirtyfive-pct"> 
-   		<?= $this->render('_employee', ['provider' => $employeeProvider, 'searchModel' => $employeeSearchModel]); ?> 	
+	    <hr>
+	    
+	   	<div id="journal">
+			<?php if ($model->noteCount >= 1): ?>
+		     	<p> <?= $model->noteCount > 1 ? $model->noteCount . ' Journal Notes' : 'One Journal Note'; ?></p>
+		     	<?= $this->render('../partials/_notes', ['notes' => $model->notes, 'controller' => 'contractor-note']); ?>
+		     <?php endif; ?>
+		
+			<?=  $this->render('../partials/_noteform', ['model' => $noteModel]) ?>
+		
+		</div>
+   		
 	</div>
+   	<div class="rightside thirtyfive-pct"> 
+   		<?= $this->render('_employee', ['provider' => $employeeProvider, 'searchModel' => $employeeSearchModel]); ?> 	
+
+    </div>
 </div>
 <?= $this->render('../partials/_modal') ?>
 

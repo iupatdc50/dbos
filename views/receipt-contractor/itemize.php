@@ -39,6 +39,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 	            										'class' => 'btn btn-default btn-modal btn-embedded',
 	            										'title' => 'Re-assign allocation',
 	            										'data-title' => 'Reassign',
+	            										'tabIndex' => '-1',
 	            								]);
 	        		        		},
 	        		        		
@@ -96,6 +97,18 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 					'template' => '{delete}',
 					'header' => $header,
             		'width' => '110px',
+	    			'buttons' => [
+	    					'delete' => function ($url, $model) {
+	    						return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+	    								'title' => Yii::t('app', 'Delete'),
+	    								'data-confirm' => 'Are you sure you want to delete this allocation item?',
+	    								'data-method' => 'post',
+	    								'tabIndex' => '-1',
+	    						]);
+	    					}
+	    			],
+    			 
+    			
     	];
     ?>
     
@@ -108,9 +121,26 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=> '<i class="glyphicon glyphicon-tasks"></i>&nbsp;Receipt Allocations',
-				'before' => false,
+				'before' => '', // prevent 1 disply when true
 				'after' => false,
 		],
+    	'toolbar' => [
+    			'content' =>
+    				Html::button('Create Member Stub', [
+    								'class' => 'btn btn-default btn-modal',
+    								'id' => 'memberCreateButton',
+    								'value' => Url::to(["/member/create-stub"]),
+    								'data-title' => 'Member Stub',
+    				]),
+    	],
+    	'rowOptions' => function($model) {
+    		$css = ['verticalAlign' => 'middle'];
+    		if(!isset($model->member->currentStatus) || ($model->member->currentStatus->member_status == 'U'))
+    			$css['class'] = 'text-muted';
+    		return $css;
+    	},
+    		
+    		
         'columns' => array_merge($baseColumns, $feeColumns, $actionColumn),
 //    	'showPageSummary' => true,
         		
@@ -120,4 +150,16 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     
 </div>
 <?= $this->render('../partials/_modal') ?>
+
+<?php
+$script = <<< JS
+
+$('.kv-editable-link').on('focus', function() {
+	$(this).trigger('click');	
+});
+
+JS;
+$this->registerJs($script);
+?>
+
 

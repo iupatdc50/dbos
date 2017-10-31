@@ -280,6 +280,7 @@ class Receipt extends \yii\db\ActiveRecord
     public function getTotalAllocation()
     {
     	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])
+    				->andOnCondition(['<>', 'fee_type', FeeType::TYPE_HOURS])
     				->via('allocatedMembers')
     				->sum('allocation_amt');
     }

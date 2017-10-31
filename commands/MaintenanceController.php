@@ -143,7 +143,9 @@ class MaintenanceController extends Controller
 		      ."  		LEFT OUTER JOIN Employment AS Em ON Em.member_id = Me.member_id "
 		      ."                                    	  AND Em.end_dt IS NULL "
 		      ."    	  LEFT OUTER JOIN Contractors AS Co ON Co.license_nbr = Em.dues_payor "
-			  ."      WHERE dues_paid_thru_dt <= :cutoff_dt AND COALESCE(Co.deducts_dues, 'F') = 'F';"
+			  ."      WHERE dues_paid_thru_dt <= :cutoff_dt AND COALESCE(Co.deducts_dues, 'F') = 'F' "
+			  ."        AND lob_cd <> '1941'"
+			  .";"
 		;
 	}
 	

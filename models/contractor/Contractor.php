@@ -27,6 +27,7 @@ use app\models\value\Lob;
  * @property Signatory[] $signatories
  * @property integer $employeeCount
  * @property Member[] $employees
+ * @property Note[] $notes
  */
 class Contractor extends \yii\db\ActiveRecord
 {
@@ -244,4 +245,33 @@ class Contractor extends \yii\db\ActiveRecord
    		$options = $this->statusOptions;
    		return (isset($options[$this->is_active])) ? $options[$this->is_active] : 'Unknown active status ' . $this->is_active;
    	}
+   	
+   	/**
+   	 * Adds a journal note to this contractor
+   	 *
+   	 * @param Note $note
+   	 * @throws \BadMethodCallException
+   	 * @return boolean
+   	 */
+   	public function addNote($note)
+   	{
+   		if (!($note instanceof Note))
+   			throw new \BadMethodCallException('Not an instance of ContractorNote');
+   		$note->license_nbr = $this->license_nbr;
+   		return $note->save();
+   	}
+   	
+   	/**
+   	 * @return \yii\db\ActiveQuery
+   	 */
+   	public function getNotes()
+   	{
+   		return $this->hasMany(Note::className(), ['license_nbr' => 'license_nbr'])->orderBy(['created_at' => SORT_DESC]);
+   	}
+   	
+   	public function getNoteCount()
+   	{
+   		return $this->hasMany(Note::className(), ['license_nbr' => 'license_nbr'])->count();
+   	}
+   	
 }

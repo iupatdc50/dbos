@@ -52,8 +52,9 @@ use kartik\widgets\SideNav;
 												
 										],
 										[
-												'label' => 'International Report', 
-												'url'=>'/site/unavailable',										
+												'label' => 'Not Employed by Payor', 
+												'url'=>'/report/wrong-payor',	
+												'active' => (yii::$app->requestedRoute == 'report/wrong-payor'),
 										],
 										[
 												'label' => 'Mailing Labels',

@@ -70,8 +70,7 @@ class MemberStatusController extends SummaryController
 		}
 		
 		if ($model->load(Yii::$app->request->post())) {
-			if ($this->member->addStatus($model)) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added");
+			if ($this->addStatus($model)) {
 				
 				if ($model->member_status == Status::IN_APPL) {
 					$this->member->application_dt = $model->effective_dt;
@@ -92,11 +91,10 @@ class MemberStatusController extends SummaryController
 					
 				}
 					
-				return $this->goBack();
-			} else {
-				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC001`');
-				Yii::error("*** MSC001  Status save error (`{$member_id}`).  Messages: " . print_r($model->errors, true));
 			}
+			
+			return $this->goBack();
+				
 		}
 		$this->initCreate($model);
 		return $this->renderAjax('create', compact('model'));
@@ -141,19 +139,19 @@ class MemberStatusController extends SummaryController
 				$messages[] =  Status::REASON_RESET_INIT . $init_dt;
 			}
 			$model->reason .= implode('; ', $messages);
-			if ($this->member->addStatus($model)) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} activated");
+			if ($this->addStatus($model)) {
 				
-				if ($this->member->save()) {
+				if ($this->member->save()) 
 					Yii::$app->session->addFlash('success', implode('; ', $messages));
-					return $this->goBack();
+				else {
+					Yii::$app->session->addFlash('error', 'Problem saving Member. Check log for details. Code `MSC010`'); 
+					Yii::error("*** MSC010  Member save error (`{$member_id}`).  Messages: " . print_r($this->member->errors, true));
 				}
-				Yii::$app->session->addFlash('error', 'Problem saving Member. Check log for details. Code `MSC010`'); 
-				Yii::error("*** MSC010  Member save error (`{$member_id}`).  Messages: " . print_r($this->member->errors, true));
-			} else {
-				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC015`');
-				Yii::error("*** MSC015  Status save error (`{$member_id}`).  Messages: " . print_r($model->errors, true));
+					
 			}
+			
+			return $this->goBack();
+			
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::ACTIVE;
@@ -175,13 +173,10 @@ class MemberStatusController extends SummaryController
 		}
 		
 		if ($model->load(Yii::$app->request->post())) {
-			if ($this->member->addStatus($model)) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added for forfeit");
-				return $this->goBack();
-			} else {
-				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC030`');
-				Yii::error("*** MSC030  Status save error (`{$member_id}`).  Messages: " . print_r($model->errors, true));
-			}
+			if ($this->addStatus($model)) { } // stub
+			
+			return $this->goBack();
+
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::INACTIVE;
@@ -190,7 +185,7 @@ class MemberStatusController extends SummaryController
 		
 	}
 	
-	public function actionDrop($member_id) 
+	public function actionSuspend($member_id) 
 	{
 	
 		/** @var Model $model */
@@ -204,18 +199,18 @@ class MemberStatusController extends SummaryController
 		}
 		
 		if ($model->load(Yii::$app->request->post())) {
-			if ($this->member->addStatus($model)) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added for drop");
-				if ($this->assessReinstFee($model))
-					return $this->goBack();
-			} else {
-				Yii::$app->session->addFlash('error', 'Problem adding Member Status. Check log for details. Code `MSC025`');
-				Yii::error("*** MSC025  Status save error (`{$member_id}`).  Messages: " . print_r($model->errors, true));
+			if ($this->addStatus($model)) {
+				
+				if (!$this->assessReinstFee($model)) { } // stub
+					
 			}
+			
+			return $this->goBack();
+			
 		}
 		$this->initCreate($model);
-		$model->member_status = Status::INACTIVE;
-		$model->reason = Status::REASON_DROP;
+		$model->member_status = Status::SUSPENDED;
+		$model->reason = Status::REASON_SUSP;
 		return $this->renderAjax('create', compact('model'));
 		
 	}
@@ -235,11 +230,11 @@ class MemberStatusController extends SummaryController
 		if ($model->load(Yii::$app->request->post())) {
 			$prev = (($model->other_local > 0) ? $model->other_local : 'Unspecified');
 			$model->reason = Status::REASON_CCD . $prev;
-			if ($this->member->addStatus($model)) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} changed for Clear In");
-				return $this->goBack();
-			}
-			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			
+			if ($this->addStatus($model)) { } // stub
+			
+			return $this->goBack();
+
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::ACTIVE;
@@ -261,11 +256,11 @@ class MemberStatusController extends SummaryController
 		
 		if ($model->load(Yii::$app->request->post())) {
 			$model->reason = Status::REASON_DEPINSVC;
-			if ($this->member->addStatus($model)) {
-				Yii::$app->session->addFlash('success', "{$this->getBasename()} changed for Dep In Svc");
-				return $this->goBack();
-			}
-			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			
+			if ($this->addStatus($model)) { } // stub
+
+			return $this->goBack();
+
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::ACTIVE;
@@ -311,6 +306,20 @@ class MemberStatusController extends SummaryController
 		Yii::error("*** MSC020  Assessment save error (`{$this->member->member_id}`).  Messages: " . print_r($assessModel->errors, true));
 		return false;
 	
+	}
+	
+	protected function addStatus($model)
+	{
+		$result = $this->member->addStatus($model);
+		if (strlen($result) > 1)
+			Yii::$app->session->addFlash('error', $result);
+		elseif ($result) 
+			Yii::$app->session->addFlash('success', "{$this->getBasename()} entry added for {$model->status->descrip}");
+		else {
+			Yii::$app->session->addFlash('error', 'Problem saving Status. Check log for details. Code `MSC010`');
+			Yii::error("*** MSC010  Status save error (`{$this->member->member_id}`).  Messages: " . print_r($model->errors, true));
+		}
+		return (strlen($result) > 1) ? false : $result;
 	}
 	
 }

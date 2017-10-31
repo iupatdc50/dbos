@@ -259,6 +259,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		if ($insert) {
     			try {
     				$this->member_id = $this->idGenerator->newId();
+    				if($this->ssnumber == '000-00-0000')
+    					$this->ssnumber = '000-00-' . substr($this->member_id, 4, 4);
     			} catch (Exception $e) {
     				throw new \yii\base\InvalidConfigException('Missing ID generator');
     			}
@@ -452,7 +454,13 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	}
     	if ($status->reason == Status::REASON_NEW)
     		$status->member_status = ($this->exempt_apf == Member::CHECKED) ? Status::ACTIVE : Status::IN_APPL;
-    	return $status->save();
+    	try {
+    		$result = $status->save();
+    	} catch (\yii\db\Exception $e) {
+    		// return error message
+    		$result = $e->errorInfo[2];
+    	}
+    	return $result;
     }
 
     /**
@@ -487,8 +495,15 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (!($class instanceof MemberClass))
     		throw new \BadMethodCallException('Not an instance of MemberClass');
     	$class->member_id = $this->member_id;
-    	if ($class->resolveClasses())
-    		return $class->save(); 
+    	if ($class->resolveClasses()) {
+    		try {
+    			$result = $class->save();
+    		} catch (\yii\db\Exception $e) {
+	    		// return error message
+	    		$result = $e->errorInfo[2];
+    		}
+    		return $result;
+    	}
     	return false;
     }
     
@@ -540,11 +555,13 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     
     public function getFullName()
     {
-    	return $this->last_nm . ', ' . 
-    	       $this->first_nm . 
+    	$full_nm = $this->last_nm . ', ' . $this->first_nm . 
     	       (isset($this->middle_inits) ? ' ' . $this->middle_inits : '') .
     	       (isset($this->suffix) ? ', ' .$this->suffix : '')
     	;
+    	if (isset($this->currentStatus) && ($this->currentStatus->member_status == Status::STUB))
+    		$full_nm .= ' [Stub]';
+    	return $full_nm;
     }
     
     public function getAddressTexts()

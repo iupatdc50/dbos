@@ -26,7 +26,10 @@ use yii\filters\AccessControl;
 use yii\web\UploadedFile;
 use yii\helpers\ArrayHelper;
 use app\helpers\OptionHelper;
+use app\components\utilities\OpDate;
 use yii\data\ActiveDataProvider;
+use yii\bootstrap\ActiveForm;
+
 
 /**
  * MemberController implements the CRUD actions for Member model.
@@ -53,7 +56,7 @@ class MemberController extends RootController
 	                ],
 	                [
 	                    'allow' => true,
-	                    'actions' => ['create'],
+	                    'actions' => ['create', 'create-stub'],
 	                    'roles' => ['createMember'],
 	                ],
 	                [
@@ -212,6 +215,69 @@ class MemberController extends RootController
         		'modelClass' => $modelClass,
         ]);
     }
+    
+    public function actionCreateStub()
+    {
+    	$idGenerator = new MemberId();
+    	$model = new Member([
+    			'idGenerator' => $idGenerator, 
+    			'scenario' => Member::SCENARIO_CREATE,
+    			'local_pac' => OptionHelper::TF_FALSE,
+    			'hq_pac' => OptionHelper::TF_FALSE,
+    			'shirt_size' => 'U',
+    			'birth_dt' => '1916-01-01',
+    	]);
+    	$modelStatus = new Status;
+    	
+    	if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			Yii::$app->response->format = 'json';
+			return ActiveForm::validate($model);
+		}
+		
+    	if ($model->load(Yii::$app->request->post()) && $modelStatus->load(Yii::$app->request->post())) {
+    		if ($model->validate()) {
+    			$transaction = \Yii::$app->db->beginTransaction();
+    			try {
+    				if ($model->save(false)) {
+    					$modelStatus->effective_dt = $model->application_dt;
+    					$modelStatus->member_status = Status::STUB;
+    					if ($model->addStatus($modelStatus)) {
+    						$transaction->commit();
+    						Yii::$app->session->setFlash('success', "Member stub successfully created");
+    						return $this->goBack();
+    					}
+    						
+        				Yii::$app->session->addFlash('error', 'Could not save Status. Check log for details. Code `MC010`');
+        				Yii::error("*** MC010 Status save error.  Messages: " . print_r($modelStatus->errors, true));
+    					    					    	
+    				}
+    					 
+    				$transaction->rollBack();
+        		} catch (\Exception $e) {
+        			Yii::$app->session->addFlash('error', 'Could not save record. Check log for details. Code `MC020`');
+        			Yii::error("*** MC020 Stub save error.  Messages: " . print_r($model->errors, true) . print_r($modelStatus->errors, true));
+        			$transaction->rollBack();
+        			
+        		}
+        		return $this->goBack();
+    		}
+    		/* when you need to debug non-client errors or those not associated with a field  */
+    		/*
+    		 $errors = print_r($model->errors, true) ;
+    		 throw new \Exception('Uncaught validation exception: ' . $errors);
+    	
+    		*/
+    	}		 
+
+    	$this->initCreate($model);
+    	if (!isset($model->ssnumber))
+    		$model->ssnumber = '000-00-0000';
+    	
+    	return $this->renderAjax('create-stub', [
+    			'model' => $model,
+    			'modelStatus' => $modelStatus,
+    	]);
+    }
 
     /**
      * Updates an existing Member model.
@@ -339,5 +405,24 @@ class MemberController extends RootController
     	}
     	return $note;
     }
+    
+    /**
+     * Override this function when testing with fixed date
+     *
+     * @return \app\components\utilities\OpDate
+     */
+    protected function getToday()
+    {
+    	return new OpDate();
+    }
+    
+    protected function initCreate($model)
+    {
+    	if (!isset($model->application_dt)) {
+    		$model->application_dt = $this->today->getMySqlDate();
+    	}
+    }
+    
+    
     
 }

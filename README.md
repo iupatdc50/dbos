@@ -13,6 +13,16 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.701
+. Improved keyboard navigation on staged receipts
+. Added options for non-employed and stub members on a contractor’s receipt
+. Added audit report for members not employed by receipt's payor
+. Revised monthly auto runs to excluding 1941
+. Added note functionality to contractor’s record
+. Revised suspend action in status panel
+. Added trap for retroactive and duplicate dates in status and class panels 
+. Minor bug fixes & performance improvements
+
 0.9.10.610
 . Added filters on receipts list for trade and logged in user
 . Revised receipt creation wizards to accommodate trade

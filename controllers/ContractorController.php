@@ -9,6 +9,7 @@ use app\models\contractor\Address;
 use app\models\contractor\Phone;
 use app\models\contractor\ContractorSearch;
 use app\models\contractor\Signatory;
+use app\models\contractor\Note;
 use app\models\member\Employment;
 use app\models\member\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
@@ -199,6 +200,7 @@ class ContractorController extends RootController
             'model' => $model,
             'employeeProvider' => $employeeProvider,
     		'employeeSearchModel' => $employeeSearchModel,
+    		'noteModel' => $this->createNote($model),
         ]);
     }
 
@@ -336,5 +338,18 @@ class ContractorController extends RootController
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+    protected function createNote(Contractor $contractor)
+    {
+    	$note = new Note;
+    	if (isset($_POST['Note'])) {
+    		$note->attributes = $_POST['Note'];
+    		if ($contractor->addNote($note)) {
+    			$this->refresh();
+    		}
+    	}
+    	return $note;
+    }
+    
     
 }

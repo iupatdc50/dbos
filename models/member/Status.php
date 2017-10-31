@@ -37,6 +37,7 @@ class Status extends BaseEndable
 	CONST REASON_CCG = 'CC granted to local: ';
 	CONST REASON_CCD = 'Deposit CC. Previous local: ';
 	CONST REASON_DROP = 'Member dropped';
+	CONST REASON_SUSP = 'Member suspended';
 	CONST REASON_FORFEIT = 'Forfeited';
 	CONST REASON_DEPINSVC = 'Deposit ISC';
 	CONST REASON_REINST = 'Member reinstated';
@@ -48,6 +49,7 @@ class Status extends BaseEndable
 	CONST IN_APPL = 'N';
 	CONST SUSPENDED = 'S';
 	CONST GRANTINSVC = 'M';
+	CONST STUB = 'U';
 	
 	public $other_local;
 	public $paid_thru_dt;

@@ -12,6 +12,7 @@ use kartik\grid\GridView;
 $this->title = $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Receipts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
 <div class="receipt-view">
 
@@ -31,6 +32,15 @@ $this->params['breadcrumbs'][] = $this->title;
 		        'before' => false,
 		        'after' => false,
 		    ],
+    		
+    		'rowOptions' => function($model) {
+	    		$css = ['verticalAlign' => 'middle'];
+	    		if(!isset($model->member->currentStatus) || ($model->member->currentStatus->member_status == 'U'))
+	    			$css['class'] = 'warning';
+	    		return $css;
+    		},
+    		
+    		
 			'columns' => [
 					[
 							'class'=>'kartik\grid\ExpandRowColumn',
