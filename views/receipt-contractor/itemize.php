@@ -69,6 +69,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     						'formOptions' => ['action' => '/staged-allocation/edit-alloc'],
     						'showButtons' => false,
     						'asPopover' => false,
+    						'buttonsTemplate' => '{submit}',
     				],
     				'hAlign' => 'right',
     				'vAlign' => 'middle',

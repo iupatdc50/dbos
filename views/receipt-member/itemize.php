@@ -46,6 +46,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 //        						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
         						'formOptions' => ['action' => '/allocation/edit-alloc'],
         						'showButtons' => false,
+        						'buttonsTemplate' => '{submit}',
         						'asPopover' => false,
         				],
         				'hAlign' => 'right',

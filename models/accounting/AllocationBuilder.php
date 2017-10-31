@@ -33,7 +33,7 @@ class AllocationBuilder extends Model
 						'alloc_memb_id' => $memb->id,
 						'duesRateFinder' => new DuesRateFinder(
 								$memb->member->currentStatus->lob_cd,
-								$memb->member->currentClass->rate_class
+								isset($memb->member->currentClass) ? $memb->member->currentClass->rate_class : 'R'
 						),
 				]);
 				$alloc->allocation_amt = $alloc->estimateOwed();

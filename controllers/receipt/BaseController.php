@@ -173,7 +173,7 @@ class BaseController extends Controller
 	    		$member = $alloc->member;
 	    		$alloc->duesRateFinder = new DuesRateFinder(
 	    				$member->currentStatus->lob_cd,
-	    				$member->currentClass->rate_class
+	    				isset($member->currentClass) ? $member->currentClass->rate_class : 'R'
 	    		);
 	    		$standing = new Standing(['member' => $member]);
 	    		$alloc->months = $alloc->calcMonths() + $standing->getDiscountedMonths();
