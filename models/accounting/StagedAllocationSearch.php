@@ -20,7 +20,7 @@ class StagedAllocationSearch extends StagedAllocation
 	{
 		return [
 				[['alloc_memb_id'], 'integer'],
-				[['member_id', 'fullName', 'reportId'], 'safe'],
+				[['member_id', 'classification', 'fullName', 'reportId'], 'safe'],
 		];
 	}
 	

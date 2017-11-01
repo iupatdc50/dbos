@@ -46,6 +46,12 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 	        				
 	        		],
 	        	],
+	        	[
+	        			'attribute' => 'classification',
+	        			'value' => 'member.classification.classification',
+	        			'label' => 'Class',
+	        			'width' => '5px',
+	        	],
     			[
         				'attribute' => 'fullName', 
         				'value' => 'member.fullName',
@@ -70,6 +76,9 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     						'showButtons' => false,
     						'asPopover' => false,
     						'buttonsTemplate' => '{submit}',
+    						'pluginEvents' => [
+    								'editableSubmit' => "function(event, val, form) { location.reload(); }",
+    						],
     				],
     				'hAlign' => 'right',
     				'vAlign' => 'middle',
@@ -122,8 +131,8 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=> '<i class="glyphicon glyphicon-tasks"></i>&nbsp;Receipt Allocations',
-				'before' => '', // prevent 1 disply when true
-				'after' => false,
+			'before' => '', // prevent 1 disply when true
+			'after' => Html::encode('Total Allocated: ' . number_format($modelReceipt->totalAllocation, 2)) ,
 		],
     	'toolbar' => [
     			'content' =>

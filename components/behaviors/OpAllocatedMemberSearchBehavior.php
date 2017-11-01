@@ -8,6 +8,7 @@ use yii\base\Behavior;
 use app\helpers\CriteriaHelper;
 use yii\base\InvalidParamException;
 use app\models\member\Member;
+use app\models\member\Classification;
 
 class OpAllocatedMemberSearchBehavior extends Behavior
 {
@@ -19,14 +20,15 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 	public function search($params)
 	{
 		$query = call_user_func([$this->recordClass, 'find']);
-		$query->joinWith(['member']);
+		$query->joinWith(['member', 'member.classification']);
 		$query->where(['receipt_id' => $this->owner->receipt_id]);
 		
 		$m = Member::tableName();
+		$c = Classification::tableName();
 		
 		$dataProvider = new ActiveDataProvider([
 				'query' => $query,
-				'sort' => ['defaultOrder' => ['fullName' => SORT_ASC]],
+				'sort' => ['defaultOrder' => ['classification' => SORT_ASC, 'fullName' => SORT_ASC]],
 				'pagination' => ['pageSize' => 12],
 		]);
 		
@@ -37,6 +39,10 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 		$dataProvider->sort->attributes['reportId'] = [
 				'asc' => [$m.'.report_id' => SORT_ASC],
 				'desc' => [$m.'.report_id' => SORT_DESC],
+		];
+		$dataProvider->sort->attributes['classification'] = [
+				'asc' => [$c.'.classification' => SORT_ASC],
+				'desc' => [$c.'.classification' => SORT_DESC],
 		];
 		
 /*		$this->owner->load($params);
@@ -51,6 +57,7 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 		
 		$query->andFilterWhere(['or', ['like', $m . '.last_nm', $this->owner->fullName], ['like', $m . '.first_nm', $this->owner->fullName]])
 			->andFilterWhere(['like', $m.'.report_id', $this->owner->reportId])
+			->andFilterWhere([$c.'.classification' => $this->owner->classification])
 		;
 		return $dataProvider;
 		

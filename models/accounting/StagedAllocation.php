@@ -23,6 +23,7 @@ class StagedAllocation extends \yii\db\ActiveRecord
 	//Used to make variable columns update safe in rules()
 	public $fee_types = [];
 	//Search place holders
+	public $classification;
 	public $reportId;
 	public $fullName;
 	
@@ -59,7 +60,7 @@ class StagedAllocation extends \yii\db\ActiveRecord
     {
 		return [
     			[['alloc_memb_id'], 'integer'],
-    			[['member_id', 'fullName', 'reportId'], 'safe'],
+    			[['member_id', 'classification', 'fullName', 'reportId'], 'safe'],
     			[$this->fee_types, 'number'],
     	];
     }    

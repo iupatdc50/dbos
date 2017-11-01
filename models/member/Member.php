@@ -57,6 +57,7 @@ use app\components\validators\SsnValidator;
  * @property Status $currentStatus
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
+ * @property Classification $classification 
  * @property CurrentEmployment $employer
  * @property BaseAllocation[] $allocations
  * @property ApfAssessment $currentApf
@@ -505,6 +506,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		return $result;
     	}
     	return false;
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClassification()
+    {
+    	return $this->hasOne(Classification::className(), ['member_id' => 'member_id']);
     }
     
     /**

@@ -48,6 +48,9 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
         						'showButtons' => false,
         						'buttonsTemplate' => '{submit}',
         						'asPopover' => false,
+        						'pluginEvents' => [
+        								'editableSubmit' => "function(event, val, form) { location.reload(); }",
+        						],
         				],
         				'hAlign' => 'right',
         				'vAlign' => 'middle',

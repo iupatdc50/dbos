@@ -52,6 +52,12 @@ $this->params['breadcrumbs'][] = $this->title;
 							'headerOptions'=>['class'=>'kartik-sheet-style'],
     						'expandOneOnly'=>true,
 				],
+	        	[
+	        			'attribute' => 'classification',
+	        			'value' => 'member.classification.classification',
+	        			'label' => 'Class',
+	        			'width' => '5px',
+	        	],
 				[ 
 						'attribute' => 'fullName',
 						'format' => 'raw',

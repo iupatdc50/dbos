@@ -16,6 +16,7 @@ class AllocatedMemberSearch extends AllocatedMember
 	//Search place holders
 	public $reportId;
 	public $fullName;
+	public $classification;
 	
 	
 	/**
@@ -25,7 +26,7 @@ class AllocatedMemberSearch extends AllocatedMember
 	{
 		return [
 				[['id'], 'integer'],
-				[['receipt_id', 'member_id', 'fullName', 'reportId'], 'safe'],
+				[['receipt_id', 'member_id', 'classification', 'fullName', 'reportId'], 'safe'],
 		];
 	}
 	
