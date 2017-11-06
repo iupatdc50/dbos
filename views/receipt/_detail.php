@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\DetailView;
+use app\helpers\OptionHelper;
 // use kartik\detail\DetailView;
 
 /* @var $modelReceipt app\models\accounting\Receipt */
@@ -26,7 +27,10 @@ use yii\widgets\DetailView;
             		'attribute' => 'payment_method',
             		'value' => Html::encode($modelReceipt->methodText) . ($modelReceipt->payment_method != '1' ? ' [' . $modelReceipt->tracking_nbr . ']' : ''),
    			],
-            'received_amt',
+            [
+            		'attribute' => 'received_amt',
+            		'value' => $modelReceipt->void == OptionHelper::TF_TRUE ? '** VOID **' : $modelReceipt->received_amt,
+            ],
         	'unallocated_amt',
         	'remarks:ntext',
         ]; 

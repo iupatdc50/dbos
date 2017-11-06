@@ -13,8 +13,11 @@ use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocationBuilder;
 use app\models\accounting\BaseAllocation;
+use app\models\accounting\DuesAllocation;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\TradeFeeType;
+use app\modules\admin\models\FeeType;
+use app\models\accounting\AssessmentAllocation;
 
 /**
  * StagedAllocationController implements the CRUD actions for accouting\StagedAllocation model.
@@ -31,7 +34,8 @@ class StagedAllocationController extends SubmodelController
 	 *
 	 * @return mixed
 	 */
-	public function actionAdd($receipt_id, array $fee_types)
+//	public function actionAdd($receipt_id, array $fee_types)
+	public function actionAdd($receipt_id)
 	{
 		/** @var ReceiptContractor $receipt */
 		$receipt = $this->findReceiptModel($receipt_id);		
@@ -44,7 +48,8 @@ class StagedAllocationController extends SubmodelController
 			$alloc_memb = new AllocatedMember(['receipt_id' => $receipt_id, 'member_id' => $model->member_id]);
 			if ($alloc_memb->save()) {
 				$builder = new AllocationBuilder();
-				$result = $builder->prepareAllocs($alloc_memb, $fee_types);
+//				$result = $builder->prepareAllocs($alloc_memb, $fee_types);
+				$result = $builder->prepareAllocs($alloc_memb, $receipt->fee_types);
 				if ($result)
 					return $this->goBack();
 			}
@@ -166,14 +171,32 @@ class StagedAllocationController extends SubmodelController
 	
 	public function actionDelete($id)
 	{
-		$allocs = BaseAllocation::findAll(['alloc_memb_id' => $id]);
-		foreach ($allocs as $alloc)
-			if (!$alloc->delete())
-				throw new \yii\base\UserException('Problem with allocation.  Errors: ' . print_r($alloc->errors, true));
-		$alloc_memb = AllocatedMember::findOne($id);
-		if (!$alloc_memb->delete())
-			throw new \yii\base\UserException('Problem with allocation.  Errors: ' . print_r($alloc_memb->errors, true));
-		parent::actionDelete($id);
+		function deleteAllocs($allocs)
+		{
+			$result = true;
+			foreach ($allocs as $alloc)
+				if (!$alloc->delete()) {
+					Yii::$app->session->addFlash('error', 'Could not remove allocation.  Check log for details. Code `SAC010`');
+					Yii::error("*** SAC010 Allocation delete error.  Allocation: " . print_r($alloc, true));
+					$result = false;
+				}
+			return $result;
+		}
+		if (deleteAllocs(DuesAllocation::findAll(['alloc_memb_id' => $id, 'fee_type' => FeeType::TYPE_DUES]))) {
+			// Assume dues allocations already gone
+		   	if (deleteAllocs(BaseAllocation::findAll(['alloc_memb_id' => $id]))) {
+				$alloc_memb = AllocatedMember::findOne($id);
+				if ($alloc_memb->delete()) {
+					parent::actionDelete($id);
+				} else {
+					Yii::$app->session->addFlash('error', 'Could not complete allocation remove.  Check log for details. Code `SAC020`');
+					Yii::error("*** SAC020 AllocatedMember delete error.  Allocation: " . print_r($alloc_memb, true));
+				} 
+		   	}
+		}
+		
+		return $this->goBack();
+		
 	}
 	
 	protected function findReceiptModel($id)

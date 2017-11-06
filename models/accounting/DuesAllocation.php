@@ -54,11 +54,15 @@ class DuesAllocation extends BaseAllocation
     
     public function beforeDelete()
     {
-    	if($this->months != null) {
-	    	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
-	    	$this->member->dues_paid_thru_dt = $dt;
-	    	$this->member->save();
+    	if (parent::beforeDelete()) {
+    	    if($this->months != null) {
+		    	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
+		    	$this->member->dues_paid_thru_dt = $dt;
+		    	$this->member->save();
+    	    }
+		    return true;
     	}
+    	return false;
     }
     
 	/**

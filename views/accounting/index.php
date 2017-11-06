@@ -50,6 +50,9 @@ $toggle_mine_only = !$mine_only;
 		],
     	'rowOptions' => function($model) {
     		$css = ['verticalAlign' => 'middle'];
+    		if ($model->void == OptionHelper::TF_TRUE)
+    			$css['class'] = 'text-muted';
+    		
     		return $css;
     		},
     	'columns' => [
@@ -79,11 +82,13 @@ $toggle_mine_only = !$mine_only;
         	[
         			'attribute' => 'payor_nm',
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
+        			'value' => function($model) { return ($model->void == OptionHelper::TF_TRUE) ? '** VOID **' : $model->payor_nm; },
 			],
             [
             		'attribute' => 'received_amt',
             		'contentOptions' => ['class' => 'right'],
-			],
+        			'value' => function($model) { return ($model->void == OptionHelper::TF_TRUE) ? '** VOID **' : $model->received_amt; },
+            ],
     		[
     				'attribute' => 'feeTypes',
     				'value' => 'feeTypeTexts',

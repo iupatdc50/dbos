@@ -26,10 +26,10 @@ use yii\widgets\Pjax;
 									'data-title' => 'Adjustments',
 							]); ?>
         <?php endif ?>
-            	<?= Html::a('Cancel', ['delete', 'id' => $modelReceipt->id], [
+            	<?= Html::a('Cancel', ['cancel', 'id' => $modelReceipt->id], [
        	            		'class' => 'btn btn-danger',
 	            			'data' => [
-	                			'confirm' => 'Are you sure you want to cancel this receipt?',
+	                			'confirm' => "Are you sure you want to proceed? You will lose the data you entered, and receipt number: `{$modelReceipt->id}` cannot be reused.",
 	                			'method' => 'post',
 	            			],
 	           	]) ?>

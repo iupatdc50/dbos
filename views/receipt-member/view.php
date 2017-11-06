@@ -8,23 +8,26 @@ use kartik\select2\Select2;
 use kartik\grid\GridView;
 use yii\bootstrap\Modal;
 use kartik\editable\Editable;
+use app\helpers\OptionHelper;
 
 
 $this->title = $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Receipts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$receipt_for = ' <span class="lbl-danger">Incomplete Receipt</span>';
-if(isset($model->payingMember)) {
+if ($model->void == OptionHelper::TF_TRUE)
+	$receipt_for = ' <span class="lbl-danger">** VOID **</span>';
+elseif (isset($model->payingMember)) {
 	$member_name = $model->payingMember->fullName;
 	$member_id = $model->payingMember->member_id;
 	$receipt_for = ' for ' . Html::a($member_name, ['/member/view', 'id' => $member_id]);
-} 
+} else 
+	$receipt_for = ' <span class="lbl-danger">Incomplete Receipt</span>';
 
 ?>
 <div class="receipt-view">
 
-	<h1><?= Html::encode('Receipt: ' . $this->title) . $receipt_for ?></h1>
+	<h1><?= Html::encode('Receipt: ' . $this->title)  . $receipt_for ?></h1>
     
     <div class="leftside sixty-pct">
     	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'member']); ?>

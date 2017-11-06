@@ -105,13 +105,4 @@ class StagedAllocation extends \yii\db\ActiveRecord
     	return false;
     }
     
-    /*
-    public function beforeDelete()
-    {
-    	$allocs = BaseAllocation::findAll(['alloc_memb_id' => $this->alloc_memb_id]);
-    	foreach ($allocs as $alloc)
-    		$alloc->delete();
-    	return parent::beforeDelete();
-    }
-    */
 }

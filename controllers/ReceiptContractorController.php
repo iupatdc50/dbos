@@ -128,8 +128,7 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 	{
 		$this->storeReturnUrl();
 		$modelReceipt = $this->findModel($id);
-		if(!StagedAllocation::makeTable($id))
-			throw new InvalidConfigException('Could not produce staged allocations for: ' . $id);
+		StagedAllocation::makeTable($id);
 		$searchAlloc = new StagedAllocationSearch(['receipt_id' => $id, 'fee_types' => $fee_types]);
 		$allocProvider = $searchAlloc->search(Yii::$app->request->queryParams);
 		
@@ -137,7 +136,7 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
             'modelReceipt' => $modelReceipt,
         	'searchAlloc' => $searchAlloc,
         	'allocProvider' => $allocProvider,
-        	'fee_types' => $fee_types,
+//        	'fee_types' => $fee_types,
         ]);
 	}
 	

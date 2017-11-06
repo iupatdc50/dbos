@@ -10,7 +10,7 @@ use yii\helpers\Url;
 
 <p>
 
-        	<?php if(Yii::$app->user->can('updateReceipt')): ?>
+        	<?php if(Yii::$app->user->can('updateReceipt') && ($model->void == 'F')): ?>
 				<?= Html::a('Update', [
 						'*', 
 //						'itemize', 
@@ -18,10 +18,10 @@ use yii\helpers\Url;
 						'fee_types' => $model->feeTypesArray,
 				], ['class' => 'btn btn-primary']) ?>
 				<?php if(Yii::$app->user->can('deleteReceipt')) :?>
-			        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-			            'class' => 'btn btn-danger',
+			        <?= Html::a('Void Receipt', ['void', 'id' => $model->id], [
+			            'class' => 'btn btn-default',
 			            'data' => [
-			                'confirm' => 'Are you sure you want to delete this item?',
+			                'confirm' => 'Are you sure you want to void this receipt?  All allocations will be removed.',
 			                'method' => 'post',
 			            ],
 			        ]) ?>

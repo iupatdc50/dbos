@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
+use app\helpers\OptionHelper;
+
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\receipt */
@@ -13,10 +15,12 @@ $this->title = $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Receipts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
+$void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-danger">** VOID **</span>' : '';
+
 ?>
 <div class="receipt-view">
 
-    <h1><?= Html::encode('Receipt: ' . $this->title) ?></h1>
+    <h1><?= Html::encode('Receipt: ' . $this->title)  . $void_banner ?></h1>
 
 	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'contractor']); ?>
 	<?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
