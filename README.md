@@ -13,6 +13,10 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.720
+. Revised spreadsheet bills to include contribution amount calculations as formulae
+. Revised employment termination prompt to include reason code.
+
 0.9.10.701
 . Improved keyboard navigation on staged receipts
 . Added options for non-employed and stub members on a contractor’s receipt

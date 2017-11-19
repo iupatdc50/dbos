@@ -17,6 +17,7 @@ use \PHPExcel_Settings;
 use \PHPExcel_Style_Fill;
 use \PHPExcel_Writer_IWriter;
 use \PHPExcel_Worksheet;
+use \PHPExcel_Style_NumberFormat;
 
 class ExcelGrid extends \yii\grid\GridView
 {
@@ -135,6 +136,9 @@ class ExcelGrid extends \yii\grid\GridView
 				self::columnName($this->_endCol) .
 				$this->_endRow
 		);
+		
+		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . $this->_endRow + 1);
+		$style->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
 
 		for($col = 1; $col <= $this->_endCol; $col++) {
 			$this->_objPHPExcelSheet->getColumnDimension(self::columnName($col))->setAutoSize(true);

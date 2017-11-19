@@ -141,7 +141,8 @@ class EmploymentController extends SummaryController
 		if ($model->load(Yii::$app->request->post()) && $model->save()) {
 			return $this->goBack();
 		}
-		return $this->renderAjax('terminate', compact('model'));
+    	$termReasonOptions = Employment::getTermReasonOptions();
+		return $this->renderAjax('terminate', compact('model', 'termReasonOptions'));
 	}
 	
 	/**

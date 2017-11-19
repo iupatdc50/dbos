@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\bootstrap\ActiveForm;
+use kartik\form\ActiveForm;
 use kartik\datecontrol\DateControl;
 
 
@@ -16,7 +16,7 @@ use kartik\datecontrol\DateControl;
 <div class="employment-form">
 
     <?php $form = ActiveForm::begin([
-    		'layout' => 'horizontal',
+    		'type' => ActiveForm::TYPE_HORIZONTAL,
     		'id' => 'employ-form', 
     		'enableClientValidation' => true,
     ]); ?>
@@ -24,11 +24,13 @@ use kartik\datecontrol\DateControl;
     <?= $form->field($model, 'end_dt')->widget(DateControl::className(), [
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
+
+    <?= $form->field($model, 'term_reason', ['options' => ['id' => 'termreason']])->radioList($termReasonOptions)->label('Reason'); ?>
     
     <div class="form-group">
         <?= Html::submitButton('Terminate', ['class' => 'btn btn-danger']) ?>
     </div>
-
+    
     <?php ActiveForm::end(); ?>
     
 </div>

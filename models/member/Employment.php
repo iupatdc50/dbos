@@ -22,6 +22,7 @@ use yii\base\InvalidCallException;
  * @property string $dues_payor
  * @property string $is_loaned
  * @property string $doc_id
+ * @property string $term_reason
  *
  * @property Member $member
  * @property Contractor $contractor
@@ -29,6 +30,10 @@ use yii\base\InvalidCallException;
  */
 class Employment extends BaseEndable
 {
+	const TERM_CONTRACTOR = 'C';
+	const TERM_MEMBER = 'M';
+	const TERM_NOHOURS = 'H';
+	
 	/**
 	 * @var Standing 	May be injected, if required
 	 */
@@ -52,6 +57,26 @@ class Employment extends BaseEndable
 	{
 		return 'member_id';
 	}
+	
+	public static function getAllowedTermReasons()
+	{
+		return [
+				self::TERM_CONTRACTOR,
+				self::TERM_MEMBER,
+				self::TERM_NOHOURS,
+		];
+	}
+	
+	public static function getTermReasonOptions()
+	{
+		return [
+				self::TERM_CONTRACTOR => 'by Contractor',
+				self::TERM_MEMBER => 'by Member',
+				self::TERM_NOHOURS => 'No Hours',
+		];
+	}
+	
+	
 	
     /**
      * Returns a set of members for Select2 picklist. Full name
@@ -116,7 +141,7 @@ class Employment extends BaseEndable
             [['effective_dt', 'end_dt'], 'date', 'format' => 'php:Y-m-d'],
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['employer', 'dues_payor'], 'exist', 'targetClass' => '\app\models\contractor\Contractor', 'targetAttribute' => 'license_nbr'],
-        	[['loan_ckbox'], 'safe'],
+        	[['loan_ckbox', 'term_reason'], 'safe'],
             [['doc_id'], 'string', 'max' => 20],
         	[['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],        		
         ];
@@ -191,7 +216,8 @@ class Employment extends BaseEndable
     	if (is_null($this->end_dt)) {
     		$employer = ($this->is_loaned == 'T') ? $this->duesPayor->contractor . ' [On Loan]' : $this->contractor->contractor;
     	} else {
-    		$employer = 'Unemployed ('. $this->end_dt .')';
+    		$dt_obj = (new OpDate)->setFromMySql($this->end_dt);
+    		$employer = "Unemployed ({$dt_obj->getDisplayDate(true, '/')} {$this->termReasonText})";
     	}
     	return $employer;
     }
@@ -207,5 +233,14 @@ class Employment extends BaseEndable
     {
     	$this->_standing = $standing;
     }
+    
+    public function getTermReasonText($code = null)
+    {
+    	$reason = isset($code) ? $code : $this->term_reason;
+    	$options = self::getTermReasonOptions();
+    	return isset($options[$reason]) ? $options[$reason] : '';
+    }
+    
+    
 
 }

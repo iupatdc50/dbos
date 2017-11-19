@@ -13,6 +13,7 @@ use app\models\contractor\Note;
 use app\models\member\Employment;
 use app\models\member\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
+use app\models\accounting\StagedBill;
 use app\models\accounting\TradeFeeType;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -163,14 +164,8 @@ class ContractorController extends RootController
     {
     	$modelContractor = $this->findModel($id);
     	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->all();
-    	/* @var $query yii\db\ActiveQuery */
-    	$employeeSearchModel = new EmploymentSearch([
-    			'employer_search' => $id,
-    			'lob_cd' => $lob_cd,
-    			'page_size' => 2000,
-    	]);
-    	
- 		$dataProvider = $employeeSearchModel->search([]);
+    	$stagedBillModel = new StagedBill();
+    	$dataProvider = $stagedBillModel->getPreFill($id, $lob_cd);
     	return $this->renderPartial('remit-template', [
     			'dataProvider' => $dataProvider, 
     			'modelContractor' => $modelContractor, 
