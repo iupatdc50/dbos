@@ -49,7 +49,7 @@ class StagedAllocationController extends SubmodelController
 			if ($alloc_memb->save()) {
 				$builder = new AllocationBuilder();
 //				$result = $builder->prepareAllocs($alloc_memb, $fee_types);
-				$result = $builder->prepareAllocs($alloc_memb, $receipt->fee_types);
+				$result = $builder->prepareAllocs($alloc_memb, $receipt->feeTypesArray);
 				if ($result)
 					return $this->goBack();
 			}
@@ -59,7 +59,7 @@ class StagedAllocationController extends SubmodelController
 	
 	}
 	
-	public function actionAddType($receipt_id, array $fee_types)
+	public function actionAddType($receipt_id)
 	{
 		
 		/** @var ReceiptContractor $receipt */
@@ -67,7 +67,7 @@ class StagedAllocationController extends SubmodelController
 				
 		/** @var ActiveRecord $model */
 		$model = new \app\models\accounting\AddTypeForm([
-				'fee_types' => $fee_types,
+				'fee_types' => $receipt->feeTypesArray,
 		]);
 		
 		if ($model->load(Yii::$app->request->post())) {

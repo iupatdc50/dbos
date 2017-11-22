@@ -65,7 +65,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 				
         ];
     	$feeColumns = [];
-    	foreach ($modelReceipt->fee_types as $fee_type) {
+    	foreach ($modelReceipt->feeTypesArray as $fee_type) {
     		$feeColumns[] = [
     				'attribute' => $fee_type,
     				'header' => strtoupper($fee_type),
@@ -87,14 +87,14 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     	} 
     	$header =   
     		Html::button('<i class="glyphicon glyphicon-option-horizontal"></i>',
-      			['value' => Url::to(["/staged-allocation/add-type", 'receipt_id' => $modelReceipt->id, 'fee_types' => $modelReceipt->feeTypes]),
+      			['value' => Url::to(["/staged-allocation/add-type", 'receipt_id' => $modelReceipt->id]),
       					'id' => 'allocationCreateTypeButton',
       					'class' => 'btn btn-default btn-modal',
       					'title' => 'Add fee type column',
       					'data-title' => 'Fee Type',
       		]) .' '.
     		Html::button('<i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-user"></i>',
-      			['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id, 'fee_types' => $modelReceipt->feeTypes]),
+      			['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id]),
       					'id' => 'allocationCreateButton',
       					'class' => 'btn btn-default btn-modal',
       					'title' => 'Add member allocation line',
