@@ -9,6 +9,10 @@ use kartik\grid\GridView;
 
 $this->title = 'User Records';
 $this->params['breadcrumbs'][] = $this->title;
+
+$auth = '<span class="glyphicon glyphicon-ok text-success"></span>';
+$other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
+
 ?>
 <div class="user-record-index">
 
@@ -53,12 +57,21 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'password_hash',
             // 'password_reset_token',
             // 'email:email',
-/*
             [
+					'class' => 'kartik\grid\BooleanColumn',
             		'attribute' => 'role',
             		'width' => '140px',
+            		'value' => function($data) {
+            			return $data->canAuthorize;
+            		},
+            		'falseLabel' => 'Standard',
+            		'falseIcon' => $other,
+            		'trueLabel' => 'Can Authorize',
+            		'trueIcon' => $auth,
+            		
             ],
-	        [
+/*
+            [
 	        		'attribute' => 'status',
 	        		'width' => '140px',
             ],

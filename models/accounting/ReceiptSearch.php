@@ -62,7 +62,7 @@ class ReceiptSearch extends Receipt
             return $dataProvider;
         }
 
-        $query->joinWith(['feeTypes']);
+//        $query->joinWith(['feeTypes']);
 
         $query->andFilterWhere([
             'id' => $this->id,
@@ -76,7 +76,7 @@ class ReceiptSearch extends Receipt
         $query->andFilterWhere(['like', 'payor_nm', $this->payor_nm])
             ->andFilterWhere(['like', 'payment_method', $this->payment_method])
             ->andFilterWhere(['like', 'payor_type', $this->payor_type_filter])
-            ->andFilterWhere(['like', ReceiptFeeType::tableName() . '.fee_type', $this->feeTypes])
+//            ->andFilterWhere(['like', ReceiptFeeType::tableName() . '.fee_type', $this->feeTypes])
             ->andFilterWhere(['lob_cd' => $this->lob_cd])
 //            ->andFilterWhere(['like', 'remarks', $this->remarks])
         ;

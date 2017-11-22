@@ -89,12 +89,14 @@ $toggle_mine_only = !$mine_only;
             		'contentOptions' => ['class' => 'right'],
         			'value' => function($model) { return ($model->void == OptionHelper::TF_TRUE) ? '** VOID **' : $model->received_amt; },
             ],
+            /*  Remove for performance reasons (does not use an index with eager load)
     		[
     				'attribute' => 'feeTypes',
     				'value' => 'feeTypeTexts',
     				'format'  => 'ntext',
     				'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
+        	*/
     		[
     			'class' => 'yii\grid\ActionColumn',
     			'template' => '{view}',

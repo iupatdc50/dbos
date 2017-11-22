@@ -50,10 +50,10 @@ class UserSearch extends User
         if (!($this->load($params) && $this->validate())) {
             return $dataProvider;
         }
-
+        
         $query->andFilterWhere([
             'id' => $this->id,
-            'role' => $this->role,
+//            'role' => $this->role,
             'status' => $this->status,
         ]);
 

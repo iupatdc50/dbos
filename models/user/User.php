@@ -3,9 +3,12 @@
 namespace app\models\user;
 
 use Yii;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
 use app\components\utilities\OpDate;
+use app\helpers\OptionHelper;
 use app\models\rbac\AuthAssignment;
 use kartik\password\StrengthValidator;
 
@@ -34,6 +37,7 @@ class User extends \yii\db\ActiveRecord
 	const SCENARIO_CHANGE_PW = 'changepw';
 	const STATUS_ACTIVE = 10;
 	const STATUS_INACTIVE = 0;
+	const ROLE_AUTH_THRESHOLD = 30;
 	const RESET_USER_PW = 'DC50-temp';
 	
 	public $password_clear = null;
@@ -47,6 +51,33 @@ class User extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'Users';
+    }
+    
+    /**
+     * Returns a set of users for Select2 picklist. Full name
+     * is returned as text (id, text are required columns for Select2)
+     *
+     * @param string|array $search Criteria used for partial user list. If an array, then user
+     * 							   key will be a like search
+     */
+    public static function listAll($search)
+    {
+    	/* @var Query $query */
+    	$query = new Query;
+    	$query->select("id, full_nm as text")
+	    	->from('UserPickList')
+	    	->limit(10)
+	    	->distinct();
+    	if (ArrayHelper::isAssociative($search)) {
+    		if (isset($search['full_nm'])) {
+    			$query->where(['like', 'full_nm', $search['full_nm']]);
+    			unset($search['full_nm']);
+    		}
+    		$query->andWhere($search);
+    	} elseif (!is_null($search))
+    		$query->where(['like', 'full_nm', $search]);
+    	$command = $query->createCommand();
+    	return $command->queryAll();
     }
     
 	public function behaviors()
@@ -69,6 +100,7 @@ class User extends \yii\db\ActiveRecord
             [['username'], 'unique'],
         	[['email'], 'email'],
         	[['auth_key'], 'string', 'max' => 32],
+        	['can_authorize', 'in', 'range' => OptionHelper::getAllowedTF()],
         		
         	[['password_current', 'password_new', 'password_confirm'], 'required', 'on' => self::SCENARIO_CHANGE_PW],
         	[['password_current'], 'validateCurrentPassword'],
@@ -96,6 +128,7 @@ class User extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         	'last_nm' => 'Last Name',
         	'first_nm' => 'First Name',
+        	'can_authorize' => 'Can Authorize',
         		
         	'password_current' => 'Current Password', 
         	'password_new' => 'New Password', 
@@ -212,6 +245,16 @@ class User extends \yii\db\ActiveRecord
     public function getAssignments()
     {
     	return $this->hasMany(AuthAssignment::className(), ['user_id' => 'id']);
+    }
+    
+    public function getFullName()
+    {
+    	return $this->last_nm . ', ' . $this->first_nm;
+    }
+    
+    public function getCanAuthorize()
+    {
+    	return $this->role >= self::ROLE_AUTH_THRESHOLD;
     }
     
     

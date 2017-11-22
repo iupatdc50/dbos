@@ -17,6 +17,7 @@ echo GridView::widget([
 				'footer' => false,
 		],
 		'columns' => [
+				
 				[
 						'class' => \yii\grid\ActionColumn::className(),
 						'template' => '{details}',
@@ -36,6 +37,18 @@ echo GridView::widget([
 								return Yii::$app->urlManager->createUrl(['/assessment/detail-ajax', 'id'  => $model->id]);
 						},
 				],
+				/* This does not work when embedded in accordion
+				[
+						'class'=>'kartik\grid\ExpandRowColumn',
+						'width'=>'50px',
+						'value'=>function ($model, $key, $index, $column) {
+							return GridView::ROW_COLLAPSED;
+						},
+						'detailUrl'=> Yii::$app->urlManager->createUrl(['/assessment/detail-ajax']),
+						'headerOptions'=>['class'=>'kartik-sheet-style'],
+						'expandOneOnly'=>true,
+				],
+				*/
 						
 				'fee_type',
 				[
@@ -61,7 +74,33 @@ echo GridView::widget([
 				[
 					'class' => \yii\grid\ActionColumn::className(),
 					'controller' => $controller,
-					'template' => '{delete}',
+					'template' => '{waive} {delete}',
+					'buttons' => [
+						 		'waive' => function ($url, $model) {
+					 				return Html::button('<i class="glyphicon glyphicon-ok-circle"></i>', [
+					 					'value' => $url,
+					 					'id' => 'waiveButton' . $model->id,
+					 					'class' => 'btn btn-default btn-detail btn-modal',
+					 					'data-title' => 'Waive',
+					 					'title' => Yii::t('app', 'Waive Assessment'),
+					 				]);
+						 		}, 
+						 		'remove' => function ($url, $model) {
+					        		return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+					                	'title' => Yii::t('app', 'Delete'),
+					        			'data-confirm' => 'Are you sure you want to delete this item?',
+					        		]);
+						    	}
+					],
+					'urlCreator' => function ($action, $model, $key, $index) {
+						if ($action == 'waive') {
+							$url ='/assessment/waive?id='.$model->id;
+							return $url;
+						} elseif ($action === 'remove') {
+							$url ='/assessment/delete?id='.$model->id;
+							return $url;
+						}
+					},
 						
 					'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
 								'value' => Url::to(["/{$controller}/create", 'relation_id'  => $relation_id]),

@@ -161,6 +161,29 @@ class UserController extends Controller
     	Yii::$app->session->addFlash('success', "Successfully set password to system default.");
     	return $this->redirect(['view', 'id' => $model->id]);
     }
+    
+    /**
+     * List builder for user pickllist.  Builds JSON encoded array:
+     * ['results'] key provides progressive results. If `id` is provided,
+     * 			   then this key provides the `id` and full name
+     *
+     * @param string|array $search Criteria used.
+     * @param string $id Selected user's `id`
+     */
+    public function actionUserList($search = null, $role = null, $id = null)
+    {
+    	\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    	$out = ['results' => ['id' => '', 'text' => '']];
+    	if (!is_null($search)) {
+    		$condition = (is_null($role)) ? $search : ['full_nm' => $search, 'role' => $role];
+    		$data = User::listAll($condition);
+    		$out['results'] = array_values($data);
+    	}
+    	elseif (!is_null($id) && ($id <> 0)) {
+    		$out['results'] = ['id' => $id, 'text' => User::findOne($id)->fullName];
+    	}
+    	return $out;
+    }    
 
     /**
      * Finds the User model based on its primary key value.
