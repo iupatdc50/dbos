@@ -32,7 +32,14 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
     public function actionView($id)
     {
     	$model = $this->findModel($id);
-    	    	
+    	
+    	if($model->outOfBalance != 0.00) 
+			return $this->redirect([
+					'itemize', 
+					'id' => $model->id,
+					'fee_types' => $model->feeTypesArray,
+			]);
+    		    	    	
     	$searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
     	$membProvider = $searchMemb->search(Yii::$app->request->queryParams);
 
