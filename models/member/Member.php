@@ -541,7 +541,15 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (!($note instanceof Note))
     		throw new \BadMethodCallException('Not an instance of MemberNote');
     	$note->member_id = $this->member_id;
-    	return $note->save();
+   		$image = $note->uploadImage();
+   		if ($note->save()) {
+   			if ($image !== false) {
+   				$path = $note->imagePath;
+   				$image->saveAs($path);
+   			}
+   			return true;
+   		}
+   		return false;
     }
     
     /**

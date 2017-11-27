@@ -38,6 +38,7 @@ class SiteController extends RootController
 				'events' => $events,
 				'announcementModel' => $announcementModel,
 				'announcements' => $announcements, 
+				'bypass_doc' => true,
 		]);
 	} 
 	
@@ -88,7 +89,7 @@ class SiteController extends RootController
 		if (!$model) 
 			throw new NotFoundHttpException('The requested page does not exist.');
 		$model->delete();
-		return $this->goBack();
+		return $this->goHome();
 	}
 	
 	public function actionUnavailable()

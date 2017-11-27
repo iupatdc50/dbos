@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use app\models\base\BaseNote;
 use app\models\user\User;
 
 /**
@@ -13,7 +14,7 @@ use app\models\user\User;
  * @property integer $created_at
  * @property integer $created_by
  */
-class Announcement extends \yii\db\ActiveRecord
+class Announcement extends BaseNote
 {
     /**
      * @inheritdoc
@@ -23,24 +24,12 @@ class Announcement extends \yii\db\ActiveRecord
         return 'Announcements';
     }
 
-	public function behaviors()
-	{
-		return [
-				['class' => \yii\behaviors\TimestampBehavior::className(), 'updatedAtAttribute' => false],
-				['class' => \yii\behaviors\BlameableBehavior::className(), 'updatedByAttribute' => false],
-		];
-	}
-
     /**
      * @inheritdoc
      */
     public function rules()
     {
-        return [
-            [['note'], 'required'],
-            [['note'], 'string'],
-            [['created_at', 'created_by'], 'integer']
-        ];
+    	return parent::rules();
     }
 
     /**
@@ -48,20 +37,7 @@ class Announcement extends \yii\db\ActiveRecord
      */
     public function attributeLabels()
     {
-        return [
-            'id' => 'ID',
-            'note' => 'Note',
-            'created_at' => 'Created At',
-            'created_by' => 'Created By',
-        ];
+        return parent::attributeLabels();
     }
         
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAuthor()
-    {
-        return $this->hasOne(User::className(), ['id' => 'created_by']);
-    }
-
 }

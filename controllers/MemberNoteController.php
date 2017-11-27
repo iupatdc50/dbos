@@ -36,7 +36,11 @@ class MemberNoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        
+        if (isset($model->doc_id))
+        	$model->deleteImage();
+		$model->delete();
 
         return $this->goBack();
     }

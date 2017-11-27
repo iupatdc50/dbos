@@ -21,7 +21,9 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 
     <h1><?= Html::encode($this->title) ?></h1>
     
+    <div id="stagetoolbar">
     <?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt]); ?>
+    </div>
     <?= $this->render('../receipt/_detail', ['modelReceipt' => $modelReceipt]); ?>
     
     <?php
@@ -77,7 +79,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     						'asPopover' => false,
     						'buttonsTemplate' => '{submit}',
     						'pluginEvents' => [
-    								'editableSubmit' => "function(event, val, form) { location.reload(); }",
+//    								'editableSubmit' => "function(event, val, form) { refreshToolBar(); }",
     						],
     				],
     				'hAlign' => 'right',

@@ -12,6 +12,12 @@ use yii\helpers\Html;
 		<div class="note-time">
 			On <?=  date('F j, Y \a\t h:i a', $entry->created_at) . ', ' . Html::encode($entry->author->username) . ' posted:'; ?>
 			<div class="pull-right">
+
+			<?php if(isset($entry->doc_id)): ?>
+			<?= Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show document']),
+							$entry->imageUrl, ['target' => '_blank']); ?>
+			<?php endif; ?>
+
 			<?= Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-trash']), 
 					["/{$controller}/delete", 'id' => $entry->id],
 					['data' => [

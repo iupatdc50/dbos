@@ -4,6 +4,7 @@ namespace app\models\contractor;
 
 use Yii;
 use yii\db\Query;
+use app\models\base\iNotableInterface;
 use app\models\member\Member;
 use app\helpers\OptionHelper;
 use yii\helpers\ArrayHelper;
@@ -29,7 +30,7 @@ use app\models\value\Lob;
  * @property Member[] $employees
  * @property Note[] $notes
  */
-class Contractor extends \yii\db\ActiveRecord
+class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
 {
 	CONST STATUS_ACTIVE = 'T';
 	CONST STATUS_INACTIVE = 'F';
@@ -258,7 +259,15 @@ class Contractor extends \yii\db\ActiveRecord
    		if (!($note instanceof Note))
    			throw new \BadMethodCallException('Not an instance of ContractorNote');
    		$note->license_nbr = $this->license_nbr;
-   		return $note->save();
+   		$image = $note->uploadImage();
+   		if ($note->save()) {
+   			if ($image !== false) {
+   				$path = $note->imagePath;
+   				$image->saveAs($path);
+   			}
+   			return true;
+   		}
+   		return false;
    	}
    	
    	/**

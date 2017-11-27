@@ -56,7 +56,7 @@ EOF;
 				     	<?= $this->render('../partials/_notes', ['notes' => $announcements, 'controller' => 'site']); ?>
 				     <?php  endif; ?>
 				
-					<?=  $this->render('../partials/_noteform', ['model' => $announcementModel]) ?>
+					<?=  $this->render('../partials/_noteform', ['model' => $announcementModel, 'bypass_doc' => $bypass_doc]) ?>
 					</div>				
 				</div>
 			</div>
