@@ -20,7 +20,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     <h1><?= Html::encode($this->title) ?></h1>
     
     <div class="leftside sixty-pct">
-    	<?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt]); ?>
+    	<?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt, 'controller' => '/receipt-member']); ?>
     	<?= $this->render('../receipt/_detail', ['modelReceipt' => $modelReceipt]); ?>
     </div>
     
@@ -43,13 +43,12 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
         				'attribute' => 'allocation_amt',
         				'class' => 'kartik\grid\EditableColumn',
         				'editableOptions' => [
-//        						'inputType' => \kartik\editable\Editable::INPUT_MONEY,
         						'formOptions' => ['action' => '/allocation/edit-alloc'],
         						'showButtons' => false,
         						'buttonsTemplate' => '{submit}',
         						'asPopover' => false,
         						'pluginEvents' => [
-        								'editableSubmit' => "function(event, val, form) { location.reload(); }",
+        								'editableSuccess' => "function(event, val, form) { refreshToolBar($modelReceipt->id); }",
         						],
         				],
         				'hAlign' => 'right',

@@ -92,6 +92,16 @@ class BaseController extends Controller
     {
     	return $this->redirect("/accounting");
     }
+    
+    public function actionBalancesJson($id)
+    {
+    		$model = $this->findModel($id);
+    		$running = $model->totalAllocation + $model->unallocated_amt + $model->helper_dues;
+    		echo Json::encode([
+    				'balance' => number_format($model->outOfBalance, 2),
+    				'running' => number_format($running, 2),
+    		]);
+    }
 
     public function actionBalance($id)
     {

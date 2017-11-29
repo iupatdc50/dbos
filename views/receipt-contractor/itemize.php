@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     <h1><?= Html::encode($this->title) ?></h1>
     
     <div id="stagetoolbar">
-    <?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt]); ?>
+    <?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt, 'controller' => '/receipt-contractor']); ?>
     </div>
     <?= $this->render('../receipt/_detail', ['modelReceipt' => $modelReceipt]); ?>
     
@@ -79,7 +79,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     						'asPopover' => false,
     						'buttonsTemplate' => '{submit}',
     						'pluginEvents' => [
-//    								'editableSubmit' => "function(event, val, form) { refreshToolBar(); }",
+    								'editableSuccess' => "function(event, val, form) { refreshToolBar($modelReceipt->id); }",
     						],
     				],
     				'hAlign' => 'right',
@@ -129,12 +129,12 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
         'dataProvider' => $allocProvider,		
         'filterModel' => $searchAlloc,
  		'filterRowOptions'=>['class'=>'filter-row'],
-    	'pjax' => true,
+    	'pjax' => false,
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=> '<i class="glyphicon glyphicon-tasks"></i>&nbsp;Receipt Allocations',
-			'before' => '', // prevent 1 disply when true
-			'after' => Html::encode('Total Allocated: ' . number_format($modelReceipt->totalAllocation, 2)) ,
+			'before' => '', // prevent 1 display when true
+			'after' => false,
 		],
     	'toolbar' => [
     			'content' =>
