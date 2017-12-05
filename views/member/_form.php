@@ -107,6 +107,10 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'drug_test_dt')->widget(DateControl::className(), [
     		'type' => DateControl::FORMAT_DATE,
     ])  ?>
+    
+    <?php if(Yii::$app->user->can('resetPT')): ?>
+    <?= $form->field($model, 'overage')->textInput(['maxlength' => true]) ?>
+    <?php endif; ?>
 
     <hr>
 	    <div class="form-group">

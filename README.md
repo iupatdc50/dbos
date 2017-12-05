@@ -13,6 +13,12 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.10.750
+. Revise receipt entry to a single step post process when allocations balance
+. Added ability to include document attachments for member, contractor and project notes
+. Added ability to manage partial dues apayments and overages
+. Improved live receipt balancing (bug fix)
+
 0.9.10.720
 . Revised spreadsheet bills to include contribution amount calculations as formulae
 . Revised employment termination prompt to include reason code.

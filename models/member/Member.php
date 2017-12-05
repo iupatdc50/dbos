@@ -47,6 +47,7 @@ use app\components\validators\SsnValidator;
  * @property date $init_dt
  * @property date $dues_paid_thru_dt
  * @property date $drug_test_dt
+ * @property number $overage
  * 
  * @property Phone[] $phones
  * @property Address[] $addresses
@@ -184,7 +185,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
         	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id'], 'default'],
         	[['ssnumber', 'imse_id', 'ncfs_id'], 'unique'],
-            [['exempt_apf', 'wage_percent'], 'safe'],            
+            [['exempt_apf', 'wage_percent', 'overage'], 'safe'],            
         ];
     }
 
@@ -223,7 +224,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         	'init_dt' => 'Init Date (Current)',
         	'dues_paid_thru_dt' => 'Dues&nbsp;Thru',
         	'drug_test_dt' => 'Last Drug Test',
-        	'exempt_apf' => 'Exempt APF?'
+        	'exempt_apf' => 'Exempt APF?',
+        	'overage' => 'Overage',
         ];
     }
     

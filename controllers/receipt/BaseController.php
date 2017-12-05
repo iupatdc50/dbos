@@ -188,12 +188,13 @@ class BaseController extends Controller
 	    				isset($member->currentClass) ? $member->currentClass->rate_class : 'R'
 	    		);
 	    		$standing = new Standing(['member' => $member]);
-	    		$alloc->months = $alloc->calcMonths() + $standing->getDiscountedMonths();
+	    		$alloc->months = $alloc->calcMonths($member->overage) + $standing->getDiscountedMonths();
 	    		$alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
 	    		if (!$alloc->save()) {
 	    			$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
 	    		} else {
 	    			$member->dues_paid_thru_dt = $alloc->paid_thru_dt;
+	    			$member->overage = $alloc->unalloc_remainder;
 	    			if ($member->save()) {
 	    				if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed() == 0.00)) {
 	    					$status = $this->prepareStatus($member, $model->received_dt);

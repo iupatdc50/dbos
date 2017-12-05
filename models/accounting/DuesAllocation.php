@@ -78,18 +78,20 @@ class DuesAllocation extends BaseAllocation
     	return $standing->getDuesBalance($this->duesRateFinder);
     }
 
-	/**
-	 * Calculates number of months covered by allocation_amt
-	 * 
-	 * @throws \Exception
-	 * @return Integer
-	 */
-    public function calcMonths()
+    /**
+     * Calculates number of months covered by allocation_amt.  Any remainder updates
+     * $unalloc_remainder property
+     * 
+     * @param numbetr $overage
+     * @return NULL|integer
+     */
+    public function calcMonths($overage = 0.00)
     {
     	if (!$this->rateFinderExists())
     		return null;
-    	$tab = $this->allocation_amt;
+    	$tab = $this->allocation_amt + $overage;
     	$months = 0;
+    	$this->unalloc_remainder = 0.00;
     	/* @var \yii\db\DataReader $periods */
     	$periods = $this->duesRateFinder->getRatePeriods($this->getStartDt());
     	foreach ($periods as $period) {
@@ -98,13 +100,12 @@ class DuesAllocation extends BaseAllocation
     			// Can't use standard substract on FP numbers
     			$tab = bcsub($tab, $period['max_in_period'], 2);
     		} else {
-    			
-/*  FP numbers are in base 2, so fmod is unreliable
-    			$this->unalloc_remainder = fmod($tab, $period['rate']);
-    			if ($this->unalloc_remainder != 0)	
-    				throw new \yii\base\UserException("Remainder of {$this->unalloc_remainder} exists in dues allocation. Tab: {$tab}; Rate: {$period['rate']}; Max: {$period['max_in_period']}");
- */
-    			$months += bcdiv($tab, $period['rate'], 2);
+    			// Can't use standard divide or fmod on FP numbers
+    			while ($period['rate'] <= $tab) {
+    				$months++;
+    				$tab = bcsub($tab, $period['rate'], 2);
+    			}
+    			$this->unalloc_remainder = $tab;
     			$tab = 0.00;
     		}
     		if ($tab <= 0.00)

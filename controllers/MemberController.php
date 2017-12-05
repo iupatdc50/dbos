@@ -110,7 +110,7 @@ class MemberController extends RootController
     	if (isset($model->currentStatus) && isset($model->currentClass)) {
     		$rate_finder = new DuesRateFinder($model->currentStatus->lob_cd, $model->currentClass->rate_class);
     		$standing = new Standing(['member' => $model]);
-    		$balance = number_format($standing->getDuesBalance($rate_finder) + $standing->totalAssessmentBalance, 2);
+    		$balance = number_format($standing->getDuesBalance($rate_finder) + $standing->totalAssessmentBalance - $model->overage, 2);
     	}
     	$params['balance'] = $balance;
     	

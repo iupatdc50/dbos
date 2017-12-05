@@ -40,9 +40,15 @@ use yii\helpers\Url;
 			<th class="right">Assessment Balance</th>
 			<td class="right"><?= $assessment_balance ?></td>
 	   </tr>
-		<tr class="total-border">
+	   <?php if($member->overage != 0.00): ?>
+		<tr>
+			<th class="right">Overage</th>
+			<td class="right negative"><?= $member->overage ?></td>
+	   </tr>
+	   <?php endif; ?>
+	   <tr class="total-border">
 			<th class="right">Total Due</th>
-			<td class="right<?= $dues_balance + $assessment_balance > 0 ? ' td-danger' : ''; ?>"><?= number_format($dues_balance + $assessment_balance, 2) ?></td>
+			<td class="right<?= $dues_balance + $assessment_balance > 0 ? ' td-danger' : ''; ?>"><?= number_format($dues_balance + $assessment_balance - $member->overage, 2) ?></td>
 	   </tr>
 	   
 	</tbody></table>

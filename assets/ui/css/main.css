@@ -127,6 +127,10 @@ table .total-border {
 	border-top-style: double;
 }
 
+.negative {
+	color:#8a1f11;
+}
+
 .btn {
 	font-size: 12px;
 	padding: 6px 12px;
