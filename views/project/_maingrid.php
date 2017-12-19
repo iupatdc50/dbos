@@ -14,8 +14,9 @@ use app\helpers\OptionHelper;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $heading {$this->title} from calling view */
-/* @var $before string
-/* @var $specialColumns columns specific to calling view */
+/* @var $before string */
+/* @var $filterModel yii\db\ActiveRecord */
+/* @var $specialColumns array specific to calling view */
 
 $baseColumns = [
     	[
@@ -73,27 +74,31 @@ $actionColumn = [
 
 ?>
     
-<?= GridView::widget([
-	'dataProvider' => $dataProvider,
-    'filterModel' => $filterModel,
-	'panel'=>[
-		'type'=>GridView::TYPE_PRIMARY,
-	    'heading'=> $heading,
-		// workaround to prevent 1 in the before section
-		'before' => (Yii::$app->user->can('manageProject')) ? '' : false,
-		'after' => isset($before) ? '<p class="pad-six">' . Html::tag('span', $before, ['class' => 'pull-right']) . '</p>' : false,
-	],
-	'toolbar' => [
-		'content' => Html::a('Create Project', ['create'], ['class' => 'btn btn-success']),
-	],
-	'rowOptions' => function($model) {
-        				if (!is_null($model->close_dt))
-        					return ['class' => 'text-muted'];
-        				elseif ($model->disposition == 'D')
-				        	return ['class' => 'danger text-muted'];
-        				elseif ($model->disposition == 'U')
-				        	return ['class' => 'warning'];
-					},
-    'columns' => array_merge($baseColumns, $specialColumns, $actionColumn),
-]); ?>
+<?php
+try {
+    echo GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'panel' => [
+            'type' => GridView::TYPE_PRIMARY,
+            'heading' => $heading,
+            // workaround to prevent 1 in the before section
+            'before' => (Yii::$app->user->can('manageProject')) ? '' : false,
+            'after' => isset($before) ? '<p class="pad-six">' . Html::tag('span', $before, ['class' => 'pull-right']) . '</p>' : false,
+        ],
+        'toolbar' => [
+            'content' => Html::a('Create Project', ['create'], ['class' => 'btn btn-success']),
+        ],
+        'rowOptions' => function ($model) {
+            if (!is_null($model->close_dt))
+                return ['class' => 'text-muted'];
+			elseif ($model->disposition == 'D')
+                return ['class' => 'danger text-muted'];
+			elseif ($model->disposition == 'U')
+                return ['class' => 'warning'];
+        },
+        'columns' => array_merge($baseColumns, $specialColumns, $actionColumn),
+    ]);
+} catch (Exception $e) {
+} ?>
 

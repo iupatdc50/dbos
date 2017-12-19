@@ -7,7 +7,7 @@ use yii\grid\GridView;
 // use SebastianBergmann\CodeCoverage\Report\PHP;
 
 /* @var $model app\models\accounting\Receipt */
-/* @var $allocProvider ActiveDataProvider */
+/* @var $allocProvider yii\data\ActiveDataProvider */
 
 ?>
 
@@ -42,11 +42,15 @@ use yii\grid\GridView;
 
 <hr>
 
-<?= DetailView::widget([
-		'model' => $model,
-		'options' => ['class' => 'table table-bordered'],
-		'attributes' => array_merge($common_attributes, $model->getCustomAttributes(true)),
-]); ?>
+<?php
+try {
+    echo DetailView::widget([
+        'model' => $model,
+        'options' => ['class' => 'table table-bordered'],
+        'attributes' => array_merge($common_attributes, $model->getCustomAttributes(true)),
+    ]);
+} catch (Exception $e) {
+} ?>
 
 </td>
 
@@ -56,21 +60,25 @@ use yii\grid\GridView;
 
 <h4>Allocation Summary</h4>
 
-<?= GridView::widget([
-		'id' => 'alloc-grid',
-		'dataProvider' => $allocProvider,
-		'summary' => '',
-		'tableOptions' => ['class' => 'table table-bordered'],
-		'columns' => [
-				'descrip',
-				[
-						'attribute' => 'amount',
-						'format' => ['decimal', 2],
-						'contentOptions' => ['class' => 'right'],
-						'headerOptions' => ['class' => 'right'],
-				],
-		],
-]); ?>
+<?php
+try {
+    echo GridView::widget([
+        'id' => 'alloc-grid',
+        'dataProvider' => $allocProvider,
+        'summary' => '',
+        'tableOptions' => ['class' => 'table table-bordered'],
+        'columns' => [
+            'descrip',
+            [
+                'attribute' => 'amount',
+                'format' => ['decimal', 2],
+                'contentOptions' => ['class' => 'right'],
+                'headerOptions' => ['class' => 'right'],
+            ],
+        ],
+    ]);
+} catch (Exception $e) {
+} ?>
 
 </div>
 

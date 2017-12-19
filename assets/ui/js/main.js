@@ -71,7 +71,7 @@ $(function(){
 		$.post(
 			modal.attr("action"),
 			modal.serialize()
-		)	
+		);
 		return false;
 	});
 });

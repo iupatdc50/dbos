@@ -5,6 +5,7 @@ namespace app\controllers\base;
 use Yii;
 use app\models\base\BaseEndable;
 use yii\data\ActiveDataProvider;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -94,17 +95,23 @@ class SubmodelController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        
+
         $removing_current = false;
         if (($model instanceof BaseEndable) && ($model->end_dt == null)) {
         	$removing_current = true;
         	$qualifier = $model->qualifier();
         	$relation_id = $model->$qualifier;
         }
-        
-        if ($model->delete())
-        	Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
-        		
+
+        try {
+            if ($model->delete())
+                Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
+        } catch (StaleObjectException $e) {
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Problem deleting model. Check log for details. Code `SC050`');
+            Yii::error("*** SC050  Model delete error (ID: `{$id}`).  Messages: " . print_r($model->errors, true));
+        }
+
         if ($removing_current)
         	call_user_func([$this->recordClass, 'openLatest'], $relation_id);
         

@@ -22,7 +22,6 @@ use app\components\utilities\OpDate;
  * @property string $payor_type
  * @property string $received_amt
  * @property string $received_dt
- * @property string $received_amt
  * @property string $unallocated_amt
  * @property string $helper_dues
  * @property string $helper_hrs
@@ -330,7 +329,7 @@ class Receipt extends \yii\db\ActiveRecord
     	
         
         // generate a unique file name for storage
-        $ext = end((explode(".", $file->name)));
+        $ext = end(explode(".", $file->name));
         $this->xlsx_name = Yii::$app->security->generateRandomString(16).".{$ext}";
     	
         return $file;

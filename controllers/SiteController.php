@@ -50,8 +50,8 @@ class SiteController extends RootController
 	 * password is User::RESET_USER_PW
 	 * 
 	 * @throws \Exception
-	 * @return \yii\web\Response|Ambigous <string, string>
-	 */
+	 * @return string
+     */
 	public function actionLogin()
 	{
 		$this->layout = 'login';

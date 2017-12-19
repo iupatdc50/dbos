@@ -23,7 +23,7 @@ class AllocationBuilder extends Model
 	 * 
 	 * @param AllocatedMember $memb 	Member to which the allocations will apply
 	 * @param array $fee_types			Allocation fee types to be generated
-	 * @return multitype:|boolean
+	 * @return string|boolean
 	 */
 	public function prepareAllocs(AllocatedMember $memb, $fee_types = [])
 	{
@@ -61,7 +61,7 @@ class AllocationBuilder extends Model
 	 * 
 	 * @param AllocatedMember $memb		Member to which the allocations will apply
 	 * @param array $array				Data used to create the allocations
-	 * @return multitype:|boolean
+	 * @return string|boolean
 	 */
 	public function prepareAllocsFromArray(AllocatedMember $memb, $array = []) {
 		// Specify non allocation columns to ignore 
@@ -79,7 +79,7 @@ class AllocationBuilder extends Model
 		return true;
 	}
 	
-	protected function saveAlloc($alloc)
+	protected function saveAlloc(BaseAllocation $alloc)
 	{
 		try {
 			$alloc->save();

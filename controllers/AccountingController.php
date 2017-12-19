@@ -58,19 +58,25 @@ class AccountingController extends Controller
     	$payorOptions = Receipt::getPayorOptions();
     	return $this->renderAjax('create-receipt', compact('model', 'payorOptions'));
     }
-    
+
     /**
      * Deletes an existing Receipt model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
         $this->findReceiptModel($id)->delete();
         return $this->redirect(['index']);
     }
-    
+
+    /**
+     * @param $id
+     * @return Receipt
+     */
     protected function findReceiptModel($id)
     {
 		$receipt = Receipt::findOne($id);

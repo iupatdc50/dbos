@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
-/* @var $dues_balance string */
+/* @var $dues_balance number */
 
 ?>
 

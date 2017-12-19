@@ -5,16 +5,13 @@ namespace app\controllers\receipt;
 use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
-use app\models\accounting\ReceiptSearch;
 use app\models\member\Member;
 use app\models\member\Status;
 use app\models\member\Standing;
-use yii\base\InvalidCallException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\base\yii\base;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
 use app\models\accounting\BaseAllocation;
@@ -103,6 +100,12 @@ class BaseController extends Controller
     		]);
     }
 
+    /**
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
     public function actionBalance($id)
     {
     	$model = $this->findModel($id);
@@ -110,38 +113,19 @@ class BaseController extends Controller
     		if($model->save()) {
     			return $this->goBack();
     		}
-    		throw new \yii\base\Exception('Problem with post.  Errors: ' . print_r($model->errors, true)); 
+    		throw new \yii\db\Exception('Problem with post.  Errors: ' . print_r($model->errors, true));
     	}		
     	return $this->renderAjax('/receipt/balance', compact('model'));
     }
 
     /**
-     * Updates an existing Receipt model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
-    }
-    
-    /**
      * Posts the staged receipt
-     * 
+     *
      * Assessment allocations are applied first because APF status is checked when dues are applied
-     * 
-     * @param integer $id
-     * @throws \yii\base\ErrorException
+     *
+     * @param integer $id  Receipt ID
      * @return \yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionPost($id)
     {
@@ -154,7 +138,7 @@ class BaseController extends Controller
     	$this->_dbErrors = [];
     	 
         $allocs = $model->assessmentAllocations;
-    	/* @var $alloc AssessmentAllocation */
+    	/* @var $alloc \app\models\accounting\AssessmentAllocation */
     	foreach ($allocs as $alloc) {
     		if ($this->retainAlloc($alloc)) {
 	    		if ($alloc->applyToAssessment()) {
@@ -218,8 +202,11 @@ class BaseController extends Controller
     		}
     	}
     	
-    	if (!empty($this->_dbErrors))
-    		throw new \yii\base\ErrorException('Problem with post.  Errors: ' . print_r($this->_dbErrors, true));
+    	if (!empty($this->_dbErrors)) {
+    	    Yii::$app->session->setFlash('error', "Problem with post.  Check log for details. Code `BC010`");
+    	    Yii::error("*** BC010: Problem with Receipt post.  Errors: " . print_r($this->_dbErrors, true));
+    	    return $this->goBack();
+        }
     	Yii::$app->session->setFlash('success', "Receipt successfully posted");
     	return $this->redirect(['view', 'id' => $model->id]);
     	
@@ -227,9 +214,12 @@ class BaseController extends Controller
 
     /**
      * Voids an existing Receipt model.
-     * 
+     *
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function actionVoid($id)
     {
@@ -260,12 +250,15 @@ class BaseController extends Controller
         return $this->redirect(['view', 'id' => $model->id]);
         
     }
-    
+
     /**
      * Backs out of a create or update action.  If the receipt is held in the Undo tables, the held receipt is restored.
-     * 
-     * @param unknown $id
+     *
+     * @param integer $id
      * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function actionCancel($id)
     {
@@ -280,7 +273,7 @@ class BaseController extends Controller
     	
     	if (!empty($this->_dbErrors)) {
     		Yii::$app->session->addFlash('error', 'Could not complete cancel action.  Check log for details. Code `BC030`');
-    		Yii::error("*** BC030 Receipt cancellation error(s).  Errors: " . print_r($this->_dbErrors, true) . " Receipt: " . print_r($receipt, true));
+    		Yii::error("*** BC030 Receipt cancellation error(s).  Errors: " . print_r($this->_dbErrors, true) . " Receipt: " . print_r($model, true));
     		return $this->goBack();
     	}
     	 

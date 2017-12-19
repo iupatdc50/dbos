@@ -44,14 +44,15 @@ class DuesRateFinder extends Model
 		$this->_rate_class = $rate_class;
 		parent::__construct($config = []);
 	}
-	
-	/**
-	 * Use DuesRate table to compute total dues balance for a given date range 
-	 * 
-	 * @param string $start_dt 
-	 * @param string $target_dt
-	 * @returns decimal
-	 */
+
+    /**
+     * Use DuesRate table to compute total dues balance for a given date range
+     *
+     * @param string $start_dt
+     * @param string $target_dt
+     * @returns number
+     * @throws \yii\db\Exception
+     */
 	public function computeBalance($start_dt, $target_dt)
 	{
 		$sql = 

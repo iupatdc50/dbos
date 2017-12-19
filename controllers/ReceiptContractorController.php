@@ -23,11 +23,12 @@ use app\models\accounting\AllocationBuilder;
 
 class ReceiptContractorController extends \app\controllers\receipt\BaseController
 {
-	
+
     /**
      * Displays a single Receipt model.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -45,7 +46,14 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 
     	return $this->render('view', compact('model', 'membProvider', 'searchMemb'));
     }
-    
+
+    /**
+     * @param $lob_cd
+     * @param null $id
+     * @return string|\yii\web\Response
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
 	public function actionCreate($lob_cd, $id = null)
 	{
 		$model = new ReceiptContractor([
@@ -71,13 +79,15 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 							if ($file == false) { // manual entry
 								/* @var $member \app\models\member\Member */
 								foreach ($model->responsible->employer->employees as $member) {
-									$alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
-									if (!$alloc_memb->save())
-										throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$e}");
-									$builder = new AllocationBuilder();
-									$result = $builder->prepareAllocs($alloc_memb, $model->fee_types);
-									if ($result != true)
-										throw new \Exception('Uncaught validation errors: ' . $result);
+								    if ($member->currentStatus->lob_cd == $lob_cd) {
+                                        $alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
+                                        if (!$alloc_memb->save())
+                                            throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$alloc_memb->errors}");
+                                        $builder = new AllocationBuilder();
+                                        $result = $builder->prepareAllocs($alloc_memb, $model->fee_types);
+                                        if ($result != true)
+                                            throw new \Exception('Uncaught validation errors: ' . $result);
+                                    }
 								}
 							} else { // uploaded spreadsheet exists 
 								$path = $model->filePath;
@@ -96,7 +106,7 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 									}
 									$alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
 									if (!$alloc_memb->save())
-										throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$e}");
+										throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$alloc_memb->errors}");
 									$builder = new AllocationBuilder();
 									$result = $builder->prepareAllocsFromArray($alloc_memb, $alloc);
 									if ($result != true)

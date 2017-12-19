@@ -7,10 +7,9 @@ use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 use app\models\value\Size;
-use app\models\value\Lob;
 use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
-use app\models\base\iIdGeneratedInterface;
+use app\models\base\iIdInterface;
 use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
@@ -112,7 +111,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	public $wage_percent;
 	
 	/**
-	 * @var binary Stages whether new member should be APF exempt
+	 * @var boolean Stages whether new member should be APF exempt
 	 */
 	public $exempt_apf;
 	
@@ -123,13 +122,15 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return 'Members';
     }
-    
+
     /**
      * Returns a set of members for Select2 picklist. Full name
      * is returned as text (id, text are required columns for Select2)
-     * 
-     * @param string|array $search Criteria used for partial member list. If an array, then member
-     * 							   key will be a like search
+     *
+     * @param string|array $search      Criteria used for partial member list. If an array, then member
+     *                                  key will be a like search
+     * @return array
+     * @throws \yii\db\Exception
      */
     public static function listAll($search)
     {
@@ -255,7 +256,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	}
     	return false;
     }
-    
+
+    /**
+     * @param bool $insert
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
     public function beforeSave($insert) 
     {
     	if (parent::beforeSave($insert)) {
@@ -664,7 +670,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         }
         
         // generate a unique file name for storage
-        $ext = end((explode(".", $image->name)));
+        $ext = end(explode(".", $image->name));
         $this->photo_id = Yii::$app->security->generateRandomString(16).".{$ext}";
  
         return $image;
@@ -824,7 +830,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$result = false;
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'A')) {
     		if (!isset($this->dues_paid_thru_dt)) 
-    			throw new \Exception("Dues paid thru date is not set for member: {$member_id}");
+    			throw new \Exception("Dues paid thru date is not set for member: {$this->member_id}");
     		$result = $this->isOlderThanCutoff(self::MONTHS_DELINQUENT);
     	}
     	return $result;

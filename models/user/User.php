@@ -100,8 +100,7 @@ class User extends \yii\db\ActiveRecord
             [['username'], 'unique'],
         	[['email'], 'email'],
         	[['auth_key'], 'string', 'max' => 32],
-        	['can_authorize', 'in', 'range' => OptionHelper::getAllowedTF()],
-        		
+
         	[['password_current', 'password_new', 'password_confirm'], 'required', 'on' => self::SCENARIO_CHANGE_PW],
         	[['password_current'], 'validateCurrentPassword'],
         	[['password_new'], StrengthValidator::className(), 'preset' => 'normal', 'userAttribute' => 'username'],
@@ -128,8 +127,7 @@ class User extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         	'last_nm' => 'Last Name',
         	'first_nm' => 'First Name',
-        	'can_authorize' => 'Can Authorize',
-        		
+
         	'password_current' => 'Current Password', 
         	'password_new' => 'New Password', 
             'password_confirm' => 'Confirm New Password', 
