@@ -6,9 +6,8 @@ use app\controllers\base\SummaryController;
 use Yii;
 use app\models\member\MemberClass;
 use app\models\member\Member;
-use yii\web\Controller;
+use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 use yii\bootstrap\ActiveForm;
 
 
@@ -19,6 +18,7 @@ class MemberClassController extends SummaryController
 {
 	public $recordClass = 'app\models\member\MemberClass';
 	public $relationAttribute = 'member_id';
+	/** @var $member Member */
 	public $member;
 	
 	/**
@@ -47,11 +47,24 @@ class MemberClassController extends SummaryController
         
     }
 
+    public function actionSummaryJson($id)
+    {
+        $hoursProvider = new ActiveDataProvider([
+            'query' => $this->setMember($id)->getWorkHoursSummary(),
+        ]);
+        $class = isset($this->member->currentClass) ? $this->member->currentClass->member_class : null;
+        $this->viewParams = [
+            'class' => $class,
+            'hoursProvider' => $hoursProvider,
+        ];
+        parent::actionSummaryJson($id);
+    }
+
 	/**
 	 * Allows for injection of $this->member 
 	 * @param string $id
 	 * @throws NotFoundHttpException
-	 * @return \yii\db\static
+	 * @return Member
 	 */
 	public function setMember($id)
 	{

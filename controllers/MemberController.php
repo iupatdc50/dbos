@@ -96,6 +96,7 @@ class MemberController extends RootController
      * Displays a single Member model.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -136,6 +137,7 @@ class MemberController extends RootController
      * Creates a new Member model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\db\Exception
      */
     public function actionCreate()
     {
@@ -284,6 +286,7 @@ class MemberController extends RootController
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -344,6 +347,9 @@ class MemberController extends RootController
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -359,10 +365,12 @@ class MemberController extends RootController
     /**
      * List builder for member pickllist.  Builds JSON encoded array:
      * ['results'] key provides progressive results. If a member ID is provided,
-     * 			   then this key provides the member_id and full_name 	
-     * 
-     * @param string|array $search Criteria used. 
+     *               then this key provides the member_id and full_name
+     *
+     * @param string|array $search Criteria used.
      * @param string $member_id Selected member's ID
+     * @return array
+     * @throws \yii\db\Exception
      */
     public function actionMemberList($search = null, $member_id = null) 
     {
@@ -376,6 +384,30 @@ class MemberController extends RootController
     		$out['results'] = ['member_id' => $member_id, 'text' => Member::findOne($member_id)->fullName];
     	}
     	return $out;    	
+    }
+
+    /**
+     * List builder for member pickllist.  Builds JSON encoded array:
+     * ['results'] key provides progressive results. If a member ID is provided,
+     *               then this key provides the member_id and full_name
+     *
+     * @param string|array $search Criteria used.
+     * @param string $member_id Selected member's ID
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public function actionMemberSsnList($search = null, $member_id = null)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $out = ['results' => ['id' => '', 'text' => '']];
+        if (!is_null($search)) {
+            $data = Member::listSsnAll($search);
+            $out['results'] = array_values($data);
+        }
+        elseif (!is_null($member_id) && ($member_id <> '0')) {
+            $out['results'] = ['member_id' => $member_id, 'text' => Member::findOne($member_id)->fullName];
+        }
+        return $out;
     }
 
     /**

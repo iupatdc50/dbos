@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use app\controllers\receipt\BaseController;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ReceiptContractorSearch;
@@ -11,17 +12,13 @@ use app\models\accounting\RemittanceExcel;
 use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocatedMemberSearch;
 use app\models\accounting\StagedAllocationSearch;
-use app\models\accounting\BaseAllocation;
-use app\models\accounting\AssessmentAllocation;
-use app\models\accounting\DuesAllocation;
-use \app\models\member\Member;
-use \app\models\accounting\DuesRateFinder;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
+use app\models\member\Member;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\AllocationBuilder;
+use yii\helpers\Json;
+use yii\web\NotFoundHttpException;
 
-class ReceiptContractorController extends \app\controllers\receipt\BaseController
+class ReceiptContractorController extends BaseController
 {
 
     /**
@@ -140,8 +137,16 @@ class ReceiptContractorController extends \app\controllers\receipt\BaseControlle
 		]);
 		
 	}
-	
-	public function actionItemize($id, array $fee_types)
+
+    /**
+     * @param $id
+     * @param array $fee_types
+     * @return string
+     * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function actionItemize($id, array $fee_types = [])
 	{
 		$this->storeReturnUrl();
 		$modelReceipt = $this->findModel($id);

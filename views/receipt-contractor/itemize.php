@@ -1,13 +1,13 @@
 <?php
 
 use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
-use yii\web\JsExpression;
-use kartik\select2\Select2;
 use kartik\grid\GridView;
-use yii\bootstrap\Modal;
-use kartik\editable\Editable;
+
+
+/* @var $searchAlloc app\models\accounting\StagedAllocationSearch */
+/* @var $allocProvider yii\data\ActiveDataProvider */
+/* @var $modelReceipt app\models\accounting\ReceiptContractor */
 
 
 $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
@@ -54,17 +54,17 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
 	        			'label' => 'Class',
 	        			'width' => '5px',
 	        	],
+                [
+                    'attribute' => 'reportId',
+                    'value' => 'member.report_id',
+                    'contentOptions' => ['style' => 'width:120px'],
+                ],
     			[
         				'attribute' => 'fullName', 
         				'value' => 'member.fullName',
         				
     			],
-        		[
-        				'attribute' => 'reportId', 
-        				'value' => 'member.report_id',
-        				
-    			],
-				
+
         ];
     	$feeColumns = [];
     	foreach ($modelReceipt->feeTypesArray as $fee_type) {
@@ -124,39 +124,43 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     	];
     ?>
     
-    <?= GridView::widget([
-    	'id' => 'itemize-grid',
-        'dataProvider' => $allocProvider,		
-        'filterModel' => $searchAlloc,
- 		'filterRowOptions'=>['class'=>'filter-row'],
-    	'pjax' => false,
-		'panel'=>[
-	        'type'=>GridView::TYPE_DEFAULT,
-	        'heading'=> '<i class="glyphicon glyphicon-tasks"></i>&nbsp;Receipt Allocations',
-			'before' => '', // prevent 1 display when true
-			'after' => false,
-		],
-    	'toolbar' => [
-    			'content' =>
-    				Html::button('Create Member Stub', [
-    								'class' => 'btn btn-default btn-modal',
-    								'id' => 'memberCreateButton',
-    								'value' => Url::to(["/member/create-stub"]),
-    								'data-title' => 'Member Stub',
-    				]),
-    	],
-    	'rowOptions' => function($model) {
-    		$css = ['verticalAlign' => 'middle'];
-    		if(!isset($model->member->currentStatus) || ($model->member->currentStatus->member_status == 'U'))
-    			$css['class'] = 'text-muted';
-    		return $css;
-    	},
-    		
-    		
-        'columns' => array_merge($baseColumns, $feeColumns, $actionColumn),
-//    	'showPageSummary' => true,
-        		
-    ]);?>
+    <?php
+    try {
+        echo GridView::widget([
+            'id' => 'itemize-grid',
+            'dataProvider' => $allocProvider,
+            'filterModel' => $searchAlloc,
+            'filterRowOptions' => ['class' => 'filter-row'],
+            'pjax' => false,
+            'panel' => [
+                'type' => GridView::TYPE_DEFAULT,
+                'heading' => '<i class="glyphicon glyphicon-tasks"></i>&nbsp;Receipt Allocations',
+                'before' => '', // prevent 1 display when true
+                'after' => false,
+            ],
+            'toolbar' => [
+                'content' =>
+                    Html::button('Create Member Stub', [
+                        'class' => 'btn btn-default btn-modal',
+                        'id' => 'memberCreateButton',
+                        'value' => Url::to(["/member/create-stub"]),
+                        'data-title' => 'Member Stub',
+                    ]),
+            ],
+            'rowOptions' => function ($model) {
+                $css = ['verticalAlign' => 'middle'];
+                if (!isset($model->member->currentStatus) || ($model->member->currentStatus->member_status == 'U'))
+                    $css['class'] = 'text-muted';
+                return $css;
+            },
+
+
+            'columns' => array_merge($baseColumns, $feeColumns, $actionColumn),
+            //    	'showPageSummary' => true,
+
+        ]);
+    } catch (Exception $e) {
+    } ?>
     
         
     

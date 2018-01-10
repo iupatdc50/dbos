@@ -13,8 +13,14 @@ Modules are setup for:
 . Accounting
 . Training
 
+0.9.11.101
+. Added work hours summaries for apprentices in member view
+. Added current compliance summaries in member view
+. Added member picklist function that includes last 4 SSN
+. Removed last drug test from member detail
+
 0.9.10.750
-. Revise receipt entry to a single step post process when allocations balance
+. Revised receipt entry to a single step post process when allocations balance
 . Added ability to include document attachments for member, contractor and project notes
 . Added ability to manage partial dues apayments and overages
 . Improved live receipt balancing (bug fix)

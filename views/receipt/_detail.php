@@ -36,18 +36,22 @@ use app\helpers\OptionHelper;
         ]; 
 	?>
 
-    <?= DetailView::widget([
-        'model' => $modelReceipt,
-        'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
-    	'attributes' => array_merge(
-    			$common_attributes, 
-    			$modelReceipt->customAttributes,
-    			[[
-    				'attribute' => 'created_by',
-    				'value' => $modelReceipt->createdBy->username,
-    			]]
-    	),
-    ]) ?>
+    <?php
+    try {
+        echo DetailView::widget([
+            'model' => $modelReceipt,
+            'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
+            'attributes' => array_merge(
+                $common_attributes,
+                $modelReceipt->customAttributes,
+                [[
+                    'attribute' => 'created_by',
+                    'value' => $modelReceipt->createdBy->username,
+                ]]
+            ),
+        ]);
+    } catch (Exception $e) {
+    } ?>
 
 
 </div>

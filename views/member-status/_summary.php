@@ -22,7 +22,7 @@ Pjax::begin(['id' => 'status-history', 'enablePushState' => false]);
 echo GridView::widget([
 		'id' => 'status-history',
 		'dataProvider' => $dataProvider,
-		'pjax' => true,
+		'pjax' => false,
 		'panel'=>[
 	        'type'=>GridView::TYPE_DEFAULT,
 	        'heading'=>'Status History',

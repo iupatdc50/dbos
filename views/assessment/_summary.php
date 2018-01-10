@@ -20,7 +20,6 @@ try {
             'footer' => false,
         ],
         'columns' => [
-
             [
                 'class' => \yii\grid\ActionColumn::className(),
                 'template' => '{details}',

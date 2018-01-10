@@ -41,31 +41,35 @@ $this->params['breadcrumbs'][] = $this->title;
     	<?php endif; ?>
     </p> 
     <br />
-    <?= DetailView::widget([
-    		'model' => $model,
-//			'mode'=>DetailView::MODE_VIEW,
-           	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table-sm text-left'],
-        	'attributes' => [
-        		[
-        				'label' => 'Trade', 
-        				'value' => Html::encode(isset($model->currentStatus) ? $model->currentStatus->lob->short_descrip : 'No Trade'),
-    			],
-        		[
-        				'attribute' => 'dues_paid_thru_dt',
-        				'value' => isset($model->lastDuesReceipt) ?
-        						Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)), 
-        						'/receipt-'. (($model->lastDuesReceipt->payor_type == Receipt::PAYOR_MEMBER) ? 'member' : 'contractor') 
-        						.'/view?id=' . $model->lastDuesReceipt->receipt_id) : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
-        				'format' => 'raw',
-        				'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
-    			],	
-        		[
-        				'label' => 'Balance Due',
-        				'value' => Html::encode($balance),
-        				'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
-    			],
-    		],
-    ]); ?>
+    <?php
+    try {
+        echo DetailView::widget([
+            'model' => $model,
+            //			'mode'=>DetailView::MODE_VIEW,
+            'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table-sm text-left'],
+            'attributes' => [
+                [
+                    'label' => 'Trade',
+                    'value' => Html::encode(isset($model->currentStatus) ? $model->currentStatus->lob->short_descrip : 'No Trade'),
+                ],
+                [
+                    'attribute' => 'dues_paid_thru_dt',
+                    'value' => isset($model->lastDuesReceipt) ?
+                        Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
+                            '/receipt-' . (($model->lastDuesReceipt->payor_type == Receipt::PAYOR_MEMBER) ? 'member' : 'contractor')
+                            . '/view?id=' . $model->lastDuesReceipt->receipt_id) : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
+                    'format' => 'raw',
+                    'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
+                ],
+                [
+                    'label' => 'Balance Due',
+                    'value' => Html::encode($balance),
+                    'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
+                ],
+            ],
+        ]);
+    } catch (Exception $e) {
+    } ?>
     </td><td class="seventyfive-pct">
 		<?= $this->render('../partials/_quicksearch', ['className' => 'member']); ?>
         <div><p>
@@ -82,34 +86,38 @@ $this->params['breadcrumbs'][] = $this->title;
 			    <?php endif; ?> 
 			<?php endif; ?>
         </p></div>
-    <?= DetailView::widget([
-        'model' => $model,
-//		'mode'=>DetailView::MODE_VIEW,
-    	'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
-        'attributes' => [
-            'member_id',
-            'report_id',
-            'imse_id',
-        	'addressTexts:ntext',
-            'phoneTexts:ntext',
-            'emailTexts:ntext',
-    		'age',
-            'birth_dt:date',
-            ['attribute' => 'gender', 'value' => Html::encode($model->genderText)],
-            'shirt_size',
-        	'pacTexts:ntext',
-//        	'application_dt:date',
-        		[
-        				'attribute' => 'init_dt',
-        				'format' => $model->isInApplication() ? NULL : 'date',
-//        				'rowOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
-        				'contentOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
-        				'value' => $model->isInApplication() ? '** In Application **' : $model->init_dt,
-    			],	
-        	'specialtyTexts:ntext',
-        	'drug_test_dt:date',
-        ],
-    ]) ?>
+    <?php
+    try {
+        echo DetailView::widget([
+            'model' => $model,
+            //		'mode'=>DetailView::MODE_VIEW,
+            'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
+            'attributes' => [
+                'member_id',
+                'report_id',
+                'imse_id',
+                'addressTexts:ntext',
+                'phoneTexts:ntext',
+                'emailTexts:ntext',
+                'age',
+                'birth_dt:date',
+                ['attribute' => 'gender', 'value' => Html::encode($model->genderText)],
+                'shirt_size',
+                'pacTexts:ntext',
+                //        	'application_dt:date',
+                [
+                    'attribute' => 'init_dt',
+                    'format' => $model->isInApplication() ? NULL : 'date',
+                    //        				'rowOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
+                    'contentOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
+                    'value' => $model->isInApplication() ? '** In Application **' : $model->init_dt,
+                ],
+                'specialtyTexts:ntext',
+//                'drug_test_dt:date',
+            ],
+        ]);
+    } catch (Exception $e) {
+    } ?>
 </td></tr>
 </table>  
 
@@ -123,6 +131,8 @@ $this->params['breadcrumbs'][] = $this->title;
     
 //    $balance = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
     $balancesUrl = Yii::$app->urlManager->createUrl(['member-balances/summary-json', 'id' => $model->member_id]);
+
+    $complianceUrl = Yii::$app->urlManager->createUrl(['member-credentials/summary-json', 'id' => $model->member_id]);
     
     $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);
@@ -134,44 +144,47 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <table class="hundred-pct table">
 <tr><td class="sixty-pct datatop">
-<?=
-	Accordion::widget([
-		'items' => [
-			[
-				'header' => Html::tag('span', 'Status: ') . $status ,
-				'content' => '<div data-url='.$statusUrl.'>loading...</div>',
-			],
-			[
-				'header' => Html::tag('span', 'Class: ') . $class,
-				'content' => '<div data-url='.$classUrl.'>loading...</div>',
-			],
-			[
-				'header' => Html::tag('span', 'Balances'),
-				'content' => '<div class="balances" data-url='.$balancesUrl.'>loading...</div>',
-			],
-			[
-				'header' => Html::tag('span', 'Compliance: '),
-				'content' => 'Feature not yet supported',
-			],
-			[
-				'header' => Html::tag('span', 'Employer: ') . $employer,
-				'content' => '<div data-url='.$employerUrl.'>loading...</div>',
-			],
-			[
-				'header' => Html::tag('span', 'Source Documents') ,
-				'content' => '<div data-url='.$docUrl.'>loading...</div>',
-			],
-		],
-	    'options' => ['tag' => 'div'],
-	    'headerOptions' => ['tag' => 'div'],
-	    'itemOptions' => ['tag' => 'div'],
-	    'clientOptions' => [
-	    	'collapsible' => true, 
-	    	'active' => false,
-	    	'heightStyle' => 'content',
-	    ],
-	    'clientEvents' => ['activate' => 'fillPanel'],
-	]);
+<?php
+try {
+    echo Accordion::widget([
+        'items' => [
+            [
+                'header' => Html::tag('span', 'Status: ') . $status,
+                'content' => '<div data-url=' . $statusUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Class: ') . $class,
+                'content' => '<div data-url=' . $classUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Balances'),
+                'content' => '<div class="balances" data-url=' . $balancesUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Compliance'),
+                'content' => '<div data-url=' . $complianceUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Employer: ') . $employer,
+                'content' => '<div data-url=' . $employerUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Source Documents'),
+                'content' => '<div data-url=' . $docUrl . '>loading...</div>',
+            ],
+        ],
+        'options' => ['tag' => 'div'],
+        'headerOptions' => ['tag' => 'div'],
+        'itemOptions' => ['tag' => 'div'],
+        'clientOptions' => [
+            'collapsible' => true,
+            'active' => false,
+            'heightStyle' => 'content',
+        ],
+        'clientEvents' => ['activate' => 'fillPanel'],
+    ]);
+} catch (Exception $e) {
+}
 ?>
 </td><td class="forty-pct datatop">
 <div id="journal">

@@ -4,13 +4,11 @@ namespace app\controllers;
 
 use Yii;
 use app\models\member\Member;
-use app\models\accounting\Assessment;
 use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\helpers\Json;
-use yii\data\yii\data;
 
 class MemberBalancesController extends Controller
 {

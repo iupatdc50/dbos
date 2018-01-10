@@ -11,6 +11,7 @@ use app\helpers\OptionHelper;
  * @property string $fee_type
  * @property string $descrip
  * @property string $freq
+ * @property string $short_descrip
  * @property string $extDescrip
  */
 class FeeType extends \yii\db\ActiveRecord

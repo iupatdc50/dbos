@@ -12,6 +12,9 @@ use Yii;
  */
 class ClassCode extends \yii\db\ActiveRecord
 {
+    CONST CLASS_HANDLER = 'M';
+    CONST CLASS_APPRENTICE = 'A';
+
     /**
      * @inheritdoc
      */

@@ -2,6 +2,8 @@
 
 namespace app\models\member;
 
+use app\models\training\Credential;
+use app\models\training\WorkHoursSummary;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -19,6 +21,7 @@ use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 use app\models\accounting\ApfAssessment;
 use app\models\accounting\LastDuesReceipt;
+use app\models\training\CurrentMemberCredential;
 use app\modules\admin\models\FeeType;
 use app\helpers\SsnHelper;
 use app\components\validators\SsnValidator;
@@ -57,7 +60,8 @@ use app\components\validators\SsnValidator;
  * @property Status $currentStatus
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
- * @property Classification $classification 
+ * @property Classification $classification
+ * @property CurrentMemberCredential[] $credentials
  * @property CurrentEmployment $employer
  * @property BaseAllocation[] $allocations
  * @property ApfAssessment $currentApf
@@ -151,7 +155,36 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$command = $query->createCommand();
     	return $command->queryAll();
     }
-    
+
+    /**
+     * Returns a set of members for Select2 picklist. Full name
+     * is returned as text (id, text are required columns for Select2)
+     *
+     * @param string|array $search      Criteria used for partial member list. If an array, then member
+     *                                  key will be a like search
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public static function listSsnAll($search)
+    {
+        /* @var Query $query */
+        $query = new Query;
+        $query->select('member_id as id, full_nm as text')
+            ->from('MemberSsnPickList')
+            ->limit(10)
+            ->distinct();
+        if (ArrayHelper::isAssociative($search)) {
+            if (isset($search['full_nm'])) {
+                $query->where(['like', 'full_nm', $search['full_nm']]);
+                unset($search['full_nm']);
+            }
+            $query->andWhere($search);
+        } elseif (!is_null($search))
+            $query->where(['like', 'full_nm', $search]);
+        $command = $query->createCommand();
+        return $command->queryAll();
+    }
+
     public function init()
     {
     	$this->app_cutoff_dt = $this->getToday();
@@ -440,15 +473,16 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return $this->hasMany(Status::className(), ['member_id' => 'member_id']);
     }
-    
+
     /**
      * Adds a Status entry for a member
-     * 
+     *
      * For a new member member_status is determined by the submitted exempt_apf switch, and the lob_cd must be supplied.
      * For an existing member, the previous lob_cd is assumed
-     * 
+     *
      * @param Status $status
      * @param array $config
+     * @return bool
      * @throws \BadMethodCallException
      */
     public function addStatus(Status $status, $config = [])
@@ -522,6 +556,24 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getClassification()
     {
     	return $this->hasOne(Classification::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHoursSummary()
+    {
+        return $this->hasMany(WorkHoursSummary::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCredentials($catg)
+    {
+        return $this->hasMany(CurrentMemberCredential::className(), ['member_id' => 'member_id'])
+                    ->onCondition(['catg' => $catg])
+        ;
     }
     
     /**
@@ -638,7 +690,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * Fetch photo file name with complete path (FQDN)
      * 
-     * @return <string, NULL>
+     * @return string | NULL
      */
     public function getImagePath()
     {
@@ -656,11 +708,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$path =  Yii::$app->urlManager->baseUrl . Yii::$app->params['imageDir'];
     	return isset($this->photo_id) ? $path . $this->photo_id : $path . '_NotAvail.jpg';
     }
-    
+
     /**
      * Process upload of image
      *
      * @return mixed the uploaded image instance
+     * @throws \yii\base\Exception
      */
     public function uploadImage() 
     {
@@ -847,7 +900,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	$result = false;
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'S')) {
     		if (!isset($this->dues_paid_thru_dt))
-    			throw new \Exception("Dues paid thru date is not set for member: {$member_id}");
+    			throw new \Exception("Dues paid thru date is not set for member: {$this->member_id}");
     		$result = $this->isOlderThanCutoff(self::MONTHS_GRACE_PERIOD);
     	}
     	return $result;	
