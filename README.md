@@ -6,12 +6,18 @@ Private system to manage back office operations at DC50.
 Main application covers:
 . General membership management
 . Contractors and employment management
+. Accounting
 . Special project tracking
+. Reporting
 
 Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
-. Accounting
 . Training
+
+0.9.11.501
+. Added ability to bypass prebuilding employees on receipts
+. Added fee type fields to add pop-up for receipts
+. Revised add pop-up for receipts to handle [enter] as [tab]
 
 0.9.11.101
 . Added work hours summaries for apprentices in member view

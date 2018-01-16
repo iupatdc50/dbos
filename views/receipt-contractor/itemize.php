@@ -8,6 +8,7 @@ use kartik\grid\GridView;
 /* @var $searchAlloc app\models\accounting\StagedAllocationSearch */
 /* @var $allocProvider yii\data\ActiveDataProvider */
 /* @var $modelReceipt app\models\accounting\ReceiptContractor */
+/* @var $fee_types array */
 
 
 $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
@@ -66,8 +67,11 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
     			],
 
         ];
+
+
     	$feeColumns = [];
-    	foreach ($modelReceipt->feeTypesArray as $fee_type) {
+
+        foreach ($searchAlloc->fee_types as $fee_type) {
     		$feeColumns[] = [
     				'attribute' => $fee_type,
     				'header' => strtoupper($fee_type),

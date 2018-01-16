@@ -3,10 +3,8 @@
 namespace app\controllers;
 
 use Yii;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\db\Exception;
-use kartik\grid\EditableColumnAction;
 use app\controllers\base\SubmodelController;
 use app\models\accounting\AddTypeForm;
 use app\models\accounting\ReceiptContractor;
@@ -18,7 +16,6 @@ use app\models\accounting\DuesAllocation;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\TradeFeeType;
 use app\modules\admin\models\FeeType;
-use app\models\accounting\AssessmentAllocation;
 
 /**
  * StagedAllocationController implements the CRUD actions for accouting\StagedAllocation model.
@@ -48,14 +45,16 @@ class StagedAllocationController extends SubmodelController
 		$model = new $this->recordClass;
 	
 		if ($model->load(Yii::$app->request->post())) {
-			$alloc_memb = new AllocatedMember(['receipt_id' => $receipt_id, 'member_id' => $model->member_id]);
-			if ($alloc_memb->save()) {
-				$builder = new AllocationBuilder();
-				$result = $builder->prepareAllocs($alloc_memb, $receipt->feeTypesArray);
+//		    Yii::info(print_r($model, true));
+            $builder = new AllocationBuilder();
+			$alloc_memb = $builder->prepareAllocMemb($receipt_id, $model->member_id);
+			if ($alloc_memb != false) {
+				$result = $builder->prepareAllocsFromModel($model, $alloc_memb->id);
 				if ($result)
 					return $this->goBack();
+                throw new Exception	('Problem with post.  Errors: ' . print_r($builder->errors, true));
 			}
-			throw new Exception	('Problem with post.  Errors: ' . print_r($builder->errors, true));
+			throw new Exception	('Problem with post.  Errors: ' . print_r($alloc_memb->errors, true));
 		}
 		return $this->renderAjax('add', compact('model', 'license_nbr'));
 	
@@ -171,7 +170,7 @@ class StagedAllocationController extends SubmodelController
 				if($model->save()) {
 					// Apply to underlying allocation
                     /** @var BaseAllocation $base */
-					$base = $this->findBaseAlloc($model->alloc_memb_id, $attr);
+					$base = $this->getBaseAlloc($model->alloc_memb_id, $attr);
 					$base->allocation_amt = $posted[$attr];
 					$base->save();
 				}
@@ -233,18 +232,26 @@ class StagedAllocationController extends SubmodelController
 	}
 	
 	/**
-	 * Retrieves the underlying (normalized) base allocation
+	 * Retrieves the underlying (normalized) base allocation.  If it doesn't exist, a new one is created.
 	 * 
 	 * @param int $alloc_memb_id  	
 	 * @param string $fee_type		This can be obtained from the post's column key in the edit-alloc action 
-	 * @throws \InvalidArgumentException
+	 * @throws \yii\db\Exception
 	 * @return BaseAllocation
 	 */
-	protected function findBaseAlloc($alloc_memb_id, $fee_type)
+	protected function getBaseAlloc($alloc_memb_id, $fee_type)
 	{
 		$alloc = BaseAllocation::findOne(['alloc_memb_id' => $alloc_memb_id, 'fee_type' => $fee_type]);
-		if (!$alloc)
-			throw new \InvalidArgumentException('Attemtping to access a non-existent allocation');
+		if (!$alloc) {
+            $alloc = new BaseAllocation([
+                'alloc_memb_id' => $alloc_memb_id,
+                'fee_type' => $fee_type,
+                'allocation_amt' => 0.00,
+            ]);
+            if (!$alloc->save())
+                /** @noinspection PhpUnhandledExceptionInspection */
+                throw new Exception('Unable to save base allocation');
+        }
 		return $alloc;
 	}
 	

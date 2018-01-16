@@ -2,10 +2,7 @@
 
 namespace app\models\accounting;
 
-use Yii;
 use yii\base\Model;
-use app\models\accounting\StagedAllocation;
-use app\models\member\Member;
 
 /**
  * StagedAllocationSearch represents the model behind the search form about `app\models\accounting\StagedAllocation`.
@@ -40,10 +37,11 @@ class StagedAllocationSearch extends StagedAllocation
      */
 	public function behaviors()
 	{
-		return [
+        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
+        return [
 		    [
 		    	'class' => \app\components\behaviors\OpAllocatedMemberSearchBehavior::className(),
-		    	'recordClass' => 'app\models\accounting\StagedAllocation',
+		    	'recordClass' => StagedAllocation::className(),
 		    ],
 		];
 	}

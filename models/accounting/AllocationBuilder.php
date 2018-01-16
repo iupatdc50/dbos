@@ -4,10 +4,6 @@ namespace app\models\accounting;
 
 use Yii;
 use yii\base\Model;
-use app\models\accounting\AllocatedMember;
-use app\models\accounting\BaseAllocation;
-use app\models\accounting\AssessmentAllocation;
-use app\models\accounting\DuesAllocation;
 use app\models\member\Standing;
 use app\modules\admin\models\FeeType;
 
@@ -65,7 +61,7 @@ class AllocationBuilder extends Model
 	 */
 	public function prepareAllocsFromArray(AllocatedMember $memb, $array = []) {
 		// Specify non allocation columns to ignore 
-		$strip = ['last_nm' => 'remove', 'first_nm' => 'remove', 'report_id' => 'remove'];
+		$strip = ['classification' => 'remove', 'last_nm' => 'remove', 'first_nm' => 'remove', 'report_id' => 'remove'];
 		$allocs = array_diff_key($array, $strip);
 		foreach ($allocs as $fee_type => $amt) {
 			$alloc = new BaseAllocation([
@@ -78,7 +74,32 @@ class AllocationBuilder extends Model
 		}
 		return true;
 	}
-	
+
+	public function prepareAllocsFromModel(StagedAllocation $model, $alloc_memb_id)
+    {
+        foreach ($model->fee_types as $fee_type) {
+            $alloc = new BaseAllocation([
+                'alloc_memb_id' => $alloc_memb_id,
+                'fee_type' => $fee_type,
+                'allocation_amt' => $model->$fee_type,
+            ]);
+            if (!$this->saveAlloc($alloc))
+                return $this->_errors;
+        }
+        return true;
+    }
+
+    public function prepareAllocMemb($receipt_id, $member_id)
+    {
+        $alloc_memb = new AllocatedMember(['receipt_id' => $receipt_id, 'member_id' => $member_id]);
+        if (!$alloc_memb->save()) {
+            Yii::$app->session->addFlash('error', 'Could not save Allocated Member. Check log for details. Code `AB050`');
+            Yii::error("*** AB50 Allocated Member save error.  Messages: " . print_r($alloc_memb->errors, true));
+            return false;
+        }
+        return $alloc_memb;
+    }
+
 	protected function saveAlloc(BaseAllocation $alloc)
 	{
 		try {

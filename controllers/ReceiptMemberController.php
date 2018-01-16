@@ -55,7 +55,7 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
 				if ($model->save(false)) {
 					$modelMember->receipt_id = $model->id;
 					if (!$modelMember->save())
-						throw new \Exception("Error when trying to stage Allocated Member `{$modelMember->member_id}`: {$e}");
+						throw new \Exception("Error when trying to stage Allocated Member `{$modelMember->errors}`");
 					$builder = new AllocationBuilder();
 					$result = $builder->prepareAllocs($modelMember, $model->fee_types);
 					if ($result != true)
@@ -66,7 +66,7 @@ class ReceiptMemberController extends \app\controllers\receipt\BaseController
 								'other_local' => $model->other_local,
 						]);
 						if (!$modelNextLocal->save())
-							throw new \Exception("Error when trying to stage Receiving Local `{$modelNextLocal->alloc_memb_id}`: {$e}");
+							throw new \Exception("Error when trying to stage Receiving Local `{$modelNextLocal->errors}`");
 					}
 					$transaction->commit();
 					return $this->redirect(['itemize', 'id' => $model->id]); 

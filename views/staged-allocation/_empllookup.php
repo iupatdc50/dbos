@@ -11,7 +11,7 @@ use kartik\widgets\Select2;
 /* @var $license_nbr string */
 
 // The controller action that will render the list
-$url = Url::to(['/member/member-list']);
+$url = Url::to(['/member/member-ssn-list']);
 
 $member_name = isset($model->member) ? $model->member->fullName : 'Search for employee...';
 ?>

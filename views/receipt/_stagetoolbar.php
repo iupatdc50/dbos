@@ -42,8 +42,9 @@ $(function() {
 		
 function refreshToolBar(id) {
 	$.get('$controller/balances-json', { id : id }, function(data) {
-		result = $.parseJSON(data);
-		if (result.balance == 0.00) {
+		// noinspection JSUndeclaredVariable
+        result = $.parseJSON(data);
+        if (result.balance == 0.00) {
 			$('#balance-display').hide();
 			$('#balance-btn').hide();
 			$('#post-btn').show();

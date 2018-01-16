@@ -35,6 +35,7 @@ use app\components\utilities\OpDate;
  * @property ReceiptFeeType[] $feeTypes
  * @property ReceiptAllocSumm[] $allocSumms
  * @property User $createdBy
+ * @property string $void [enum('T', 'F')]
  */
 class Receipt extends \yii\db\ActiveRecord
 {
@@ -56,6 +57,10 @@ class Receipt extends \yii\db\ActiveRecord
 	
 //	public $lob_cd;
 	public $fee_types = [];
+    /**
+     * @var bool    True means to generate allocation rows for each employee
+     */
+	public $populate;
 	
 	/**
 	 * @var mixed	Stages spreadsheet to be uploaded
@@ -132,7 +137,7 @@ class Receipt extends \yii\db\ActiveRecord
     		}"],
         	[['tracking_nbr'], 'string', 'max' => 20],
         	[['created_at', 'created_by'], 'integer'],
-        	[['remarks', 'fee_types', 'xlsx_file'], 'safe'],
+        	[['remarks', 'fee_types', 'populate', 'xlsx_file'], 'safe'],
         	['fee_types', 'required', 'on'  => self::SCENARIO_CREATE, 'message' => 'Please select at least one Fee Type'],
         	['lob_cd', 'required', 'on'  => self::SCENARIO_CONFIG],
         ];
@@ -161,6 +166,7 @@ class Receipt extends \yii\db\ActiveRecord
         	'xlsx_file' => 'Import From Spreadsheet',
             'lob_cd' => 'Trade',
         	'acct_month' => 'Account Month',
+            'populate' => 'Prebuild Employees',
         ];
         return array_merge($this->_labels, $common_labels);
     }
@@ -246,7 +252,12 @@ class Receipt extends \yii\db\ActiveRecord
     		throw new yii\base\InvalidConfigException('Unknown remittable filter field');
     	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
     }
-    
+
+    /**
+     * Uses an SQL view to determine unique fee types currently on this receipt
+     *
+     * @return \yii\db\ActiveQuery
+     */
     public function getFeeTypes()
     {
     	return $this->hasMany(ReceiptFeeType::className(), ['receipt_id' => 'id']);
@@ -270,12 +281,25 @@ class Receipt extends \yii\db\ActiveRecord
     {
     	return $this->hasMany(AllocatedMember::className(), ['receipt_id' => 'id']);
     }
-    
+
+    /**
+     * Determine whether allocations exist.  Assume none if no allocated members
+     *
+     * @return int      Number of allocated members
+     */
+    public function getAllocatedCount()
+    {
+        return $this->hasMany(AllocatedMember::className(), ['receipt_id' => 'id'])->count('member_id');
+    }
+
     public function getAllocSumms()
     {
     	return $this->hasMany(ReceiptAllocSumm::className(), ['receipt_id' => 'id']);
     }
-    
+
+    /**
+     * @return number
+     */
     public function getTotalAllocation()
     {
     	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])
@@ -294,7 +318,8 @@ class Receipt extends \yii\db\ActiveRecord
     
     public function getOutOfBalance()
     {
-    	return $this->received_amt - ($this->totalAllocation + $this->unallocated_amt + $this->helper_dues);
+        /** @noinspection PhpWrongStringConcatenationInspection */
+        return $this->received_amt - ($this->totalAllocation + $this->unallocated_amt + $this->helper_dues);
     }
     
     public function getAssessmentAllocations()
@@ -308,18 +333,19 @@ class Receipt extends \yii\db\ActiveRecord
     /**
      * Fetch spreadsheet file name with complete path (FQDN)
      * 
-     * @return <string, NULL>
+     * @return null|string
      */
     public function getFilePath()
     {
     	$path = Yii::getAlias('@webroot') . Yii::$app->params['uploadDir'];
     	return isset($this->xlsx_name) ? $path . $this->xlsx_name : null;
     }
-    
+
     /**
      * Process upload of spreadsheet
-     * 
+     *
      * @return mixed the uploaded spreadsheet
+     * @throws \yii\base\Exception
      */
     public function uploadFile()
     {

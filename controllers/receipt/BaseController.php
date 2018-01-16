@@ -92,12 +92,13 @@ class BaseController extends Controller
     
     public function actionBalancesJson($id)
     {
-    		$model = $this->findModel($id);
-    		$running = $model->totalAllocation + $model->unallocated_amt + $model->helper_dues;
-    		echo Json::encode([
-    				'balance' => number_format($model->outOfBalance, 2),
-    				'running' => number_format($running, 2),
-    		]);
+        $model = $this->findModel($id);
+        /** @noinspection PhpWrongStringConcatenationInspection */
+        $running = $model->totalAllocation + $model->unallocated_amt + $model->helper_dues;
+        echo Json::encode([
+                'balance' => number_format($model->outOfBalance, 2),
+                'running' => number_format($running, 2),
+        ]);
     }
 
     /**
@@ -114,8 +115,9 @@ class BaseController extends Controller
     			return $this->goBack();
     		}
     		throw new \yii\db\Exception('Problem with post.  Errors: ' . print_r($model->errors, true));
-    	}		
-    	return $this->renderAjax('/receipt/balance', compact('model'));
+    	}
+        /** @noinspection MissedViewInspection */
+        return $this->renderAjax('/receipt/balance', compact('model'));
     }
 
     /**
@@ -231,7 +233,8 @@ class BaseController extends Controller
         	if (!$alloc_memb->delete())
         		$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->errors);
         }
-        
+
+        $model->received_amt = 0.00;
         $model->unallocated_amt = 0.00;
         $model->helper_dues = null;
         $model->remarks = 'Voided by: ' . Yii::$app->user->identity->username;
@@ -244,7 +247,7 @@ class BaseController extends Controller
         	Yii::$app->session->setFlash('success', "Receipt successfully voided");
         else {
 			Yii::$app->session->addFlash('error', 'Could not complete receipt void.  Check log for details. Code `BC020`');
-			Yii::error("*** BC020 Receipt void error(s).  Errors: " . print_r($this->_dbErrors, true) . " Receipt: " . print_r($receipt, true));
+			Yii::error("*** BC020 Receipt void error(s).  Errors: " . print_r($this->_dbErrors, true) . " Receipt: " . print_r($model, true));
         }
 
         return $this->redirect(['view', 'id' => $model->id]);
@@ -287,7 +290,8 @@ class BaseController extends Controller
 		$query = ReceiptAllocSumm::find()->where(['receipt_id' => $id])->orderBy('descrip');
 		$allocProvider = new ActiveDataProvider(['query' => $query, 'sort' => false]);
 
-		return $this->render('/receipt/print-preview', compact('model', 'allocProvider'));
+        /** @noinspection MissedViewInspection */
+        return $this->render('/receipt/print-preview', compact('model', 'allocProvider'));
     }
     
     /**

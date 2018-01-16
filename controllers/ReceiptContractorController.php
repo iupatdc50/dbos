@@ -74,18 +74,20 @@ class ReceiptContractorController extends BaseController
 							
 							// Stage member line items
 							if ($file == false) { // manual entry
-								/* @var $member \app\models\member\Member */
-								foreach ($model->responsible->employer->employees as $member) {
-								    if ($member->currentStatus->lob_cd == $lob_cd) {
-                                        $alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
-                                        if (!$alloc_memb->save())
-                                            throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$alloc_memb->errors}");
-                                        $builder = new AllocationBuilder();
-                                        $result = $builder->prepareAllocs($alloc_memb, $model->fee_types);
-                                        if ($result != true)
-                                            throw new \Exception('Uncaught validation errors: ' . $result);
+                                if ($model->populate) {
+                                    /* @var $member \app\models\member\Member */
+                                    foreach ($model->responsible->employer->employees as $member) {
+                                        if ($member->currentStatus->lob_cd == $lob_cd) {
+                                            $builder = new AllocationBuilder();
+                                            $alloc_memb = $builder->prepareAllocMemb($model->id, $member->member_id);
+                                            if ($alloc_memb != false) {
+                                                $result = $builder->prepareAllocs($alloc_memb, $model->fee_types);
+                                                if ($result != true)
+                                                    throw new \Exception('Uncaught validation errors: ' . $result);
+                                            }
+                                        }
                                     }
-								}
+                                }
 							} else { // uploaded spreadsheet exists 
 								$path = $model->filePath;
 								$file->saveAs($path);
@@ -101,13 +103,13 @@ class ReceiptContractorController extends BaseController
 										Yii::warning("Receipt {$model->id} member `{$alloc->report_id}` not found.  Skipping row.");
 										continue;
 									}
-									$alloc_memb = new AllocatedMember(['receipt_id' => $model->id, 'member_id' => $member->member_id]);
-									if (!$alloc_memb->save())
-										throw new \Exception("Error when trying to stage Allocated Member `{$member->member_id}`: {$alloc_memb->errors}");
-									$builder = new AllocationBuilder();
-									$result = $builder->prepareAllocsFromArray($alloc_memb, $alloc);
-									if ($result != true)
-										throw new \Exception('Uncaught validation errors: ' . $result);
+                                    $builder = new AllocationBuilder();
+									$alloc_memb = $builder->prepareAllocMemb($model->id, $member->member_id);
+									if ($alloc_memb != false) {
+                                        $result = $builder->prepareAllocsFromArray($alloc_memb, $alloc);
+                                        if ($result != true)
+                                            throw new \Exception('Uncaught validation errors: ' . $result);
+                                    }
 								}
 								$model->deleteUploadedFile();
 							}
@@ -150,15 +152,14 @@ class ReceiptContractorController extends BaseController
 	{
 		$this->storeReturnUrl();
 		$modelReceipt = $this->findModel($id);
-		StagedAllocation::makeTable($id);
-		$searchAlloc = new StagedAllocationSearch(['receipt_id' => $id, 'fee_types' => $fee_types]);
+		StagedAllocation::makeTable($modelReceipt, $fee_types);
+		$searchAlloc = new StagedAllocationSearch(['receipt_id' => $id]);
 		$allocProvider = $searchAlloc->search(Yii::$app->request->queryParams);
 		
         return $this->render('itemize', [
             'modelReceipt' => $modelReceipt,
         	'searchAlloc' => $searchAlloc,
         	'allocProvider' => $allocProvider,
-//        	'fee_types' => $fee_types,
         ]);
 	}
 	

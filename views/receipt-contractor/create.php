@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?php $form = ActiveForm::begin([
-//    		'layout' => 'horizontal',
+    		'layout' => 'horizontal',
     		'enableClientValidation' => true,
     		'options' => ['enctype' => 'multipart/form-data'],
     ]); ?>
@@ -69,6 +69,10 @@ $this->params['breadcrumbs'][] = $this->title;
     
     <hr>
 
+    <?= $form->field($model, 'populate')->checkbox(); ?>
+
+    <hr>
+
     <?= $form->field($model, 'xlsx_file')->widget(FileInput::className(), [
     		'options' => ['accept' => '.xlsx, .xls'],
     		'pluginOptions'=> [
@@ -90,7 +94,7 @@ $script = <<< JS
 $(function() {
 		$('#helperhrslbl').hide();
 		$('#helperhrs').hide();
-})
+});
 
 $('#helperdues').change(function() {
 	var dues = $(this).val();
