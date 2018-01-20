@@ -178,6 +178,12 @@ $('.kv-editable-link').on('focus', function() {
 	$(this).trigger('click');	
 });
 
+$(document).keydown(function(e) {
+    if (e.which === 61 || e.which === 187) {
+        $('#allocationCreateButton').click();
+    }
+})
+
 JS;
 $this->registerJs($script);
 ?>

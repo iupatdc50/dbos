@@ -45,16 +45,19 @@ class StagedAllocationController extends SubmodelController
 		$model = new $this->recordClass;
 	
 		if ($model->load(Yii::$app->request->post())) {
-//		    Yii::info(print_r($model, true));
             $builder = new AllocationBuilder();
 			$alloc_memb = $builder->prepareAllocMemb($receipt_id, $model->member_id);
-			if ($alloc_memb != false) {
-				$result = $builder->prepareAllocsFromModel($model, $alloc_memb->id);
-				if ($result)
-					return $this->goBack();
-                throw new Exception	('Problem with post.  Errors: ' . print_r($builder->errors, true));
+			if ($alloc_memb == false)
+                throw new Exception	('Problem with post.  Errors: ' . print_r($alloc_memb->errors, true));
+            $result = $builder->prepareAllocsFromModel($model, $alloc_memb->id);
+            if ($result) {
+                Yii::$app->session->addFlash('success', 'Member allocations added');
+                return $this->goBack();
+            } else {
+                Yii::$app->session->addFlash('error', 'Could not add allocation.  Check log for details. Code `SAC010`');
+                Yii::error("*** SAC010 PrepareAllocs error.  StagedAlloc: " . print_r($model, true));
 			}
-			throw new Exception	('Problem with post.  Errors: ' . print_r($alloc_memb->errors, true));
+
 		}
 		return $this->renderAjax('add', compact('model', 'license_nbr'));
 	

@@ -24,6 +24,14 @@ class ReportController extends Controller
 
 		return $this->render('index');
 	}
+
+	public function actionActiveMembers()
+    {
+        return $this->render('reportico', [
+            'folder' => 'memberrpts',
+            'report_nm' => 'activemembers',
+        ]);
+    }
 	
 	public function actionPacSummary()
 	{

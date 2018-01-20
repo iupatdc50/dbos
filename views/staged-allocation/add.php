@@ -25,7 +25,7 @@ $tabindex = 0;
         'enableClientValidation' => true,
     ]); ?>
 
-    <?= $form->field($model, 'member_id')->label('Emloyee')->widget(Select2::classname(), [
+    <?= $form->field($model, 'member_id')->label('Employee')->widget(Select2::classname(), [
         'size' => Select2::SMALL,
         'initValueText' => $member_name,
         'pluginOptions' => [
@@ -50,47 +50,47 @@ $tabindex = 0;
     ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Add', ['class' => 'btn btn-primary']) ?>
-        <?= Html::button('close', ['class' => 'btn btn-default']) ?>
+        <?= Html::submitButton('Add', ['id' => 'addbtn', 'class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
 
+    <?php
+    foreach (Yii::$app->session->getAllFlashes() as $key => $messages) {
+        $message = (is_array($messages)) ? implode(', ', $messages) : $messages;
+        echo '<div class="flash-' . $key . '">' . $message . '</div>';
+    } ?>
 </div>
 
 <?php
 
 $script = <<< JS
 
-// Treat [enter] as [tab]
+$(document).ready(function() {
+    $('#stagedallocation-member_id').siblings('span').children('.selection').children('.select2-selection--single').trigger('focus');
+        select2_open = $(this).parent().parent().siblings('select');
+    select2_open.select2('open');
+});
+
 $(document).keydown(function(e) {
 
   // Set self as the current item in focus
   var self = $(':focus'),
-      // Set the form by the current item in focus
       form = self.parents('form:eq(0)'),
+      next,
       focusable;
 
-  // Array of Indexable/Tab-able items
   focusable = $('div.allocation-add').find('input,a,select,button,textarea').filter(':visible');
 
-  function enterKey(){
-    if (e.which === 13 && !self.is('textarea')) { // [Enter] key
-
-      // If not a regular hyperlink/button/textarea
-      if ($.inArray(self, focusable) && (!self.is('a')) && (!self.is('button'))){
-        // Then prevent the default [Enter] key behaviour from submitting the form
-        e.preventDefault();
-      } // Otherwise follow the link/button as by design, or put new line in textarea
-
-      // Focus on the next item (either previous or next depending on shift)
-      focusable.eq(focusable.index(self) + (e.shiftKey ? -1 : 1)).focus();
-
+  if (e.which === 13) {
+      next = focusable.eq(focusable.index(self) + 1);
+      if (next.length) {
+          next.focus();
+      } else {
+          form.submit();
+      }
       return false;
-    }
   }
-  // We need to capture the [Shift] key and check the [Enter] key either way.
-  if (e.shiftKey) { enterKey() } else { enterKey() }
 });
 
 var select2_open;

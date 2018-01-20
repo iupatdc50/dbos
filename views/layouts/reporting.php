@@ -12,7 +12,8 @@ use kartik\widgets\SideNav;
 		<div class="col-sm-3">
 		<?php
 			$type = SideNav::TYPE_DEFAULT;
-			echo SideNav::widget([
+        /** @noinspection PhpUnhandledExceptionInspection */
+        echo SideNav::widget([
 				'type' => $type,
 				'heading' => '<i class="glyphicon glyphicon-book"></i> Reports Index',
 				'items' => [
@@ -25,8 +26,13 @@ use kartik\widgets\SideNav;
 												'url'=>'/site/unavailable',
 												
 										],
+                                        [
+                                                'label' => 'Active Members List',
+                                                'url'=>'/report/active-members',
+                                                'active' => (yii::$app->requestedRoute == 'report/active-members'),
+                                        ],
 										[
-												'label' => 'PAC Reporting', 
+												'label' => 'PAC Reporting',
 												'items'=> [
 														[
 																'label' => 'Summary Report',
