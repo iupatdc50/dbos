@@ -5,10 +5,13 @@
       address,
       phone,
       paid_thru,
-      CASE WHEN member_status = 'S' THEN 'Susp' ELSE NULL END AS status
+      CASE
+        WHEN member_status = 'S' THEN 'Susp'
+        WHEN member_status = 'N' THEN 'Appl'
+        ELSE NULL END AS status
     FROM MemberStatusList
     WHERE 1 = 1
-    AND member_status IN ('A', 'S')
+    AND member_status IN ('A', 'S', 'N')
     [AND lob_cd IN ({lob_cd} ) ]
 
     ORDER BY trade, full_nm
