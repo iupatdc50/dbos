@@ -50,7 +50,8 @@ use app\components\validators\SsnValidator;
  * @property date $dues_paid_thru_dt
  * @property date $drug_test_dt
  * @property number $overage
- * 
+ * @property string $card_id [varchar(20)]
+ *
  * @property Phone[] $phones
  * @property Address[] $addresses
  * @property Address $mailingAddress
@@ -61,7 +62,6 @@ use app\components\validators\SsnValidator;
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
  * @property Classification $classification
- * @property CurrentMemberCredential[] $credentials
  * @property CurrentEmployment $employer
  * @property BaseAllocation[] $allocations
  * @property ApfAssessment $currentApf
@@ -567,6 +567,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
 
     /**
+     * @param  string $catg Compliance credential category
      * @return \yii\db\ActiveQuery
      */
     public function getCredentials($catg)

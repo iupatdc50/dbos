@@ -39,7 +39,8 @@ class StagedAllocationController extends SubmodelController
 	{
 		/** @var ReceiptContractor $receipt */
 		$receipt = $this->findReceiptModel($receipt_id);		
-		$license_nbr = $receipt->responsible->license_nbr;
+//		$license_nbr = $receipt->responsible->license_nbr;
+		$lob_cd = $receipt->lob_cd;
 
 		/** @var StagedAllocation $model */
 		$model = new $this->recordClass;
@@ -59,7 +60,7 @@ class StagedAllocationController extends SubmodelController
 			}
 
 		}
-		return $this->renderAjax('add', compact('model', 'license_nbr'));
+		return $this->renderAjax('add', compact('model', 'lob_cd'));
 	
 	}
 

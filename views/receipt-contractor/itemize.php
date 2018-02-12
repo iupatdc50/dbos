@@ -15,6 +15,8 @@ $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
 $this->params['breadcrumbs'][] = ['label' => 'Employer Receipts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $modelReceipt->id;
 
+$nbsp = '&nbsp;';
+
 // $url = ["balance", 'id' => $modelReceipt->id, 'fee_types' => $fee_types];
 
 ?>
@@ -98,7 +100,7 @@ $this->params['breadcrumbs'][] = $modelReceipt->id;
       					'class' => 'btn btn-default btn-modal',
       					'title' => 'Add fee type column',
       					'data-title' => 'Fee Type',
-      		]) .' '.
+      		]) . $nbsp .
     		Html::button('<i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-user"></i>',
       			['value' => Url::to(["/staged-allocation/add", 'receipt_id' => $modelReceipt->id]),
       					'id' => 'allocationCreateButton',
@@ -179,7 +181,7 @@ $('.kv-editable-link').on('focus', function() {
 });
 
 $(document).keydown(function(e) {
-    if (e.which === 61 || e.which === 187) {
+    if (e.which === 107 || e.which === 187) {
         $('#allocationCreateButton').click();
     }
 })

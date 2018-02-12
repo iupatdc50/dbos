@@ -125,9 +125,10 @@ class BaseController extends Controller
      *
      * Assessment allocations are applied first because APF status is checked when dues are applied
      *
-     * @param integer $id  Receipt ID
+     * @param integer $id Receipt ID
      * @return \yii\web\Response
      * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionPost($id)
     {
@@ -203,13 +204,19 @@ class BaseController extends Controller
 	    		}
     		}
     	}
+
+    	$session = Yii::$app->session;
     	
     	if (!empty($this->_dbErrors)) {
-    	    Yii::$app->session->setFlash('error', "Problem with post.  Check log for details. Code `BC010`");
+    	    $session->setFlash('error', "Problem with post.  Check log for details. Code `BC010`");
     	    Yii::error("*** BC010: Problem with Receipt post.  Errors: " . print_r($this->_dbErrors, true));
     	    return $this->goBack();
         }
-    	Yii::$app->session->setFlash('success', "Receipt successfully posted");
+
+        if (isset($session['prebuild']))
+            unset($session['prebuild']);
+
+    	$session->setFlash('success', "Receipt successfully posted");
     	return $this->redirect(['view', 'id' => $model->id]);
     	
     }
@@ -273,12 +280,17 @@ class BaseController extends Controller
     	
     	if (!$model->delete())
     		$this->_dbErrors = array_merge($this->_dbErrors, $model->errors);
+
+    	$session = Yii::$app->session;
     	
     	if (!empty($this->_dbErrors)) {
-    		Yii::$app->session->addFlash('error', 'Could not complete cancel action.  Check log for details. Code `BC030`');
+    		$session->addFlash('error', 'Could not complete cancel action.  Check log for details. Code `BC030`');
     		Yii::error("*** BC030 Receipt cancellation error(s).  Errors: " . print_r($this->_dbErrors, true) . " Receipt: " . print_r($model, true));
     		return $this->goBack();
     	}
+
+    	if (isset($session['prebuild']))
+            unset($session['prebuild']);
     	 
     	return $this->redirect(['index']);
     }
@@ -295,11 +307,10 @@ class BaseController extends Controller
     }
     
     /**
-     * Finds the Receipt model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * Signature for finding the Receipt model based on its primary key value.
+     * Must be overriden.
      * @param integer $id
      * @return Receipt the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
@@ -313,12 +324,14 @@ class BaseController extends Controller
     {
     	Yii::$app->user->returnUrl = Yii::$app->request->url;
     }
-    
+
     /**
      * Delete the allocation if the allocated amount is zero
-     * 
+     *
      * @param BaseAllocation $alloc
      * @return boolean Returns false if a database record deletion is attempted
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     protected function retainAlloc(BaseAllocation $alloc)
     {

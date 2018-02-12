@@ -392,16 +392,18 @@ class MemberController extends RootController
      *               then this key provides the member_id and full_name
      *
      * @param string|array $search Criteria used.
+     * @param string $lob_cd
      * @param string $member_id Selected member's ID
      * @return array
      * @throws \yii\db\Exception
      */
-    public function actionMemberSsnList($search = null, $member_id = null)
+    public function actionMemberSsnList($search = null, $lob_cd = null, $member_id = null)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $out = ['results' => ['id' => '', 'text' => '']];
         if (!is_null($search)) {
-            $data = Member::listSsnAll($search);
+            $condition = (is_null($lob_cd)) ? $search : ['full_nm' => $search, 'lob_cd' => $lob_cd];
+            $data = Member::listSsnAll($condition);
             $out['results'] = array_values($data);
         }
         elseif (!is_null($member_id) && ($member_id <> '0')) {

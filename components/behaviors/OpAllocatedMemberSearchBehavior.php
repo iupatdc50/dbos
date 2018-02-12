@@ -5,8 +5,6 @@ namespace app\components\behaviors;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\base\Behavior;
-use app\helpers\CriteriaHelper;
-use yii\base\InvalidParamException;
 use app\models\member\Member;
 use app\models\member\Classification;
 
@@ -17,7 +15,11 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 	 */
 	public $recordClass;
 
-	public function search($params)
+    /**
+     * @param $params
+     * @return ActiveDataProvider
+     */
+    public function search($params)
 	{
 		$query = call_user_func([$this->recordClass, 'find']);
 		$query->joinWith(['member', 'member.classification']);
@@ -25,10 +27,16 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 		
 		$m = Member::tableName();
 		$c = Classification::tableName();
+
+		$session = Yii::$app->session;
+
+		$defaultOrder = (isset($session['prebuild']) && ($session['prebuild'] == 'bypass'))
+                    ? ['alloc_memb_id' => SORT_ASC]
+                    : ['classification' => SORT_ASC, 'fullName' => SORT_ASC];
 		
 		$dataProvider = new ActiveDataProvider([
 				'query' => $query,
-				'sort' => ['defaultOrder' => ['classification' => SORT_ASC, 'fullName' => SORT_ASC]],
+				'sort' => ['defaultOrder' => $defaultOrder],
 				'pagination' => ['pageSize' => 12],
 		]);
 		
@@ -45,9 +53,6 @@ class OpAllocatedMemberSearchBehavior extends Behavior
 				'desc' => [$c.'.classification' => SORT_DESC],
 		];
 		
-/*		$this->owner->load($params);
-		
-		if (!$this->owner->validate()) { */
 		if (!($this->owner->load($params) && $this->owner->validate())) {
 			// uncomment the following line if you do not want to any records when validation fails
 			// $query->where('0=1');

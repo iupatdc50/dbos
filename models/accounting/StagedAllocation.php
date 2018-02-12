@@ -73,7 +73,7 @@ class StagedAllocation extends \yii\db\ActiveRecord
      *
      * @param Receipt $receipt
      * @param array $fee_types  Required if no allocations exist
-     * @return int
+     * @return int              Row count in made table
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */

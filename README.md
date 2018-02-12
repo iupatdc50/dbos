@@ -14,6 +14,12 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.11.520
+. Revised deafult sort order of Staged Allocations to entry sequence when not prebuilt
+. Revised member search on Staged Allocation to be specific to receipt trade
+. Fixed bug where [+] was not opening an Add pop-up on Staged Allocations 
+. Cleaned out some dead code
+
 0.9.11.501
 . Added ability to bypass prebuilding employees on receipts
 . Added fee type fields to add pop-up for receipts

@@ -9,7 +9,6 @@ use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ReceiptContractorSearch;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\RemittanceExcel;
-use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocatedMemberSearch;
 use app\models\accounting\StagedAllocationSearch;
 use app\models\member\Member;
@@ -75,6 +74,7 @@ class ReceiptContractorController extends BaseController
 							// Stage member line items
 							if ($file == false) { // manual entry
                                 if ($model->populate) {
+
                                     /* @var $member \app\models\member\Member */
                                     foreach ($model->responsible->employer->employees as $member) {
                                         if ($member->currentStatus->lob_cd == $lob_cd) {
@@ -87,6 +87,11 @@ class ReceiptContractorController extends BaseController
                                             }
                                         }
                                     }
+                                } else {
+
+                                    $session = Yii::$app->session;
+                                    $session['prebuild'] = 'bypass';
+
                                 }
 							} else { // uploaded spreadsheet exists 
 								$path = $model->filePath;
