@@ -66,9 +66,9 @@ $tabindex = 0;
 
 $script = <<< JS
 
-$(document).ready(function() {
+$('#modalCreate').on('shown.bs.modal', function() {    
     $('#stagedallocation-member_id').siblings('span').children('.selection').children('.select2-selection--single').trigger('focus');
-        select2_open = $(this).parent().parent().siblings('select');
+    select2_open = $(this).parent().parent().siblings('select');
     select2_open.select2('open');
 });
 

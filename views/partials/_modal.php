@@ -12,5 +12,5 @@ Modal::begin([
 ]);
 echo "<div class=modal-body id='modalContent'></div>";
 Modal::end();
-?>
+
 	    
