@@ -105,7 +105,15 @@ class StagedAllocation extends \yii\db\ActiveRecord
         return $result;
 
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getReceipt()
+    {
+        return $this->hasOne(Receipt::className(), ['id' => 'receipt_id']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

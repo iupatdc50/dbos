@@ -154,9 +154,13 @@ $nbsp = '&nbsp;';
                     ]),
             ],
             'rowOptions' => function ($model) {
+                $member = $model->member;
                 $css = ['verticalAlign' => 'middle'];
-                if (!isset($model->member->currentStatus) || ($model->member->currentStatus->member_status == 'U'))
+
+                if (!isset($member->currentStatus) || ($member->currentStatus->member_status == \app\models\member\Status::STUB))
                     $css['class'] = 'text-muted';
+                else
+                    $css['class'] = 'default';
                 return $css;
             },
 
@@ -166,7 +170,8 @@ $nbsp = '&nbsp;';
 
         ]);
     } catch (Exception $e) {
-    } ?>
+    }
+    ?>
     
         
     

@@ -46,7 +46,7 @@ class MaintenanceController extends Controller
 			         		':cutoff_dt' => $dates[self::IX_CUTOFF]->getMySqlDate(),
 			   		 ])
 			   		 ->execute();	
-			Yii::info(self::STAGE_TABLE_NM . "table generated");
+			Yii::info(self::STAGE_TABLE_NM . " table generated");
 			$count = $this->db->createCommand($this->insertStatusSql())->execute();
 			Yii::info("Members suspended as of {$dates[self::IX_EFFECTIVE]->getDisplayDate()}: {$count}");
 			$this->db->createCommand($this->stagePrevCloseSql())->execute();
