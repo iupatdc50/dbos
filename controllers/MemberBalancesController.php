@@ -30,6 +30,7 @@ class MemberBalancesController extends Controller
 			
 			$assessProvider = new ActiveDataProvider([
 					'query' => $member->getAssessments(),
+                    'sort' => ['defaultOrder' => ['assessment_dt'=>SORT_DESC]],
 			]);
 			
 			$apf = $member->currentApf;

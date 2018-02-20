@@ -110,7 +110,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'format' => $model->isInApplication() ? NULL : 'date',
                     //        				'rowOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
                     'contentOptions' => $model->isInApplication() ? ['class' => 'warning'] : ['class' => 'default'],
-                    'value' => $model->isInApplication() ? '** In Application **' : $model->init_dt,
+                    'value' => $model->isInApplication() ? '** On Application **' : $model->init_dt,
                 ],
                 'specialtyTexts:ntext',
 //                'drug_test_dt:date',

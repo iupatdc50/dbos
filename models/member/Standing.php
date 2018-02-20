@@ -6,7 +6,6 @@ use Yii;
 use yii\base\Model;
 use yii\base\InvalidConfigException;
 use app\components\utilities\OpDate;
-use app\models\member\Member;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 
@@ -34,26 +33,29 @@ class Standing extends Model
 	public function init()
 	{
 		if(!(isset($this->member) && ($this->member instanceof Member)))
-			throw new \yii\base\InvalidConfigException('No member object injected');
+            /** @noinspection PhpUnhandledExceptionInspection */
+            throw new \yii\base\InvalidConfigException('No member object injected');
 	}
-	
-	/**
-	 * Determines number of dues months owed by member. If paid thru is future, then returns zero.
-	 *  
-	 * @return number
-	 */
+
+    /**
+     * Determines number of dues months owed by member. If paid thru is future, then returns zero.
+     *
+     * @return number
+     * @throws InvalidConfigException
+     */
 	public function getMonthsToCurrent()
 	{
 		$start_dt = clone $this->member->duesPaidThruDtObject;
 		$obligation_dt = $this->getDuesObligation();
 		return $this->calcMonths($start_dt, $obligation_dt);
 	}
-	
-	/**
-	 * Compute discounted months for granted in service card
-	 * 
-	 * @return number
-	 */
+
+    /**
+     * Compute discounted months for granted in service card
+     *
+     * @return number
+     * @throws InvalidConfigException
+     */
 	public function getDiscountedMonths()
 	{
 		$months = 0;
@@ -66,12 +68,13 @@ class Standing extends Model
 		}
 		return $months;
 	}
-	
-	/**
-	 * Returns owed dues period into a date range
-	 *   
-	 * @return string
-	 */
+
+    /**
+     * Returns owed dues period into a date range
+     *
+     * @return string
+     * @throws InvalidConfigException
+     */
 	public function getBillingDescrip()
 	{
 		$obligation_dt = $this->getDuesObligation();
@@ -95,12 +98,15 @@ class Standing extends Model
 		
 		return $descrip;
 	}
-	
-	/**
-	 * Returns total outstanding dues owed. If paid thru is future, returns 0.00
-	 * 
-	 * @return number
-	 */
+
+    /**
+     * Returns total outstanding dues owed. If paid thru is future, returns 0.00
+     *
+     * @param DuesRateFinder $rateFinder
+     * @return number
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     */
 	public function getDuesBalance(DuesRateFinder $rateFinder)
 	{
 		$obligation_dt = $this->getDuesObligation();
@@ -129,7 +135,6 @@ class Standing extends Model
 	 * Today's date is current based on injected Member object
 	 * 
 	 * @returns OpDate
-	 * @throws \yii\base\InvalidConfigException
 	 */
 	private function getToday()
 	{
@@ -138,33 +143,36 @@ class Standing extends Model
 		}
 		return $this->_today;
 	}
-	
-	/**
-	 * Returns the last day of the current month
-	 * 
-	 * @return \app\components\utilities\OpDate
-	 */
+
+    /**
+     * Returns the last day of the current month
+     *
+     * @return \app\components\utilities\OpDate
+     */
 	private function getCurrentMonthEnd()
 	{
 		if(!isset($this->_currentMonthEnd)) {
-			$this->_currentMonthEnd = $this->getToday();
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $this->_currentMonthEnd = $this->getToday();
 			$this->_currentMonthEnd->setToMonthEnd();
 		}
 		return $this->_currentMonthEnd;
 	}
-	
-	/**
-	 * Returns the date dues must be paid thru to meet obligation.  
-	 * 
-	 * If member, is in application, this date is determined by adding the APF dues months to the current application 
-	 * date.  Otherwise, the current month end is used.
-	 * 
-	 * @see Member::getDuesStartDt
-	 * @return \app\components\utilities\OpDate
-	 */
+
+    /**
+     * Returns the date dues must be paid thru to meet obligation.
+     *
+     * If member, is in application, this date is determined by adding the APF dues months to the current application
+     * date.  Otherwise, the current month end is used.
+     *
+     * @see Member::getDuesStartDt
+     * @return \app\components\utilities\OpDate
+     * @throws InvalidConfigException
+     */
 	private function getDuesObligation()
 	{
-		$monthend_dt = $this->getCurrentMonthEnd();
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $monthend_dt = $this->getCurrentMonthEnd();
 		if ($this->member->isInApplication()) {
 			$apf = $this->member->currentApf;
 			if (isset($apf)) {
