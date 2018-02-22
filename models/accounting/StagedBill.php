@@ -2,10 +2,7 @@
 
 namespace app\models\accounting;
 
-use Yii;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\accounting\DuesRateFinder;
 use app\models\member\Member;
 use app\models\member\Standing;
 use app\models\contractor\Contractor;
@@ -18,7 +15,7 @@ class StagedBill extends \yii\db\ActiveRecord
 	 */
 	private $_standing;
 	/**
-	 * @var RateFinder 	May be injected, if required
+	 * @var DuesRateFinder 	May be injected, if required
 	 */
 	private $_rateFinder;
 	
@@ -32,7 +29,7 @@ class StagedBill extends \yii\db\ActiveRecord
 	
 	public function attributes()
 	{
-		return array_merge(parent::attributes(), ['PC', 'JT', 'LM', 'IU']);
+		return array_merge(parent::attributes(), ['PC', 'JT', 'LM', 'IU', 'PA']);
 	}
 	
 	/**
@@ -61,7 +58,8 @@ class StagedBill extends \yii\db\ActiveRecord
 			$member = $this->member;
 			$lob_cd = $member->currentStatus->lob_cd;
 			$rate_class = $member->currentClass->rate_class;
-			$this->_rateFinder = new DuesRateFinder($lob_cd, $rate_class);
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $this->_rateFinder = new DuesRateFinder($lob_cd, $rate_class);
 		}
 		return $this->_rateFinder;
 	}
@@ -101,21 +99,23 @@ class StagedBill extends \yii\db\ActiveRecord
 	/**
 	 * Returns data provider for bill line item with pre-filled formulae fr spreadsheet columns
 	 *   
-	 * @param unknown $license_nbr
-	 * @param unknown $lob_cd
+	 * @param string $license_nbr
+	 * @param string $lob_cd
 	 * @return \yii\data\ActiveDataProvider
 	 */
 	public function getPreFill($license_nbr, $lob_cd)
 	{
 		// @row_number counter starts at 1 to hold a place for the header, i.e., first data row is 2 on the spreadsheet 
-		$sql = "
+		$sql = <<<SQL
+
 			SELECT 
                 dues_payor, member_id,
 				classification, last_nm, first_nm, middle_inits, report_id, member_status,
 			    CASE WHEN pc_operand IS NULL THEN pc_factor ELSE CONCAT('=', pc_operand, seq, '*', pc_factor) END AS PC,
 			    CASE WHEN jt_operand IS NULL THEN jt_factor ELSE CONCAT('=', jt_operand, seq, '*', jt_factor) END AS JT,
 			    CASE WHEN lm_operand IS NULL THEN lm_factor ELSE CONCAT('=', lm_operand, seq, '*', lm_factor) END AS LM,
-				CASE WHEN iu_operand IS NULL THEN iu_factor ELSE CONCAT('=', iu_operand, seq, '*', iu_factor) END AS IU
+				CASE WHEN iu_operand IS NULL THEN iu_factor ELSE CONCAT('=', iu_operand, seq, '*', iu_factor) END AS IU,
+				CASE WHEN pa_operand IS NULL THEN pa_factor ELSE CONCAT('=', pa_operand, seq, '*', pa_factor) END AS PA
 			  FROM (				
 				SELECT 
 					(@row_number:=@row_number + 1) AS seq,
@@ -124,7 +124,8 @@ class StagedBill extends \yii\db\ActiveRecord
 					pc_factor, pc_operand,
 				    jt_factor, jt_operand,
 				    lm_factor, lm_operand,
-				    iu_factor, iu_operand
+				    iu_factor, iu_operand,
+                    pa_factor, pa_operand
 				  FROM (
 				    SELECT 
 				        classification, last_nm, first_nm, middle_inits, report_id, member_status
@@ -135,6 +136,7 @@ class StagedBill extends \yii\db\ActiveRecord
                        ,jt_factor, jt_operand
                        ,lm_factor, lm_operand
                        ,iu_factor, iu_operand
+                       ,pa_factor, pa_operand
 				      FROM StagedBills
 				      WHERE dues_payor = :license_nbr
 				        AND lob_cd = :lob_cd
@@ -142,7 +144,8 @@ class StagedBill extends \yii\db\ActiveRecord
 				  ) AS b, (SELECT @row_number:=1) AS t
 				  		
 				) AS f
-				";
+				
+SQL;
 		
 		$query = StagedBill::findBySql($sql, [':license_nbr' => $license_nbr, ':lob_cd' => $lob_cd]);
 		

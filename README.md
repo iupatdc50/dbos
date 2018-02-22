@@ -14,6 +14,10 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.11.601
+. Added generated bill history display
+. Added PAC formulae for all trades
+
 0.9.11.520
 . Revised deafult sort order of Staged Allocations to entry sequence when not prebuilt
 . Revised member search on Staged Allocation to be specific to receipt trade

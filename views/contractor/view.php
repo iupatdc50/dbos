@@ -37,7 +37,8 @@ $this->params['breadcrumbs'][] = $this->title;
     	</p></div>
 	</div>
    	<div class= "leftside sixty-pct" >
-    <?= DetailView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    DetailView::widget([
         'model' => $model,
         'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table'],
         'attributes' => [
@@ -63,6 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	$signatory = isset($model->currentSignatory) ? $model->currentSignatory->lobs : 'Non-Union';
  	$signatoryUrl = Yii::$app->urlManager->createUrl(['contractor-signatory/summary-json', 'id' => $model->license_nbr]);
  	$ancillaryUrl = Yii::$app->urlManager->createUrl(['contractor-ancillary/summary-json', 'id' => $model->license_nbr]);
+    $billsUrl = Yii::$app->urlManager->createUrl(['contractor-bill/summary-json', 'id' => $model->license_nbr]);
  	$receiptsUrl = Yii::$app->urlManager->createUrl(['receipt-contractor/summary-json', 'id' => $model->license_nbr]);
  	
  	$registrationUrl = Yii::$app->urlManager->createUrl(['registration/summary-json', 'id' => $model->license_nbr]);
@@ -71,7 +73,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 <?=
-	Accordion::widget([
+/** @noinspection PhpUnhandledExceptionInspection */
+Accordion::widget([
 		'items' => [
 			[
 				'header' => Html::tag('span', 'Agreements: ') . $signatory ,
@@ -83,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
 			],
 			[
 				'header' => Html::tag('span', 'Billing History') ,
-				'content' => 'Feature not supported',
+                'content' => '<div data-url='.$billsUrl.'>loading...</div>',
 			],
 			[
 				'header' => Html::tag('span', 'Receipt History'),

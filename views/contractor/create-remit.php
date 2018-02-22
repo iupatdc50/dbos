@@ -50,6 +50,8 @@ $url = Url::to(['/contractor/contractor-list']);
 					'initialize' => true,
 			], 
 	]); ?>
+
+    <?= $form->field($remitForm, 'remarks')->textarea(['rows' => 3]);  ?>
     
     <div class="form-group">
         <?= Html::submitButton('Create Spreadsheet', ['class' => 'btn btn-success']) ?>

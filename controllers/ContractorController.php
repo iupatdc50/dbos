@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\accounting\GeneratedBill;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\contractor\Contractor;
@@ -15,14 +16,11 @@ use app\models\member\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
 use app\models\accounting\StagedBill;
 use app\models\accounting\TradeFeeType;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\Json;
 use app\helpers\OptionHelper;
-use yii\data\yii\data;
 
 /**
  * ContractorController implements the CRUD actions for Contractor model.
@@ -92,7 +90,8 @@ class ContractorController extends RootController
     
     public function actionCreateRemit($id)
     {
-    	$modelContractor = $this->findModel($id);
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $modelContractor = $this->findModel($id);
     	$remitForm = new createRemitForm();
     	
     	if ($remitForm->load(Yii::$app->request->post()) && $remitForm->validate()) {
@@ -119,6 +118,7 @@ class ContractorController extends RootController
 	    				'remit-template',
 	    				'id' => $remitForm->license_nbr,
 	    				'lob_cd' => $remitForm->lob_cd,
+                        'remarks' => $remitForm->remarks,
 	    		]);
     		} else {
     			$message = 'The following members are in application but have no current APF Assessment: <ul>' . $invalid . '</ul>';
@@ -136,11 +136,11 @@ class ContractorController extends RootController
     
     public function actionLobPicklist()
     {
-    	$out = [];
     	if (isset($_POST['depdrop_parents'])) {
     		$parents = $_POST['depdrop_parents'];
     		if ($parents != null) {
-    			$modelContractor = $this->findModel($parents[0]);
+                /** @noinspection PhpUnhandledExceptionInspection */
+                $modelContractor = $this->findModel($parents[0]);
     			$out = $modelContractor->currentLobOptions;
     			$selected = '';
     			if (!empty($out) && count($out) > 0)
@@ -151,18 +151,29 @@ class ContractorController extends RootController
     	}
     	echo Json::encode(['output'=>'', 'selected'=>'']);
     					 
-    } 
-    
+    }
+
     /**
      * Builds exported spreadsheet from Employer model
-     * 
+     *
      * @param string $id Contractor ID
      * @param string $lob_cd
+     * @param null $remarks
      * @return string
+     * @throws NotFoundHttpException
      */
-    public function actionRemitTemplate($id, $lob_cd)
+    public function actionRemitTemplate($id, $lob_cd, $remarks = null)
     {
     	$modelContractor = $this->findModel($id);
+
+    	$audit = new GeneratedBill([
+    	    'license_nbr' => $id,
+            'lob_cd' => $lob_cd,
+            'employees' => $modelContractor->employeeCount,
+            'remarks' => $remarks,
+        ]);
+    	$audit->save();
+
     	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->all();
     	$stagedBillModel = new StagedBill();
     	$dataProvider = $stagedBillModel->getPreFill($id, $lob_cd);
@@ -179,6 +190,7 @@ class ContractorController extends RootController
      * Displays a single Contractor model.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -200,11 +212,12 @@ class ContractorController extends RootController
     }
 
     /**
-     * Creates a new Contractor model.  
-     * 
+     * Creates a new Contractor model.
+     *
      * Allows a single address and phone on initial create
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\db\Exception
      */
     public function actionCreate()
     {
@@ -263,6 +276,7 @@ class ContractorController extends RootController
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -286,6 +300,9 @@ class ContractorController extends RootController
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -294,14 +311,15 @@ class ContractorController extends RootController
         Yii::$app->session->setFlash('success', "Contractor record deleted");
         return $this->redirect(['index']);
     }
-    
+
     /**
      * List builder for contractor pickllist.  Builds JSON encoded array:
      * ['results'] key provides progressive results. If a license number is provided,
-     * 			   then this key provides the license_nbr and contractor name 	
-     * 
-     * @param string|array $search Criteria used. 
+     *               then this key provides the license_nbr and contractor name
+     *
+     * @param string|array $search Criteria used.
      * @param string $license_nbr Selected contractor's license number
+     * @return array
      */
     public function actionContractorList($search = null, $agreement_type = null, $license_nbr = null) 
     {
