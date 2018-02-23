@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\data\ActiveDataProvider;
+use app\controllers\receipt\BaseController;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptMember;
 use app\models\accounting\ReceiptMemberSearch;
@@ -12,27 +13,39 @@ use app\models\accounting\BaseAllocation;
 use app\models\accounting\AllocationBuilder;
 use app\models\member\Member;
 use app\models\accounting\CcOtherLocal;
+use yii\web\NotFoundHttpException;
 
-class ReceiptMemberController extends \app\controllers\receipt\BaseController
+class ReceiptMemberController extends BaseController
 {
     /**
      * Displays a single Receipt model.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
     	$model = $this->findModel($id);
-    	$allocProvider = $this->buildAllocProvider($id);
+
+    	/* @var $model ReceiptMember */
+        if($model->outOfBalance != 0.00)
+            return $this->redirect([
+                'itemize',
+                'id' => $model->id,
+            ]);
+
+        $allocProvider = $this->buildAllocProvider($id);
     	 
     	return $this->render('view', compact('model', 'allocProvider'));
     }
-    
+
     /**
-     * 
-     * @param array $config  Checks for the existings if 'id' (member_id) and 'lob_cd'
-     * @throws \Exception
+     *
+     * @param $lob_cd
+     * @param null $id
      * @return \yii\web\Response|string|Ambigous <string, string>
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
 	public function actionCreate($lob_cd, $id = null)
 	{

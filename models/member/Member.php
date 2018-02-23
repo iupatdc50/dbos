@@ -2,7 +2,6 @@
 
 namespace app\models\member;
 
-use app\models\training\Credential;
 use app\models\training\WorkHoursSummary;
 use Yii;
 use yii\db\Query;
@@ -16,6 +15,7 @@ use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
 use app\models\accounting\BaseAllocation;
+use app\models\accounting\DuesAllocation;
 use app\models\accounting\InitFee;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
@@ -497,12 +497,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	}
     	if ($status->reason == Status::REASON_NEW)
     		$status->member_status = ($this->exempt_apf == Member::CHECKED) ? Status::ACTIVE : Status::IN_APPL;
-    	try {
-    		$result = $status->save();
-    	} catch (\yii\db\Exception $e) {
-    		// return error message
-    		$result = $e->errorInfo[2];
-    	}
+
+        $result = $status->save();
     	return $result;
     }
 
@@ -584,12 +580,25 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	return $this->hasOne(CurrentEmployment::className(), ['member_id' => 'member_id']);
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getAllocations()
     {
     	return $this->hasMany(BaseAllocation::className(), ['member_id' => 'member_id']);
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDuesAllocations()
+    {
+        return $this->hasMany(DuesAllocation::className(), ['member_id' => 'member_id'])
+            ->andOnCondition(['fee_type' => FeeType::TYPE_DUES])
+            ;
+    }
+
     /**
      * Adds a journal note to this member
      * 
@@ -839,11 +848,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		 		->andOnCondition(['assessment_dt' => $this->application_dt])
     	;
     }
-    
+
     /**
      * Builds an APF assessment record for the member
-     * 
+     *
      * @return boolean
+     * @throws \yii\base\InvalidConfigException
      */
     public function createApfAssessment()
     {   	
