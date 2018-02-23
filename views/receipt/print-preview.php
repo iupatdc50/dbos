@@ -12,16 +12,20 @@ use yii\grid\GridView;
 ?>
 
 <div>
-<div id="report-title", class="rightside">Receipt</div>
+<div id="receipt-title", class="rightside">Receipt</div>
 
-<table class="twentyfive-pct clearfix">
-<tr><th class="thiryfive-pct">Received on</th><td><?= Yii::$app->formatter->asDate($model->received_dt, "long") ?></td></tr>
-<tr><th>Number</th><td><?= $model->id ?></td></tr>
-<tr><th>Total</th><td class="td-bold"><?= Yii::$app->formatter->asCurrency($model->received_amt) ?></td></tr>
-</table>
+    <h4 class="sm-print">District Council 50 Local <?= $model->lob_cd ?></h4>
+    <table class="twentyfive-pct clearfix">
+        <tr><th class="thiryfive-pct">Received on</th><td><?= Yii::$app->formatter->asDate($model->received_dt, "long") ?></td></tr>
+        <tr><th>Number</th><td><?= $model->id ?></td></tr>
+        <tr><th>Total</th><td class="td-bold"><?= Yii::$app->formatter->asCurrency($model->received_amt) ?></td></tr>
+    </table>
 
 </div>
 
+<br />
+
+<div>
 <table class="hundred-pct"><tr>
 <td class="seventyfive-pct">
 
@@ -40,8 +44,6 @@ use yii\grid\GridView;
         ]; 
 ?>
 
-<hr>
-
 <?php
 try {
     echo DetailView::widget([
@@ -54,11 +56,11 @@ try {
 
 </td>
 
-<td></td></table>
+<td></td></table></div>
 
 <div class="sixty-pct">
 
-<h4>Allocation Summary</h4>
+<h4 class="sm-print">Allocation Summary</h4>
 
 <?php
 try {
@@ -82,11 +84,9 @@ try {
 
 </div>
 
-<br /><br />
+<p class="pull-left">&copy; <?= date('Y') ?>
+    IUPAT District Council 50</a>. All rights reserved.
+</p>
 
-<div class="sign-block">
 
-<h5>Signature  _____________________________________________________________</h5>
-
-</div>
 

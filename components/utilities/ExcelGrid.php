@@ -25,6 +25,7 @@ class ExcelGrid extends \yii\grid\GridView
 	public $properties;
 	public $filename='excel';
 	public $extension='xlsx';
+	public $summaryCols;
 	private $_provider;
 	private $_visibleColumns;
 	private $_beginRow = 1;
@@ -50,6 +51,7 @@ class ExcelGrid extends \yii\grid\GridView
 		$this->initPHPExcelWriter('Excel2007');
 		$this->generateHeader();
 		$row = $this->generateBody();
+		$this->generateTotals($row);
 		$writer = $this->_objPHPExcelWriter;
 		$this->setHttpHeaders();
 		ob_end_clean();
@@ -169,6 +171,20 @@ class ExcelGrid extends \yii\grid\GridView
 					strip_tags($value), true);
 		}
 	}
+
+	public function generateTotals($row)
+    {
+        $total_row = $row + 3;
+
+        $colA =  self::columnName($this->summaryCols[0] - 1);
+        $this->_objPHPExcelSheet->setCellValue($colA . $total_row, '*** TOTALS', true);
+
+        foreach ($this->summaryCols as $col) {
+            $colA = self::columnName($col);
+            $formula = "=SUM(" . $colA . "1:" . $colA . ($row + 2) . ")";
+            $this->_objPHPExcelSheet->setCellValue($colA . $total_row, $formula, true);
+        }
+    }
 
 	protected function setVisibleColumns()
 	{

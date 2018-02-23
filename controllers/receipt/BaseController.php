@@ -9,7 +9,6 @@ use app\models\member\Member;
 use app\models\member\Status;
 use app\models\member\Standing;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
@@ -104,7 +103,6 @@ class BaseController extends Controller
     /**
      * @param $id
      * @return string|\yii\web\Response
-     * @throws NotFoundHttpException
      * @throws \yii\db\Exception
      */
     public function actionBalance($id)
@@ -127,8 +125,9 @@ class BaseController extends Controller
      *
      * @param integer $id Receipt ID
      * @return \yii\web\Response
-     * @throws NotFoundHttpException
+     * @throws \Exception
      * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\StaleObjectException
      */
     public function actionPost($id)
     {
@@ -226,7 +225,6 @@ class BaseController extends Controller
      *
      * @param integer $id
      * @return mixed
-     * @throws NotFoundHttpException
      * @throws \Exception
      * @throws \yii\db\StaleObjectException
      */
@@ -266,7 +264,6 @@ class BaseController extends Controller
      *
      * @param integer $id
      * @return \yii\web\Response
-     * @throws NotFoundHttpException
      * @throws \Exception
      * @throws \yii\db\StaleObjectException
      */
@@ -297,7 +294,7 @@ class BaseController extends Controller
 
     public function actionPrintPreview($id)
     {
-    	$this->layout = 'extreport';
+    	$this->layout = 'noheadreport';
     	$model = $this->findModel($id);
 		$query = ReceiptAllocSumm::find()->where(['receipt_id' => $id])->orderBy('descrip');
 		$allocProvider = new ActiveDataProvider(['query' => $query, 'sort' => false]);

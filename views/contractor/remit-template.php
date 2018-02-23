@@ -4,10 +4,15 @@ use app\components\utilities\ExcelGrid;
 use yii\bootstrap\Alert;
 use app\modules\admin\models\FeeType;
 
+/* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $modelContractor app\models\contractor\Contractor */
+/* @var $modelsFeeType app\models\accounting\TradeFeeType[] */
+/* @var $lob_cd string */
+
 $file_nm = 'RemitTemplate_' . $modelContractor->license_nbr . '_' . $lob_cd;
 $sheetTitle = substr($modelContractor->contractor, 0, 23) . ' (' . $lob_cd . ')';
 
-// 5 base columns
+// 9 base columns
 $base = [
 		
 			[
@@ -30,14 +35,17 @@ $base = [
 					'label' => 'Remarks',
 			],
 			[
-					'label' => 'GW: Gross Wages',  				// column H
+					'label' => 'GW: Gross Wages',  				// column H [8]
 					'value' => null,
 			],
 			[
-					'label' => 'HR: Hours Worked',  			// column I
+					'label' => 'HR: Hours Worked',  			// column I [9]
 					'value' => null,
 			],
 ];
+
+$summaryCols = [8, 9];
+$col_nbr = 9;
 
 $submittables = [];
 foreach ($modelsFeeType as $modelFeeType) {
@@ -51,8 +59,11 @@ foreach ($modelsFeeType as $modelFeeType) {
 				'label' => $modelFeeType->colHead,
 				'value' => null,
 		];
+	if ($modelFeeType->fee_type != FeeType::TYPE_HOURS)
+	    $summaryCols[] = ++$col_nbr;
 }
 
+/** @noinspection PhpUnhandledExceptionInspection */
 ExcelGrid::widget([
 		'dataProvider' => $dataProvider,
 		'filename' => $file_nm,
@@ -61,6 +72,7 @@ ExcelGrid::widget([
 		], 
 		'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => ''],
 		'columns' => array_merge ($base, $submittables),
+        'summaryCols' => $summaryCols,
 ]);
 
 

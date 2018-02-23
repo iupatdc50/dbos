@@ -29,7 +29,11 @@ use yii\helpers\Url;
 			<?php endif; ?>
 
         	<?php if(Yii::$app->user->can('reportAccounting')): ?>
-				<?=  Html::a('<i class="glyphicon glyphicon-print"></i>&nbsp;Print', ['/receipt-' . $class . '/print-preview', 'id' => $model->id], ['class' => 'btn btn-default']) ?>
+				<?=  Html::a(
+				        '<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
+                        ['/receipt-' . $class . '/print-preview', 'id' => $model->id],
+                        ['class' => 'btn btn-default', 'target' => '_blank'])
+                ?>
 			<?php endif; ?>
 			
 </p>
