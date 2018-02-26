@@ -48,5 +48,17 @@ class MemberBalancesController extends Controller
 		}
 	}
 	
-	
+	public function actionDuesSummaryAjax($id)
+    {
+        $member = Member::findOne($id);
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $member->getDuesAllocations(),
+            'pagination' => ['pageSize' => 20],
+            'sort' => ['defaultOrder' => ['received_dt'=>SORT_DESC]],
+        ]);
+
+        return $this->renderAjax('_dueshistory', ['dataProvider' => $dataProvider]);
+    }
 }
+

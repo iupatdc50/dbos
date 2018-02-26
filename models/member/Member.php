@@ -2,6 +2,7 @@
 
 namespace app\models\member;
 
+use app\models\accounting\DuesAllocation;
 use app\models\training\WorkHoursSummary;
 use Yii;
 use yii\db\Query;
@@ -14,8 +15,6 @@ use app\models\base\iIdInterface;
 use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
-use app\models\accounting\BaseAllocation;
-use app\models\accounting\DuesAllocation;
 use app\models\accounting\InitFee;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
@@ -63,7 +62,7 @@ use app\components\validators\SsnValidator;
  * @property MemberClass $currentClass
  * @property Classification $classification
  * @property CurrentEmployment $employer
- * @property BaseAllocation[] $allocations
+ * @property DuesAllocation[] $duesAllocations
  * @property ApfAssessment $currentApf
  * @property LastDuesReceipt $lastDuesReceipt
  * @property Note[] $notes
@@ -584,17 +583,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAllocations()
-    {
-    	return $this->hasMany(BaseAllocation::className(), ['member_id' => 'member_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getDuesAllocations()
     {
-        return $this->hasMany(DuesAllocation::className(), ['member_id' => 'member_id'])
+        return $this->hasMany(MemberAllocation::className(), ['member_id' => 'member_id'])
             ->andOnCondition(['fee_type' => FeeType::TYPE_DUES])
             ;
     }

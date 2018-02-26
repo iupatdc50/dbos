@@ -2,17 +2,15 @@
 
 namespace app\models\accounting;
 
-use Yii;
-use app\models\accounting\DuesRateFinder;
 use app\components\utilities\OpDate;
-use app\models\member\app\models\member;
 
 /**
  * This is the model class for table "DuesAllocations".
  *
  * @property integer $months
  * @property string $paid_thru_dt
- * 
+ * @property int $assessment_id [int(11)]
+ *
  */
 class DuesAllocation extends BaseAllocation
 {

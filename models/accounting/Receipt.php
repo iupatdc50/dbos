@@ -391,7 +391,15 @@ class Receipt extends \yii\db\ActiveRecord
     {
     	return $this->_customAttributes;
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLob()
+    {
+        return $this->hasOne(Lob::className(), ['lob_cd' => 'lob_cd']);
+    }
+
     public function getLobOptions()
     {
     	return ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'short_descrip');

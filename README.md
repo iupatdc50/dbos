@@ -14,6 +14,10 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.11.620
+. Added paid thru history display
+. Various report modifications 
+
 0.9.11.601
 . Added generated bill history display
 . Added PAC formulae for all trades

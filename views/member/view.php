@@ -57,7 +57,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     'value' => isset($model->lastDuesReceipt) ?
                         Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
                             '/receipt-' . (($model->lastDuesReceipt->payor_type == Receipt::PAYOR_MEMBER) ? 'member' : 'contractor')
-                            . '/view?id=' . $model->lastDuesReceipt->receipt_id) : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
+                            . '/view?id=' . $model->lastDuesReceipt->receipt_id)
+                        . Html::button('History', [
+                                'id' => 'duesHistoryButton',
+                                'value' => Url::to(['/member-balances/dues-summary-ajax', 'id' => $model->member_id]),
+                                'class' => 'btn btn-default btn-modal btn-embedded pull-right',
+                                'data-title' => 'Paid Thru History',
+                                'disabled' => !(Yii::$app->user->can('browseReceipt')),
+                        ])
+                        : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
                     'format' => 'raw',
                     'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
                 ],

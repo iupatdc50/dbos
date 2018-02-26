@@ -21,6 +21,7 @@
     LEFT OUTER JOIN AllocExtended AS AA ON AA.member_id = Me.member_id
                                        [  AND AA.acct_month = CONCAT(LEFT({report_month}, 4), SUBSTR({report_month}, 6, 2)) ]
                                          AND AA.fee_type IN ('DU', 'CC', 'RN', 'IN', 'MS')
+                                         AND payor_type = 'M'
     JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id
 	                           AND MS.effective_dt = (SELECT MAX(effective_dt) FROM MemberStatuses WHERE member_id = Me.member_id)
 	  JOIN DuesRates AS DR ON DR.lob_cd = MS.lob_cd
