@@ -49,13 +49,15 @@ class MemberClassController extends SummaryController
 
     public function actionSummaryJson($id)
     {
+        /*
         $hoursProvider = new ActiveDataProvider([
             'query' => $this->setMember($id)->getWorkHoursSummary(),
         ]);
+        */
         $class = isset($this->member->currentClass) ? $this->member->currentClass->member_class : null;
         $this->viewParams = [
             'class' => $class,
-            'hoursProvider' => $hoursProvider,
+//            'hoursProvider' => $hoursProvider,
         ];
         parent::actionSummaryJson($id);
     }

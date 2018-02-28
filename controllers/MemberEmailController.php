@@ -14,8 +14,8 @@ use yii\filters\VerbFilter;
  */
 class MemberEmailController extends Controller
 {
-	
-	public function behaviors()
+
+    public function behaviors()
     {
         return [
             'verbs' => [
@@ -31,8 +31,11 @@ class MemberEmailController extends Controller
 	{
 		if (($member = Member::findOne($relation_id)) == null)
 			throw new \InvalidArgumentException('Invalid member ID passed: ' . $relation_id);
-		/** @var ActiveRecord $model */
-		$model = new Email(['member' => $member]);
+		/** @var Email $model */
+		$model = new Email([
+		    'scenario' => Email::SCENARIO_MEMBEREXISTS,
+            'member' => $member,
+        ]);
 	
 		if ($model->load(Yii::$app->request->post())) {
 			if ($model->save()) {
@@ -44,13 +47,16 @@ class MemberEmailController extends Controller
 		return $this->renderAjax('create', compact('model'));
 	
 	}
-	
-	/**
-	 * Deletes an existing ActiveRecord model.
-	 * If deletion is successful, the browser will be redirected to the 'index' page.
-	 * @param integer $id
-	 * @return mixed
-	 */
+
+    /**
+     * Deletes an existing ActiveRecord model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
+     */
 	public function actionDelete($id)
 	{
 		if (($model = Email::findOne($id)) == null) 

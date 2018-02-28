@@ -90,10 +90,13 @@ class MaintenanceController extends Controller
 			Yii::info(self::CLOSE_PREV_TABLE_NM . "table generated");
 			$count = $this->db->createCommand($this->updateStatusSql())->execute();
 			Yii::info("Previous status entries closed: {$count}");
+
+			$count = $this->db->createCommand($this->closeEmploymentSql())->execute();
+			Yii::info("Employment records closed: {$count}");
 		
 			$this->cleanupTemps();
 			Yii::info('Monthly drop run completed');
-		} catch (yii\db\Exception $e) {
+		} /** @noinspection PhpRedundantCatchClauseInspection */ catch (yii\db\Exception $e) {
 			Yii::error('*** MC020 Problem with a drop DB action. Messages: ' . print_r($e->getMessage(), true));
 		}
 			
@@ -190,5 +193,18 @@ class MaintenanceController extends Controller
 		      ."  WHERE N.effective_dt IS NOT NULL; "
 		;
 	}
-	
+
+	private function closeEmploymentSql() {
+
+        return <<<SQL
+    UPDATE Employment AS Em
+      JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = Em.member_id
+                                         AND CMS.member_status = 'I'
+      SET Em.end_dt = CMS.effective_dt, term_reason = 'M'
+      WHERE Em.end_dt IS NULL
+    ;
+SQL
+        ;
+    }
+
 }

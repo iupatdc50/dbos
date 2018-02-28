@@ -217,8 +217,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
             [['photo_id'], 'string', 'max' => 20],
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
         	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id'], 'default'],
+            ['overage', 'default', 'value' => 0.00],
         	[['ssnumber', 'imse_id', 'ncfs_id'], 'unique'],
-            [['exempt_apf', 'wage_percent', 'overage'], 'safe'],            
+            [['exempt_apf', 'wage_percent'], 'safe'],
         ];
     }
 
@@ -578,6 +579,18 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getEmployer()
     {
     	return $this->hasOne(CurrentEmployment::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * Returns current employer iff still actively employed
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEmployerActive()
+    {
+        return $this->hasOne(Employment::className(), ['member_id' => 'member_id'])
+            ->andOnCondition('end_dt is NULL')
+            ;
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace app\models\member;
 
-use Yii;
-
 /**
  * This is the model class for table "MemberEmails".
  *
@@ -11,13 +9,14 @@ use Yii;
  * @property string $member_id
  * @property string $email
  *
- * @property Members $member
  */
 class Email extends \yii\db\ActiveRecord
 {
-	/*
-	 * Injected Member object, used for creating new entries
-	 */
+    CONST SCENARIO_MEMBEREXISTS = 'membexists';
+
+    /*
+     * Injected Member object, used for creating new entries
+     */
 	public $member;
 	
 	/**
@@ -34,7 +33,7 @@ class Email extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['email'], 'required'],
+            [['email'], 'required', 'on' => self::SCENARIO_MEMBEREXISTS],
             [['email'], 'email'],
             [['email'], 'unique'],
         ];

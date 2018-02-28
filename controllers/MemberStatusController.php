@@ -3,10 +3,10 @@
 namespace app\controllers;
 
 use app\controllers\base\SummaryController;
+use app\helpers\ClassHelper;
 use Yii;
 use app\models\member\Status;
-use app\models\member\CcForm;
-use yii\web\Controller;
+use app\models\member\Employment;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -59,7 +59,7 @@ class MemberStatusController extends SummaryController
 	
 	public function actionCreate($relation_id)
 	{
-		/** @var Model $model */
+		/** @var Status $model */
 		$model = new Status();
 		$this->setMember($relation_id);
 		
@@ -76,6 +76,7 @@ class MemberStatusController extends SummaryController
 					$this->member->application_dt = $model->effective_dt;
 					$this->member->save();
 					Yii::$app->session->addFlash('success', "APF assessment created");
+					/** @var Assessment $assessment */
 					$assessment = Assessment::findOne([
 							'member_id' => $this->member->member_id,
 							'fee_type' => FeeType::TYPE_REINST,
@@ -84,12 +85,22 @@ class MemberStatusController extends SummaryController
 						try {
 							$assessment->delete();
 							Yii::$app->session->addFlash('success', "Reinstatement fee assessment removed");
-						} catch (Exception $e) {
+						} catch (\Exception $e) {
 							Yii::$app->session->addFlash('error', "Could not remove reinstatement fee assessment. Check if payments already made.");
 						}
 					}
 					
 				}
+
+				if ($model->member_status == Status::INACTIVE) {
+                    /** @var Employment $employer */
+				    $employer = $this->member->employerActive;
+				    if (isset($employer)) {
+				        $employer->end_dt = $model->effective_dt;
+				        $employer->term_reason = Employment::TERM_MEMBER;
+				        $employer->save();
+                    }
+                }
 					
 			}
 			
@@ -114,7 +125,7 @@ class MemberStatusController extends SummaryController
 		if (!Yii::$app->user->can('resetPT'))
 			return $this->renderAjax('/partials/_deniedaction');
 		
-		/** @var Model $model */
+		/** @var Status $model */
 		$model = new Status(['scenario' => Status::SCENARIO_RESET]);
 		$this->setMember($member_id);
 		
@@ -162,7 +173,7 @@ class MemberStatusController extends SummaryController
 	public function actionForfeit($member_id) 
 	{
 	
-		/** @var Model $model */
+		/** @var Status $model */
 		$model = new Status();
 		$this->setMember($member_id);
 		
@@ -267,13 +278,13 @@ class MemberStatusController extends SummaryController
 		return $this->renderAjax('create', compact('model'));
 		
 	}
-	
-	/**
-	 * Allows for injection of $this->member 
-	 * @param string $id
-	 * @throws NotFoundHttpException
-	 * @return \yii\db\static
-	 */
+
+    /**
+     * Allows for injection of $this->member
+     * @param string $id
+     * @return Member
+     * @throws NotFoundHttpException
+     */
 	public function setMember($id)
 	{
 		if (!isset($this->member))

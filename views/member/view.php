@@ -170,7 +170,8 @@ try {
             ],
             [
                 'header' => Html::tag('span', 'Compliance'),
-                'content' => '<div data-url=' . $complianceUrl . '>loading...</div>',
+//                'content' => '<div data-url=' . $complianceUrl . '>loading...</div>',
+                'content' => 'Feature is currently disabled',
             ],
             [
                 'header' => Html::tag('span', 'Employer: ') . $employer,

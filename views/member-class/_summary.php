@@ -20,8 +20,9 @@ $controller = 'member-class';
     <?php if (($class == ClassCode::CLASS_APPRENTICE) || ($class == ClassCode::CLASS_HANDLER)): ?>
     <div class="pull-right">
         <?php
-        try {
-            echo GridView::widget([
+        /** @noinspection PhpUnhandledExceptionInspection */
+        /*
+        echo GridView::widget([
                 'id' => 'hours-summary',
                 'dataProvider' => $hoursProvider,
                 'panel' => [
@@ -54,8 +55,7 @@ $controller = 'member-class';
                     ],
                 ],
             ]);
-        } catch (Exception $e) {
-        }
+        */
         ?>
     </div>
     <?php endif; ?>

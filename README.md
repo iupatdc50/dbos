@@ -14,6 +14,14 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.11.625
+. Added auto-terminate employment when status set to inactive
+. Modified receipt journal to allow for non-alloc misc only
+. Disabled training compliance and timesheet components
+. Modified email to be optional input for member create
+. Modified overage to default to 0.00 for member create 
+. Minor code cleanup
+
 0.9.11.620
 . Added paid thru history display
 . Various report modifications 

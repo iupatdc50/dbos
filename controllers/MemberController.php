@@ -97,6 +97,8 @@ class MemberController extends RootController
      * @param string $id
      * @return mixed
      * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function actionView($id)
     {
@@ -137,6 +139,7 @@ class MemberController extends RootController
      * Creates a new Member model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
     public function actionCreate()
@@ -173,11 +176,17 @@ class MemberController extends RootController
 		        			$path = $model->imagePath;
 		        			$image->saveAs($path);
 		        		}
-        				$modelAddress->member_id = $model->member_id;
+
+                        if (isset($modelEmail->email)) {
+                            $modelEmail->member = $model;
+                            $modelEmail->save(false);
+                        }
+
+                        $modelAddress->member_id = $model->member_id;
 						$modelPhone->member_id = $model->member_id;        				
-						$modelEmail->member = $model;
-						
-        				if ($modelAddress->save(false) && $modelPhone->save(false) && $modelEmail->save(false)) {
+
+
+        				if ($modelAddress->save(false) && $modelPhone->save(false)) {
 							// Assume lob_cd comes from $_POST
 							$modelStatus->effective_dt = $model->application_dt;
 							$modelStatus->reason = Status::REASON_NEW;
@@ -198,11 +207,12 @@ class MemberController extends RootController
         		    $transaction->rollBack();
         		} catch (\Exception $e) {
         			Yii::$app->session->addFlash('error', 'Could not save record. Please report the following to Tech Support: [errno: ' . $e->getCode() . ']');
+        			Yii::error('*** Could not add member.  Error message:' . print_r($e, true));
         			$transaction->rollBack();
         		}
         	}
         	/* when you need to debug non-client errors or those not associated with a field  */
-			/*
+            /*
         	$errors = print_r($model->errors, true) . print_r($modelAddress->errors, true) . print_r($modelPhone->errors, true);
         	throw new \Exception('Uncaught validation exception: ' . $errors);
         	*/
