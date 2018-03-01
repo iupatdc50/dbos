@@ -46,7 +46,7 @@ use app\helpers\OptionHelper;
                 $modelReceipt->customAttributes,
                 [[
                     'attribute' => 'created_by',
-                    'value' => $modelReceipt->createdBy->username,
+                    'value' => $modelReceipt->createdBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->created_at),
                 ]]
             ),
         ]);

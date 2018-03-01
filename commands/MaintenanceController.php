@@ -18,7 +18,8 @@ class MaintenanceController extends Controller
 	
 	CONST IX_CUTOFF = 'cutoff';
 	CONST IX_EFFECTIVE = 'effective';
-	
+
+	/** @var \yii\db\Connection */
 	public $db;
 	public $drop_stage_cmd;
 	public $drop_close_prev_cmd;
