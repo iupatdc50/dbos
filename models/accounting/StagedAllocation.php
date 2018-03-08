@@ -96,7 +96,8 @@ class StagedAllocation extends \yii\db\ActiveRecord
         } else {
     	    $fee_columns = '';
     	    foreach ($fee_types as $fee_type)
-    	        $fee_columns .= strtoupper(", {$fee_type} DECIMAL(9,2) ");
+    	        if (strlen($fee_type) > 0)
+    	            $fee_columns .= strtoupper(", `{$fee_type}` DECIMAL(9,2) ");
     	    $sql = "CREATE TABLE " . self::tableName() . " (receipt_id INT, alloc_memb_id INT, member_id VARCHAR(11){$fee_columns});";
 
     	    $result = $db->createCommand($sql)->execute();

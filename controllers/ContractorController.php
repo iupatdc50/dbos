@@ -174,7 +174,7 @@ class ContractorController extends RootController
         ]);
     	$audit->save();
 
-    	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->all();
+    	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->orderBy('seq')->all();
     	$stagedBillModel = new StagedBill();
     	$dataProvider = $stagedBillModel->getPreFill($id, $lob_cd);
     	return $this->renderPartial('remit-template', [

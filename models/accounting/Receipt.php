@@ -138,7 +138,11 @@ class Receipt extends \yii\db\ActiveRecord
         	[['tracking_nbr'], 'string', 'max' => 20],
         	[['created_at', 'created_by'], 'integer'],
         	[['remarks', 'fee_types', 'populate', 'xlsx_file'], 'safe'],
-        	['fee_types', 'required', 'on'  => self::SCENARIO_CREATE, 'message' => 'Please select at least one Fee Type'],
+        	['fee_types', 'required', 'when' => function($model) {
+                return !($model->helper_dues > 0.00);
+            }, 'whenClient' => "function (attribute, value) {
+            	return !($('#helperdues').val() > 0.00);
+    		}", 'on' => self::SCENARIO_CREATE, 'message' => 'Please select at least one Fee Type or enter Helper Dues'],
         	['lob_cd', 'required', 'on'  => self::SCENARIO_CONFIG],
         ];
         return array_merge($this->_validationRules, $common_rules);
@@ -177,7 +181,7 @@ class Receipt extends \yii\db\ActiveRecord
     	if (OpDate::dateDiff($this->today, $dt) > 0)
     	    $this->addError($attribute, 'Received date cannot be future');
     }
-    
+
     public function beforeSave($insert)
 	{
 		// default does not appear to be working here or at the DB level
@@ -250,7 +254,7 @@ class Receipt extends \yii\db\ActiveRecord
     {
     	if(!isset($this->_remit_filter))
     		throw new yii\base\InvalidConfigException('Unknown remittable filter field');
-    	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
+    	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('seq')->all(), 'fee_type', 'descrip');
     }
 
     /**
@@ -319,7 +323,10 @@ class Receipt extends \yii\db\ActiveRecord
     public function getOutOfBalance()
     {
         /** @noinspection PhpWrongStringConcatenationInspection */
-        return $this->received_amt - ($this->totalAllocation + $this->unallocated_amt + $this->helper_dues);
+        $alloc = $this->totalAllocation + $this->unallocated_amt + $this->helper_dues;
+        // Can't use standard substract on FP numbers
+        $balance = bcsub($this->received_amt, $alloc, 2);
+        return $balance;
     }
     
     public function getAssessmentAllocations()

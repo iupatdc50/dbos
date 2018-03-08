@@ -14,6 +14,7 @@ use Yii;
  * @property string $employer_remittable
  * @property string $member_remittable
  * @property string $contribution
+ * @property string $seq
  * 
  * @property string $colHead
  */
@@ -34,7 +35,7 @@ class TradeFeeType extends \yii\db\ActiveRecord
     {
         return [
             [['lob_cd', 'fee_type', 'descrip'], 'required'],
-            [['employer_remittable', 'member_remittable', 'contribution'], 'string'],
+            [['employer_remittable', 'member_remittable', 'contribution', 'seq'], 'string'],
             [['lob_cd'], 'string', 'max' => 4],
             [['fee_type'], 'string', 'max' => 2],
             [['descrip'], 'string', 'max' => 50]
@@ -53,6 +54,7 @@ class TradeFeeType extends \yii\db\ActiveRecord
             'employer_remittable' => 'Employer Remittable',
             'member_remittable' => 'Member Remittable',
         	'contribution' => 'Contribution',
+            'seq' => 'Display Seq'
         ];
     }
     

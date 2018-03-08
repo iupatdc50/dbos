@@ -29,7 +29,7 @@ class StagedBill extends \yii\db\ActiveRecord
 	
 	public function attributes()
 	{
-		return array_merge(parent::attributes(), ['PC', 'JT', 'LM', 'IU', 'PA']);
+		return array_merge(parent::attributes(), ['PC', 'JT', 'IU', 'LM', 'PA']);
 	}
 	
 	/**

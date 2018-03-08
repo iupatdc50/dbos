@@ -55,13 +55,11 @@ $this->params['breadcrumbs'][] = $this->title;
     ]) ?>
     
     <?= $form->field($model, 'unallocated_amt')->textInput(['maxlength' => true]) ?>
-    
-    <?= $form->field($model, 'helper_dues')->textInput(['maxlength' => true, 'id' => 'helperdues']) ?>
 
-    <?= $form->field($model, 'helper_hrs')
-    		 ->textInput(['maxlength' => true, 'id' => 'helperhrs'])
-    		 ->label('Hours', ['id' => 'helperhrslbl']) ?>
-    
+    <?= $this->render('../receipt/_helperfields', [
+        'form' => $form,
+        'model' => $model,
+    ]) ?>
     
     <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions($model->lob_cd), [
     		'multiple' => true,
@@ -88,26 +86,4 @@ $this->params['breadcrumbs'][] = $this->title;
 
 </div>
 
-<?php 
-$script = <<< JS
 
-$(function() {
-		$('#helperhrslbl').hide();
-		$('#helperhrs').hide();
-});
-
-$('#helperdues').change(function() {
-	var dues = $(this).val();
-	if(dues > 0.00) {
-		$('#helperhrslbl').show();
-		$('#helperhrs').show();
-		$('#helperhrs').focus();
-	} else {
-		$('#helperhrslbl').hide();
-		$('#helperhrs').hide();
-	};
-});
-
-JS;
-$this->registerJs($script);
-?>

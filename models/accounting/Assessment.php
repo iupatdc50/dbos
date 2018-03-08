@@ -2,9 +2,10 @@
 
 namespace app\models\accounting;
 
-use Yii;
 use app\modules\admin\models\FeeType;
 use yii\helpers\ArrayHelper;
+use app\models\member\Member;
+use app\models\user\User;
 
 /**
  * This is the model class for table "Assessments".
@@ -21,6 +22,7 @@ use yii\helpers\ArrayHelper;
  * @property Member $member
  * @property FeeType $feeType
  * @property User $createdBy
+ * @property string $months [decimal(7,2)]
  */
 class Assessment extends \yii\db\ActiveRecord
 {
@@ -85,7 +87,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getTotalAllocated()
     {
@@ -93,7 +95,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getAllocatedPayments()
     {
@@ -102,7 +104,8 @@ class Assessment extends \yii\db\ActiveRecord
     
     public function getBalance()
     {
-    	return $this->assessment_amt - $this->totalAllocated;
+        // Can't use standard substract on FP numbers
+    	return bcsub($this->assessment_amt, $this->totalAllocated);
     }
 
     /**

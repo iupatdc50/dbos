@@ -71,12 +71,13 @@ app\assets\ApplicationUiAssetBundle::register($this);
 		                		'label' => 'Accounting', 'url' => ['/accounting/'],
 		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'accounting'),
 		                ];
+/*
 	            	if(Yii::$app->user->can('browseTraining'))
 		            	$menuItems[] = [
 		                		'label' => 'Training', 'url' => ['/site/unavailable'],
 		                		'active' => MenuHelper::isItemActive(yii::$app->requestedRoute, 'training'),
 		                ];
-		            	
+*/
 		            if(Yii::$app->user->can('showReportMenu'))
 		            	$menuItems[] = [
 		                		'label' => 'Reporting', 'url' => ['/report/'],

@@ -19,8 +19,12 @@ use kartik\form\ActiveForm;
     
     <?=  $form->field($model, 'received_amt') ?>
     <?=  $form->field($model, 'unallocated_amt') ?>
-    <?=  $form->field($model, 'helper_dues') ?>
-    
+    <?= $this->render('../receipt/_helperfields', [
+        'form' => $form,
+        'model' => $model,
+    ]) ?>
+
+
     <div class="form-group">
         <?= Html::submitButton('Balance', ['class' => 'btn btn-success']) ?>
     </div>

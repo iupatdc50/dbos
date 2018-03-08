@@ -34,12 +34,12 @@ $base = [
 					'attribute' => 'standing.billingDescrip', 	//column G
 					'label' => 'Remarks',
 			],
+            [
+                    'label' => 'HR: Hours Worked',  			// column H [8]
+                    'value' => null,
+            ],
 			[
-					'label' => 'GW: Gross Wages',  				// column H [8]
-					'value' => null,
-			],
-			[
-					'label' => 'HR: Hours Worked',  			// column I [9]
+					'label' => 'GW: Gross Wages',  				// column I [9]
 					'value' => null,
 			],
 ];

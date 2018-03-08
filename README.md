@@ -14,6 +14,12 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.11.650
+. Removed requirement for fee type selection on helper dues receipts
+. Revised column sequence of fee types on receipts and remit spreadsheet
+. Minor bug fix (bcsub for FP subtract on receipt balance)
+. Minor code cleanup
+
 0.9.11.625
 . Added auto-terminate employment when status set to inactive
 . Modified receipt journal to allow for non-alloc misc only
