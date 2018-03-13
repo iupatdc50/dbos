@@ -100,7 +100,7 @@ class MemberSearch extends Member
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         ;
 
-        if ($this->employer == 'Unemployed')
+        if (strtolower($this->employer) == 'unemployed')
             $query->andFilterWhere(['empl_status' => 'U']);
         else
             $query->andFilterWhere(['like', 'contractor', $this->employer]);
