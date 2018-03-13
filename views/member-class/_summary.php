@@ -105,7 +105,7 @@ $controller = 'member-class';
                             'class' => 'btn btn-default btn-modal btn-embedded',
                             'data-title' => 'Member Class',
                         ]),
-                        'visible' => Yii::$app->user->can('updateMember'),
+                        'visible' => Yii::$app->user->can('updateDemo'),
                     ],
                 ],
             ]);

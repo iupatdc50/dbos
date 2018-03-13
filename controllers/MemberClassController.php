@@ -20,13 +20,16 @@ class MemberClassController extends SummaryController
 	public $relationAttribute = 'member_id';
 	/** @var $member Member */
 	public $member;
-	
-	/**
-	 * Had to override because of the pass by value of $model.  Clean 
-	 * this up.
-	 * 
-	 * @see \app\controllers\base\SubmodelController::actionCreate()
-	 */
+
+    /**
+     * Had to override because of the pass by value of $model.  Clean
+     * this up.
+     *
+     * @see \app\controllers\base\SubmodelController::actionCreate()
+     * @param $relation_id      Member ID
+     * @return array|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
     public function actionCreate($relation_id)
     {
     	$model = new MemberClass(['scenario' => MemberClass::SCENARIO_CREATE]);

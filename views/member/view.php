@@ -23,13 +23,13 @@ $this->params['breadcrumbs'][] = $this->title;
     <h4><?= Html::encode($this->title) ?></h4>
 	<p><?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width'=>'150', 'height'=>'200']) ?></p>
     <p>
-       	<?php if(Yii::$app->user->can('updateMember')): ?>
+       	<?php if(Yii::$app->user->can('updateDemo')): ?>
     	<?= Html::button('<i class="glyphicon glyphicon-camera"></i>&nbsp;Update Photo',
 						['value' => Url::to(['photo', 'id'  => $model->member_id]),
 						'id' => 'photoButton',
 						'class' => 'btn btn-default btn-modal btn-embedded',
 						'data-title' => 'Photo',
-						'disabled' => !(Yii::$app->user->can('updateMember')),
+						'disabled' => !(Yii::$app->user->can('updateDemo')),
 					]) 
 		?>
     	<?= Html::a('Clear', ['photo-clear', 'id' => $model->member_id], [
@@ -68,11 +68,13 @@ $this->params['breadcrumbs'][] = $this->title;
                         : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
                     'format' => 'raw',
                     'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
+                    'visible' => Yii::$app->user->can('browseMemberExt'),
                 ],
                 [
                     'label' => 'Balance Due',
                     'value' => Html::encode($balance),
                     'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
+                    'visible' => Yii::$app->user->can('browseMemberExt'),
                 ],
             ],
         ]);
@@ -81,7 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </td><td class="seventyfive-pct">
 		<?= $this->render('../partials/_quicksearch', ['className' => 'member']); ?>
         <div><p>
-        	<?php if(Yii::$app->user->can('updateMember')): ?>
+        	<?php if(Yii::$app->user->can('updateDemo')): ?>
 				<?= Html::a('Update', ['update', 'id' => $model->member_id], ['class' => 'btn btn-primary']) ?>
 				<?php if(Yii::$app->user->can('deleteMember')) :?>
 			        <?= Html::a('Delete', ['delete', 'id' => $model->member_id], [

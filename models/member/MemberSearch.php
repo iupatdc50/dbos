@@ -98,8 +98,12 @@ class MemberSearch extends Member
         			[Member::tableName() . '.member_id' => $this->fullName],
         	])
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
-        	->andFilterWhere(['like', 'contractor', $this->employer])
         ;
+
+        if ($this->employer == 'Unemployed')
+            $query->andFilterWhere(['empl_status' => 'U']);
+        else
+            $query->andFilterWhere(['like', 'contractor', $this->employer]);
         
         if ($this->status == CriteriaHelper::TOKEN_NOTSET)
         	$query->andWhere(['member_status' => null]);

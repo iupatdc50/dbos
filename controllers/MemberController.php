@@ -62,7 +62,7 @@ class MemberController extends RootController
 	                [
 	                    'allow' => true,
 	                    'actions' => ['update', 'photo', 'photo-clear'],
-	                    'roles' => ['updateMember'],
+	                    'roles' => ['updateDemo'],
 	                ],
 	                [
 	                    'allow' => true,

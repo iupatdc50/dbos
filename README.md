@@ -14,6 +14,15 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.11.670
+. Fixed bug that caused crash in CSV export
+. Fixed bug where headers were missing and title appeared in wrong location for CSV
+. Modified RBAC to provide special permission scenarios for demographic only updates
+. Added ability to filter for 'Unemployed' on member index
+. Modified Payment Method Summary to 
+  .. include unallocated in JTP column 
+  .. filter for account month
+
 0.9.11.650
 . Removed requirement for fee type selection on helper dues receipts
 . Revised column sequence of fee types on receipts and remit spreadsheet

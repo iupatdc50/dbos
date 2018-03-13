@@ -18,7 +18,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
     
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
  		'filterRowOptions'=>['class'=>'filter-row'],
@@ -83,11 +84,14 @@ $this->params['breadcrumbs'][] = $this->title;
         		'attribute' => 'dues_paid_thru_dt',
         		'format' => 'date',
         		'label' => 'Paid Thru',
+                'visible' => Yii::$app->user->can('browseMemberExt'),
         	],
         		
         	[
         			'attribute' => 'employer', 
-        			'value' => 'employer.descrip',
+        			'value' => function($model) {
+                        return isset($model->employer->descrip) ? $model->employer->descrip : 'Unemployed';
+                    },
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
             [
