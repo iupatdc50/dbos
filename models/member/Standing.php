@@ -123,12 +123,15 @@ class Standing extends Model
 	
 	public function getTotalAssessmentBalance()
 	{
-		$sql = 'SELECT * FROM Assessments AS A WHERE member_id = :id';
+		$sql = "SELECT SUM(assessment_amt) FROM Assessments AS A WHERE member_id = :id";
+		return Assessment::findBySql($sql, ['id' => $this->member->member_id])->scalar();
+		/*
 		$assessments = Assessment::findBySql($sql, ['id' => $this->member->member_id])->all();
 		$balance = 0.00;
 		foreach($assessments as $assessment)
-			$balance += $assessment->balance;
-		return $balance; 
+            $balance += $assessment->balance;
+		return $balance;
+		*/
 	}
 	
 	/**
