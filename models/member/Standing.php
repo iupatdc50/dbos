@@ -8,6 +8,7 @@ use yii\base\InvalidConfigException;
 use app\components\utilities\OpDate;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
+use app\models\accounting\BaseAllocation;
 
 /** 
  * Model class for managing the financial status of a member
@@ -124,7 +125,15 @@ class Standing extends Model
 	public function getTotalAssessmentBalance()
 	{
 		$sql = "SELECT SUM(assessment_amt) FROM Assessments AS A WHERE member_id = :id";
-		return Assessment::findBySql($sql, ['id' => $this->member->member_id])->scalar();
+		$assessments = Assessment::findBySql($sql, ['id' => $this->member->member_id])->scalar();
+		$sql = <<<SQL
+            select COALESCE (SUM(allocation_amt), 0.00) AS alloc
+              from Allocations AS Al
+                join Assessments AS A ON A.id = Al.assessment_id
+              where member_id = :id;
+SQL;
+        $allocs = BaseAllocation::findBySql($sql, ['id' => $this->member->member_id])->scalar();
+        return bcsub($assessments, $allocs, 2);
 		/*
 		$assessments = Assessment::findBySql($sql, ['id' => $this->member->member_id])->all();
 		$balance = 0.00;
