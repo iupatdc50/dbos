@@ -134,13 +134,6 @@ class Standing extends Model
 SQL;
         $allocs = BaseAllocation::findBySql($sql, ['id' => $this->member->member_id])->scalar();
         return bcsub($assessments, $allocs, 2);
-		/*
-		$assessments = Assessment::findBySql($sql, ['id' => $this->member->member_id])->all();
-		$balance = 0.00;
-		foreach($assessments as $assessment)
-            $balance += $assessment->balance;
-		return $balance;
-		*/
 	}
 	
 	/**

@@ -360,9 +360,9 @@ class Receipt extends \yii\db\ActiveRecord
     	if (empty($file))
     		return false;
     	
-        
         // generate a unique file name for storage
-        $ext = end(explode(".", $file->name));
+        $name_parts = explode(".", $file->name);
+        $ext = end($name_parts);
         $this->xlsx_name = Yii::$app->security->generateRandomString(16).".{$ext}";
     	
         return $file;

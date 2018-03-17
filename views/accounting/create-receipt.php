@@ -91,10 +91,10 @@ $script = <<< JS
 $(function() {
 		$('#member-option').hide();
 		$('#contractor-option').hide();
-})
+});
 		
 $('#payortype').change(function() {
-	var typ = $('#payortype input:checked').val();
+	var typ = $('#payortype').find('input:checked').val();
 	$('#member-option').hide();
 	$('#contractor-option').hide();
 	if(typ == 'M') {

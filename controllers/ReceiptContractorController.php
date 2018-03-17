@@ -105,7 +105,8 @@ class ReceiptContractorController extends BaseController
 											'first_nm' => $alloc['first_nm'],
 									]);
 									if (!isset($member)) {
-										Yii::warning("Receipt {$model->id} member `{$alloc->report_id}` not found.  Skipping row.");
+									    Yii::$app->session->addFlash('error', "Receipt {$model->id} member `{$alloc['report_id']}` not found.  Skipping row.");
+										Yii::warning("Receipt {$model->id} member `{$alloc['report_id']}` not found.  Skipping row.");
 										continue;
 									}
                                     $builder = new AllocationBuilder();
