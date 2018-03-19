@@ -111,11 +111,11 @@ class StagedBill extends \yii\db\ActiveRecord
 			SELECT 
                 dues_payor, member_id,
 				classification, last_nm, first_nm, middle_inits, report_id, member_status,
-			    CASE WHEN pc_operand IS NULL THEN pc_factor ELSE CONCAT('=', pc_operand, seq, '*', pc_factor) END AS PC,
-			    CASE WHEN jt_operand IS NULL THEN jt_factor ELSE CONCAT('=', jt_operand, seq, '*', jt_factor) END AS JT,
-			    CASE WHEN lm_operand IS NULL THEN lm_factor ELSE CONCAT('=', lm_operand, seq, '*', lm_factor) END AS LM,
-				CASE WHEN iu_operand IS NULL THEN iu_factor ELSE CONCAT('=', iu_operand, seq, '*', iu_factor) END AS IU,
-				CASE WHEN pa_operand IS NULL THEN pa_factor ELSE CONCAT('=', pa_operand, seq, '*', pa_factor) END AS PA
+			    CASE WHEN pc_operand IS NULL THEN pc_factor ELSE CONCAT('=ROUND(', pc_operand, seq, '*', pc_factor, ',2)') END AS PC,
+			    CASE WHEN jt_operand IS NULL THEN jt_factor ELSE CONCAT('=ROUND(', jt_operand, seq, '*', jt_factor, ',2)') END AS JT,
+			    CASE WHEN lm_operand IS NULL THEN lm_factor ELSE CONCAT('=ROUND(', lm_operand, seq, '*', lm_factor, ',2)') END AS LM,
+				CASE WHEN iu_operand IS NULL THEN iu_factor ELSE CONCAT('=ROUND(', iu_operand, seq, '*', iu_factor, ',2)') END AS IU,
+				CASE WHEN pa_operand IS NULL THEN pa_factor ELSE CONCAT('=ROUND(', pa_operand, seq, '*', pa_factor, ',2)') END AS PA
 			  FROM (				
 				SELECT 
 					(@row_number:=@row_number + 1) AS seq,
@@ -155,7 +155,12 @@ SQL;
 		]);
 		
 		return $dataProvider;
-	} 
+	}
+
+	public function getBillableCount($license_nbr, $lob_cd)
+    {
+        return StagedBill::find()->where(['dues_payor' => $license_nbr, 'lob_cd' => $lob_cd])->count();
+    }
 	
 }
 

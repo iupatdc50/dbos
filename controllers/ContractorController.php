@@ -165,17 +165,19 @@ class ContractorController extends RootController
     public function actionRemitTemplate($id, $lob_cd, $remarks = null)
     {
     	$modelContractor = $this->findModel($id);
+        $stagedBillModel = new StagedBill();
+        $employees = $stagedBillModel->getBillableCount($id, $lob_cd);
 
     	$audit = new GeneratedBill([
     	    'license_nbr' => $id,
             'lob_cd' => $lob_cd,
-            'employees' => $modelContractor->employeeCount,
+            'employees' => $employees,
             'remarks' => $remarks,
         ]);
     	$audit->save();
 
     	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->orderBy('seq')->all();
-    	$stagedBillModel = new StagedBill();
+
     	$dataProvider = $stagedBillModel->getPreFill($id, $lob_cd);
     	return $this->renderPartial('remit-template', [
     			'dataProvider' => $dataProvider, 
