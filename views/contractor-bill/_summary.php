@@ -32,7 +32,10 @@ echo GridView::widget([
                     },
                 ],
 				'lob_cd',
-				'employees',
+				[
+				    'attribute' => 'employees',
+                    'label' => 'Billed',
+                ],
 				'remarks',
 				[
 						'attribute' => 'created_by',
