@@ -2,6 +2,7 @@
 
 namespace app\models\member;
 
+use app\modules\admin\models\FeeType;
 use Yii;
 use yii\base\Model;
 use yii\base\InvalidConfigException;
@@ -30,19 +31,20 @@ class Standing extends Model
 	 * @var Member
 	 */
 	public $member;
-	
+
+    /**
+     * @throws InvalidConfigException
+     */
 	public function init()
 	{
 		if(!(isset($this->member) && ($this->member instanceof Member)))
-            /** @noinspection PhpUnhandledExceptionInspection */
-            throw new \yii\base\InvalidConfigException('No member object injected');
+            throw new InvalidConfigException('No member object injected');
 	}
 
     /**
      * Determines number of dues months owed by member. If paid thru is future, then returns zero.
      *
      * @return number
-     * @throws InvalidConfigException
      */
 	public function getMonthsToCurrent()
 	{
@@ -55,7 +57,6 @@ class Standing extends Model
      * Compute discounted months for granted in service card
      *
      * @return number
-     * @throws InvalidConfigException
      */
 	public function getDiscountedMonths()
 	{
@@ -74,8 +75,7 @@ class Standing extends Model
      * Returns owed dues period into a date range
      *
      * @return string
-     * @throws InvalidConfigException
-     */
+\     */
 	public function getBillingDescrip()
 	{
 		$obligation_dt = $this->getDuesObligation();
@@ -94,7 +94,7 @@ class Standing extends Model
 				$descrip = $start_dt->getMonthName(true) . '-' . $obligation_dt->getMonthName(true) . ' (' . $this->monthsToCurrent . ' months)';
 		}
 		
-		if ($this->getOutStandingAssessment('IN'))
+		if ($this->getOutStandingAssessment(FeeType::TYPE_INIT))
 			$descrip .= ' + Init Fee';
 		
 		return $descrip;
@@ -105,7 +105,6 @@ class Standing extends Model
      *
      * @param DuesRateFinder $rateFinder
      * @return number
-     * @throws InvalidConfigException
      * @throws \yii\db\Exception
      */
 	public function getDuesBalance(DuesRateFinder $rateFinder)
@@ -115,11 +114,22 @@ class Standing extends Model
 		$adjusted_pt_dt->modify('+' . $this->getDiscountedMonths() . ' month');
 		return ($obligation_dt > $this->member->duesPaidThruDtObject) ? $rateFinder->computeBalance($adjusted_pt_dt->getMySqlDate(), $obligation_dt->getMySqlDate()) : 0.00;
 	}
-	
+
+    /**
+     * Returns the first matching Assessment of fee type that has a balance, null if none
+     *
+     * @param $fee_type
+     * @return Assessment|null
+     */
 	public function getOutstandingAssessment($fee_type)
 	{
-		$assessment = Assessment::findOne(['member_id' => $this->member->member_id, 'fee_type' => $fee_type]);
-		return (isset($assessment) && ($assessment->balance <> 0)) ? $assessment : null;
+		$assessments = Assessment::findAll(['member_id' => $this->member->member_id, 'fee_type' => $fee_type]);
+		foreach ($assessments as $assessment) {
+		    /** @var $assessment Assessment */
+		    if ($assessment->balance <> 0)
+		        return $assessment;
+        }
+		return null;
 	}
 	
 	public function getTotalAssessmentBalance()
@@ -172,7 +182,6 @@ SQL;
      *
      * @see Member::getDuesStartDt
      * @return \app\components\utilities\OpDate
-     * @throws InvalidConfigException
      */
 	private function getDuesObligation()
 	{
