@@ -156,9 +156,7 @@ class MemberStatusController extends SummaryController
 				$model->reason .= '; ';
 			$messages = [];
 			if (!empty($model->paid_thru_dt)) {
-				$this->member->dues_paid_thru_dt = $model->paid_thru_dt;
-				$pt_dt = (new OpDate)->setFromMySql($model->paid_thru_dt)->getDisplayDate(false, '/');
-				$messages[] = Status::REASON_RESET_PT . $pt_dt;
+			    $messages[] = $this->adjustPaidThru($model->paid_thru_dt);
 			}
 			if (!empty($model->init_dt)) {
 				$this->member->init_dt = $model->init_dt;
@@ -167,14 +165,9 @@ class MemberStatusController extends SummaryController
 			}
 			$model->reason .= implode('; ', $messages);
 			if ($this->addStatus($model)) {
-				
-				if ($this->member->save()) 
-					Yii::$app->session->addFlash('success', implode('; ', $messages));
-				else {
-					Yii::$app->session->addFlash('error', 'Problem saving Member. Check log for details. Code `MSC010`'); 
-					Yii::error("*** MSC010  Member save error (`{$member_id}`).  Messages: " . print_r($this->member->errors, true));
-				}
-					
+
+			    $this->saveMember($messages);
+
 			}
 			
 			return $this->goBack();
