@@ -39,15 +39,18 @@ use app\models\member\Status;
     
     <?php if ($model->isNewRecord): ?>
 
-	    <?php if($model->scenario == Status::SCENARIO_RESET): ?>
-		    <?= $form->field($model, 'paid_thru_dt')->widget(DateControl::className(), [
-		    		'type' => DateControl::FORMAT_DATE,
-		    ])  ?>
+        <?php if(($model->scenario == Status::SCENARIO_CCD) || ($model->scenario == Status::SCENARIO_RESET)): ?>
+            <?= $form->field($model, 'paid_thru_dt')->widget(DateControl::className(), [
+                'type' => DateControl::FORMAT_DATE,
+            ])  ?>
+        <?php endif; ?>
+
+        <?php if($model->scenario == Status::SCENARIO_RESET): ?>
 		    <?= $form->field($model, 'init_dt')->widget(DateControl::className(), [
 		    		'type' => DateControl::FORMAT_DATE,
 		    ])  ?>
 		<?php endif; ?>
-	    
+
 	<?php endif; ?>
 	
     <?php if($model->scenario == Status::SCENARIO_CCD): ?>

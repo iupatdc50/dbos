@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\controllers\base\SummaryController;
-use app\helpers\ClassHelper;
 use Yii;
 use app\models\member\Status;
 use app\models\member\Employment;
@@ -26,6 +25,9 @@ class MemberStatusController extends SummaryController
 
 	public $recordClass = 'app\models\member\Status';
 	public $relationAttribute = 'member_id';
+	/**
+	 * @var Member
+	 */
 	public $member;
 
 	public function behaviors()
@@ -56,7 +58,12 @@ class MemberStatusController extends SummaryController
 	
 		];
 	}
-	
+
+    /**
+     * @param $relation_id
+     * @return array|mixed|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
 	public function actionCreate($relation_id)
 	{
 		/** @var Status $model */
@@ -111,7 +118,11 @@ class MemberStatusController extends SummaryController
 		return $this->renderAjax('create', compact('model'));
 		
 	}
-	
+
+    /**
+     * @param $id
+     * @throws NotFoundHttpException
+     */
 	public function actionSummaryJson($id)
 	{
 		$this->setMember($id);
@@ -120,6 +131,11 @@ class MemberStatusController extends SummaryController
 		parent::actionSummaryJson($id);
 	}
 
+    /**
+     * @param $member_id
+     * @return array|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
 	public function actionReset($member_id) 
 	{
 		if (!Yii::$app->user->can('resetPT'))
@@ -169,7 +185,12 @@ class MemberStatusController extends SummaryController
 		return $this->renderAjax('create', compact('model'));
 	
 	}
-	
+
+    /**
+     * @param $member_id
+     * @return array|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
 	public function actionForfeit($member_id) 
 	{
 	
@@ -184,7 +205,9 @@ class MemberStatusController extends SummaryController
 		}
 		
 		if ($model->load(Yii::$app->request->post())) {
-			if ($this->addStatus($model)) { } // stub
+
+            /** @noinspection PhpStatementHasEmptyBodyInspection */
+            if ($this->addStatus($model)) { } // stub
 			
 			return $this->goBack();
 
@@ -195,11 +218,16 @@ class MemberStatusController extends SummaryController
 		return $this->renderAjax('create', compact('model'));
 		
 	}
-	
+
+    /**
+     * @param $member_id
+     * @return array|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
 	public function actionSuspend($member_id) 
 	{
 	
-		/** @var Model $model */
+		/** @var Status $model */
 		$model = new Status();
 		$this->setMember($member_id);
 		
@@ -211,8 +239,9 @@ class MemberStatusController extends SummaryController
 		
 		if ($model->load(Yii::$app->request->post())) {
 			if ($this->addStatus($model)) {
-				
-				if (!$this->assessReinstFee($model)) { } // stub
+
+                /** @noinspection PhpStatementHasEmptyBodyInspection */
+                if (!$this->assessReinstFee($model)) { } // stub
 					
 			}
 			
@@ -225,10 +254,15 @@ class MemberStatusController extends SummaryController
 		return $this->renderAjax('create', compact('model'));
 		
 	}
-	
+
+    /**
+     * @param $member_id
+     * @return array|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
 	public function actionClearIn($member_id) 
 	{	
-		/** @var Model $model */
+		/** @var Status $model */
 		$model = new Status(['scenario' => Status::SCENARIO_CCD]);
 		$this->setMember($member_id); 
 		
@@ -241,8 +275,12 @@ class MemberStatusController extends SummaryController
 		if ($model->load(Yii::$app->request->post())) {
 			$prev = (($model->other_local > 0) ? $model->other_local : 'Unspecified');
 			$model->reason = Status::REASON_CCD . $prev;
-			
-			if ($this->addStatus($model)) { } // stub
+
+            if ($this->addStatus($model)) {
+                if (!empty($model->paid_thru_dt)) {
+                    $this->saveMember($this->adjustPaidThru($model->paid_thru_dt));
+                }
+            }
 			
 			return $this->goBack();
 
@@ -252,10 +290,15 @@ class MemberStatusController extends SummaryController
 		return $this->renderAjax('create', compact('model'));
 		
 	}
-	
+
+    /**
+     * @param $member_id
+     * @return array|string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
 	public function actionDepIsc($member_id) 
 	{	
-		/** @var Model $model */
+		/** @var Status $model */
 		$model = new Status();
 		$this->setMember($member_id); 
 		
@@ -267,8 +310,9 @@ class MemberStatusController extends SummaryController
 		
 		if ($model->load(Yii::$app->request->post())) {
 			$model->reason = Status::REASON_DEPINSVC;
-			
-			if ($this->addStatus($model)) { } // stub
+
+            /** @noinspection PhpStatementHasEmptyBodyInspection */
+            if ($this->addStatus($model)) { } // stub
 
 			return $this->goBack();
 
@@ -332,5 +376,31 @@ class MemberStatusController extends SummaryController
 		}
 		return (strlen($result) > 1) ? false : $result;
 	}
+
+    /**
+     * @param $paid_thru_dt
+     * @return string
+     */
+	protected function adjustPaidThru($paid_thru_dt)
+    {
+        $this->member->dues_paid_thru_dt = $paid_thru_dt;
+        $pt_dt = (new OpDate)->setFromMySql($paid_thru_dt)->getDisplayDate(false, '/');
+        return Status::REASON_RESET_PT . $pt_dt;
+    }
+
+    /**
+     * @param $msg_content
+     */
+    protected function saveMember($msg_content)
+    {
+        $banner = is_array($msg_content) ? implode('; ', $msg_content) : $msg_content;
+        if ($this->member->save())
+            Yii::$app->session->addFlash('success', $banner);
+        else {
+            Yii::$app->session->addFlash('error', 'Problem saving Member. Check log for details. Code `MSC010`');
+            Yii::error("*** MSC010  Member save error (`{$this->member->member_id}`).  Messages: " . print_r($this->member->errors, true));
+        }
+
+    }
 	
 }
