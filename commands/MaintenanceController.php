@@ -51,15 +51,15 @@ class MaintenanceController extends Controller
 			$problems = $this->db->createCommand($this->problemMemberSql(Member::MONTHS_DELINQUENT))->queryAll();
 			if (!empty($problems))
 			    Yii::warning('*** Members bypassed: ' . print_r($problems, true));
-			$count = $this->db->createCommand($this->insertStatusSql(Member::MONTHS_DELINQUENT))->execute();
+			$count = $this->db->createCommand($this->insertStatusSql())->execute();
 			Yii::info("Members suspended as of {$dates[self::IX_EFFECTIVE]->getDisplayDate()}: {$count}");
 			$this->db->createCommand($this->stagePrevCloseSql())->execute();
 			Yii::info(self::CLOSE_PREV_TABLE_NM . "table generated");
 			$count = $this->db->createCommand($this->updateStatusSql())->execute();
 			Yii::info("Previous status entries closed: {$count}");
-			$count = $this->db->createCommand($this->insertAssessSql(Member::MONTHS_DELINQUENT))
+			$count = $this->db->createCommand($this->insertAssessSql())
 			   				  ->bindValues([
-			   							':assess_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $dates[self::IX_EFFECTIVE]->getMySqlDate()), 
+			   							':assess_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $dates[self::IX_EFFECTIVE]->getMySqlDate()),
 			   							':run_stamp' => time(),
 			   				  ])->execute();
 			Yii::info("Reinstatement assessments inserted: {$count}");
@@ -91,7 +91,7 @@ class MaintenanceController extends Controller
             $problems = $this->db->createCommand($this->problemMemberSql(Member::MONTHS_GRACE_PERIOD))->queryAll();
             if (!empty($problems))
                 Yii::warning('*** Members bypassed: ' . print_r($problems, true));
-			$count = $this->db->createCommand($this->insertStatusSql(Member::MONTHS_GRACE_PERIOD))->execute();
+			$count = $this->db->createCommand($this->insertStatusSql())->execute();
 			Yii::info("Members dropped as of {$dates[self::IX_EFFECTIVE]->getDisplayDate()}: {$count}");
 			$this->db->createCommand($this->stagePrevCloseSql())->execute();
 			Yii::info(self::CLOSE_PREV_TABLE_NM . "table generated");
@@ -176,7 +176,7 @@ class MaintenanceController extends Controller
 
     }
 	
-	private function insertStatusSql($months)
+	private function insertStatusSql()
 	{
 		return " INSERT INTO dc50.MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) "
 			  ."   SELECT distinct member_id, effective_dt, lob_cd, member_status, reason "
@@ -189,15 +189,13 @@ class MaintenanceController extends Controller
 		
 	}
 	
-	private function insertAssessSql($months)
+	private function insertAssessSql()
 	{
 		return " INSERT INTO dc50.Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) "
-			  ."   SELECT distinct member_id, '" . FeeType::TYPE_REINST . "', effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 "
-			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC"
-              ."     WHERE NOT EXISTS "
-              ."       (SELECT 1 FROM CurrentMemberStatuses "
-              ."          WHERE member_id = MSC.member_id "
-              ."            AND MSC.effective_dt <= effective_dt); "
+			  ."   SELECT distinct MSC.member_id, '" . FeeType::TYPE_REINST . "', MSC.effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 "
+			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC "
+              ."       JOIN  dc50.CurrentMemberStatuses AS CMS ON CMS.member_id = MSC.member_id "
+              ."                                         AND CMS.effective_dt = MSC.effective_dt; "
 		;
 		
 	}
