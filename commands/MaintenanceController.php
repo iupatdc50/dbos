@@ -48,13 +48,16 @@ class MaintenanceController extends Controller
 			   		 ])
 			   		 ->execute();	
 			Yii::info(self::STAGE_TABLE_NM . " table generated");
-			$count = $this->db->createCommand($this->insertStatusSql())->execute();
+			$problems = $this->db->createCommand($this->problemMemberSql(Member::MONTHS_DELINQUENT))->queryAll();
+			if (!empty($problems))
+			    Yii::warning('*** Members bypassed: ' . print_r($problems, true));
+			$count = $this->db->createCommand($this->insertStatusSql(Member::MONTHS_DELINQUENT))->execute();
 			Yii::info("Members suspended as of {$dates[self::IX_EFFECTIVE]->getDisplayDate()}: {$count}");
 			$this->db->createCommand($this->stagePrevCloseSql())->execute();
 			Yii::info(self::CLOSE_PREV_TABLE_NM . "table generated");
 			$count = $this->db->createCommand($this->updateStatusSql())->execute();
 			Yii::info("Previous status entries closed: {$count}");
-			$count = $this->db->createCommand($this->insertAssessSql())
+			$count = $this->db->createCommand($this->insertAssessSql(Member::MONTHS_DELINQUENT))
 			   				  ->bindValues([
 			   							':assess_amt' => AdminFee::getFee(FeeType::TYPE_REINST, $dates[self::IX_EFFECTIVE]->getMySqlDate()), 
 			   							':run_stamp' => time(),
@@ -85,7 +88,10 @@ class MaintenanceController extends Controller
 			         ])
 			         ->execute();
 			Yii::info(self::STAGE_TABLE_NM . "table generated");
-			$count = $this->db->createCommand($this->insertStatusSql())->execute();
+            $problems = $this->db->createCommand($this->problemMemberSql(Member::MONTHS_GRACE_PERIOD))->queryAll();
+            if (!empty($problems))
+                Yii::warning('*** Members bypassed: ' . print_r($problems, true));
+			$count = $this->db->createCommand($this->insertStatusSql(Member::MONTHS_GRACE_PERIOD))->execute();
 			Yii::info("Members dropped as of {$dates[self::IX_EFFECTIVE]->getDisplayDate()}: {$count}");
 			$this->db->createCommand($this->stagePrevCloseSql())->execute();
 			Yii::info(self::CLOSE_PREV_TABLE_NM . "table generated");
@@ -152,21 +158,46 @@ class MaintenanceController extends Controller
 			  .";"
 		;
 	}
+
+	private function problemMemberSql($months)
+    {
+        return
+         "   SELECT "
+        ."        SSC.member_id, "
+        ."        Me.last_nm, Me.first_nm, Me.middle_inits, Me.suffix, "
+        ."        SSC.effective_dt AS action_dt, "
+        ."        CMS.effective_dt AS latest_entry "
+        ."      FROM " . self::STAGE_TABLE_NM   . " AS SSC "
+        ."        JOIN Members AS Me ON Me.member_id = SSC.member_id "
+        ."          JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = Me.member_id "
+        ."                                             AND DATE_ADD(Me.dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL {$months} MONTH - INTERVAL 1 DAY <= CMS.effective_dt "
+        ."                  ; "
+        ;
+
+    }
 	
-	private function insertStatusSql()
+	private function insertStatusSql($months)
 	{
 		return " INSERT INTO dc50.MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) "
 			  ."   SELECT distinct member_id, effective_dt, lob_cd, member_status, reason "
-			  ."     FROM " . self::STAGE_TABLE_NM . ";"
+			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC"
+			  ."     WHERE NOT EXISTS "
+              ."       (SELECT 1 FROM CurrentMemberStatuses "
+              ."          WHERE member_id = MSC.member_id "
+              ."            AND MSC.effective_dt <= effective_dt); "
 		;
 		
 	}
 	
-	private function insertAssessSql()
+	private function insertAssessSql($months)
 	{
 		return " INSERT INTO dc50.Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) "
 			  ."   SELECT distinct member_id, '" . FeeType::TYPE_REINST . "', effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 "
-			  ."     FROM " . self::STAGE_TABLE_NM . ";"
+			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC"
+              ."     WHERE NOT EXISTS "
+              ."       (SELECT 1 FROM CurrentMemberStatuses "
+              ."          WHERE member_id = MSC.member_id "
+              ."            AND MSC.effective_dt <= effective_dt); "
 		;
 		
 	}
