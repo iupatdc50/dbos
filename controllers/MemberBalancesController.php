@@ -60,7 +60,7 @@ class MemberBalancesController extends Controller
         $dataProvider = new ActiveDataProvider([
             'query' => $member->getDuesAllocations(),
             'pagination' => ['pageSize' => 20],
-            'sort' => ['defaultOrder' => ['received_dt'=>SORT_DESC]],
+            'sort' => ['defaultOrder' => ['received_dt'=>SORT_DESC, 'receipt_id'=>SORT_DESC]],
         ]);
 
         return $this->renderAjax('_dueshistory', ['dataProvider' => $dataProvider]);
