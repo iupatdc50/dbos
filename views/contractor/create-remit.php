@@ -7,6 +7,10 @@ use yii\web\JsExpression;
 use kartik\select2\Select2;
 use kartik\widgets\DepDrop;
 
+/* @var $remitForm \app\models\accounting\CreateRemitForm */
+/* @var $modelContractor \app\models\contractor\Contractor */
+/* @var $this \yii\web\View */
+
 // The controller action that will render the list
 $url = Url::to(['/contractor/contractor-list']);
 ?>

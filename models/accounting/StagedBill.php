@@ -39,7 +39,10 @@ class StagedBill extends \yii\db\ActiveRecord
 	{
 		return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
 	}
-	
+
+    /**
+     * @return Standing
+     */
 	public function getStanding()
 	{
 		if(!(isset($this->_standing)))
@@ -91,8 +94,12 @@ class StagedBill extends \yii\db\ActiveRecord
 	 */
 	public function getIN()
 	{
-		if ($this->employer->deducts_dues == 'T')
-			return $this->standing->getOutstandingAssessment(FeeType::TYPE_INIT);
+		if ($this->employer->deducts_dues == 'T') {
+		    /* @var $assessment Assessment */
+		    $assessment = $this->standing->getOutstandingAssessment(FeeType::TYPE_INIT);
+		    if (isset($assessment) && ($assessment->balance <> 0.00))
+		        return $assessment->balance;
+        }
 		return null;
 	}
 	

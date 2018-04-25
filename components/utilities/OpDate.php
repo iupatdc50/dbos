@@ -87,15 +87,16 @@ class OpDate extends \DateTime
 		parent::setDate ( $year, $month, $day );
 		$this->refreshDateParts ();
 	}
-	
-	/**
-	 * Sets Time portion of DateTime
-	 * 
-	 * @param type $hour        	
-	 * @param type $minute        	
-	 * @param type $second        	
-	 */
-	public function setTime($hour, $minute, $second = 0) {
+
+    /**
+     * Sets Time portion of DateTime
+     *
+     * @param int $hour
+     * @param int $minute
+     * @param int $second
+     * @param int $microsecond Since 7.0
+     */
+	public function setTime($hour, $minute, $second = 0, $microsecond = 0) {
 		$submitted = "Hour `{$hour}` Minute `{$minute}` Second `{$second}`";
 		if (! is_numeric ( $hour ) || ! is_numeric ( $minute ) || ! is_numeric ( $second )) {
 			$msg = 'Expects 2 or 3 numbers separated by comas in the order: hour, minute, second. ';

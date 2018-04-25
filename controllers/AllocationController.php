@@ -97,7 +97,7 @@ class AllocationController extends Controller
 	
 	public function actionDetailAjax()
 	{
-		$model = DuesAllocation::findOne($_POST['expandRowKey']);
+		$model = DuesAllocation::findOne(['id' => $_POST['expandRowKey']]);
 		return $this->renderAjax('_detail', ['duesProvider' => $model]);
 	}
 	

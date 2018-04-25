@@ -80,6 +80,10 @@ div.flash-success
 	border-color:#3c763d;
 }
 
+.bottom-copy {
+	bottom: 0;
+}
+
 #logo-nothome {
 	height: 71px;
 	border-radius: 4px;
@@ -99,11 +103,11 @@ body {
 }
 
 div.sm-print {
-	font-size: 9px;
+	font-size: 9pt;
 }
 
 h4.sm-print {
-	font-size: 12px;
+	font-size: 12pt;
 	font-weight: bold;
 }
 
@@ -370,11 +374,8 @@ a span.loaned {
 }
 
 #receipt-title {
-	font-weight: 500;
-	font-size: 16px;
-	line-height: 1.1;
-	margin-top: 5px;
-	margin-bottom: 25px;
+	font-weight: bold;
+	font-size: 12pt;
 }
 
 

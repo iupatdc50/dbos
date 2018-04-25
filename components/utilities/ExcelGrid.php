@@ -3,6 +3,7 @@ namespace app\components\utilities;
 
 use Yii;
 use Closure;
+use yii\base\ErrorException;
 use yii\i18n\Formatter;
 use yii\base\InvalidConfigException;
 use yii\helpers\Url;
@@ -149,25 +150,41 @@ class ExcelGrid extends \yii\grid\GridView
 		return ($this->_endRow > 0) ? count($models) : 0;
 	}
 
+    /**
+     * @param $model
+     * @param $key
+     * @param $index
+     * @throws \Exception
+     */
 	public function generateRow($model, $key, $index)
 	{
 		$cells = [];
-		/* @var $column Column */
 		$this->_endCol = 0;
 		foreach ($this->_visibleColumns as $column) {
 			if ($column instanceof \yii\grid\SerialColumn || $column instanceof \yii\grid\ActionColumn) {
 				continue;
 			} else {
+                /* @var $column \yii\grid\DataColumn */
 				$format = $column->format;
-				$value = ($column->content === null) ?
-				$this->formatter->format($column->getDataCellValue($model, $key, $index), $format) :
-				call_user_func($column->content, $model, $key, $index, $column);
+				try {
+				    if ($column->content === null) {
+				        $content = $column->getDataCellValue($model, $key, $index);
+				        $value = $this->formatter->format($content, $format);
+                    } else {
+				        $content = $column->content;
+                        $value = call_user_func($content, $model, $key, $index, $column);
+                    }
+                } catch (\Exception $e) {
+                    /** @noinspection PhpUndefinedVariableInspection */
+                    Yii::error("*** EG010 Problem with encode: " . print_r($content, true));
+				    throw $e;
+                }
 			}
 			if (empty($value) && !empty($column->attribute) && $column->attribute !== null) {
 				$value =ArrayHelper::getValue($model, $column->attribute, '');
 			}
 			$this->_endCol++;
-			$cell = $this->_objPHPExcelSheet->setCellValue(self::columnName($this->_endCol) . ($index + $this->_beginRow + 1),
+			$cells[] = $this->_objPHPExcelSheet->setCellValue(self::columnName($this->_endCol) . ($index + $this->_beginRow + 1),
 					strip_tags($value), true);
 		}
 	}

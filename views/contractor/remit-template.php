@@ -1,9 +1,9 @@
 <?php
 
 use app\components\utilities\ExcelGrid;
-use yii\bootstrap\Alert;
 use app\modules\admin\models\FeeType;
 
+/* @var $this \yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $modelContractor app\models\contractor\Contractor */
 /* @var $modelsFeeType app\models\accounting\TradeFeeType[] */
