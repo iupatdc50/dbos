@@ -30,12 +30,15 @@ use app\components\utilities\OpDate;
  * @property string $remarks
  * @property string $lob_cd
  * @property string $acct_month
+ * @property string $void [enum('T', 'F')]
+ * @property int $updated_by [int(11)]
+ * @property int $updated_at [int(11)]
  *
  * @property AllocatedMember[] $members
  * @property ReceiptFeeType[] $feeTypes
  * @property ReceiptAllocSumm[] $allocSumms
  * @property User $createdBy
- * @property string $void [enum('T', 'F')]
+ * @property User $updatedBy
  */
 class Receipt extends \yii\db\ActiveRecord
 {
@@ -110,8 +113,8 @@ class Receipt extends \yii\db\ActiveRecord
     public function behaviors()
 	{
 		return [
-				['class' => \yii\behaviors\TimestampBehavior::className(), 'updatedAtAttribute' => false],
-				['class' => \yii\behaviors\BlameableBehavior::className(), 'updatedByAttribute' => false],
+				['class' => \yii\behaviors\TimestampBehavior::className()],
+				['class' => \yii\behaviors\BlameableBehavior::className()],
 		];
 	}
 
@@ -136,7 +139,7 @@ class Receipt extends \yii\db\ActiveRecord
             	return $('#helperdues').val() > 0.00;
     		}"],
         	[['tracking_nbr'], 'string', 'max' => 20],
-        	[['created_at', 'created_by'], 'integer'],
+        	[['created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
         	[['remarks', 'fee_types', 'populate', 'xlsx_file'], 'safe'],
         	['fee_types', 'required', 'when' => function($model) {
                 return !($model->helper_dues > 0.00);
@@ -165,6 +168,8 @@ class Receipt extends \yii\db\ActiveRecord
             'helper_hrs' => 'Hours',
         	'created_at' => 'Created At',
             'created_by' => 'Entered by',
+            'updated_at' => 'Updated At',
+            'updated_by' => 'Updated by',
         	'remarks' => 'Remarks',
         	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
@@ -212,7 +217,15 @@ class Receipt extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+    }
+
     public function getAcctMonthText()
     {
     	return OptionHelper::getPrettyMonthYear($this->acct_month);
@@ -249,7 +262,12 @@ class Receipt extends \yii\db\ActiveRecord
     	$options = self::getPayorOptions();
     	return isset($options[$payor]) ? $options[$payor] : "Unknown Payor Type `{$payor}`";
     }
-    
+
+    /**
+     * @param $lob_cd
+     * @return array
+     * @throws Yii\base\InvalidConfigException
+     */
     public function getFeeOptions($lob_cd)
     {
     	if(!isset($this->_remit_filter))

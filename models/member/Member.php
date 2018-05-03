@@ -76,6 +76,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	
 	CONST MONTHS_GRACE_PERIOD = 6;
 	CONST MONTHS_DELINQUENT = 3;
+
+	CONST CUTOFF_DAY = 20;
 	
 	/*
 	 * @var OpDate
@@ -502,6 +504,14 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	return $result;
     }
 
+    public function backOutStatus($alloc_id)
+    {
+        /*
+        $status = $this->currentStatus;
+        if(isset($status) && ($status->fee_type))
+        */
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -784,7 +794,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getDuesStartDt()
     {
     	$dt = clone $this->getApplicationDtObject();
-    	if ($dt->getDay() > 20) 
+    	if ($dt->getDay() > self::CUTOFF_DAY)
     		$dt->modify('+1 month');
     	$dt->setDate($dt->getYear(), $dt->getMonth(), 1);
     	$dt->modify('-1 day');

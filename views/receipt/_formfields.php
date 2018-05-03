@@ -1,6 +1,5 @@
 <?php
 
-use yii\helpers\Html;
 use kartik\select2\Select2;
 use kartik\datecontrol\DateControl;
 
@@ -42,12 +41,14 @@ use kartik\datecontrol\DateControl;
 $script = <<< JS
 
 $(function() {
-		$('#trackinglbl').hide();
-		$('#trackingnbr').hide();
-})
+    toggletracking($('#paymentmethod').val());
+});
 
 $('#paymentmethod').change(function() {
-	var paymethod = $(this).val();
+    toggletracking($(this).val());
+});
+
+function toggletracking(paymethod) {
 	if(paymethod > 1) {
 		$('#trackinglbl').show();
 		$('#trackingnbr').show();
@@ -60,7 +61,8 @@ $('#paymentmethod').change(function() {
 		$('#trackinglbl').hide();
 		$('#trackingnbr').hide();
 	};
-});
+    
+}
 
 JS;
 $this->registerJs($script);

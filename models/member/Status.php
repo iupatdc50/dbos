@@ -2,13 +2,10 @@
 
 namespace app\models\member;
 
-use Yii;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use app\models\value\Lob;
-use app\models\member\Member;
-use app\models\member\StatusCode;
 use app\models\base\BaseEndable;
+use app\models\accounting\BaseAllocation;
 use app\components\validators\AtLeastValidator;
 
 /**
@@ -21,9 +18,11 @@ use app\components\validators\AtLeastValidator;
  * @property string $lob_cd
  * @property string $member_status
  * @property string $reason
+ * @property integer $alloc_id
  *
  * @property Lob $lob
  * @property StatusCode $status
+ * @property BaseAllocation $allocation
  */
 class Status extends BaseEndable
 {
@@ -84,7 +83,7 @@ class Status extends BaseEndable
         		
         	[['other_local'], 'required', 'on' => self::SCENARIO_CCD],
         	['init_dt', AtLeastValidator::className(), 'in' => ['paid_thru_dt', 'init_dt'], 'on' => self::SCENARIO_RESET],
-        		
+        	['alloc_id', 'exist', 'targetClass' => '\app\models\accounting\BaseAllocation', 'targetAttribute' => 'id'],
         ];
     }
 
@@ -131,6 +130,11 @@ class Status extends BaseEndable
     public function getStatus()
     {
         return $this->hasOne(StatusCode::className(), ['member_status_cd' => 'member_status']);
+    }
+
+    public function getAllocation()
+    {
+        return $this->hasOne(BaseAllocation::className(), ['id' => 'alloc_id']);
     }
     
     public function getStatusOptions()

@@ -2,11 +2,12 @@
 
 namespace app\models\accounting;
 
-use Yii;
+use app\models\member\Status;
 use app\models\member\Member;
 use app\models\member\Standing;
-use app\models\accounting\TradeFeeType;
 use app\modules\admin\models\FeeType;
+
+/** @noinspection PropertiesInspection */
 
 
 /**
@@ -90,6 +91,16 @@ class BaseAllocation extends \yii\db\ActiveRecord
     public function getFeeType()
     {
     	return $this->hasOne(FeeType::className(), ['fee_type' => 'fee_type']);
+    }
+
+    /**
+     * Looks up Member Status entry that was produced by this allocation
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMemberStatus()
+    {
+        return $this->hasOne(Status::className(), ['alloc_id' => 'id']);
     }
     
     protected function getStanding()

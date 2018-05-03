@@ -14,6 +14,10 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.12.101
+. Added receipt fixed area update functionality
+. Minor code cleanup
+
 0.9.11.670
 . Fixed bug that caused crash in CSV export
 . Fixed bug where headers were missing and title appeared in wrong location for CSV

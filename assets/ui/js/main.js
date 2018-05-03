@@ -87,7 +87,7 @@ $(function(){
 function fillPanel(event, ui) {
 	var kids = $(ui.newPanel[0]).children('div');
 	$(kids).each (function (index, element) {
-		$url = $(element).attr('data-url');
+		var $url = $(element).attr('data-url');
 		$.getJSON($url, function (data) {
 			$(element).html(data);
 		});

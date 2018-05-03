@@ -3,13 +3,15 @@
 namespace app\models\accounting;
 
 use app\components\utilities\OpDate;
+use yii\base\InvalidConfigException;
+
+/** @noinspection PropertiesInspection */
 
 /**
  * This is the model class for table "DuesAllocations".
  *
  * @property integer $months
  * @property string $paid_thru_dt
- * @property int $assessment_id [int(11)]
  *
  */
 class DuesAllocation extends BaseAllocation
@@ -49,25 +51,45 @@ class DuesAllocation extends BaseAllocation
         ];
         return parent::attributeLabels();
     }
-    
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
     public function beforeDelete()
     {
     	if (parent::beforeDelete()) {
-    	    if($this->months != null) {
-		    	$dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
-		    	$this->member->dues_paid_thru_dt = $dt;
-		    	$this->member->save();
-    	    }
+    	    $this->backOutDuesThru();
 		    return true;
     	}
     	return false;
     }
-    
-	/**
-	 * Uses Standing class to estimate the dues owed for a member
-	 * 
-	 * @return number|NULL
-	 */
+
+    /**
+     * @param bool $clear
+     * @throws InvalidConfigException
+     */
+    public function backOutDuesThru($clear = false)
+    {
+        if($this->months != null) {
+            $dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
+            $this->member->dues_paid_thru_dt = $dt;
+            $this->member->save();
+            if($clear) {
+                $this->months = null;
+                $this->paid_thru_dt = null;
+                $this->save();
+            }
+        }
+    }
+
+    /**
+     * Uses Standing class to estimate the dues owed for a member
+     *
+     * @return number|NULL
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     */
     public function estimateOwed()
     {
     	if (!isset($this->alloc_memb_id) || (!$this->rateFinderExists()))
@@ -79,9 +101,10 @@ class DuesAllocation extends BaseAllocation
     /**
      * Calculates number of months covered by allocation_amt.  Any remainder updates
      * $unalloc_remainder property
-     * 
-     * @param numbetr $overage
+     *
+     * @param float $overage
      * @return NULL|integer
+     * @throws InvalidConfigException
      */
     public function calcMonths($overage = 0.00)
     {
@@ -110,12 +133,15 @@ class DuesAllocation extends BaseAllocation
     			break;
     	}
     	return $months;
-    } 
-    
+    }
+
     /**
-     * Calculates the new dues paid thru date. 
-     * 
+     * Calculates the new dues paid thru date.
+     *
+     * @param null $months
+     * @param null $op
      * @return string Paid thru date in MySql format
+     * @throws InvalidConfigException
      */
     public function calcPaidThru($months = null, $op = null)
     {
@@ -135,14 +161,18 @@ class DuesAllocation extends BaseAllocation
 			$this->start_dt = $this->member->dues_paid_thru_dt;
 		return $this->start_dt;
     }
-    
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
     private function rateFinderExists()
     {
     	if (isset($this->duesRateFinder)) {
     		if(!($this->duesRateFinder instanceof DuesRateFinder))
-    			throw new \yii\base\InvalidConfigException('Not a valid dues rate finder object');
+    			throw new InvalidConfigException('Not a valid dues rate finder object');
     	} else
-    		throw new \yii\base\InvalidConfigException('No dues rate finder object injected');
+    		throw new InvalidConfigException('No dues rate finder object injected');
     	return true;
     }
         

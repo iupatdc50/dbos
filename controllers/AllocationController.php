@@ -8,17 +8,19 @@ use app\models\accounting\AssessmentAllocation;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 use yii\helpers\Json;
 use yii\helpers\ArrayHelper;
 use app\models\accounting\BaseAllocation;
-use app\models\accounting\app\models\accounting;
 use app\models\accounting\TradeFeeType;
 use app\modules\admin\models\FeeType;
 
 class AllocationController extends Controller
 {
-	
+    /**
+     * @param $alloc_memb_id
+     * @return string|\yii\web\Response
+     * @throws \Exception
+     */
 	public function actionCreate($alloc_memb_id)
 	{
 		$model = new BaseAllocation();
@@ -28,13 +30,17 @@ class AllocationController extends Controller
 			if ($model->save()) {
 				return $this->goBack();
 			}
-			throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
 		// For now, assume that member remittable is the same for all trades 
 		$feeOptions = ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => '1791', 'member_remittable' => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
 		return $this->renderAjax('create', compact('model', 'feeOptions'));
 	}
-	
+
+    /**
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     */
 	public function actionEditAlloc()
 	{
 		if(Yii::$app->request->post('hasEditable')) {

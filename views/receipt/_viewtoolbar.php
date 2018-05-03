@@ -4,6 +4,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $model app\models\accounting\Receipt  */
+/* @var $this \yii\web\View */
+/* @var $class string */
 
 ?>
 
@@ -12,10 +14,8 @@ use yii\helpers\Url;
 
         	<?php if(Yii::$app->user->can('updateReceipt') && ($model->void == 'F')): ?>
 				<?= Html::a('Update', [
-						'*', 
-//						'itemize', 
+						'update',
 						'id' => $model->id,
-						'fee_types' => $model->feeTypesArray,
 				], ['class' => 'btn btn-primary']) ?>
 				<?php if(Yii::$app->user->can('deleteReceipt')) :?>
 			        <?= Html::a('Void Receipt', ['void', 'id' => $model->id], [

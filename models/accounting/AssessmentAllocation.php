@@ -2,14 +2,12 @@
 
 namespace app\models\accounting;
 
-use Yii;
-use app\modules\admin\models\FeeType;
+/** @noinspection PropertiesInspection */
 
 /**
  * This is the model class for table "OtherAllocations".
  *
  * @property string $assessment_id
- *
  * @property Assessment @assessment
  */
 class AssessmentAllocation extends BaseAllocation

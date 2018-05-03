@@ -168,7 +168,7 @@ class ReceiptContractorController extends BaseController
         	'allocProvider' => $allocProvider,
         ]);
 	}
-	
+
 	public function actionSummaryJson($id)
 	{
     	if (!Yii::$app->user->can('browseReceipt')) {

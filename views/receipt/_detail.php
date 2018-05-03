@@ -33,7 +33,18 @@ use app\helpers\OptionHelper;
             ],
         	'unallocated_amt',
         	'remarks:ntext',
-        ]; 
+        ];
+	$blameable_attributes = [
+        [
+            'attribute' => 'created_by',
+            'value' => $modelReceipt->createdBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->created_at),
+        ],
+        [
+            'attribute' => 'updated_by',
+            'value' => isset($modelReceipt->updatedBy) ? $modelReceipt->updatedBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->updated_at) : null,
+            'visible' => isset($modelReceipt->updatedBy),
+        ]
+    ];
 	?>
 
     <?php
@@ -44,10 +55,7 @@ use app\helpers\OptionHelper;
             'attributes' => array_merge(
                 $common_attributes,
                 $modelReceipt->customAttributes,
-                [[
-                    'attribute' => 'created_by',
-                    'value' => $modelReceipt->createdBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->created_at),
-                ]]
+                $blameable_attributes
             ),
         ]);
     } catch (Exception $e) {

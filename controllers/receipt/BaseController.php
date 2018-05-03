@@ -158,6 +158,7 @@ class BaseController extends Controller
 	    				$status->member_status = Status::ACTIVE;
 	    				$status->reason = Status::REASON_REINST;
 	    			}
+                    $status->alloc_id = $alloc->id;
 	    			if (!$member->addStatus($status))
 	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
 	    		}	 
@@ -186,6 +187,7 @@ class BaseController extends Controller
 	    					$status = $this->prepareStatus($member, $model->received_dt);
 	    					$status->member_status = Status::ACTIVE;
 	    					$status->reason = Status::REASON_APF;
+                            $status->alloc_id = $alloc->id;
 	    					$member->addStatus($status);
 	    					$member->init_dt = $model->received_dt;
 	    					if (!$member->save())
@@ -221,6 +223,29 @@ class BaseController extends Controller
     }
 
     /**
+     * @param $id
+     * @return string
+     */
+    public function actionUpdate($id)
+    {
+        $this->storeReturnUrl();
+        $modelReceipt = $this->findModel($id);
+
+        if ($modelReceipt->load(Yii::$app->request->post()) && $modelReceipt->save()) {
+            if ($modelReceipt->outOfBalance == 0.00) {
+                Yii::$app->session->setFlash('success', "Receipt successfully updated");
+                return $this->redirect(['view', 'id' => $modelReceipt->id]);
+            }
+        }
+
+        return $this->render('/receipt/update', [
+            'modelReceipt' => $modelReceipt,
+            'controller' => $this->id,
+        ]);
+
+    }
+
+    /**
      * Voids an existing Receipt model.
      *
      * @param integer $id
@@ -242,6 +267,7 @@ class BaseController extends Controller
         $model->received_amt = 0.00;
         $model->unallocated_amt = 0.00;
         $model->helper_dues = null;
+        /** @noinspection PhpUndefinedFieldInspection */
         $model->remarks = 'Voided by: ' . Yii::$app->user->identity->username;
         $model->void = OptionHelper::TF_TRUE;
         
@@ -326,7 +352,7 @@ class BaseController extends Controller
      * Delete the allocation if the allocated amount is zero
      *
      * @param BaseAllocation $alloc
-     * @return boolean Returns false if a database record deletion is attempted
+     * @return boolean Returns false if a database record deletion is unsuccessful
      * @throws \Exception
      * @throws \yii\db\StaleObjectException
      */
