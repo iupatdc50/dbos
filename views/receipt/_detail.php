@@ -1,12 +1,12 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\widgets\DetailView;
 use app\helpers\OptionHelper;
 // use kartik\detail\DetailView;
 
 /* @var $modelReceipt app\models\accounting\Receipt */
+/* @var $this \yii\web\View */
 
 ?>
 
