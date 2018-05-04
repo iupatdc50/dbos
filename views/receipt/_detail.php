@@ -41,8 +41,8 @@ use app\helpers\OptionHelper;
         ],
         [
             'attribute' => 'updated_by',
-            'value' => isset($modelReceipt->updatedBy) ? $modelReceipt->updatedBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->updated_at) : null,
-            'visible' => isset($modelReceipt->updatedBy),
+            'value' => isset($modelReceipt->updatedBy) && ($modelReceipt->created_at != $modelReceipt->updated_at) ? $modelReceipt->updatedBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->updated_at) : null,
+            'visible' => isset($modelReceipt->updatedBy) && ($modelReceipt->created_at != $modelReceipt->updated_at),
         ]
     ];
 	?>
