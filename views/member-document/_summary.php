@@ -3,20 +3,32 @@
 use kartik\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 
 $controller = 'member-document';
+?>
+
+<div id="document-panel">
+
+<?php
+// 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
+Pjax::begin(['id' => 'document-grid', 'enablePushState' => false]);
+
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
+        'id' => 'document-grid',
 		'dataProvider' => $dataProvider,
+		'pjax' => false,
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
 				'heading'=>'<i class="glyphicon glyphicon-folder-close"></i>&nbsp;Documents',
 				'class' => 'text-primary',
 				'before' => false,
 				'after' => false,
-				'footer' => false,
+				// 'footer' => false,
 		],
 		'columns' => [
 				'doc_type',
@@ -44,4 +56,10 @@ echo GridView::widget([
 				],
 		],
 ]);
-				
+?>
+
+</div>
+<?php
+
+Pjax::end();
+

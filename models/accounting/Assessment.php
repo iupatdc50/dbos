@@ -105,7 +105,7 @@ class Assessment extends \yii\db\ActiveRecord
     public function getBalance()
     {
         // Can't use standard substract on FP numbers
-    	return bcsub($this->assessment_amt, $this->totalAllocated);
+    	return bcsub($this->assessment_amt, $this->totalAllocated, 2);
     }
 
     /**
