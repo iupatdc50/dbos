@@ -39,7 +39,7 @@ echo GridView::widget([
 				'value' => function($model) {
 					return (isset($model->doc_id)) ?
 						Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show document']),
-							$model->imageUrl, ['target' => '_blank']) : '';
+							$model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
 						},
 				],
 				[
