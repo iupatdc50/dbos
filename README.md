@@ -14,6 +14,12 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.9.12.200
+. Fixed bug that omitted default address & phone on new contractor entries
+. Added auto-cancel for JTP projects unawarded for 6 months
+. Added attach note functionality to project notes
+. Minor code cleanup
+
 0.9.12.101
 . Added receipt fixed area update functionality
 . Minor code cleanup

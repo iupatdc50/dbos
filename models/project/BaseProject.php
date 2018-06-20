@@ -19,6 +19,7 @@ use app\models\base\iNotableInterface;
  * @property string $disposition
  * @property string $project_status
  * @property string $close_dt
+ * @property string $is_maint [enum('T', 'F')]
  *
  * @property Address[] $addresses
  * @property Note[] $notes
@@ -141,17 +142,26 @@ class BaseProject extends \yii\db\ActiveRecord implements iNotableInterface
 		return OptionHelper::getDispText($this->disposition);
 	}
 
-	/**
+    /**
      * Adds a journal note to this project
-     * 
+     *
      * @param Note $note
+     * @return bool
      */
     public function addNote($note)
     {
     	if (!($note instanceof Note))
     		throw new \BadMethodCallException('Not an instance of ProjectNote');
     	$note->project_id = $this->project_id;
-    	return $note->save();
+        $image = $note->uploadImage();
+        if ($note->save()) {
+            if ($image !== false) {
+                $path = $note->imagePath;
+                $image->saveAs($path);
+            }
+            return true;
+        }
+        return false;
     }
     
     /**

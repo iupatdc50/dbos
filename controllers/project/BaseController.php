@@ -4,17 +4,14 @@ namespace app\controllers\project;
 
 use Yii;
 use app\controllers\base\RootController;
-use app\models\base\Model;
 use app\models\project\ProjectId;
 use app\models\project\Address;
 use app\models\project\Note;
 use app\models\project\CancelForm;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
-use app\models\project\jtp\Registration;
 use app\helpers\OptionHelper;
 
 /**
@@ -97,6 +94,7 @@ class BaseController extends RootController
      * Displays a single Project model.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -124,6 +122,7 @@ class BaseController extends RootController
      * Creates a new Project model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\db\Exception
      */
     public function actionCreate()
     {
@@ -184,6 +183,7 @@ class BaseController extends RootController
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -204,6 +204,7 @@ class BaseController extends RootController
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionDelete($id)
     {
@@ -211,7 +212,12 @@ class BaseController extends RootController
 
         return $this->redirect(['index']);
     }
-    
+
+    /**
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
+     */
     public function actionCancel($id)
     {
     	$model = new CancelForm;

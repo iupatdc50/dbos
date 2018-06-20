@@ -225,8 +225,8 @@ class ContractorController extends RootController
     {
         $model = new Contractor;
         $modelSig = new Signatory;
-        $modelAddress = new Address;
-        $modelPhone = new Phone;
+        $modelAddress = new Address(['set_as_default' => true]);
+        $modelPhone = new Phone(['set_as_default' => true]);
         
         if ($model->load(Yii::$app->request->post()) 
         		&& $modelSig->load(Yii::$app->request->post())

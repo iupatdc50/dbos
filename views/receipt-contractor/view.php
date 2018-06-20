@@ -8,8 +8,8 @@ use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\receipt */
-/* @var $membProvider ActiveDataProvider */
-/* @var $searchMemb AllocatedMemberSearch */
+/* @var $membProvider yii\data\ActiveDataProvider */
+/* @var $searchMemb app\models\accounting\AllocatedMemberSearch */
 
 $this->title = $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Receipts', 'url' => ['index']];
@@ -25,7 +25,8 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
 	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'contractor']); ?>
 	<?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
 	
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
     		'id' => 'member-grid',
     		'dataProvider' => $membProvider,
         	'filterModel' => $searchMemb,

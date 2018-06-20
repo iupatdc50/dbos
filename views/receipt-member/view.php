@@ -1,5 +1,7 @@
 <?php
 
+/* @var $this \yii\web\View */
+
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
@@ -36,7 +38,8 @@ elseif (isset($model->payingMember)) {
     
     
     <div class="rightside thirtyfive-pct">
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
     	'id' => 'alloc-grid',
         'dataProvider' => $allocProvider,		
 		'panel'=>[

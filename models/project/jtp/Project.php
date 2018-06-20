@@ -10,11 +10,13 @@ use app\models\project\jtp\JtpPayment;
  * 
  * @property HoldAmount $holdAmount
  * @property Payment[] $payments
+ * @property string $is_maint [enum('T', 'F')]
  *
  */
 
 class Project extends \app\models\project\BaseProject
 {
+    CONST MONTHS_TO_AWARD = 6;
 	public $type_filter = 'JTP';
 	
     /**
