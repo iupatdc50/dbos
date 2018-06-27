@@ -2,7 +2,6 @@
 
 namespace app\models\accounting;
 
-use Yii;
 use app\models\member\Member;
 
 /**
@@ -14,7 +13,7 @@ use app\models\member\Member;
  * 
  * @property Receipt $receipt
  * @property Member $member
- * @property Allocation[] $allocations
+ * @property BaseAllocation[] $allocations
  * @property CcOtherLocal $otherLocal
  */
 class AllocatedMember extends \yii\db\ActiveRecord
@@ -73,7 +72,15 @@ class AllocatedMember extends \yii\db\ActiveRecord
     {
     	return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id']);
     }
-    
+
+    /**
+     * @return int|string
+     */
+    public function getAllocationCount()
+    {
+        return $this->hasMany(BaseAllocation::className(), ['alloc_memb_id' => 'id'])->count();
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

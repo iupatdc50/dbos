@@ -115,6 +115,8 @@ class ReceiptContractorController extends BaseController
                                         $result = $builder->prepareAllocsFromArray($alloc_memb, $alloc);
                                         if ($result != true)
                                             throw new \Exception('Uncaught validation errors: ' . $result);
+                                        if ($alloc_memb->allocationCount == 0)
+                                            $alloc_memb->delete();
                                     }
 								}
 								$model->deleteUploadedFile();

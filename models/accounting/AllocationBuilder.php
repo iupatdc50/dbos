@@ -64,13 +64,15 @@ class AllocationBuilder extends Model
 		$strip = ['classification' => 'remove', 'last_nm' => 'remove', 'first_nm' => 'remove', 'report_id' => 'remove'];
 		$allocs = array_diff_key($array, $strip);
 		foreach ($allocs as $fee_type => $amt) {
-			$alloc = new BaseAllocation([
-					'alloc_memb_id' => $memb->id,
-					'fee_type' => $fee_type,
-					'allocation_amt' => $amt,
-			]);
-			if (!$this->saveAlloc($alloc))
-				return $this->_errors;
+		    if ($amt != 0.00) {
+                $alloc = new BaseAllocation([
+                    'alloc_memb_id' => $memb->id,
+                    'fee_type' => $fee_type,
+                    'allocation_amt' => $amt,
+                ]);
+                if (!$this->saveAlloc($alloc))
+                    return $this->_errors;
+            }
 		}
 		return true;
 	}
