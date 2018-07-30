@@ -2,6 +2,9 @@
 
 namespace app\models\member;
 
+use yii\base\InvalidConfigException;
+use yii\db\ActiveRecord;
+
 /**
  * This is the model class for table "MemberEmails".
  *
@@ -10,7 +13,7 @@ namespace app\models\member;
  * @property string $email
  *
  */
-class Email extends \yii\db\ActiveRecord
+class Email extends ActiveRecord
 {
     CONST SCENARIO_MEMBEREXISTS = 'membexists';
 
@@ -36,6 +39,7 @@ class Email extends \yii\db\ActiveRecord
             [['email'], 'required', 'on' => self::SCENARIO_MEMBEREXISTS],
             [['email'], 'email'],
             [['email'], 'unique'],
+            [['email'], 'default', 'value' => null],
         ];
     }
 
@@ -51,11 +55,16 @@ class Email extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @param bool $insert
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
     public function beforeSave($insert)
     {
     	if (parent::beforeSave($insert)) {
 	    	if (!(isset($this->member) && ($this->member instanceof Member)))
-	    		throw new \yii\base\InvalidConfigException('No member object injected');
+	    		throw new InvalidConfigException('No member object injected');
     		if ($insert) 
     			$this->member_id = $this->member->member_id;
     		return true;

@@ -165,7 +165,7 @@ class MemberController extends RootController
         		&& $modelClass->load(Yii::$app->request->post())) {
         	
         	$image = $model->uploadImage();
-        	if ($model->validate() && $modelAddress->validate() && $modelPhone->validate()) {
+        	if ($model->validate() && $modelAddress->validate() && $modelPhone->validate() && $modelEmail->validate()) {
         		
         		$model->init_dt = ($model->exempt_apf) ? $model->application_dt : null;
         		 
