@@ -35,7 +35,7 @@ use app\models\accounting\Receipt;
 
     <?= $form->field($model, 'payor_nm')->textInput(['maxlength' => true])->input('payor_nm', ['placeholder' => "(Optional)"]) ?>
 
-    <? endif; ?>
+    <?php endif; ?>
 
     <?= $form->field($model, 'received_dt')->widget(DateControl::className(), [
 			'type' => DateControl::FORMAT_DATE,
