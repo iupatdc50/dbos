@@ -76,6 +76,7 @@ $(function(){
 	});
 });
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Handler for the accordion activate event.  data-url tag holds the 
  * route to the data retrieval controller action.  Can have multiple
@@ -93,3 +94,4 @@ function fillPanel(event, ui) {
 		});
 	});
 }
+

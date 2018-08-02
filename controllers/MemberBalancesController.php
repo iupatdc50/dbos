@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\member\Status;
 use Yii;
 use app\models\member\Member;
 use app\models\accounting\DuesRateFinder;
@@ -12,7 +13,11 @@ use yii\helpers\Json;
 
 class MemberBalancesController extends Controller
 {
-	
+    /**
+     * @param $id
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
 	public function actionSummaryJson($id)
 	{
         if (!Yii::$app->user->can('browseReceipt')) {
@@ -27,9 +32,14 @@ class MemberBalancesController extends Controller
             if (!isset($member->currentClass))
                 $messages[] = 'Cannot identify rate class.  Check Class panel.';
             if (empty($messages)) {
-                $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
                 $standing = new Standing(['member' => $member]);
-                $dues_balance = number_format($standing->getDuesBalance($rate_finder), 2);
+
+                if ($member->currentStatus->member_status == Status::OUTOFSTATE)
+                    $dues_balance = number_format(0.00, 2);
+                else {
+                    $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
+                    $dues_balance = number_format($standing->getDuesBalance($rate_finder), 2);
+                }
                 $assessment_balance = number_format($standing->totalAssessmentBalance, 2);
 
                 $assessProvider = new ActiveDataProvider([

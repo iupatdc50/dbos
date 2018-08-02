@@ -6,6 +6,9 @@ use kartik\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $duesProvider \yii\data\ActiveDataProvider */
+/* @var $hrsProvider \yii\data\ActiveDataProvider */
+/* @var $allocProvider \yii\data\ActiveDataProvider */
 ?>
 
 <table class="hundred-pct"><tr>
@@ -18,7 +21,8 @@ use kartik\grid\GridView;
 
 <tr><td class="hundred-pct">
 
-<?= GridView::widget([
+<?= /** @noinspection PhpUnhandledExceptionInspection */
+GridView::widget([
 		'id' => 'dues-grid',
 		'dataProvider' => $duesProvider,
 		'summary' => '',
@@ -59,7 +63,8 @@ use kartik\grid\GridView;
 
 <tr><td class="hundred-pct">
 
-<?= GridView::widget([
+<?= /** @noinspection PhpUnhandledExceptionInspection */
+GridView::widget([
 		'id' => 'hrs-grid',
 		'dataProvider' => $hrsProvider,
 		'summary' => '',
@@ -95,11 +100,12 @@ use kartik\grid\GridView;
 
 <?php endif; ?>
 
-<td class="fortyfive-pct pad-six">
+<td class="fiftyfive-pct pad-six">
 
 <?php if($allocProvider->getTotalCount() > 0): ?>
 
-<?= GridView::widget([
+<?= /** @noinspection PhpUnhandledExceptionInspection */
+GridView::widget([
 		'id' => 'alloc-grid',
 		'dataProvider' => $allocProvider,
 		'panel'=>[

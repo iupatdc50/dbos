@@ -111,9 +111,13 @@ class MemberController extends RootController
 
     	$balance = 'Pending';
     	if (isset($model->currentStatus) && isset($model->currentClass)) {
-    		$rate_finder = new DuesRateFinder($model->currentStatus->lob_cd, $model->currentClass->rate_class);
-    		$standing = new Standing(['member' => $model]);
-    		$balance = number_format($standing->getDuesBalance($rate_finder) + $standing->totalAssessmentBalance - $model->overage, 2);
+            $standing = new Standing(['member' => $model]);
+            $balance = $standing->totalAssessmentBalance - $model->overage;
+    	    if ($model->currentStatus->member_status != Status::OUTOFSTATE) {
+                $rate_finder = new DuesRateFinder($model->currentStatus->lob_cd, $model->currentClass->rate_class);
+                $balance += $standing->getDuesBalance($rate_finder);
+            }
+            $balance = number_format($balance, 2);
     	}
     	$params['balance'] = $balance;
     	

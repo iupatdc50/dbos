@@ -12,7 +12,7 @@ use app\models\accounting\Assessment;
 use app\models\accounting\BaseAllocation;
 
 /** 
- * Model class for managing the financial status of a member
+ * Model class for determining the financial status of a member
  * 
  * Requires the injection of a Member 
  */

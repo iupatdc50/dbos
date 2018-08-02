@@ -35,5 +35,17 @@ use yii\helpers\Url;
                         ['class' => 'btn btn-default', 'target' => '_blank'])
                 ?>
 			<?php endif; ?>
-			
+
+            <?php if(Yii::$app->user->can('createReceipt')): ?>
+                <?= Html::button('<i class="glyphicon glyphicon-file"></i>&nbsp;Create New Receipt', [
+                            'class' => 'btn btn-link btn-modal',
+                            'id' => 'receiptCreateButton',
+                            'value' => Url::to(["/accounting/create-receipt"]),
+                            'data-title' => 'Receipt',
+                 ]) ?>
+            <?php endif; ?>
+
+
 </p>
+
+<?= $this->render('../partials/_modal') ?>

@@ -8,7 +8,7 @@ use kartik\widgets\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\StagedAllocation */
-/* @var $license_nbr string */
+/* @var $label string */
 
 // The controller action that will render the list
 $url = Url::to(['/member/member-ssn-list']);
@@ -33,7 +33,7 @@ $member_name = isset($model->member) ? $model->member->fullName : 'Search for em
 			'ajax' => [
 				'url' => $url,
 				'dataType' => 'json',
-				'data' => new JsExpression('function(params) { return {search:params.term,employer:"'. $license_nbr .  '"}; }'),
+				'data' => new JsExpression('function(params) { return {search:params.term}; }'),
 			],
 			'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
 			'templateResult' => new JsExpression('function(member_id) { return member_id.text; }'),

@@ -97,9 +97,9 @@ $('#payortype').change(function() {
 	var typ = $('#payortype').find('input:checked').val();
 	$('#member-option').hide();
 	$('#contractor-option').hide();
-	if(typ == 'M') {
+	if(typ === "M") {
 		$('#member-option').show();
-	} else if(typ == 'C') {
+	} else if(typ === "C") {
 		$('#contractor-option').show();
 	};
 });

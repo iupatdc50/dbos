@@ -2,12 +2,16 @@
 
 namespace app\controllers\receipt;
 
+use app\models\accounting\AssessmentAllocation;
+use app\models\accounting\StatusManagerAssessment;
+use app\models\accounting\StatusManagerDues;
 use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
 use app\models\member\Member;
 use app\models\member\Status;
 use app\models\member\Standing;
+use yii\db\Exception;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -15,12 +19,9 @@ use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
-use app\modules\admin\models\FeeType;
-use app\helpers\ClassHelper;
 use app\models\accounting\DuesAllocation;
 use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
-use app\models\accounting\AllocatedMember;
 
 
 /**
@@ -31,8 +32,8 @@ class BaseController extends Controller
 	
 	private $_dbErrors;
 		
-	/** @var array Supplemental data providers */
-	protected $otherProviders = [];
+	/** @var array view data providers */
+	protected $config = [];
 	
 	public $payor_type_filter = null;
 			
@@ -125,7 +126,7 @@ class BaseController extends Controller
      *
      * @param integer $id Receipt ID
      * @return \yii\web\Response
-     * @throws \Exception
+     * @throws Exception
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\StaleObjectException
      */
@@ -140,69 +141,20 @@ class BaseController extends Controller
     	$this->_dbErrors = [];
     	 
         $allocs = $model->assessmentAllocations;
-    	/* @var $alloc \app\models\accounting\AssessmentAllocation */
+    	/* @var $alloc AssessmentAllocation */
     	foreach ($allocs as $alloc) {
     		if ($this->retainAlloc($alloc)) {
-	    		if ($alloc->applyToAssessment()) {
-	    			if (!$alloc->save()) {
-	    				$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
-	    			}
-	    		}
-	    		if (($alloc->fee_type == FeeType::TYPE_CC) || ($alloc->fee_type == FeeType::TYPE_REINST)) {
-	    			$member = $alloc->member;
-	    			$status = $this->prepareStatus($member, $model->received_dt);
-	    			if ($alloc->fee_type == FeeType::TYPE_CC) {
-	    				$status->member_status = Status::INACTIVE;
-	    				$status->reason = isset($alloc->allocatedMember->otherLocal) ? Status::REASON_CCG . $alloc->allocatedMember->otherLocal->other_local : 'CCG';
-	    			} else { // assume FeeType::TYPE_REINST
-	    				$status->member_status = Status::ACTIVE;
-	    				$status->reason = Status::REASON_REINST;
-	    			}
-                    $status->alloc_id = $alloc->id;
-	    			if (!$member->addStatus($status))
-	    				$this->_dbErrors = array_merge($this->_dbErrors, $status->errors);;
-	    		}	 
-    		}
+                $manager = new StatusManagerAssessment();
+                $this->_dbErrors = array_merge($this->_dbErrors, $manager->applyAssessment($alloc));
+            }
     	}   
     	
     	$allocs = $model->duesAllocations;
     	/* @var $alloc DuesAllocation */
     	foreach ($allocs as $alloc) {
     		if ($this->retainAlloc($alloc)) {
-	    		$member = $alloc->member;
-	    		$alloc->duesRateFinder = new DuesRateFinder(
-	    				$member->currentStatus->lob_cd,
-	    				isset($member->currentClass) ? $member->currentClass->rate_class : 'R'
-	    		);
-	    		$standing = new Standing(['member' => $member]);
-	    		$alloc->months = $alloc->calcMonths($member->overage) + $standing->getDiscountedMonths();
-	    		$alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
-	    		if (!$alloc->save()) {
-	    			$this->_dbErrors = array_merge($this->_dbErrors, $alloc->errors);
-	    		} else {
-	    			$member->dues_paid_thru_dt = $alloc->paid_thru_dt;
-	    			$member->overage = $alloc->unalloc_remainder;
-	    			if ($member->save()) {
-	    				if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed() == 0.00)) {
-	    					$status = $this->prepareStatus($member, $model->received_dt);
-	    					$status->member_status = Status::ACTIVE;
-	    					$status->reason = Status::REASON_APF;
-                            $status->alloc_id = $alloc->id;
-	    					$member->addStatus($status);
-	    					$member->init_dt = $model->received_dt;
-	    					if (!$member->save())
-	    						$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
-	    				/*
-	    				} elseif ($member->currentStatus->member_status == Status::SUSPENDED) {
-	    					$member->addStatus(new Status(['effective_dt' => $model->received_dt, 'member_status' => Status::ACTIVE, 'reason' => Status::REASON_DUES]));
-	    					if (!$member->save())
-	    						$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
-	    				 */
-	    				}
-	    			} else {
-	    				$this->_dbErrors = array_merge($this->_dbErrors, $member->errors);
-	    			} 
-	    		}
+	    		$manager = $this->prepareManager($alloc);
+	    		$this->_dbErrors = array_merge($this->_dbErrors, $manager->applyDues($alloc));
     		}
     	}
 
@@ -225,23 +177,58 @@ class BaseController extends Controller
     /**
      * @param $id
      * @return string
+     * @throws Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionUpdate($id)
     {
         $this->storeReturnUrl();
         $modelReceipt = $this->findModel($id);
 
-        if ($modelReceipt->load(Yii::$app->request->post()) && $modelReceipt->save()) {
-            if ($modelReceipt->outOfBalance == 0.00) {
-                Yii::$app->session->setFlash('success', "Receipt successfully updated");
-                return $this->redirect(['view', 'id' => $modelReceipt->id]);
+        if ($modelReceipt->load(Yii::$app->request->post())) {
+            // ensure mark receipt dirty => assume dependencies updated
+            $modelReceipt->dependenciesUpdated();
+            if($modelReceipt->save()) {
+                if ($modelReceipt->outOfBalance == 0.00) {
+
+                    $this->_dbErrors = [];
+
+                    $allocs = $modelReceipt->assessmentAllocations;
+                    /* @var $alloc AssessmentAllocation */
+                    foreach ($allocs as $alloc) {
+                        if (!isset($alloc->undoAllocation) || $alloc->allocation_amt != $alloc->allocation_amt) {
+                            $manager = new StatusManagerAssessment();
+                            $this->_dbErrors = array_merge($this->_dbErrors, $manager->applyAssessment($alloc));
+                        }
+                    }
+
+                    $allocs = $modelReceipt->duesAllocations;
+                    /* @var $alloc DuesAllocation */
+                    foreach ($allocs as $alloc) {
+                        if ($alloc->months == null) {
+                            $manager = $this->prepareManager($alloc);
+                            $this->_dbErrors = array_merge($this->_dbErrors, $manager->applyDues($alloc));
+                        }
+                    }
+
+                    if (empty($this->_dbErrors)) {
+                        $modelReceipt->cleanup($id);
+                        Yii::$app->session->setFlash('success', "Receipt successfully updated");
+                        return $this->redirect(['view', 'id' => $modelReceipt->id]);
+                    }
+
+                    Yii::$app->session->setFlash('error', "Problem with save.  Check log for details. Code `BC020`");
+                    Yii::error("*** BC020: Problem with Receipt update.  Errors: " . print_r($this->_dbErrors, true));
+
+                }
             }
         }
 
-        return $this->render('/receipt/update', [
-            'modelReceipt' => $modelReceipt,
-            'controller' => $this->id,
-        ]);
+        $modelReceipt->makeUndo($id);
+        $this->config['modelReceipt'] = $modelReceipt;
+
+        /** @noinspection MissedViewInspection */
+        return $this->render('update', $this->config);
 
     }
 
@@ -259,7 +246,7 @@ class BaseController extends Controller
         $this->_dbErrors = [];
         
         foreach($model->members as $alloc_memb) {
-        	$this->removeDuesAllocations($alloc_memb);
+        	$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());
         	if (!$alloc_memb->delete())
         		$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->errors);
         }
@@ -293,13 +280,13 @@ class BaseController extends Controller
      * @throws \Exception
      * @throws \yii\db\StaleObjectException
      */
-    public function actionCancel($id)
+    public function actionCancelCreate($id)
     {
     	$model = $this->findModel($id);
     	$this->_dbErrors = [];
     	
-    	foreach($model->members as $alloc_memb) 
-    		$this->removeDuesAllocations($alloc_memb);
+    	foreach($model->members as $alloc_memb)
+            $this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());;
     	
     	if (!$model->delete())
     		$this->_dbErrors = array_merge($this->_dbErrors, $model->errors);
@@ -316,6 +303,21 @@ class BaseController extends Controller
             unset($session['prebuild']);
     	 
     	return $this->redirect(['index']);
+    }
+
+    public function actionCancelUpdate($id)
+    {
+        $model = $this->findModel($id);
+        try {
+            $model->cancelUpdate($id);
+        } catch (Exception $e) {
+            Yii::$app->session->addFlash('error', 'Could not complete cancel action.  Check log for details. Code `BC040`');
+            Yii::error("*** BC040 Receipt cancellation error(s).  Errors: " . print_r($e->errorInfo, true) . " Receipt: " . print_r($model, true));
+            return $this->goBack();
+        }
+        Yii::$app->session->addFlash('success', 'Receipt update cancelled');
+
+        return $this->redirect(['view', 'id' => $id]);
     }
 
     public function actionPrintPreview($id)
@@ -368,20 +370,6 @@ class BaseController extends Controller
     	return $result;
     }
     
-    protected function removeDuesAllocations(AllocatedMember $alloc_memb)
-    {
-    	foreach($alloc_memb->allocations as $alloc) {
-    	
-    		if ($alloc->fee_type == FeeType::TYPE_DUES) {
-    			$dues_alloc = ClassHelper::cast(DuesAllocation::className(), $alloc);
-    			// fire event triggers associated with allocations
-    			if (!$dues_alloc->delete())
-    				$this->_dbErrors = array_merge($this->_dbErrors, $dues_alloc->errors);
-    		}
-    	}
-    	
-    }
-    
     /**
      * Look for existing status to overlay to avoid date conflicts
      * 
@@ -414,6 +402,23 @@ class BaseController extends Controller
     		if (!isset($model->acct_month))
     			$model->acct_month = $this->today->getYearMonth();
     	}
+    }
+
+    /**
+     * @param $alloc
+     * @return StatusManagerDues
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected function prepareManager($alloc)
+    {
+        $member = $alloc->member;
+        $alloc->duesRateFinder = new DuesRateFinder(
+            $member->currentStatus->lob_cd,
+            isset($member->currentClass) ? $member->currentClass->rate_class : 'R'
+        );
+        $standing = new Standing(['member' => $member]);
+        return new StatusManagerDues(['standing' => $standing]);
+
     }
     
 }

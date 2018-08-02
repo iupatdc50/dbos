@@ -13,6 +13,9 @@ use app\helpers\OptionHelper;
  * @property string $freq
  * @property string $short_descrip
  * @property string $extDescrip
+ * @property string $is_assess [enum('T', 'F')]
+ * @property string $contribution [enum('T', 'F')]
+ * @property int $seq [int(11)]
  */
 class FeeType extends \yii\db\ActiveRecord
 {
@@ -21,13 +24,22 @@ class FeeType extends \yii\db\ActiveRecord
 	CONST TYPE_CC = 'CC';
 	CONST TYPE_HOURS = 'HR';
 	CONST TYPE_INIT = 'IN';
-	
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'FeeTypes';
+    }
+
+    public static function assessmentTypes()
+    {
+        return [
+            self::TYPE_REINST,
+            self::TYPE_CC,
+            self::TYPE_INIT,
+        ];
     }
 
     /**

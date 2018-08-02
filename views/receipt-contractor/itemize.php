@@ -9,6 +9,7 @@ use kartik\grid\GridView;
 /* @var $allocProvider yii\data\ActiveDataProvider */
 /* @var $modelReceipt app\models\accounting\ReceiptContractor */
 /* @var $fee_types array */
+/* @var $this \yii\web\View */
 
 
 $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
@@ -25,32 +26,12 @@ $nbsp = '&nbsp;';
     <h1><?= Html::encode($this->title) ?></h1>
     
     <div id="stagetoolbar">
-    <?= $this->render('../receipt/_stagetoolbar', ['modelReceipt' => $modelReceipt, 'controller' => '/receipt-contractor']); ?>
+    <?= $this->render('../receipt/_updatetoolbar', ['modelReceipt' => $modelReceipt]); ?>
     </div>
     <?= $this->render('../receipt/_detail', ['modelReceipt' => $modelReceipt]); ?>
-    
+
     <?php
     	$baseColumns = [
-	        	[
-	        		'class' => 'yii\grid\ActionColumn',
-	        		'contentOptions' => ['style' => 'width:50px'],
-	            	'template' => '{reassign}',
-	            	'buttons' => [
-	        			'reassign' => function ($url, $model) {
-	            						return Html::button('<i class="glyphicon glyphicon-transfer"></i><i class="glyphicon glyphicon-user"></i>',
-	            								[
-	            										'value' => Url::to(['/staged-allocation/reassign', 'id' => $model->alloc_memb_id]),
-	            										'id' => 'reassignButton',
-	            										'class' => 'btn btn-default btn-modal btn-embedded',
-	            										'title' => 'Re-assign allocation',
-	            										'data-title' => 'Reassign',
-	            										'tabIndex' => '-1',
-	            								]);
-	        		        		},
-	        		        		
-	        				
-	        		],
-	        	],
 	        	[
 	        			'attribute' => 'classification',
 	        			'value' => 'member.classification.classification',
@@ -173,7 +154,7 @@ $nbsp = '&nbsp;';
     }
     ?>
     
-        
+
     
 </div>
 <?= $this->render('../partials/_modal') ?>

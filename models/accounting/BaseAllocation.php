@@ -40,6 +40,20 @@ class BaseAllocation extends \yii\db\ActiveRecord
         return 'Allocations';
     }
 
+    public static function allocTypes()
+    {
+        // must be overridden
+    }
+
+    public static function instantiate($row)
+    {
+        if ($row['fee_type'] == FeeType::TYPE_DUES)
+            return new DuesAllocation();
+        elseif (in_array($row['fee_type'], AssessmentAllocation::allocTypes()))
+            return new AssessmentAllocation();
+        return new self;
+    }
+
 	/**
 	 * @inheritdoc
 	*/
@@ -66,7 +80,41 @@ class BaseAllocation extends \yii\db\ActiveRecord
 		];
 		return array_merge($this->_labels, $common_labels);
 	}
-	
+
+    /**
+     * @return bool
+     * @throws \yii\db\StaleObjectException
+     */
+    public function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            $this->backOutMemberStatus();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     * @throws \yii\db\StaleObjectException
+     */
+    public function backOutMemberStatus()
+    {
+        $status = $this->member->currentStatus;
+        if ($status->alloc_id === $this->id) {
+            if($status->delete()) {
+                Status::openLatest($this->member->member_id);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getUndoAllocation()
+    {
+        return $this->hasOne(UndoAllocation::className(), ['id' => 'id']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -91,6 +139,19 @@ class BaseAllocation extends \yii\db\ActiveRecord
     public function getFeeType()
     {
     	return $this->hasOne(FeeType::className(), ['fee_type' => 'fee_type']);
+    }
+
+    /**
+     * Fee types that generate MemberStatus entries
+     * @return array
+     */
+    public function getStatusGenerators()
+    {
+        return [
+            FeeType::TYPE_CC,
+            FeeType::TYPE_REINST,
+            FeeType::TYPE_DUES,
+        ];
     }
 
     /**

@@ -6,12 +6,11 @@
 
 ?>
 
-<div class="allocation-add">
+<div class="allocation-reassign">
 
-    <?= $this->render('_empllookup', [
+    <?= $this->render('../partials/_empllookup', [
         'model' => $model,
-    	'license_nbr' => $license_nbr,
-    	'label' => 'Re-Assign',
+    	'label' => 'Reassign',
     ]) ?>
 
     

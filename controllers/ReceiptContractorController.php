@@ -29,8 +29,15 @@ class ReceiptContractorController extends BaseController
     public function actionView($id)
     {
     	$model = $this->findModel($id);
-    	
-    	if($model->outOfBalance != 0.00) 
+
+        /* @var $model ReceiptContractor */
+        if ($model->isUpdating())
+            return $this->redirect([
+                'update',
+                'id' => $model->id,
+            ]);
+
+        if($model->outOfBalance != 0.00)
 			return $this->redirect([
 					'itemize', 
 					'id' => $model->id,
@@ -171,7 +178,16 @@ class ReceiptContractorController extends BaseController
         ]);
 	}
 
-	public function actionSummaryJson($id)
+	public function actionUpdate($id)
+    {
+        $searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
+        $this->config['searchMemb'] = $searchMemb;
+        $this->config['membProvider'] = $searchMemb->search(Yii::$app->request->queryParams);
+
+        return parent::actionUpdate($id);
+    }
+
+    public function actionSummaryJson($id)
 	{
     	if (!Yii::$app->user->can('browseReceipt')) {
     		echo Json::encode($this->renderAjax('/partials/_deniedview'));

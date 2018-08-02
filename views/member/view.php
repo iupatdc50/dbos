@@ -4,13 +4,14 @@
 use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
-// use kartik\helpers\Html;
 use yii\helpers\Html;
 use app\models\accounting\Receipt;
+use app\models\member\Status;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
 /* @var $noteModel app\models\member\Note */
+/* @var $balance string */
 
 $this->title = $model->fullName;
 $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
@@ -68,7 +69,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
                     'format' => 'raw',
                     'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
-                    'visible' => Yii::$app->user->can('browseMemberExt'),
+                    'visible' => (Yii::$app->user->can('browseMemberExt') && isset($model->currentStatus) && ($model->currentStatus->member_status != Status::OUTOFSTATE)),
                 ],
                 [
                     'label' => 'Balance Due',

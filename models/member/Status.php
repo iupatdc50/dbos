@@ -49,6 +49,7 @@ class Status extends BaseEndable
 	CONST SUSPENDED = 'S';
 	CONST GRANTINSVC = 'M';
 	CONST STUB = 'U';
+	CONST OUTOFSTATE = 'O';
 	
 	public $other_local;
 	public $paid_thru_dt;

@@ -125,35 +125,11 @@ class StagedAllocationController extends SubmodelController
 	}
 
     /**
-     * @param $id
-     * @return string
+     * Edits Ajax updateable amount columns staged allocation grid
+     *
      * @throws Exception
-     * @throws Yii\base\InvalidConfigException
      * @throws \yii\web\NotFoundHttpException
      */
-	public function actionReassign($id)
-	{
-		$model = $this->findModel($id);
-		/** @var ReceiptContractor $receipt */
-		$receipt = $this->findReceiptModel($model->receipt_id);
-		$license_nbr = $receipt->responsible->license_nbr;
-		
-		if ($model->load(Yii::$app->request->post())) {
-			$alloc_memb = AllocatedMember::findOne($model->alloc_memb_id);
-			$alloc_memb->member_id = $model->member_id;
-			if (!$alloc_memb->save())
-				throw new Exception	('Problem with post.  Errors: ' . print_r($alloc_memb->errors, true));
-			
-			$this->goBack();
-			
-		}
-		
-		return $this->renderAjax('reassign', compact('model', 'license_nbr'));
-	}
-
-	/**
-	 * Edits Ajax updateable amount columns staged allocation grid
-	 */
 	public function actionEditAlloc()
 	{
 		if(Yii::$app->request->post('hasEditable')) {

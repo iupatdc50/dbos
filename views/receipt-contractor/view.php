@@ -22,9 +22,15 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
 
     <h1><?= Html::encode('Receipt: ' . $this->title)  . $void_banner ?></h1>
 
-	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'contractor']); ?>
-	<?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
-	
+    <div class="leftside forty-pct">
+
+        <?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'contractor']); ?>
+	    <?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
+
+    </div>
+
+    <div class="rightside fiftyfive-pct">
+
     <?= /** @noinspection PhpUnhandledExceptionInspection */
     GridView::widget([
     		'id' => 'member-grid',
@@ -87,6 +93,6 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
 			],
 	]); ?>
 										
-	
+    </div>
 	
 </div>

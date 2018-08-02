@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\helpers\ClassHelper;
 use Yii;
 use app\models\accounting\DuesAllocation;
 use app\models\accounting\AssessmentAllocation;
@@ -46,15 +47,25 @@ class AllocationController extends Controller
 		if(Yii::$app->request->post('hasEditable')) {
 			$id = Yii::$app->request->post('editableKey');
 			$model = $this->findModel($id);
+			$class = (new \ReflectionClass(get_class($model)))->getShortName();
 
-			$out = Json::encode(['output'=>'', 'message'=>'']);
 			// $posted is the posted data for StagedAllocation without any indexes
-			$posted = current($_POST['BaseAllocation']);
+			$posted = current($_POST[$class]);
 			// $post is the converted array for single model validation
-			$post = ['BaseAllocation' => $posted];
+			$post = [$class => $posted];
 			$message = '';
 		
-			if ($model->load($post)) {					
+			if ($model->load($post)) {
+
+			    /* @var $model BaseAllocation */
+			    if (in_array($model->fee_type, $model->statusGenerators) && ($model->allocation_amt != $model->oldAttributes['allocation_amt'])) {
+			        $model->backOutMemberStatus();
+                    if ($model instanceof DuesAllocation) {
+                        /* @var $model DuesAllocation */
+                        $model->backOutDuesThru(true);
+                    }
+                }
+
 				if ($model->save()) {
 			
 					$output = Yii::$app->formatter->asDecimal($model->allocation_amt, 2);
@@ -72,21 +83,21 @@ class AllocationController extends Controller
 	public function actionSummaryAjax()
 	{
 		
-		$alloc_query = AssessmentAllocation::find();
+		$alloc_query = BaseAllocation::find();
 		$alloc_query->where(['alloc_memb_id' => $_POST['expandRowKey']])
 			  		->andWhere(['!=', 'fee_type', FeeType::TYPE_DUES])
 			  		->andWhere(['!=', 'fee_type', FeeType::TYPE_HOURS])
 			  		;
 		$allocProvider = new ActiveDataProvider(['query' => $alloc_query]);
 		
-		$dues_query = AssessmentAllocation::find();
+		$dues_query = BaseAllocation::find();
 		$dues_query->where([
 				'alloc_memb_id' => $_POST['expandRowKey'],
 				'fee_type' => FeeType::TYPE_DUES,
 		]);		
 		$duesProvider = new ActiveDataProvider(['query' => $dues_query]);
 		
-		$hrs_query = AssessmentAllocation::find();
+		$hrs_query = BaseAllocation::find();
 		$hrs_query->where([
 				'alloc_memb_id' => $_POST['expandRowKey'],
 				'fee_type' => FeeType::TYPE_HOURS,
@@ -100,6 +111,18 @@ class AllocationController extends Controller
 		]);
 		
 	}
+
+	public function actionUpdateGridAjax()
+    {
+        $alloc_memb_id = $_POST['expandRowKey'];
+        $query = BaseAllocation::find()->where(['alloc_memb_id' => $_POST['expandRowKey']])->orderBy('fee_type');
+        $allocProvider = new ActiveDataProvider(['query' => $query]);
+
+        return $this->renderAjax('../receipt/_allocgrid', [
+            'allocProvider' => $allocProvider,
+            'alloc_memb_id' => $alloc_memb_id,
+        ]);
+    }
 	
 	public function actionDetailAjax()
 	{
@@ -121,17 +144,17 @@ class AllocationController extends Controller
 	
 		return $this->goBack();
 	}
-	
-	/**
-	 * Finds the ActiveRecord model based on its primary key value.
-	 * If the model is not found, a 404 HTTP exception will be thrown.
-	 * @param integer $id
-	 * @return \yii\db\ActiveRecord the loaded model
-	 * @throws NotFoundHttpException if the model cannot be found
-	 */
+
+    /**
+     * Finds the ActiveRecord model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return \yii\db\ActiveRecord the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
 	protected function findModel($id)
 	{
-		$model = BaseAllocation::findOne($id);
+	    $model = BaseAllocation::find()->where(['id' => $id])->one();
 		if (!$model) {
 			throw new yii\web\NotFoundHttpException('The requested page does not exist.');
 		}

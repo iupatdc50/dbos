@@ -118,7 +118,15 @@ class ReportController extends Controller
 		Yii::$app->session->setFlash('notice', "File already downloaded.  Please click `Generate Export` to produce another.");
 		return $this->redirect(['pac-export']);	
 	}
-	
+
+	public function actionPacContributions()
+    {
+        return $this->render('reportico', [
+            'folder' => 'memberrpts',
+            'report_nm' => 'paccontributions',
+        ]);
+    }
+
 	public function actionGlaziers()
 	{
 		return $this->render('reportico', [
@@ -142,12 +150,7 @@ class ReportController extends Controller
 				'report_nm' => 'contractorinfo',
 		]);
 	}
-	
-	/**
-	 * 
-	 * @param string $trade  Should be either 1889 or blank
-	 * @return Ambigous <string, string>
-	 */
+
 	public function actionReceiptsJournal($trade = '')
 	{
 		return $this->render('reportico', [

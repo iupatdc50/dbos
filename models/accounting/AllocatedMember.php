@@ -2,6 +2,7 @@
 
 namespace app\models\accounting;
 
+use Yii;
 use app\models\member\Member;
 
 /**
@@ -95,6 +96,23 @@ class AllocatedMember extends \yii\db\ActiveRecord
     					->where(['!=', 'fee_type', 'HR'])
     					->sum('allocation_amt')
     	;
+    }
+
+    /**
+     * Line by line removal ensures that Allocation event triggers are fired
+     *
+     * @return array    If unsuccessful, array of errors
+     * @throws \yii\db\StaleObjectException
+     */
+    public function removeAllocations()
+    {
+        $errors = [];
+        foreach ($this->allocations as $alloc) {
+            Yii::info('Class is: ' . get_class($alloc));
+            if (!$alloc->delete())
+                $errors = array_merge($errors, $obj->errors);
+        }
+        return $errors;
     }
     
 }

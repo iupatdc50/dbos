@@ -28,6 +28,12 @@ class ReceiptMemberController extends BaseController
     	$model = $this->findModel($id);
 
     	/* @var $model ReceiptMember */
+    	if ($model->isUpdating())
+    	    return $this->redirect([
+    	        'update',
+                'id' => $model->id,
+            ]);
+
         if($model->outOfBalance != 0.00)
             return $this->redirect([
                 'itemize',
@@ -105,7 +111,12 @@ class ReceiptMemberController extends BaseController
 		]);
 		
 	}
-	
+
+    /**
+     * @param $id integer Receipt ID
+     * @return string
+     * @throws NotFoundHttpException
+     */
 	public function actionItemize($id)
 	{
 		$this->storeReturnUrl();
@@ -116,8 +127,16 @@ class ReceiptMemberController extends BaseController
 				'allocProvider' => $allocProvider,
 		]);
 	}
-	
-	public function actionSummaryAjax($id)
+
+	public function actionUpdate($id)
+    {
+        // Assume 1 allocated member on a member receipt
+        $this->config['allocProvider'] = $this->buildAllocProvider($id);
+
+        return parent::actionUpdate($id);
+    }
+
+    public function actionSummaryAjax($id)
 	{
 		$searchModel = new ReceiptMemberSearch();
 		$searchModel->member_id = $id;
@@ -134,7 +153,7 @@ class ReceiptMemberController extends BaseController
 	 *
 	 * If the model is not found, a 404 HTTP exception will be thrown.
 	 * @param integer $id
-	 * @return ReceiptContractor the loaded model
+	 * @return ReceiptMember the loaded model
 	 * @throws NotFoundHttpException if the model cannot be found
 	 */
 	public function findModel($id)

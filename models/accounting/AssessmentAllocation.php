@@ -2,6 +2,8 @@
 
 namespace app\models\accounting;
 
+use app\modules\admin\models\FeeType;
+
 /** @noinspection PropertiesInspection */
 
 /**
@@ -12,14 +14,28 @@ namespace app\models\accounting;
  */
 class AssessmentAllocation extends BaseAllocation
 {
-    
+
+
+    public static function allocTypes()
+    {
+        return [
+            FeeType::TYPE_INIT,
+            FeeType::TYPE_CC,
+            FeeType::TYPE_REINST,
+        ];
+    }
+
+    public static function find()
+    {
+        return new AllocationQuery(get_called_class(), ['type' => self::allocTypes(), 'tableName' => self::tableName()]);
+    }
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         $this->_validationRules = [
-//            [['assessment_id'], 'required'],
         	[['assessment_id'], 'exist', 'targetClass' => Assessment::className(), 'targetAttribute' => 'id'],
         ];
         return parent::rules();

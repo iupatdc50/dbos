@@ -3,6 +3,7 @@
 namespace app\models\accounting;
 
 use app\components\utilities\OpDate;
+use app\modules\admin\models\FeeType;
 use yii\base\InvalidConfigException;
 
 /** @noinspection PropertiesInspection */
@@ -16,7 +17,7 @@ use yii\base\InvalidConfigException;
  */
 class DuesAllocation extends BaseAllocation
 {
-	
+
 	/**
 	 * @var DuesRateFinder
 	 */
@@ -27,7 +28,17 @@ class DuesAllocation extends BaseAllocation
 	 * @var string Represents the current dues paid thru. Can be injected for testing
 	 */
 	public $start_dt;
-	
+
+	public static function allocTypes()
+    {
+        return [FeeType::TYPE_DUES];
+    }
+
+    public static function find()
+    {
+        return new AllocationQuery(get_called_class(), ['type' => self::allocTypes(), 'tableName' => self::tableName()]);
+    }
+
     /**
      * @inheritdoc
      */
@@ -55,6 +66,7 @@ class DuesAllocation extends BaseAllocation
     /**
      * @return bool
      * @throws InvalidConfigException
+     * @throws \yii\db\StaleObjectException
      */
     public function beforeDelete()
     {
@@ -67,20 +79,22 @@ class DuesAllocation extends BaseAllocation
 
     /**
      * @param bool $clear
+     * @return bool
      * @throws InvalidConfigException
      */
     public function backOutDuesThru($clear = false)
     {
-        if($this->months != null) {
+        if(($this->months != null) && ($this->member->dues_paid_thru_dt == $this->paid_thru_dt)) {
             $dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
             $this->member->dues_paid_thru_dt = $dt;
             $this->member->save();
             if($clear) {
                 $this->months = null;
                 $this->paid_thru_dt = null;
-                $this->save();
             }
+            return true;
         }
+        return false;
     }
 
     /**

@@ -2,9 +2,8 @@
 
 use yii\helpers\Html;
 use kartik\grid\GridView;
-use app\helpers\OptionHelper;
-use yii\helpers\Url;
 use app\helpers\CriteriaHelper;
+use app\models\member\Status;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\member\MemberSearch */
@@ -84,6 +83,10 @@ $this->params['breadcrumbs'][] = $this->title;
         		'attribute' => 'dues_paid_thru_dt',
         		'format' => 'date',
         		'label' => 'Paid Thru',
+                'value' => function($model) {
+                    return (isset($model->currentStatus) && ($model->currentStatus->member_status == Status::OUTOFSTATE))
+                        ? null : $model->dues_paid_thru_dt;
+                },
                 'visible' => Yii::$app->user->can('browseMemberExt'),
         	],
         		

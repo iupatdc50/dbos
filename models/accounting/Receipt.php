@@ -43,8 +43,8 @@ use app\components\utilities\OpDate;
 class Receipt extends \yii\db\ActiveRecord
 {
 	CONST SCENARIO_CONFIG = 'config';
-	CONST SCENARIO_CREATE = 'create';
-	
+    CONST SCENARIO_CREATE = 'create';
+
 	CONST METHOD_CASH = '1';
 	CONST METHOD_CHECK = '2';
 	CONST METHOD_CREDIT = '3';
@@ -159,9 +159,9 @@ class Receipt extends \yii\db\ActiveRecord
         $common_labels = [
             'id' => 'Receipt Nbr',
         	'payor_nm' => 'Payor',
-            'payment_method' => 'Payment Method',
+            'payment_method' => 'Pay Method',
             'payor_type' => 'Payor Type',
-            'received_dt' => 'Received Date',
+            'received_dt' => 'Received',
             'received_amt' => 'Amount',
             'unallocated_amt' => 'Unallocated',
             'helper_dues' => 'Helper Dues',
@@ -174,7 +174,7 @@ class Receipt extends \yii\db\ActiveRecord
         	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
             'lob_cd' => 'Trade',
-        	'acct_month' => 'Account Month',
+        	'acct_month' => 'Acct Month',
             'populate' => 'Prebuild Employees',
         ];
         return array_merge($this->_labels, $common_labels);
@@ -428,6 +428,54 @@ class Receipt extends \yii\db\ActiveRecord
     public function getLobOptions()
     {
     	return ArrayHelper::map(Lob::find()->orderBy('lob_cd')->all(), 'lob_cd', 'short_descrip');
+    }
+
+    /**
+     * Calls a stored procedure to make a hold copy of a receipt to be updated.  The procedure checks for an
+     * already existing hold copy.  If there are any member status records that are connected to the
+     * receipt's allocation, these are backed up, also.
+     *
+     * @param $undo_id receipt id
+     * @throws \yii\db\Exception
+     */
+    public function makeUndo($undo_id)
+    {
+        $db = Yii::$app->db;
+        $db->createCommand("CALL MakeUndoReceipt (:undo_id)", [':undo_id' => $undo_id])->execute();
+    }
+
+    /**
+     * Calls a stored to procedure to restore the original receipt that was in the process of updating.
+     * It also restores any status records connnected to the receipt.
+     *
+     * @param $undo_id receipt id
+     * @throws \yii\db\Exception
+     */
+    public function cancelUpdate($undo_id)
+    {
+        $db = Yii::$app->db;
+        $db->createCommand("CALL CancelReceiptUpdate (:undo_id)", [':undo_id' => $undo_id])->execute();
+    }
+
+    /**
+     * @param $id
+     * @throws \yii\db\Exception
+     */
+    public function cleanup($id)
+    {
+        $db = Yii::$app->db;
+        $db->createCommand("CALL RemoveUndoReceipt (:undo_id)", [':undo_id' => $id])->execute();
+    }
+
+    public function isUpdating()
+    {
+        $result = UndoReceipt::findOne($this->id);
+        return (!is_null($result));
+    }
+
+    public function dependenciesUpdated()
+    {
+        $this->markAttributeDirty('updated_by');
     }
     
     /**
