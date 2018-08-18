@@ -5,11 +5,11 @@
 
 ?>
 
-<div class="allocation-reassign">
+<div class="allocation-create">
 
     <?= $this->render('../partials/_empllookup', [
         'model' => $model,
-    	'label' => 'Reassign',
+    	'label' => 'Create',
     ]) ?>
 
     

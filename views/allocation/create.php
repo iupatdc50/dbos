@@ -4,6 +4,10 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use kartik\select2\Select2;
 
+/* @var $this \yii\web\View */
+/* @var $model \app\models\accounting\BaseAllocation */
+/* @var $feeOptions array */
+
 ?>
 
 <div class="allocation-form">

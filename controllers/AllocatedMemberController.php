@@ -11,6 +11,23 @@ use yii\web\NotFoundHttpException;
 
 class AllocatedMemberController extends Controller
 {
+
+    /**
+     * @param $receipt_id
+     * @return string
+     */
+    public function actionCreate($receipt_id)
+    {
+        $model = new AllocatedMember();
+        if ($model->load(Yii::$app->request->post())) {
+            $model->receipt_id = $receipt_id;
+            if ($model->save())
+                $this->goBack();
+        }
+
+        return $this->renderAjax('create', compact('model'));
+    }
+
     /**
      * @param $id
      * @return string

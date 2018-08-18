@@ -82,7 +82,16 @@ class Receipt extends \yii\db\ActiveRecord
     {
         return 'Receipts';
     }
-    
+
+    public static function instantiate($row)
+    {
+        if ($row['payor_type'] == self::PAYOR_CONTRACTOR)
+            return new ReceiptContractor();
+        elseif ($row['payor_type'] == self::PAYOR_MEMBER)
+            return new ReceiptMember();
+        return new self;
+    }
+
     public static function getAllowedMethods()
     {
     	return [
@@ -264,15 +273,16 @@ class Receipt extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param $lob_cd
      * @return array
      * @throws Yii\base\InvalidConfigException
      */
-    public function getFeeOptions($lob_cd)
+    public function getFeeOptions()
     {
     	if(!isset($this->_remit_filter))
     		throw new yii\base\InvalidConfigException('Unknown remittable filter field');
-    	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $lob_cd, $this->_remit_filter => 'T'])->orderBy('seq')->all(), 'fee_type', 'descrip');
+        if(!isset($this->lob_cd))
+            throw new yii\base\InvalidConfigException('Missing LOB field');
+    	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $this->lob_cd, $this->_remit_filter => 'T'])->orderBy('seq')->all(), 'fee_type', 'descrip');
     }
 
     /**

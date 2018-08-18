@@ -9,8 +9,18 @@ class ReceiptMember extends Receipt
 {
 	public $other_local;
 	protected $_remit_filter = 'member_remittable';
-	
-	/**
+
+    public static function payorType()
+    {
+        return self::PAYOR_MEMBER;
+    }
+
+    public static function find()
+    {
+        return new ReceiptQuery(get_called_class(), ['type' => self::payorType(), 'tableName' => self::tableName()]);
+    }
+
+    /**
 	 * @inheritdoc
 	 */
 	public function rules()

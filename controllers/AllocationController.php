@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\helpers\ClassHelper;
+use app\models\accounting\AllocatedMember;
 use Yii;
 use app\models\accounting\DuesAllocation;
 use app\models\accounting\AssessmentAllocation;
@@ -33,8 +34,9 @@ class AllocationController extends Controller
 			}
 			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
-		// For now, assume that member remittable is the same for all trades 
-		$feeOptions = ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => '1791', 'member_remittable' => 'T'])->orderBy('descrip')->all(), 'fee_type', 'descrip');
+
+		$receipt = AllocatedMember::findOne($alloc_memb_id)->receipt;
+		$feeOptions = $receipt->feeOptions;
 		return $this->renderAjax('create', compact('model', 'feeOptions'));
 	}
 

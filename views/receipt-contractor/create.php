@@ -61,7 +61,8 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
     ]) ?>
     
-    <?= $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions($model->lob_cd), [
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions(), [
     		'multiple' => true,
     ]) ?>
     

@@ -4,6 +4,7 @@ use app\models\accounting\AllocatedMemberSearch;
 use kartik\grid\GridView;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use kartik\form\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -85,6 +86,7 @@ $this->params['breadcrumbs'][] = 'Update';
 //                'onDetailLoaded' => "function() { $.pjax.reload({container:'#member-allocs'}); }",
             ],
             [
+                'class' => 'kartik\grid\DataColumn',
                 'attribute' => 'classification',
                 'value' => 'member.classification.classification',
                 'label' => 'Class',
@@ -106,6 +108,7 @@ $this->params['breadcrumbs'][] = 'Update';
 
             ],
             [
+                'class' => 'kartik\grid\DataColumn',
                 'attribute' => 'totalAllocation',
                 'format' => ['decimal', 2],
                 'hAlign' => 'right',
@@ -129,7 +132,12 @@ $this->params['breadcrumbs'][] = 'Update';
                 'urlCreator' => function ($action, $model, $key, $index) {
                     return "/allocated-member/{$action}?id={$model->id}";
                 },
-                'header' => false,
+                'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
+                    'value' => Url::to(["/allocated-member/create", 'receipt_id' => $modelReceipt->id]),
+                    'id' => 'allocmembCreateButton',
+                    'class' => 'btn btn-default btn-modal btn-embedded',
+                    'data-title' => 'Create',
+                ]),
             ],
 
         ],

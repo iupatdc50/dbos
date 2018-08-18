@@ -4,7 +4,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
-use kartik\widgets\ActiveForm;
+use yii\bootstrap\ActiveForm;
+// use kartik\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $modelReceipt app\models\accounting\ReceiptMember */
@@ -22,7 +23,8 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?php $form = ActiveForm::begin([
-//    		'layout' => 'horizontal',
+    		'layout' => 'horizontal',
+            'enableClientValidation' => true,
     		'id' => 'receipt-form',
     ]); 
     
@@ -53,7 +55,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
     ]) ?>
 
-    <?= $form->field($model, 'fee_types')->multiselect($model->getFeeOptions($model->lob_cd)) ?>
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    $form->field($model, 'fee_types')->checkboxList($model->getFeeOptions(), [
+        'multiple' => true,
+    ]) ?>
 
     <?= $form->field($model, 'other_local')
     		 ->textInput(['maxlength' => true, 'id' => 'otherlocal'])

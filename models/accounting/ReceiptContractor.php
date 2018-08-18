@@ -8,7 +8,6 @@ use \app\models\contractor\Contractor;
 
 class ReceiptContractor extends Receipt
 {
-	
 	protected $_remit_filter = 'employer_remittable';
 	protected $_customAttributes = [
 			[
@@ -28,6 +27,16 @@ class ReceiptContractor extends Receipt
 	 * @var ResponsibleEmployer
 	 */
 	public $responsible;
+
+	public static function payorType()
+    {
+        return self::PAYOR_CONTRACTOR;
+    }
+
+	public static function find()
+    {
+        return new ReceiptQuery(get_called_class(), ['type' => self::payorType(), 'tableName' => self::tableName()]);
+    }
 	
     public function beforeSave($insert)
     {
