@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\DuesAllocation;
 use Yii;
 use app\models\accounting\AllocatedMember;
@@ -44,6 +45,10 @@ class AllocatedMemberController extends Controller
             $allocs = $model->allocations;
             foreach ($allocs as $alloc) {
                 $alloc->backOutMemberStatus();
+                if ($alloc instanceof AssessmentAllocation) {
+                    $alloc->backOutAssessment();
+                    $alloc->save();
+                }
                 if ($alloc instanceof DuesAllocation) {
                     $alloc->backOutDuesThru(true);
                     $alloc->save();

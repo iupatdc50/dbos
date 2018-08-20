@@ -35,6 +35,20 @@ $this->params['breadcrumbs'][] = 'Update';
     <div class="leftside forty-pct">
 
 
+    <?= $form->field($modelReceipt, 'payor_nm', [
+        'addon' => [
+            'append' => [
+                'content' => Html::button('<i class="glyphicon glyphicon-transfer"></i>&nbsp;Change Employer', [
+                    'value' => Url::to(['/responsible-employer/update', 'id' => $modelReceipt->id]),
+                    'class' => 'btn btn-default btn-modal',
+                    'data-title' => 'Reassign',
+                    'title' => Yii::t('app', 'Change Employer'),
+                ]),
+                'asButton' => true
+            ]
+        ]
+    ]) ?>
+
     <?= $this->render('../receipt/_formfields', [
         'form' => $form,
         'model' => $modelReceipt,

@@ -70,6 +70,15 @@ class AssessmentAllocation extends BaseAllocation
     	}
     	return false;
     }
+
+    public function backOutAssessment()
+    {
+        if ($this->assessment_id != null) {
+            $this->assessment_id = null;
+            return true;
+        }
+        return false;
+    }
     
     
 

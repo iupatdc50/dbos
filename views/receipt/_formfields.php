@@ -15,23 +15,7 @@ use app\models\accounting\Receipt;
 
 <div class="receipt-formfields">
 
-    <?php if ((!$model->isNewRecord)  && ($model->payor_type == Receipt::PAYOR_CONTRACTOR)): ?>
-
-    <?= $form->field($model, 'payor_nm', [
-        'addon' => [
-            'append' => [
-                'content' => Html::button('<i class="glyphicon glyphicon-transfer"></i>&nbsp;Change Employer', [
-                    'value' => Url::to(['/responsible-employer/update', 'id' => $model->id]),
-                    'class' => 'btn btn-default btn-modal',
-                    'data-title' => 'Reassign',
-                    'title' => Yii::t('app', 'Change Employer'),
-                ]),
-                'asButton' => true
-            ]
-        ]
-    ]) ?>
-
-    <?php else: ?>
+    <?php if ($model->isNewRecord): ?>
 
     <?= $form->field($model, 'payor_nm')->textInput(['maxlength' => true])->input('payor_nm', ['placeholder' => "(Optional)"]) ?>
 

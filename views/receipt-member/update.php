@@ -37,6 +37,20 @@ $this->params['breadcrumbs'][] = 'Update';
 
     <div class="leftside forty-pct">
 
+    <?= $form->field($modelReceipt, 'payor_nm', [
+        'addon' => [
+            'append' => [
+                'content' => Html::button('<i class="glyphicon glyphicon-transfer"></i>&nbsp;Change Member', [
+                    'value' => Url::to(['/allocated-member/reassign', 'id' => $modelReceipt->allocatedMembers[0]->id]),
+                    'class' => 'btn btn-default btn-modal',
+                    'data-title' => 'Reassign',
+                    'title' => Yii::t('app', 'Change Member'),
+                ]),
+                'asButton' => true
+            ]
+        ]
+    ]) ?>
+
     <?= $this->render('../receipt/_formfields', [
         'form' => $form,
         'model' => $modelReceipt,

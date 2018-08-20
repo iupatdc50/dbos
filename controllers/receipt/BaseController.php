@@ -5,6 +5,7 @@ namespace app\controllers\receipt;
 use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\StatusManagerAssessment;
 use app\models\accounting\StatusManagerDues;
+use app\models\accounting\UndoAllocation;
 use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
@@ -196,7 +197,12 @@ class BaseController extends Controller
                     $allocs = $modelReceipt->assessmentAllocations;
                     /* @var $alloc AssessmentAllocation */
                     foreach ($allocs as $alloc) {
-                        if (!isset($alloc->undoAllocation) || $alloc->allocation_amt != $alloc->allocation_amt) {
+                        /* @var $undo UndoAllocation */
+                        $undo = $alloc->undoAllocation;
+                        // If a new allocation or amount changed or if assessment ID was reset to null (alloc was reassigned)
+                        if ((!isset($undo)) ||
+                                    ($alloc->allocation_amt != $undo->allocation_amt) ||
+                                    ($alloc->assessment_id === null)) {
                             $manager = new StatusManagerAssessment();
                             $this->_dbErrors = array_merge($this->_dbErrors, $manager->applyAssessment($alloc));
                         }

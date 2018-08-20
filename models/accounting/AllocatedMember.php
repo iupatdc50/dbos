@@ -49,7 +49,22 @@ class AllocatedMember extends \yii\db\ActiveRecord
         	'totalAllocation' => 'Allocated',
         ];
     }
-    
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if (isset($changedAttributes['member_id'])) {
+            // Change payor on member receipt only, assume only one alloc member
+            if (!$insert) {
+                $receipt = $this->receipt;
+                if ($receipt instanceof ReceiptMember) {
+                    $receipt-> payor_nm = $this->member->fullName;
+                    $receipt->save();
+                }
+            }
+        }
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
