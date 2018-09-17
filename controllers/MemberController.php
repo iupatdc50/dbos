@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\accounting\ReceiptMember;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\member\Member;
@@ -12,18 +13,15 @@ use app\models\member\Email;
 use app\models\member\Status;
 use app\models\member\StatusCode;
 use app\models\member\MemberClass;
-use app\models\member\AllowableClassDescription;
-use app\models\member\Employment;
 use app\models\member\Note;
 use app\models\member\Document;
 use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
 use app\models\member\MemberSearch;
-use yii\web\Controller;
+use yii\data\SqlDataProvider;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\web\UploadedFile;
 use yii\helpers\ArrayHelper;
 use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
@@ -321,7 +319,15 @@ class MemberController extends RootController
         	'modelsSpecialty' => $model->getSpecialties(),
         ]);
     }
-    
+
+    /**
+     * Uploads a member's photo
+     *
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \yii\base\Exception
+     */
     public function actionPhoto($id)
     {
     	$model = $this->findModel($id);
@@ -347,7 +353,12 @@ class MemberController extends RootController
     	return $this->renderAjax('photo', ['model' => $model]);
     	 
     }
-    
+
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
     public function actionPhotoClear($id)
     {
     	$model = $this->findModel($id);
@@ -374,6 +385,27 @@ class MemberController extends RootController
         }
         Yii::$app->session->setFlash('success', "Member record deleted");
         return $this->redirect(['index']);
+    }
+
+    /**
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionPrintPreview($id)
+    {
+        $this->layout = 'noheadreport';
+        $model = $this->findModel($id);
+
+        $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($id, '2018');
+
+        $sqlProvider = new SqlDataProvider([
+            'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted, '2018'),
+            'params' => [':member_id' => $id],
+            'pagination' => false,
+        ]);
+
+        return $this->render('/member/print-preview', compact('model', 'sqlProvider', 'typesSubmitted'));
     }
 
     /**

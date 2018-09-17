@@ -1,10 +1,12 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
+use app\models\member\Member;
 
 /* @var $this yii\web\View */
+/* @var $member Member */
 /* @var $dues_balance number */
+/* @var $assessment_balance number */
+/* @var $assessProvider \yii\data\ActiveDataProvider */
 
 ?>
 
@@ -12,24 +14,6 @@ use yii\helpers\Url;
 		<div class="flash-notice"><?= Yii::$app->session->getFlash('balance') ?></div>
 	<?php endif; ?>
 
-
-    <p class="pull-right">
-    	<?= Html::button('Create Receipt', [
-							'class' => 'btn btn-default btn-modal',
-							'id' => 'receiptCreateButton',
-							'value' => Url::to(['receipt-member/create', 'lob_cd' => $member->currentStatus->lob_cd, 'id'  => $member->member_id]),
-							'data-title' => 'Receipt',
-    						'disabled' => !(Yii::$app->user->can('createReceipt')),
-		]) . ' ' .
-		
-    	Html::button('<i class="glyphicon glyphicon-th-list"></i>&nbsp;Show Receipts',[
-    					'value' => Url::to(['/receipt-member/summary-ajax', 'id'  => $member->member_id]),
-						'id' => 'receiptsButton',
-						'class' => 'btn btn-default btn-modal',
-						'data-title' => 'receipts',
-    					'disabled' => !(Yii::$app->user->can('browseReceipt')),
-    	]) ?>
-    </p> 
 
 	<table class="fifty-pct table table-striped table-bordered detail-view"><tbody>
 		<tr>

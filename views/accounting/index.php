@@ -10,6 +10,8 @@ use kartik\select2\Select2;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\accounting\ReceiptSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $mine_only boolean  */
+/* @var $payorPicklist array */
 
 $this->title = 'Receipts';
 $this->params['breadcrumbs'][] = $this->title;
@@ -23,7 +25,8 @@ $toggle_mine_only = !$mine_only;
 
 <div class="receipt-index">
 
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
  		'filterRowOptions'=>['class'=>'filter-row'],
@@ -67,6 +70,7 @@ $toggle_mine_only = !$mine_only;
     				'label' => 'Received',
     		],
     		[
+                'class' => 'kartik\grid\DataColumn',
 				'attribute' => 'payor_type_filter',
     			'width' => '140px',
     			'value' => 'payorText',
@@ -102,7 +106,10 @@ $toggle_mine_only = !$mine_only;
     			'template' => '{view}',
     			'buttons' => [
     				'view' => function($url, $model, $key) {
-    							return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, ['title' => 'View']);
+    							return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, [
+    							        'title' => 'View',
+                                        'target' => '_blank',
+                                ]);
     				},
     			],
     			'urlCreator' => function ($action, $model, $key, $index) {

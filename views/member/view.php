@@ -73,7 +73,17 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
                 [
                     'label' => 'Balance Due',
-                    'value' => Html::encode($balance),
+                    'value' =>
+                        Html::encode($balance)
+                        . Html::button('Create Receipt', [
+                            'class' => 'btn btn-default btn-modal btn-embedded pull-right',
+                            'id' => 'receiptCreateButton',
+                            'value' => Url::to(['receipt-member/create', 'lob_cd' => $model->currentStatus->lob_cd, 'id'  => $model->member_id]),
+                            'data-title' => 'Receipt',
+                            'disabled' => !(Yii::$app->user->can('createReceipt')),
+                        ])
+                    ,
+                    'format' => 'raw',
                     'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
                     'visible' => Yii::$app->user->can('browseMemberExt'),
                 ],
@@ -94,8 +104,17 @@ $this->params['breadcrumbs'][] = $this->title;
 			                'method' => 'post',
 			            ],
 			        ]) ?>
-			    <?php endif; ?> 
-			<?php endif; ?>
+			    <?php endif; ?>
+                <?php if(Yii::$app->user->can('reportAccounting')): ?>
+                    <?=  Html::a(
+                        '<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
+                        ['/member/print-preview', 'id' => $model->member_id],
+                        ['class' => 'btn btn-default', 'target' => '_blank'])
+                    ?>
+                <?php endif; ?>
+
+
+            <?php endif; ?>
         </p></div>
     <?php
     try {
@@ -143,6 +162,8 @@ $this->params['breadcrumbs'][] = $this->title;
 //    $balance = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
     $balancesUrl = Yii::$app->urlManager->createUrl(['member-balances/summary-json', 'id' => $model->member_id]);
 
+    $historyUrl = Yii::$app->urlManager->createUrl(['receipt-member/summ-flattened-json', 'member_id' => $model->member_id]);
+
     $complianceUrl = Yii::$app->urlManager->createUrl(['member-credentials/summary-json', 'id' => $model->member_id]);
     
     $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
@@ -170,6 +191,10 @@ try {
             [
                 'header' => Html::tag('span', 'Balances'),
                 'content' => '<div class="balances" data-url=' . $balancesUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Receipt History'),
+                'content' => '<div data-url=' . $historyUrl . '>loading...</div>',
             ],
             [
                 'header' => Html::tag('span', 'Compliance'),
@@ -208,7 +233,8 @@ try {
      	<?= $this->render('../partials/_notes', ['notes' => $model->notes, 'controller' => 'member-note']); ?>
      <?php endif; ?>
 
-	<?=  $this->render('../partials/_noteform', ['model' => $noteModel]) ?>
+	<?= /** @noinspection RequireParameterInspection */
+    $this->render('../partials/_noteform', ['model' => $noteModel]) ?>
 
 </div>
 <?php endif; ?>

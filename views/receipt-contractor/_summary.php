@@ -1,18 +1,28 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 use kartik\grid\GridView;
-use kartik\select2\Select2;
+use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $searchModel \app\models\accounting\ReceiptContractorSearch */
 
+?>
+
+<div id="contractor-receipts">
+
+<?php
+// 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
+Pjax::begin(['id' => 'contreceipt-grid', 'enablePushState' => false]);
+
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
-		'id' => 'receipt-grid',
+		'id' => 'contreceipt-grid',
 		'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
  		'filterRowOptions'=>['class'=>'filter-row'],
+		'pjax' => false,
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
 				'heading'=>'Contractor Receipts',
@@ -37,6 +47,7 @@ echo GridView::widget([
 	    				'contentOptions' => ['style' => 'white-space: nowrap;'],
 	        	],
 				[
+				        'class' =>'kartik\grid\DataColumn',
 						'attribute' => 'received_amt',
 						'value' => 'receipt.received_amt', 
 						'label' => 'Paid',
@@ -45,7 +56,6 @@ echo GridView::widget([
     			],
     			[
 		    			'class' => 'yii\grid\ActionColumn',
-//    					'contentOptions' => ['style' => 'white-space: nowrap;'],
     					'template' => '{view}',
     					'buttons' => [
     							'view' => function ($url, $model) {
@@ -62,3 +72,7 @@ echo GridView::widget([
 
 ?>
 
+</div>
+<?php
+
+Pjax::end();

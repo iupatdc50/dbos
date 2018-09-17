@@ -13,6 +13,8 @@ use app\models\accounting\BaseAllocation;
 use app\models\accounting\AllocationBuilder;
 use app\models\member\Member;
 use app\models\accounting\CcOtherLocal;
+use yii\data\SqlDataProvider;
+use yii\helpers\Json;
 use yii\web\NotFoundHttpException;
 
 class ReceiptMemberController extends BaseController
@@ -147,6 +149,39 @@ class ReceiptMemberController extends BaseController
 				'payorPicklist' => Receipt::getPayorOptions(),
 		]);
 	}
+
+    /**
+     * @param $member_id
+     * @throws \yii\db\Exception
+     */
+	public function actionSummFlattenedJson($member_id)
+    {
+        if (!Yii::$app->user->can('browseReceipt')) {
+            echo Json::encode($this->renderAjax('/partials/_deniedview'));
+        } else {
+
+            $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($member_id);
+
+            $count = Yii::$app->db->createCommand(
+                'SELECT COUNT(*) FROM AllocatedMembers WHERE member_id = :member_id',
+                [':member_id' => $member_id]
+            )->queryScalar();
+
+            $sqlProvider = new SqlDataProvider([
+                'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted),
+                'params' => [':member_id' => $member_id],
+                'totalCount' => $count,
+                'pagination' => [
+                    'pageSize' => 8,
+                ],
+            ]);
+
+            echo Json::encode($this->renderAjax('_summflattened', [
+                'sqlProvider' => $sqlProvider,
+                'typesSubmitted' => $typesSubmitted,
+            ]));
+        }
+    }
 
 	/**
 	 * Finds the Receipt model based on its primary key value.  

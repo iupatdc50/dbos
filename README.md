@@ -14,6 +14,12 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.10.2.100
+. Revised member profile layout and navigation
+. Added print member profile capability
+. Added receipt history grid
+. Code cleanup
+
 0.10.1.351
 . Added [+] allocated member capability on contractor receipt update
 . Added reassign member capability to member receipt update

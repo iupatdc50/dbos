@@ -5,7 +5,25 @@
 	Company		:	ObjectPac
 	Description	:
 		Default CSS for DBOS Application
-*/	
+*/
+
+@page
+{
+	size:  auto;   /* auto is the initial value */
+	margin: 0;  /* this affects the margin in the printer settings */
+}
+
+@media all {
+	.page-break {display: none;}
+}
+
+@media print {
+	.page-break {
+		display: block;
+		page-break-before: always;
+	}
+	.no-rept {display: none;}
+}
 
 div.title {
   font-size: 		2.0em;
@@ -80,8 +98,8 @@ div.flash-success
 	border-color:#3c763d;
 }
 
-.bottom-copy {
-	bottom: 0;
+.top-half {
+	height: 5in;
 }
 
 #logo-nothome {
@@ -103,11 +121,11 @@ body {
 }
 
 div.sm-print {
-	font-size: 9pt;
+	font-size: 8pt;
 }
 
 h4.sm-print {
-	font-size: 12pt;
+	font-size: 10pt;
 	font-weight: bold;
 }
 
@@ -127,6 +145,27 @@ h1, .h1 {
 	font-size: 28px;
 }
 
+.pr-panel-heading {
+	padding: 10px 15px;
+	border-bottom: 1px solid transparent;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+
+.panel-default > .pr-panel-heading {
+	color: #333;
+	border-color: #ddd;
+}
+
+.pr-panel-heading > h3 {
+	font-size: 10px;
+	font-weight: bold;
+}
+
+.grid-rowtotal {
+	font-weight: bold;
+}
+
 .table > thead > tr > th, 
 .table > tbody > tr > th, 
 .table > tfoot > tr > th, 
@@ -138,6 +177,16 @@ h1, .h1 {
 
 table .total-border {
 	border-top-style: double;
+}
+
+.sm-table > thead > tr > th,
+.sm-table > tbody > tr > th,
+.sm-table > tfoot > tr > th,
+.sm-table > thead > tr > td,
+.sm-table > tbody > tr > td,
+.sm-table > tfoot > tr > td {
+	padding: 4px;
+	font-size: 8pt;
 }
 
 .negative {
@@ -196,8 +245,7 @@ ul.noBullets {list-style: none;}
 .ninety-pct {width: 90%;}
 .hundred-pct {width: 100%;}
 
-.datatop {vertical-align: top;} 
-
+.datatop {vertical-align: top;}
 
 .td-danger {
 	background-color: #f2dede;

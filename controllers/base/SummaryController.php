@@ -46,7 +46,8 @@ class SummaryController extends SubmodelController
 		]);
 		$params = array_merge(['dataProvider' => $dataProvider, 'id' => $id], $this->viewParams);
 //		echo Json::encode($this->renderPartial('_summary', $params));
-		echo Json::encode($this->renderAjax('_summary', $params));
+        /** @noinspection MissedViewInspection */
+        echo Json::encode($this->renderAjax('_summary', $params));
 	}
 	
 }

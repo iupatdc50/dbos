@@ -12,7 +12,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	<html lang="<?= Yii::$app->language ?>">
 	<head>
 		<meta charset="<?= Yii::$app->charset ?>" />
-		<title>Printable Receipt</title>
+		<title>Printable</title>
     	<?php $this->head()?>
     	<?= Html::csrfMetaTags()?>
 	</head>
@@ -21,11 +21,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	    <div class="wrap"> 
 	    		<?=
 	    			Html::button('Print This', [
-	    					'class' => 'btn btn-default, btn-print',
+	    					'class' => 'btn btn-default btn-print no-rept',
 	    			]);
 	    		?>
 		<hr>
-			<div class="container sm-print">
+			<div class="container">
  				<?= $content; ?>
 			</div>
 			<footer class="clearfix">

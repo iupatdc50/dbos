@@ -3,7 +3,6 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
-use kartik\editable\Editable;
 use app\models\member\Status;
 use yii\widgets\Pjax;
 

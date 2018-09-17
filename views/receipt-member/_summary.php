@@ -1,14 +1,13 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 use kartik\grid\GridView;
-use kartik\select2\Select2;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 /* @var $payorPicklist array */
+/* @var $searchModel \yii\data\ActiveDataProvider */
 
 ?>
 <div id="receipt-popup">
@@ -17,8 +16,8 @@ use yii\widgets\Pjax;
 // 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
 Pjax::begin(['id' => 'receipt-grid', 'enablePushState' => false]);
 
-try {
-    echo GridView::widget([
+/** @noinspection PhpUnhandledExceptionInspection */
+echo GridView::widget([
         'id' => 'receipt-grid',
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -51,6 +50,7 @@ try {
                 'label' => 'Received',
             ],
             [
+                'class' => 'kartik\grid\DataColumn',
                 'attribute' => 'payor_type_filter',
                 'width' => '140px',
                 'value' => 'receipt.payorText',
@@ -70,6 +70,7 @@ try {
                 'contentOptions' => ['style' => 'white-space: nowrap;'],
             ],
             [
+                'class' => 'kartik\grid\DataColumn',
                 'attribute' => 'totalAllocation',
                 'label' => 'Paid',
                 'format' => ['decimal', 2],
@@ -95,8 +96,6 @@ try {
         ],
         //		'showPageSummary' => true,
     ]);
-} catch (Exception $e) {
-}
 
 
 ?>

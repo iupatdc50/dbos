@@ -10,17 +10,19 @@ use app\modules\admin\models\FeeType;
 class AllocationBuilder extends Model
 {
 	private $_errors;
-	
-	/**
-	 * Generates a base set of allocation "buckets" for a receipt's allocated member
-	 * 
-	 * If there are dues owed or existing assessments for the fee types provided, these amounts will 
-	 * be filled in
-	 * 
-	 * @param AllocatedMember $memb 	Member to which the allocations will apply
-	 * @param array $fee_types			Allocation fee types to be generated
-	 * @return string|boolean
-	 */
+
+    /**
+     * Generates a base set of allocation "buckets" for a receipt's allocated member
+     *
+     * If there are dues owed or existing assessments for the fee types provided, these amounts will
+     * be filled in
+     *
+     * @param AllocatedMember $memb Member to which the allocations will apply
+     * @param array $fee_types Allocation fee types to be generated
+     * @return string|boolean
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
 	public function prepareAllocs(AllocatedMember $memb, $fee_types = [])
 	{
 		foreach ($fee_types as $fee_type) {

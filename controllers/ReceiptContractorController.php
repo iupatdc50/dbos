@@ -14,6 +14,7 @@ use app\models\accounting\StagedAllocationSearch;
 use app\models\member\Member;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\AllocationBuilder;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
 use yii\web\NotFoundHttpException;
 
@@ -194,11 +195,12 @@ class ReceiptContractorController extends BaseController
     	} else {
 			$searchModel = new ReceiptContractorSearch();
 			$searchModel->license_nbr = $id;
+			/* @var $dataProvider ActiveDataProvider */
 			$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-			echo Json::encode($this->renderPartial('_summary', [
+//			$dataProvider->pagination = ['pageSize' => 8];
+			echo Json::encode($this->renderAjax('_summary', [
 					'dataProvider' => $dataProvider,
 					'searchModel' => $searchModel, 
-					'id' => $id,
 			]));
 		}
 	}
