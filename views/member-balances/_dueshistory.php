@@ -45,6 +45,7 @@ echo GridView::widget([
 		                'label' => 'Dues',
 				],
 				[
+                        'class' => '\kartik\grid\DataColumn',
 						'attribute' => 'months',
 						'hAlign' => 'right',
 				],
@@ -59,7 +60,7 @@ echo GridView::widget([
                     'template' => '{view}',
                     'buttons' => [
                         'view' => function ($url, $model, $key) {
-                            return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, ['title' => 'View', 'target' => '_blank']);
+                            return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', null, ['title' => 'View', 'onclick' => "window.open('{$url}');"]);
                         },
                     ],
                     'urlCreator' => function ($action, $model, $key, $index) {

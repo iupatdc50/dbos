@@ -164,10 +164,13 @@ class BaseAllocation extends \yii\db\ActiveRecord
         return $this->hasOne(Status::className(), ['alloc_id' => 'id']);
     }
     
-    protected function getStanding()
+    protected function getStanding($apf_only = false)
     {
     	if(!(isset($this->standing)))
-    		$this->standing = new Standing(['member' => $this->member]);
+    		$this->standing = new Standing([
+    		    'member' => $this->member,
+                'apf_only' => $apf_only,
+            ]);
     	return $this->standing;
     }
     

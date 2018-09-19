@@ -100,15 +100,16 @@ class DuesAllocation extends BaseAllocation
     /**
      * Uses Standing class to estimate the dues owed for a member
      *
+     * @param bool $apf_only When true, calculate based on APF only
      * @return number|NULL
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function estimateOwed()
+    public function estimateOwed($apf_only = false)
     {
     	if (!isset($this->alloc_memb_id) || (!$this->rateFinderExists()))
     		return null;
-    	$standing = $this->getStanding();
+    	$standing = $this->getStanding($apf_only);
     	return $standing->getDuesBalance($this->duesRateFinder);
     }
 

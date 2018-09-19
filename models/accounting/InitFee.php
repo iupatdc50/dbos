@@ -2,7 +2,7 @@
 
 namespace app\models\accounting;
 
-use Yii;
+use app\models\value\Lob;
 use app\models\member\ClassCode;
 use \app\components\utilities\OpDate;
 
@@ -70,7 +70,7 @@ class InitFee extends \yii\db\ActiveRecord
      */
     public function getLobCd()
     {
-        return $this->hasOne(Lobs::className(), ['lob_cd' => 'lob_cd']);
+        return $this->hasOne(Lob::className(), ['lob_cd' => 'lob_cd']);
     }
 
     /**

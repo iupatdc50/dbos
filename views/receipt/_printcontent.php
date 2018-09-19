@@ -17,7 +17,7 @@ $received_amt = Yii::$app->formatter->asCurrency($model->received_amt);
 <div id="receipt-title" class="rightside">Receipt</div>
 
 <h4 class="sm-print">District Council 50 Local <?= $model->lob_cd ?></h4>
-<table class="sm-table twentyfive-pct clearfix">
+<table class="sm-table forty-pct clearfix">
     <tr><th class="thiryfive-pct">Received on</th><td><?= $received_dt ?></td></tr>
     <tr><th>Number</th><td><?= $model->id ?></td></tr>
     <tr><th>Total</th><td class="td-bold"><?= $received_amt ?></td></tr>
@@ -63,11 +63,11 @@ $received_amt = Yii::$app->formatter->asCurrency($model->received_amt);
 
         </td>
 
-        </td>
+
 </tr></table>
 
 <hr>
 
-<p class="sm-print pull-left">&copy; <?= date('Y') ?>
+<div class="sm-print pull-left">&copy; <?= date('Y') ?>
     IUPAT District Council 50. All rights reserved.
-</p>
+</div>

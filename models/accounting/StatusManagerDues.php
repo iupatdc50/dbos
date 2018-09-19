@@ -41,7 +41,7 @@ class StatusManagerDues extends StatusManager
             $member->dues_paid_thru_dt = $alloc->paid_thru_dt;
             $member->overage = $alloc->unalloc_remainder;
             if ($member->save()) {
-                if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed() == 0.00)) {
+                if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed(true) == 0.00)) {
                     $received_dt = $alloc->allocatedMember->receipt->received_dt;
                     $status = $this->prepareStatus($member, $received_dt);
                     $status->member_status = Status::ACTIVE;
