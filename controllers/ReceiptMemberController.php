@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use app\models\accounting\DuesRateFinder;
+use app\models\member\Standing;
+use app\models\member\Status;
 use Yii;
 use yii\data\ActiveDataProvider;
 use app\controllers\receipt\BaseController;
@@ -65,7 +68,7 @@ class ReceiptMemberController extends BaseController
 		$modelMember = new AllocatedMember();
 		if (isset($id))
 			$modelMember->member_id = $id;
-		
+
 		if ($model->load(Yii::$app->request->post()) && $modelMember->load(Yii::$app->request->post())) {
 			$model->payor_type = Receipt::PAYOR_MEMBER;
 			if (empty($model->payor_nm)) 
@@ -100,6 +103,19 @@ class ReceiptMemberController extends BaseController
 		} 
 		
 		$this->initCreate($model);
+
+		if (!isset($model->received_amt) && isset($modelMember->member_id)) {
+		    $member = $modelMember->member;
+            if (isset($member->currentStatus) && isset($member->currentClass)) {
+                $standing = new Standing(['member' => $member]);
+                $balance = $standing->totalAssessmentBalance - $member->overage;
+                if ($member->currentStatus->member_status != Status::OUTOFSTATE) {
+                    $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
+                    $balance += $standing->getDuesBalance($rate_finder);
+                }
+                $model->received_amt = number_format($balance, 2);
+            }
+        }
 
 		if (Yii::$app->request->isAjax)
 			return $this->renderAjax('create', [
@@ -172,7 +188,7 @@ class ReceiptMemberController extends BaseController
                 'params' => [':member_id' => $member_id],
                 'totalCount' => $count,
                 'pagination' => [
-                    'pageSize' => 8,
+                    'pageSize' => 10,
                 ],
             ]);
 

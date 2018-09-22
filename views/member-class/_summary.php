@@ -90,11 +90,21 @@ $controller = 'member-class';
                         'value' => 'rClass.descrip',
                     ],
                     [
+                        'class' => 'kartik\grid\DataColumn',
                         'attribute' => 'wage_percent',
                         'label' => 'Percent',
                         'hAlign' => 'right',
                     ],
-
+                    [
+                        'attribute' => 'showPdf',
+                        'label' => 'Doc',
+                        'format' => 'raw',
+                        'value' => function($model) {
+                            return (isset($model->doc_id)) ?
+                                Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show change notice']),
+                                    $model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
+                        },
+                    ],
                     [
                         'class' => \yii\grid\ActionColumn::className(),
                         'controller' => $controller,

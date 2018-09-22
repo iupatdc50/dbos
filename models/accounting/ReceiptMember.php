@@ -43,6 +43,12 @@ class ReceiptMember extends Receipt
 		;
 	}
 
+    /**
+     * @param $member_id
+     * @param null $year
+     * @return array
+     * @throws \yii\db\Exception
+     */
     public static function getFeeTypesSubmitted($member_id, $year = null)
     {
         $date_constraint = is_null($year) ? '' :
@@ -50,7 +56,7 @@ class ReceiptMember extends Receipt
 
         $sql = 
         
-            "SELECT DISTINCT A.fee_type, FT.SEQ
+            "SELECT DISTINCT A.fee_type, FT.seq
                 FROM Allocations AS A 
                   JOIN AllocatedMembers AS M ON M.id = A.alloc_memb_id AND M.member_id = :member_id " .
             $date_constraint . 
@@ -62,12 +68,16 @@ class ReceiptMember extends Receipt
         return $rows;
     }
 
-    public static function getFlattenedReceiptsByMemberSql($rows, $year = null)
+    /**
+     * @param array $rows
+     * @param null $year
+     * @return string
+     */
+    public static function getFlattenedReceiptsByMemberSql(array $rows, $year = null)
     {
         $cols = '';
         foreach ($rows as $row)
             $cols .= "SUM(CASE WHEN AA.fee_type = '" . $row['fee_type'] . "' THEN AA.amt ELSE NULL END) AS `" . $row['fee_type'] . "`,";
-//        $cols = rtrim($cols, ',');
 
         $date_constraint = is_null($year) ? '' :
             "  WHERE LEFT(Re.acct_month, 4) = '{$year}' ";

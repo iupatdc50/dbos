@@ -15,6 +15,7 @@ use app\models\member\Member;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\AllocationBuilder;
 use yii\data\ActiveDataProvider;
+use yii\data\SqlDataProvider;
 use yii\helpers\Json;
 use yii\web\NotFoundHttpException;
 
@@ -204,7 +205,40 @@ class ReceiptContractorController extends BaseController
 			]));
 		}
 	}
-	
+
+    /**
+     * @param $license_nbr
+     * @throws \yii\db\Exception
+     */
+	public function actionSummFlattenedJson($license_nbr)
+    {
+        if (!Yii::$app->user->can('browseReceipt')) {
+            echo Json::encode($this->renderAjax('/partials/_deniedview'));
+        } else {
+
+            $typesSubmitted = ReceiptContractor::getFeeTypesSubmitted($license_nbr);
+
+            $count = Yii::$app->db->createCommand(
+                "SELECT COUNT(*) FROM ResponsibleEmployers AS E JOIN Receipts AS R ON E.receipt_id = R.`id` WHERE R.void = 'F' AND E.license_nbr = :license_nbr ",
+                [':license_nbr' => $license_nbr]
+            )->queryScalar();
+
+            $sqlProvider = new SqlDataProvider([
+                'sql' => ReceiptContractor::getFlattenedReceiptsByContractorSql($typesSubmitted),
+                'params' => [':license_nbr' => $license_nbr],
+                'totalCount' => $count,
+                'pagination' => [
+                    'pageSize' => 10,
+                ],
+            ]);
+
+            echo Json::encode($this->renderAjax('_summflattened', [
+                'sqlProvider' => $sqlProvider,
+                'typesSubmitted' => $typesSubmitted,
+            ]));
+        }
+
+    }
 	
 	/**
      * Finds the Receipt model based on its primary key value.  Injects responsible employer

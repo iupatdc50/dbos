@@ -8,7 +8,7 @@ use yii\bootstrap\ActiveForm;
 // use kartik\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $modelReceipt app\models\accounting\ReceiptMember */
+/* @var $model app\models\accounting\ReceiptMember */
 /* @var $modelMember app\models\accounting\AllocatedMember */
 
 // The controller action that will render the list
@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
     
     $full_nm = empty($modelMember->member_id) ? 'Search for a member...' : $modelMember->member->fullName;
     ?>
-    
+
     <?= $form->field($modelMember, 'member_id')->widget(Select2::classname(), [
 		'size' => Select2::SMALL,
     	'initValueText' => $full_nm,

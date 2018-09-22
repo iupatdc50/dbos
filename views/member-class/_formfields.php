@@ -1,7 +1,9 @@
 <?php
 
-use yii\helpers\Html;
 use kartik\widgets\Select2;
+use kartik\widgets\FileInput;
+
+/* @var $modelClass app\models\member\MemberClass */
 
 ?>
 
@@ -16,7 +18,15 @@ use kartik\widgets\Select2;
     			 ->label('Percent', ['id' => 'wagepctlbl'])
 ?>
 
-<?php 
+<?= $form->field($modelClass, "doc_file")->widget(FileInput::className(), [
+    'options' => ['accept' => 'application/pdf'],
+    'pluginOptions'=> [
+        'allowedFileExtensions'=>['pdf','png'],
+        'showUpload' => false,
+    ],
+]); ?>
+
+<?php
 $script = <<< JS
 
 $(function() {

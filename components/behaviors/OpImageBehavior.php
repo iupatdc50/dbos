@@ -26,12 +26,12 @@ class OpImageBehavior extends Behavior
 	 * @var String Name of the variable in the model that stages the file to upload
 	 */
 	public $doc_file = 'doc_file';
-	
-	/**
-	 * Fetch document file name with complete path (FQDN)
-	 *
-	 * @return <string, NULL>
-	 */
+
+    /**
+     * Fetch document file name with complete path (FQDN)
+     *
+     * @return null|string
+     */
 	public function getImagePath()
 	{
 		$doc_id = $this->doc_id;
@@ -50,12 +50,13 @@ class OpImageBehavior extends Behavior
 		$path =  Yii::$app->urlManager->baseUrl . Yii::$app->params[$this->doc_dir];
 		return isset($this->owner->$doc_id) ? $path . $this->owner->$doc_id : null;
 	}
-	
-	/**
-	 * Process upload of image
-	 *
-	 * @return mixed the uploaded image instance
-	 */
+
+    /**
+     * Process upload of image
+     *
+     * @return mixed the uploaded image instance
+     * @throws \yii\base\Exception
+     */
 	public function uploadImage()
 	{
 		$image = UploadedFile::getInstance($this->owner, $this->doc_file);
@@ -65,7 +66,8 @@ class OpImageBehavior extends Behavior
 	
 		// generate a unique file name for storage
 		$doc_id = $this->doc_id;
-		$ext = end((explode(".", $image->name)));
+		$parts = explode(".", $image->name);
+		$ext = end($parts);
 		$this->owner->$doc_id = Yii::$app->security->generateRandomString(16).".{$ext}";
 	
 		return $image;

@@ -2,10 +2,7 @@
 
 namespace app\models\member;
 
-use Yii;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
-use app\models\member\ClassCode;
 use app\models\value\RateClass;
 use app\models\base\BaseEndable;
 
@@ -19,9 +16,11 @@ use app\models\base\BaseEndable;
  * @property string $member_class
  * @property string $rate_class
  * @property integer $wage_percent
+ * @property string $doc_id
  *
  * @property MemberClass $mClass
  * @property RateClass $rClass
+ * @method uploadImage()
  */
 class MemberClass extends BaseEndable
 {
@@ -29,7 +28,12 @@ class MemberClass extends BaseEndable
 	
 	CONST APPRENTICE = 'A';
 	CONST MATERIALHANDLER = 'M';
-	
+
+    /**
+     * @var mixed	Stages document to be uploaded
+     */
+    public $doc_file;
+
     /**
      * @inheritdoc
      */
@@ -54,6 +58,18 @@ class MemberClass extends BaseEndable
     public $class_id;
 
     /**
+     * Handles all the document attachment processing functions for the model
+     *
+     * @see \yii\base\Component::behaviors()
+     */
+    public function behaviors()
+    {
+        return [
+            \app\components\behaviors\OpImageBehavior::className(),
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules()
@@ -67,8 +83,8 @@ class MemberClass extends BaseEndable
             [['rate_class'], 'string', 'max' => 2],
             ['class_id', 'required', 'on' => self::SCENARIO_CREATE],
         	['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.'],
-        		
-        		
+            [['doc_id'], 'string', 'max' => 20],
+            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
         ];
     }
 

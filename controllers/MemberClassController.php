@@ -6,7 +6,6 @@ use app\controllers\base\SummaryController;
 use Yii;
 use app\models\member\MemberClass;
 use app\models\member\Member;
-use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use yii\bootstrap\ActiveForm;
 
@@ -18,7 +17,7 @@ class MemberClassController extends SummaryController
 {
 	public $recordClass = 'app\models\member\MemberClass';
 	public $relationAttribute = 'member_id';
-	/** @var $member Member */
+    /** @var $member Member */
 	public $member;
 
     /**
@@ -42,7 +41,14 @@ class MemberClassController extends SummaryController
 		}
 		
     	if ($model->load(Yii::$app->request->post())) {
-        	if ($this->addClass($model)) { }  //stub
+            $image = $model->uploadImage();
+        	if ($this->addClass($model)) {
+        	    if ($image !== false) {
+        	        $path = $model->imagePath;
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $image->saveAs($path);
+                }
+            }
         	
         	return $this->goBack();
         } 

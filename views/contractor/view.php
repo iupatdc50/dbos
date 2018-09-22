@@ -10,6 +10,7 @@ use yii\jui\Accordion;
 /* @var $employeeProvider yii\data\ActiveDataProvider */
 /* @var $employeeSearchModel app\models\member\MemberSearch */
 /* @var $signatoryModel app\models\contractor\Signatory */
+/* @var $noteModel app\models\contractor\Note */
 
 $this->title = $model->contractor;
 $this->params['breadcrumbs'][] = ['label' => 'Contractors', 'url' => ['index']];
@@ -65,7 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
  	$signatoryUrl = Yii::$app->urlManager->createUrl(['contractor-signatory/summary-json', 'id' => $model->license_nbr]);
  	$ancillaryUrl = Yii::$app->urlManager->createUrl(['contractor-ancillary/summary-json', 'id' => $model->license_nbr]);
     $billsUrl = Yii::$app->urlManager->createUrl(['contractor-bill/summary-json', 'id' => $model->license_nbr]);
- 	$receiptsUrl = Yii::$app->urlManager->createUrl(['receipt-contractor/summary-json', 'id' => $model->license_nbr]);
+ 	$receiptsUrl = Yii::$app->urlManager->createUrl(['receipt-contractor/summ-flattened-json', 'license_nbr' => $model->license_nbr]);
  	
  	$registrationUrl = Yii::$app->urlManager->createUrl(['registration/summary-json', 'id' => $model->license_nbr]);
  	
@@ -112,7 +113,10 @@ Accordion::widget([
 		     	<?= $this->render('../partials/_notes', ['notes' => $model->notes, 'controller' => 'contractor-note']); ?>
 		     <?php endif; ?>
 		
-			<?=  $this->render('../partials/_noteform', ['model' => $noteModel]) ?>
+			<?=
+                /** @noinspection RequireParameterInspection */
+                $this->render('../partials/_noteform', ['model' => $noteModel])
+            ?>
 		
 		</div>
    		
