@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\models\accounting\GeneratedBill;
+use app\models\contractor\Email;
+use app\models\value\PhoneType;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\contractor\Contractor;
@@ -218,6 +220,7 @@ class ContractorController extends RootController
      *
      * Allows a single address and phone on initial create
      * If creation is successful, the browser will be redirected to the 'view' page.
+     *
      * @return mixed
      * @throws \yii\db\Exception
      */
@@ -227,17 +230,25 @@ class ContractorController extends RootController
         $modelSig = new Signatory;
         $modelAddress = new Address(['set_as_default' => true]);
         $modelPhone = new Phone(['set_as_default' => true]);
+        $modelEmail = new Email;
         
         if ($model->load(Yii::$app->request->post()) 
         		&& $modelSig->load(Yii::$app->request->post())
         		&& $modelAddress->load(Yii::$app->request->post()) 
-        		&& $modelPhone->load(Yii::$app->request->post())) {
+        		&& $modelPhone->load(Yii::$app->request->post())
+                && $modelEmail->load(Yii::$app->request->post())) {
         				 
-        	if ($model->validate() && $modelSig->validate() && $modelAddress->validate() && $modelPhone->validate()) {
+        	if ($model->validate() && $modelSig->validate() && $modelAddress->validate() && $modelPhone->validate() && $modelEmail->validate()) {
         		$transaction = \Yii::$app->db->beginTransaction();
         		try {
         			if ($model->save(false)) {
-        				$modelSig->license_nbr = $model->license_nbr;
+
+                        if (isset($modelEmail->email)) {
+                            $modelEmail->contractor = $model;
+                            $modelEmail->save(false);
+                        }
+
+                        $modelSig->license_nbr = $model->license_nbr;
         				$image = $modelSig->uploadImage();
         				$modelAddress->license_nbr = $model->license_nbr;
         				$modelPhone->license_nbr = $model->license_nbr;
@@ -263,13 +274,17 @@ class ContractorController extends RootController
         	throw new \Exception('Uncaught validation exception: ' . $errors);
         	*/
         }
-        
-        $modelAddress->address_type = OptionHelper::ADDRESS_MAILING;
+
+        if (!isset($modelAddress->address_type))
+            $modelAddress->address_type = OptionHelper::ADDRESS_MAILING;
+        if (!isset($modelEmail->email_type))
+            $modelEmail->email_type = Email::TYPE_CONTACT;
         return $this->render('create', [
                 'model' => $model,
             	'modelSig' => $modelSig,
         		'modelAddress' => $modelAddress,
             	'modelPhone' => $modelPhone,
+                'modelEmail' => $modelEmail,
         ]);
     }
 
@@ -291,9 +306,10 @@ class ContractorController extends RootController
         } 
         return $this->render('update', [
         	'model' => $model,
-        	// Addresses and phones are updated in their own controllers
+        	// Addresses, phones and emails are updated in their own controllers
             'modelsAddress' => $model->getAddresses(),
         	'modelsPhone' => $model->getPhones(),
+            'modelsEmail' => $model->getEmails(),
         ]);
     }
 
@@ -320,8 +336,10 @@ class ContractorController extends RootController
      *               then this key provides the license_nbr and contractor name
      *
      * @param string|array $search Criteria used.
+     * @param null $agreement_type
      * @param string $license_nbr Selected contractor's license number
      * @return array
+     * @throws \yii\db\Exception
      */
     public function actionContractorList($search = null, $agreement_type = null, $license_nbr = null) 
     {

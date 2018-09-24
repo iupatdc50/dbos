@@ -2,14 +2,12 @@
 
 namespace app\models\contractor;
 
-use Yii;
 use yii\db\Query;
 use app\models\base\iNotableInterface;
 use app\models\member\Member;
 use app\helpers\OptionHelper;
 use yii\helpers\ArrayHelper;
 use app\models\project\BaseRegistration;
-use app\models\member\Employment;
 use app\models\value\Lob;
 
 /**
@@ -42,13 +40,15 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     {
         return 'Contractors';
     }
-    
+
     /**
      * Returns a set of contractors for Select2 picklist. Contractor name
      * is returned as text (id, text are required columns for Select2)
-     * 
+     *
      * @param string|array $search Criteria used for partial contractor list. If an array, then contractor
-     * 							   key will be a like search
+     *                               key will be a like search
+     * @return array
+     * @throws \yii\db\Exception
      */
     public static function listAll($search)
     {
@@ -99,7 +99,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
             'contact_nm' => 'Contact Name',
             'addressTexts' => 'Address(es)',
         	'phoneTexts' => 'Phone(s)',
-        	'email' => 'Email',
+            'emailTexts' => 'Email(s)',
             'url' => 'Website',
         	'is_active' => 'Status',
         ];
@@ -136,6 +136,11 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     {
     	return $this->hasOne(PhoneDefault::className(), ['license_nbr' => 'license_nbr']);
     }
+
+    public function getEmails()
+    {
+        return $this->hasMany(Email::className(), ['license_nbr' => 'license_nbr']);
+    }
     
     /**
      * @return \yii\db\ActiveQuery
@@ -144,7 +149,10 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     {
     	return $this->hasMany(Signatory::className(), ['license_nbr' => 'license_nbr']);
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCurrentSignatory()
     {
     	return $this->hasOne(UnionContractor::className(), ['license_nbr' => 'license_nbr']);
@@ -193,7 +201,16 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     	}
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }
-    
+
+    public function getEmailTexts()
+    {
+        $texts = [];
+        foreach ($this->emails as $email) {
+            $texts[] = $email->getEmailText(true);
+        }
+        return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
+    }
+
     /**
      * Serves as a getter for ContractorSearch::employeeCount
      */
@@ -215,10 +232,11 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     {
     	return OptionHelper::getTFText($this->deducts_dues);
     }
-    
+
     /**
      * Status is held in the $this->is_active column, based on whether there
      * is at least one active signatory
+     * @param null $override
      */
     public function setStatus($override = NULL)
     {

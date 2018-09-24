@@ -52,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'contact_nm',
             'addressTexts:ntext',
             'phoneTexts:ntext',
-            'email:email',
+            'emailTexts:ntext',
             'url:url',
         	[
         		'attribute' => 'deducts_dues',

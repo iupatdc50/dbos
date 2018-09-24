@@ -2,9 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use kartik\form\ActiveForm;
 use kartik\widgets\Select2;
-use app\helpers\OptionHelper;
 use kartik\checkbox\CheckboxX;
 
 /* @var $this yii\web\View */

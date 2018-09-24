@@ -14,10 +14,18 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.10.2.450
+. Modified member receipt create to autofill amount received
+. Modified member class create to allow attachments
+. Modified contractor's profile receipt history grid
+. Modified contractor's profile to allow multiple typed email addresses
+. Fixed bug where APF receipt did not properly initiate an apprentice
+. Code cleanup
+
 0.10.2.100
 . Revised member profile layout and navigation
 . Added print member profile capability
-. Added receipt history grid
+. Added member receipt history grid
 . Code cleanup
 
 0.10.1.351

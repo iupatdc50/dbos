@@ -88,7 +88,7 @@ echo GridView::widget([
         ],
         'panel' => [
             'type' => GridView::TYPE_DEFAULT,
-            'heading' => 'Member Receipts',
+            'heading' => 'Contractor Receipts',
             'before' => false,
             'after' => false,
         ],

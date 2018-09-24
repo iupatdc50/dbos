@@ -2,8 +2,6 @@
 
 namespace app\helpers;
 
-use Yii;
-
 class OptionHelper
 {
 	CONST GENDER_FEMALE = 'F';
@@ -114,7 +112,7 @@ class OptionHelper
 	public static function getStatusText($code)
 	{
 		$options = self::getStatusOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown status ({$this->code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown status ({$code})";
 	}
 	
 	public static function getAllowedDisp()
@@ -134,7 +132,7 @@ class OptionHelper
 	public static function getDispText($code)
 	{
 		$options = self::getDispOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown disposition ({$this->code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown disposition ({$code})";
 	}
 	
 	public static function getPrettyMonthYear($yyyymm)
