@@ -51,6 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
         	],
         		
         	[
+        	    'class' => 'kartik\grid\DataColumn',
         		'attribute' => 'is_active',
     			'width' => '110px',
     			'value' => 'statusText',
@@ -80,7 +81,11 @@ $this->params['breadcrumbs'][] = $this->title;
             	'attribute' => 'contact_nm',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
-            'email:email',
+            [
+                'attribute' => 'email',
+                'format' => 'email',
+                'value' => 'contactEmail.email',
+            ],
             [
             	'attribute' => 'employeeCount',
             	'contentOptions' => function($model) {

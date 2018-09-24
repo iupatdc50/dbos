@@ -141,6 +141,12 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     {
         return $this->hasMany(Email::className(), ['license_nbr' => 'license_nbr']);
     }
+
+    public function getContactEmail()
+    {
+        return $this->hasOne(Email::className(), ['license_nbr' => 'license_nbr'])
+            ->andOnCondition(['email_type' => Email::TYPE_CONTACT]);
+    }
     
     /**
      * @return \yii\db\ActiveQuery

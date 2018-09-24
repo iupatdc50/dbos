@@ -70,11 +70,12 @@ class ContractorSearch extends Contractor
         ], 'EmplCounts.employer = Contractors.license_nbr'); 
 
         $query->joinWith(['currentSignatory']);
+        $query->joinWith(['contactEmail CE']);
 
         $query->andFilterWhere(['Contractors.license_nbr' => $this->license_nbr])
             ->andFilterWhere(['like', 'contractor', $this->contractor])
             ->andFilterWhere(['like', 'contact_nm', $this->contact_nm])
-            ->andFilterWhere(['like', 'email', $this->email])
+            ->andFilterWhere(['like', 'CE.email', $this->email])
             ->andFilterWhere(['like', 'lobs', $this->lobs])
             ->andFilterWhere(['is_active' => $this->is_active])
         ;
