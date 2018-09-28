@@ -55,7 +55,7 @@ echo GridView::widget([
             		'data-title' => 'Suspend',	
             		'disabled' => ($status != Status::ACTIVE),
             	])
-    			. Html::button('<i class="glyphicon glyphicon-credit-card"></i>&nbsp;CC', 
+    			. Html::button('CCD',
             		['value' => Url::to(["/member-status/clear-in", 'member_id'  => $id]), 
             		'id' => 'ccButton',
             		'class' => 'btn btn-default btn-modal',

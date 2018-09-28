@@ -98,6 +98,62 @@ div.flash-success
 	border-color:#3c763d;
 }
 
+div.pvccard
+{
+	border: 2px solid white;
+	border-radius: 15px;
+	height: 750px;
+	width: 506px;
+	background-color: #fff;
+}
+
+div.pvchead {
+	border-top-left-radius: 15px;
+	border-top-right-radius: 15px;
+	height: 150px;
+}
+
+p.pvciupat {
+    margin-top: 50px;
+	font-weight: bold;
+}
+
+div.pvclogo {
+	background-image: url(../img/dc50logo.jpg);
+	height:   142px;
+	width:    90px;
+	border-top-left-radius: 15px;
+}
+
+div.pvcside {
+	height: 594px;
+	width: 75px;
+	border-bottom-left-radius: 15px;
+	background-color: #fdb439;
+	color: white;
+}
+
+div.pvcside > h1 {
+	margin-top: 75px;
+	margin-left: 20px;
+}
+
+div.pvcmain {
+	height: 594px;
+	margin-top: 75px;
+}
+
+.vertical
+{
+	writing-mode: vertical-lr;
+	text-orientation: mixed;
+}
+
+.center {
+	padding: 10px;
+	text-align: center;
+}
+
 .top-half {
 	height: 5in;
 }
@@ -307,6 +363,10 @@ a span.loaned {
 
 .balances .modal-dialog {
 	width: 900px;
+}
+
+.modal-body {
+	background-color: #d0e5f5;
 }
 
 .kv-panel-before {

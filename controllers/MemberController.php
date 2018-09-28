@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\accounting\ReceiptMember;
+use app\models\member\IdCard;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\member\Member;
@@ -387,10 +388,18 @@ class MemberController extends RootController
         return $this->redirect(['index']);
     }
 
+    public function actionIdCardPreview($id)
+    {
+//        $this->layout = 'noheadreport';
+        $model = $this->findModel($id);
+        return $this->renderAjax('id-card-preview', ['model' => $model]);
+    }
+
     /**
      * @param $id
      * @return string
      * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     public function actionPrintPreview($id)
     {

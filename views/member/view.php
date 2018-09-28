@@ -40,7 +40,14 @@ $this->params['breadcrumbs'][] = $this->title;
     					'method' => 'post',
     	]]) ?>
     	<?php endif; ?>
-    </p> 
+        <?= Html::button('<i class="glyphicon glyphicon-credit-card"></i>&nbsp;Show ID',
+            ['value' => Url::to(['id-card-preview', 'id'  => $model->member_id]),
+                'id' => 'idcButton',
+                'class' => 'btn btn-default btn-modal btn-embedded',
+                'data-title' => 'ID Card',
+            ])
+        ?>
+    </p>
     <br />
     <?php
     try {
