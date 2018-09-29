@@ -110,7 +110,7 @@ div.pvccard
 div.pvchead {
 	border-top-left-radius: 15px;
 	border-top-right-radius: 15px;
-	height: 150px;
+	height: 152px;
 }
 
 p.pvciupat {
@@ -140,7 +140,10 @@ div.pvcside > h1 {
 
 div.pvcmain {
 	height: 594px;
-	margin-top: 75px;
+	padding-top: 75px;
+	border-bottom-left-radius: 15px;
+	border-bottom-right-radius: 15px;
+	background-color: #dfd9c3;
 }
 
 .vertical
