@@ -1,12 +1,15 @@
 <?php
 
 use yii\helpers\Html;
+use app\helpers\Bar128Helper;
 
 /* @var $this yii\base\View */
 /* @var $model app\models\member\Member */
 
 $suffix = is_null($model->suffix) ? '' : ', ' . $model->suffix;
 $last_nm = $model->last_nm . $suffix;
+/** @noinspection PhpUnhandledExceptionInspection */
+$barcode = Bar128Helper::barcode_c128(stripcslashes('M9876543-X'));
 ?>
 
 <div class="pvccard">
@@ -21,6 +24,7 @@ $last_nm = $model->last_nm . $suffix;
     <div class="pvcmain">
         <div class="center"><?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width' => '240', 'height' => '320',]) ?></div>
         <div class="center"><h3><?= $model->first_nm ?> <?= $model->middle_inits ?> <?= $last_nm ?></h3></div>
-        <div class="center"><h5><?= $model->member_id ?></h5></div>
+        <div class="center" style="padding-bottom: 0"><?= $barcode ?></div>
+        <div class="center" style="padding-top: 0"><?= $model->member_id ?></div>
     </div>
 </div>

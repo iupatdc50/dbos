@@ -8,7 +8,7 @@ use app\models\member\Status;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\member\MemberSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $statusPickList array */
+/* @var $statusPicklist array */
 
 $this->title = 'Members';
 $this->params['breadcrumbs'][] = $this->title;
@@ -30,48 +30,59 @@ $this->params['breadcrumbs'][] = $this->title;
 			'after' => false,
 		],
 		'toolbar' => ['content' => Html::a('Create Member', ['create'], ['class' => 'btn btn-success'])],
-		'rowOptions' => function($model) {
+		'rowOptions' => function(app\models\member\Member $model) {
 							$css = ['verticalAlign' => 'middle'];
         					if(!isset($model->currentStatus) || ($model->currentStatus->member_status == 'I')) 
 								$css['class'] = 'text-muted';
-        					else 
-        						$css['class'] = $model->isPastGracePeriodNotDropped() ? 'danger' : ($model->isDelinquentNotSuspended() ? 'warning' : 'default'); 
+        					else
+        						$css['class'] = $model->isPastGracePeriodNotDropped() ? 'danger' : ($model->isDelinquentNotSuspended() ? 'warning' : 'default');
         					return $css;
     					},
         'columns' => [
 
     		[
-    			'attribute' => 'lob_cd',
-    			'value' => 'currentStatus.lob_cd',
-    			'width' => '80px',
-    			'label' => 'Local',
+    		        'class' => 'kartik\grid\DataColumn',
+                    'attribute' => 'lob_cd',
+                    'value' => 'currentStatus.lob_cd',
+                    'width' => '80px',
+                    'label' => 'Local',
     		],
     		
     		[
-				'attribute' => 'status',
-    			'width' => '140px',
-    			'value' => 'currentStatus.status.descrip',
-            	'filterType' => GridView::FILTER_SELECT2,
-            	'filter' => array_merge([CriteriaHelper::TOKEN_NOTSET => "(not set)"], $statusPicklist),
-            	'filterWidgetOptions' => [
-            			'size' => \kartik\widgets\Select2::SMALL,
-            			'hideSearch' => true,
-            			'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
-            	],
+                    'class' => 'kartik\grid\DataColumn',
+                    'attribute' => 'status',
+                    'width' => '140px',
+                    'value' => 'currentStatus.status.descrip',
+                    'filterType' => GridView::FILTER_SELECT2,
+                    'filter' => array_merge([CriteriaHelper::TOKEN_NOTSET => "(not set)"], $statusPicklist),
+                    'filterWidgetOptions' => [
+                            'size' => \kartik\widgets\Select2::SMALL,
+                            'hideSearch' => true,
+                            'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
+                    ],
     		],
         	[
-        		'attribute' => 'class',
-        		'value' => 'currentClass.mClassDescrip',
-        		'label' => 'Class',
+                    'attribute' => 'class',
+                    'value' => 'currentClass.mClassDescrip',
+                    'label' => 'Class',
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
 			'report_id',
             [
-            	'attribute' => 'fullName',
-            	'contentOptions' => ['style' => 'white-space: nowrap;'],
-				'format' => 'raw',
-				'value' => function($model) {
-					return Html::a(Html::encode($model->fullName), '/member/view?id=' . $model->member_id);
-				},
+                    'label' => Html::tag('i', '', ['class' => 'glyphicon glyphicon-camera']),
+                    'encodeLabel' => false,
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        return ($model->photo_id != null) ? Html::tag('i', '', ['class' => 'glyphicon glyphicon-camera']) : '';
+                    },
+            ],
+            [
+                    'attribute' => 'fullName',
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        return Html::a(Html::encode($model->fullName), '/member/view?id=' . $model->member_id);
+                    },
             ],
         	[
             		'attribute' => 'specialties',
@@ -80,14 +91,14 @@ $this->params['breadcrumbs'][] = $this->title;
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
         	[
-        		'attribute' => 'dues_paid_thru_dt',
-        		'format' => 'date',
-        		'label' => 'Paid Thru',
-                'value' => function($model) {
-                    return (isset($model->currentStatus) && ($model->currentStatus->member_status == Status::OUTOFSTATE))
-                        ? null : $model->dues_paid_thru_dt;
-                },
-                'visible' => Yii::$app->user->can('browseMemberExt'),
+                    'attribute' => 'dues_paid_thru_dt',
+                    'format' => 'date',
+                    'label' => 'Paid Thru',
+                    'value' => function($model) {
+                        return (isset($model->currentStatus) && ($model->currentStatus->member_status == Status::OUTOFSTATE))
+                            ? null : $model->dues_paid_thru_dt;
+                    },
+                    'visible' => Yii::$app->user->can('browseMemberExt'),
         	],
         		
         	[
@@ -98,9 +109,9 @@ $this->params['breadcrumbs'][] = $this->title;
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
             [
-            	'class' => 'yii\grid\ActionColumn',
-            	'contentOptions' => ['style' => 'white-space: nowrap;'],
-            	'visible' => Yii::$app->user->can('updateMember'),
+                    'class' => 'yii\grid\ActionColumn',
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+                    'visible' => Yii::$app->user->can('updateMember'),
             ],
         ],
     ]); ?>

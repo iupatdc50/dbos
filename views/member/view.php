@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ['value' => Url::to(['id-card-preview', 'id'  => $model->member_id]),
                 'id' => 'idcButton',
                 'class' => 'btn btn-default btn-modal btn-embedded',
-                'data-title' => 'ID Card',
+                'data-title' => '#ID Card Preview',
             ])
         ?>
     </p>
@@ -70,7 +70,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'id' => 'duesHistoryButton',
                                 'value' => Url::to(['/member-balances/dues-summary-ajax', 'id' => $model->member_id]),
                                 'class' => 'btn btn-default btn-modal btn-embedded pull-right',
-                                'data-title' => 'Paid Thru History',
+                                'data-title' => '#Paid Thru History',
                                 'disabled' => !(Yii::$app->user->can('browseReceipt')),
                         ])
                         : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),

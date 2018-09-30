@@ -3,13 +3,19 @@
  * button with a class="btn-modal".
  * 
  * data-title tag passes the model name to display in the modal's
- * header.
+ * header. Leading # means data-title contains complete title
  */
 $(function(){
 	$(document).on('click', '.btn-modal', function() {
 		var modal = $('#modalCreate').modal('show');
 		modal.find('#modalContent').load($(this).attr('value'));
-		modal.find('#title-model').html($(this).attr('data-title'));
+		var title = $(this).attr('data-title');
+		if(title.substr(0, 1) === '#') {
+			modal.find('#title').html(title.slice(1));
+		} else {
+            modal.find('#title').html('Complete ' + title + ' information');
+		}
+
 	});
 });
 
