@@ -50,6 +50,24 @@ class AllocatedMember extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return bool
+     * @throws \yii\db\StaleObjectException
+     */
+    public function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            $dbErrors = $this->removeAllocations();
+            if (empty($dbErrors)) {
+                return true;
+            } else {
+                Yii::$app->session->addFlash('error', 'Could not remove member from receipt.  Check log for details. Code `AM020`');
+                Yii::error("*** AM020 Allocation remove errors.  Errors: " . print_r($dbErrors, true));
+            }
+        }
+        return false;
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -113,6 +131,11 @@ class AllocatedMember extends \yii\db\ActiveRecord
     	;
     }
 
+    public function getDuesAllocCount()
+    {
+        return $this->hasMany(DuesAllocation::className(), ['alloc_memb_id' => 'id'])->count('id');
+    }
+
     /**
      * Line by line removal ensures that Allocation event triggers are fired
      *
@@ -123,9 +146,8 @@ class AllocatedMember extends \yii\db\ActiveRecord
     {
         $errors = [];
         foreach ($this->allocations as $alloc) {
-            Yii::info('Class is: ' . get_class($alloc));
             if (!$alloc->delete())
-                $errors = array_merge($errors, $obj->errors);
+                $errors = array_merge($errors, $alloc->errors);
         }
         return $errors;
     }

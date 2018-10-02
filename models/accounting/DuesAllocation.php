@@ -87,6 +87,7 @@ class DuesAllocation extends BaseAllocation
         if(($this->months != null) && ($this->member->dues_paid_thru_dt == $this->paid_thru_dt)) {
             $dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
             $this->member->dues_paid_thru_dt = $dt;
+            $this->member->overage = 0.00;
             $this->member->save();
             if($clear) {
                 $this->months = null;

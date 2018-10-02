@@ -9,7 +9,7 @@ use app\helpers\Bar128Helper;
 $suffix = is_null($model->suffix) ? '' : ', ' . $model->suffix;
 $last_nm = $model->last_nm . $suffix;
 /** @noinspection PhpUnhandledExceptionInspection */
-$barcode = Bar128Helper::barcode_c128(stripcslashes('M9876543-X'));
+$barcode = Bar128Helper::barcode_c128(stripcslashes($model->member_id));
 ?>
 
 <div class="pvccard">

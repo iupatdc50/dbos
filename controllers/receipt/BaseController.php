@@ -252,6 +252,7 @@ class BaseController extends Controller
         $this->_dbErrors = [];
         
         foreach($model->members as $alloc_memb) {
+            // Calls removeAllocations() manually to merge errors with base action
         	$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());
         	if (!$alloc_memb->delete())
         		$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->errors);
@@ -292,6 +293,7 @@ class BaseController extends Controller
     	$this->_dbErrors = [];
     	
     	foreach($model->members as $alloc_memb)
+            // Calls removeAllocations() manually to merge errors with base action
             $this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());;
     	
     	if (!$model->delete())

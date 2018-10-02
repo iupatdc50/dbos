@@ -128,7 +128,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 			<footer class="footer clearfix">
 			    <div class="container ninety-pct">
        				<p class="pull-left">&copy; <?= date('Y') ?> 
-       				   <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
+                        <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved. <span class="text-muted">[<?= Yii::$app->version; ?>]</span>
        				</p>
        				<?php if (!Yii::$app->user->isGuest): ?>
 	        			<p class="pull-right">Session started: <?= Yii::$app->session->get('user.session_start'); ?></p>
