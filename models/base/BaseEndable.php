@@ -5,6 +5,8 @@ namespace app\models\base;
 use Yii;
 use app\components\utilities\OpDate;
 
+/** @noinspection UndetectableTableInspection */
+
 /**
  * BaseEndable handles end dates after inserts and deletes
  * 
@@ -34,14 +36,21 @@ class BaseEndable extends \yii\db\ActiveRecord
 	{
 		/* @var $query yii\db\ActiveQuery */
 		$query = call_user_func([self::className(), 'find']);
-		if (null !== static::qualifier())
+		if (is_array($id))
+		    $query->where($id);
+		elseif (null !== static::qualifier())
 			$query->where([static::qualifier() => $id]);
 		if (($model = $query->orderBy('effective_dt DESC')->one()) != null) {
 			$model->end_dt = null;
 			$model->save();
 		}
 	}
-	
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @throws \Exception
+     */
 	public function afterSave($insert, $changedAttributes)
 	{
 		parent::afterSave($insert, $changedAttributes);
@@ -50,27 +59,33 @@ class BaseEndable extends \yii\db\ActiveRecord
 		elseif (isset($changedAttributes['effective_dt']))
 			$this->restripe();
 	}
-	
+
+    /**
+     * @throws \Exception
+     */
 	protected function closePrevious()
 	{
 		/* @var $end_dt OpDate */
-		$end_dt = (new OpDate())->setFromMySql($this->effective_dt)->sub(new \DateInterval('P1D'));
-		$qualifier = $this->qualifier();
-		$condition = "{$qualifier} = '{$this->$qualifier}' AND end_dt IS NULL AND effective_dt <> '{$this->effective_dt}'";
+        $end_dt = (new OpDate())->setFromMySql($this->effective_dt)->sub(new \DateInterval('P1D'));
+        $condition = $this->buildQualClause();
+		$condition .= " AND end_dt IS NULL AND effective_dt <> '{$this->effective_dt}'";
 		call_user_func([$this->className(), 'updateAll'], ['end_dt' => $end_dt->getMySqlDate()], $condition);
 	}
-	
+
+    /**
+     * @throws \Exception
+     */
 	protected function restripe()
 	{
-		$qualifier = $this->qualifier();
-		$condition = "{$qualifier} = '{$this->$qualifier}'";
+		$condition = $this->buildQualClause();
 		/* @var $query yii\db\ActiveQuery */
 		$query = call_user_func([self::className(), 'find']);
 		$end_dt = null;
 		$rows = $query->where($condition)->orderBy('effective_dt DESC')->all();
 		foreach ($rows as $row) {
 			try {
-			    $row->end_dt = (is_null($end_dt)) ? null : $end_dt->getMySqlDate();
+                /** @noinspection PhpUndefinedMethodInspection */
+                $row->end_dt = (is_null($end_dt)) ? null : $end_dt->getMySqlDate();
 			    $row->save();
 			} catch (\Exception $e) {
 				Yii::error('Problem with row save. Messages: ' . print_r($e->getMessage(), true));
@@ -79,5 +94,17 @@ class BaseEndable extends \yii\db\ActiveRecord
 		}
 		
 	}
+
+	private function buildQualClause()
+    {
+        $qualifier = $this->qualifier();
+        if (is_array($qualifier)) {
+            $exp = [];
+            foreach ($qualifier as $col)
+                $exp[] = "{$col} = '{$this->$col}'";
+            return implode(' AND ', $exp);
+        } else
+            return "{$qualifier} = '{$this->$qualifier}'";
+    }
 	
 }

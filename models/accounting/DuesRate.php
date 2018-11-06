@@ -2,9 +2,10 @@
 
 namespace app\models\accounting;
 
-use Yii;
-use app\models\member\ClassCode;
+use app\models\base\BaseEndable;
+use app\models\value\Lob;
 use app\models\value\RateClass;
+use yii\helpers\ArrayHelper;
 
 
 /**
@@ -20,7 +21,7 @@ use app\models\value\RateClass;
  * @property Lob $lobCd
  * @property RateClass $rateClass
  */
-class DuesRate extends \yii\db\ActiveRecord
+class DuesRate extends BaseEndable
 {
     /**
      * @inheritdoc
@@ -28,6 +29,11 @@ class DuesRate extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'DuesRates';
+    }
+
+    public static function qualifier()
+    {
+        return ['lob_cd', 'rate_class'];
     }
 
     /**
@@ -68,6 +74,11 @@ class DuesRate extends \yii\db\ActiveRecord
         return $this->hasOne(Lob::className(), ['lob_cd' => 'lob_cd']);
     }
 
+    public function getLobOptions()
+    {
+        return ArrayHelper::map(Lob::find()->orderBy('short_descrip')->all(), 'lob_cd', 'descrip');
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -75,5 +86,11 @@ class DuesRate extends \yii\db\ActiveRecord
     {
         return $this->hasOne(RateClass::className(), ['rate_class' => 'rate_class']);
     }
-    
+
+    public function getRateClassOptions()
+    {
+        return ArrayHelper::map(RateClass::find()->orderBy('descrip')->all(), 'rate_class', 'descrip');
+    }
+
+
 }

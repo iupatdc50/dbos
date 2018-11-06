@@ -91,12 +91,14 @@ div.flash-notice
 	border-color:#FFD324;
 }
 
-div.flash-success
+div.flash-successnoheadreport.php
 {
 	background:#dff0d8;
 	color:#3c763d;
 	border-color:#3c763d;
 }
+
+/* ==================================    For PVC card print */
 
 div.pvccard
 {
@@ -145,6 +147,8 @@ div.pvcmain {
 	border-bottom-right-radius: 15px;
 	background-color: #dfd9c3;
 }
+
+/* =====================================     End PVC card print */
 
 .vertical
 {

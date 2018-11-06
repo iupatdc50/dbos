@@ -46,18 +46,6 @@ class DuesRateController extends Controller
     }
 
     /**
-     * Displays a single DuesRate model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
      * Creates a new DuesRate model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
@@ -66,32 +54,9 @@ class DuesRateController extends Controller
     {
         $model = new DuesRate();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save())
             return $this->redirect(['index']);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Updates an existing DuesRate model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index']);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
+        return $this->renderAjax('create', ['model' => $model]);
     }
 
     /**
@@ -99,10 +64,24 @@ class DuesRateController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        $removing_current = false;
+        $id = [];
+        if ($model->end_dt == null) {
+            $removing_current = true;
+            $id = ['lob_cd' => $model->lob_cd, 'rate_class' => $model->rate_class];
+        }
+
+        $model->delete();
+
+        if ($removing_current)
+            DuesRate::openLatest($id);
 
         return $this->redirect(['index']);
     }
@@ -116,10 +95,8 @@ class DuesRateController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = DuesRate::findOne($id)) !== null) {
+        if (($model = DuesRate::findOne($id)) !== null)
             return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

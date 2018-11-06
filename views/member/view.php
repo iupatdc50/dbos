@@ -44,6 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ['value' => Url::to(['id-card-preview', 'id'  => $model->member_id]),
                 'id' => 'idcButton',
                 'class' => 'btn btn-default btn-modal btn-embedded',
+ //               'class' => 'btn btn-default btn-embedded',
                 'data-title' => '#ID Card Preview',
             ])
         ?>
@@ -252,3 +253,18 @@ try {
 </div>
 
 <?= $this->render('../partials/_modal') ?>
+
+<?php
+
+$script = <<< JS
+
+$('#idcButton').click(function() {
+    window.open($(this).attr('value'), 'IDCard', 'width=506,height=750');
+});
+
+JS;
+// $this->registerJs($script);
+
+?>
+
+

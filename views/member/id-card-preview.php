@@ -12,7 +12,7 @@ $last_nm = $model->last_nm . $suffix;
 $barcode = Bar128Helper::barcode_c128(stripcslashes($model->member_id));
 ?>
 
-<div class="pvccard">
+<div id="idcard" class="pvccard">
     <div class="pvchead">
         <div class="pvclogo pull-left"></div>
         <div class="center"><p class="pvciupat">International Union of Painters & Allied Trades<br />District Council 50<br />Honolulu, Hawaii<br />(808) 941-0991</p></div>

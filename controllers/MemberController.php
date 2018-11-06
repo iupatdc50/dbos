@@ -20,6 +20,7 @@ use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
 use app\models\member\MemberSearch;
 use yii\data\SqlDataProvider;
+use yii\helpers\Json;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -388,11 +389,20 @@ class MemberController extends RootController
         return $this->redirect(['index']);
     }
 
+    /**
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
     public function actionIdCardPreview($id)
     {
 //        $this->layout = 'noheadreport';
+//        $this->layout = 'pvccard';
         $model = $this->findModel($id);
-        return $this->renderAjax('id-card-preview', ['model' => $model]);
+        if (Yii::$app->request->isAjax)
+            return $this->renderAjax('id-card-preview', ['model' => $model]);
+        return $this->render('id-card-preview', ['model' => $model]);
+
     }
 
     /**
