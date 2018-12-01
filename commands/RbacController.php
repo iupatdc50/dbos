@@ -9,6 +9,11 @@ use yii\base\InvalidParamException;
 
 class RbacController extends Controller
 {
+
+    /**
+     * @return int
+     * @throws \yii\base\Exception
+     */
 	public function actionInit()
 	{
 		
@@ -30,7 +35,7 @@ class RbacController extends Controller
 		$browseMember->description = 'Browse member records';
         $auth->add($browseMember);
         $updateDemo = $auth->createPermission('updateDemo');
-        $updateDemo->description = 'Browse member record demographics';
+        $updateDemo->description = 'Update member record demographics';
         $auth->add($updateDemo);
         $browseMemberExt = $auth->createPermission('browseMemberExt');
         $browseMemberExt->description = 'Browse member records extended';

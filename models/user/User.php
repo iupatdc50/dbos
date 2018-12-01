@@ -8,7 +8,6 @@ use yii\helpers\ArrayHelper;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
 use app\components\utilities\OpDate;
-use app\helpers\OptionHelper;
 use app\models\rbac\AuthAssignment;
 use kartik\password\StrengthValidator;
 
@@ -25,9 +24,11 @@ use kartik\password\StrengthValidator;
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
- * @property datetime $last_login
- * 
+ *
  * @property AuthAssignment[] $assignments
+ * @property string $last_nm [varchar(30)]
+ * @property string $first_nm [varchar(30)]
+ * @property string $last_login [datetime]
  * 
  */
 class User extends \yii\db\ActiveRecord
@@ -52,13 +53,15 @@ class User extends \yii\db\ActiveRecord
     {
         return 'Users';
     }
-    
+
     /**
      * Returns a set of users for Select2 picklist. Full name
      * is returned as text (id, text are required columns for Select2)
      *
      * @param string|array $search Criteria used for partial user list. If an array, then user
-     * 							   key will be a like search
+     *                               key will be a like search
+     * @return array
+     * @throws \yii\db\Exception
      */
     public static function listAll($search)
     {
@@ -94,7 +97,7 @@ class User extends \yii\db\ActiveRecord
     {
         return [
         	[['password_clear'], 'required', 'on' => self::SCENARIO_CREATE],
-        	[['username', 'email', 'last_nm', 'first_nm'], 'required'],
+        	[['username', 'email'], 'required'],
         	[['role', 'status'], 'integer'],
             [['username', 'password_clear', 'email', 'last_nm', 'first_nm'], 'string', 'max' => 255],
             [['username'], 'unique'],
@@ -133,7 +136,12 @@ class User extends \yii\db\ActiveRecord
             'password_confirm' => 'Confirm New Password', 
         ];
     }
-    
+
+    /**
+     * @param bool $insert
+     * @return bool
+     * @throws \yii\base\Exception
+     */
     public function beforeSave($insert)
     {
         $return = parent::beforeSave($insert);
@@ -146,7 +154,11 @@ class User extends \yii\db\ActiveRecord
 
         return $return;
     }
-    
+
+    /**
+     * @param $password
+     * @throws \yii\base\Exception
+     */
     public function setPassword($password)
     {
     	$this->password_hash = Yii::$app->security->generatePasswordHash($password);
@@ -220,7 +232,13 @@ class User extends \yii\db\ActiveRecord
     {
     	return $this->getAuthKey() === $authKey;
     }
-    
+
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return void|IdentityInterface
+     * @throws NotSupportedException
+     */
     public static function findIdentityByAccessToken($token, $type = null)
     {
     	throw new NotSupportedException('You can only login by username/password pair for now.');
