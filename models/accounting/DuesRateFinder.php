@@ -36,13 +36,12 @@ class DuesRateFinder extends Model
 	 * @param string $lob_cd
 	 * @param string $rate_class
 	 * @param array $config
-	 * @throws \yii\base\InvalidConfigException
 	 */
 	public function __construct($lob_cd, $rate_class, $config = [])
 	{
 		$this->_lob_cd = $lob_cd;
 		$this->_rate_class = $rate_class;
-		parent::__construct($config = []);
+		parent::__construct($config);
 	}
 
     /**
@@ -51,6 +50,7 @@ class DuesRateFinder extends Model
      * @param string $start_dt
      * @param string $target_dt
      * @returns number
+     * @return false|string|null
      * @throws \yii\db\Exception
      */
 	public function computeBalance($start_dt, $target_dt)
@@ -70,6 +70,11 @@ class DuesRateFinder extends Model
 		return $cmd->queryScalar();
 	}
 
+    /**
+     * @param $start_dt
+     * @return \yii\db\DataReader
+     * @throws \yii\db\Exception
+     */
 	public function getRatePeriods($start_dt)
 	{
 		$target_dt = (new OpDate)->setFromMySql($start_dt);
@@ -93,7 +98,12 @@ class DuesRateFinder extends Model
 				  ]);
 		return $cmd->query();
 	}
-	
+
+    /**
+     * @param $date
+     * @return false|string|null
+     * @throws \yii\db\Exception
+     */
 	public function getCurrentRate($date)
 	{
 		$sql = "SELECT rate FROM DuesRates

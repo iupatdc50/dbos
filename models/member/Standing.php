@@ -109,7 +109,7 @@ class Standing extends Model
      * Returns total outstanding dues owed. If paid thru is future, returns 0.00
      *
      * @param DuesRateFinder $rateFinder
-     * @return number
+     * @return false|float|string|null
      * @throws \yii\db\Exception
      */
 	public function getDuesBalance(DuesRateFinder $rateFinder)
