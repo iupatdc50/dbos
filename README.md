@@ -14,6 +14,10 @@ Modules are setup for:
 . Admin, which handles settings, RBAC and other house-keeping
 . Training
 
+0.10.2.750
+. Added RBAC user interface
+. Code cleanup
+
 0.10.2.450
 . Modified member receipt create to autofill amount received
 . Modified member class create to allow attachments

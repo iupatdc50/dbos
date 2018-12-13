@@ -11,8 +11,6 @@ use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\web\yii\web;
-use yii\data\yii\data;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -73,9 +71,12 @@ class UserController extends Controller
      * Displays a single User model.
      * @param integer $id
      * @return mixed
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
+        Yii::$app->user->returnUrl = Yii::$app->request->url;
     	$model = $this->findModel($id);
     	if (Yii::$app->user->can('assignRole', ['user' => $model])) {
     		$rolesModel = new ActiveDataProvider([
@@ -112,6 +113,8 @@ class UserController extends Controller
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -130,6 +133,8 @@ class UserController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -137,10 +142,15 @@ class UserController extends Controller
 
         return $this->redirect(['index']);
     }
-    
+
+    /**
+     * @return string|\yii\web\Response
+     * @throws \yii\base\Exception
+     */
     public function actionResetPw()
     {
 		$this->layout = 'login';
+		/* @var $model User */
     	$model = Yii::$app->user->identity;
 
 	    $model->scenario = User::SCENARIO_CHANGE_PW;
@@ -152,7 +162,13 @@ class UserController extends Controller
 	    }
 	    return $this->render('change-pw', ['model' => $model]);
     }
-    
+
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \yii\base\Exception
+     */
     public function actionDefaultPw($id)
     {
     	$model = $this->findModel($id);
@@ -161,14 +177,17 @@ class UserController extends Controller
     	Yii::$app->session->addFlash('success', "Successfully set password to system default.");
     	return $this->redirect(['view', 'id' => $model->id]);
     }
-    
+
     /**
      * List builder for user pickllist.  Builds JSON encoded array:
      * ['results'] key provides progressive results. If `id` is provided,
-     * 			   then this key provides the `id` and full name
+     *               then this key provides the `id` and full name
      *
      * @param string|array $search Criteria used.
+     * @param null $role
      * @param string $id Selected user's `id`
+     * @return array
+     * @throws \yii\db\Exception
      */
     public function actionUserList($search = null, $role = null, $id = null)
     {

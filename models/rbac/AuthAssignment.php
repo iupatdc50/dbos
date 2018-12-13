@@ -2,8 +2,6 @@
 
 namespace app\models\rbac;
 
-use Yii;
-
 use app\models\user\User;
 
 /**
@@ -13,7 +11,7 @@ use app\models\user\User;
  * @property string $user_id
  * @property integer $created_at
  *
- * @property AuthItems $itemName
+ * @property AuthItem $itemName
  */
 class AuthAssignment extends \yii\db\ActiveRecord
 {
@@ -34,7 +32,7 @@ class AuthAssignment extends \yii\db\ActiveRecord
             [['item_name', 'user_id'], 'required'],
             [['created_at'], 'integer'],
             [['item_name', 'user_id'], 'string', 'max' => 64],
-            [['item_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthItems::className(), 'targetAttribute' => ['item_name' => 'name']],
+            [['item_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthItem::className(), 'targetAttribute' => ['item_name' => 'name']],
         ];
     }
 

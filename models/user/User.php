@@ -29,6 +29,9 @@ use kartik\password\StrengthValidator;
  * @property string $last_nm [varchar(30)]
  * @property string $first_nm [varchar(30)]
  * @property string $last_login [datetime]
+ *
+ * @property string $fullName
+ * $property string $inUseRoles
  * 
  */
 class User extends \yii\db\ActiveRecord
@@ -272,6 +275,32 @@ class User extends \yii\db\ActiveRecord
     {
     	return $this->role >= self::ROLE_AUTH_THRESHOLD;
     }
-    
-    
+
+    public function getInUseRoles()
+    {
+        $assignments = $this->assignments;
+        $descendants = [];
+        foreach ($assignments as $assignment) {
+            $descendants[] = $assignment->item_name;
+            $descendants = array_merge($descendants, $assignment->itemName->descendants);
+        }
+        return  $descendants;
+
+    }
+
+    /**
+     * @param bool $staff_roles
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public function getRoleOptions($staff_roles = true)
+    {
+        $not = ($staff_roles) ? '' : ' NOT ';
+        // asterisk in the description indicates staff role
+        $cond = " AND description {$not} LIKE '%*'";
+        $excludes = "'" . implode("', '", $this->inUseRoles) . "'";
+        $sql = "SELECT name, description FROM AuthItems WHERE type = 1 {$cond} AND name NOT IN ({$excludes});";
+        return ArrayHelper::map(yii::$app->db->createCommand($sql)->queryAll(), 'name', 'description');
+
+    }
 }

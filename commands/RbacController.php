@@ -13,6 +13,7 @@ class RbacController extends Controller
     /**
      * @return int
      * @throws \yii\base\Exception
+     * @throws \Exception
      */
 	public function actionInit()
 	{
@@ -71,7 +72,7 @@ class RbacController extends Controller
 		$auth->add($memberViewer);
 		$auth->addChild($memberViewer, $memberDemoViewer);
 		$auth->addChild($memberViewer, $browseMemberExt);
-		$memberDemoEditor = $auth->createRole('memberDemoUpdater');
+		$memberDemoEditor = $auth->createRole('memberDemoEditor');
 		$memberDemoEditor->description = 'Member Demograph Editor';
 		$auth->add($memberDemoEditor);
 		$auth->addChild($memberDemoEditor, $memberDemoViewer);
@@ -302,7 +303,7 @@ class RbacController extends Controller
 		// Front Desk role
 		echo "Preparing Front Desk role";
 		$frontDesk = $auth->createRole('frontDesk');
-		$frontDesk->description = 'Front Desk Staff';
+		$frontDesk->description = 'Front Desk Staff*';
 		$auth->add($frontDesk);
 		$auth->addChild($frontDesk, $memberEditor);
 		$auth->addChild($frontDesk, $contractorEditor);
@@ -312,7 +313,7 @@ class RbacController extends Controller
 		// Office Manager role
 		echo "Preparing Office Manager role";
 		$officeMgr = $auth->createRole('officeMgr');
-		$officeMgr->description = 'Office Manager';
+		$officeMgr->description = 'Office Manager*';
 		$auth->add($officeMgr);
 		$auth->addChild($officeMgr, $assignRole);
 		$auth->addChild($officeMgr, $memberAdmin);
@@ -324,7 +325,7 @@ class RbacController extends Controller
 		//Business Rep role
 		echo "Preparing Business Rep role";
 		$bizMgr = $auth->createRole('bizRep');
-		$bizMgr->description = 'Business Rep';
+		$bizMgr->description = 'Business Rep*';
 		$auth->add($bizMgr);
 		$auth->addChild($bizMgr, $memberViewer); 
 		$auth->addChild($bizMgr, $contractorViewer);
@@ -333,7 +334,7 @@ class RbacController extends Controller
 		//Training role
 		echo "Preparing Training role";
 		$training = $auth->createRole('training');
-		$training->description = 'Training Staff';
+		$training->description = 'Training Staff*';
 		$auth->add($training);
 		$auth->addChild($training, $memberDemoEditor);
 		$auth->addChild($training, $contractorViewer);
@@ -343,7 +344,7 @@ class RbacController extends Controller
 		// System Admin role
 		echo "Preparing System Admin role";
 		$sysAdmin = $auth->createRole('sysAdmin');
-		$sysAdmin->description = 'System Administrator';
+		$sysAdmin->description = 'System Administrator*';
 		$auth->add($sysAdmin);
 		$auth->addChild($sysAdmin, $memberAdmin);
 		$auth->addChild($sysAdmin, $contractorAdmin);
@@ -354,9 +355,15 @@ class RbacController extends Controller
 		echo "...complete\n";
 		
 		echo "Done! Permission tree created\n";
+		return null;
 		
 	}
-	
+
+    /**
+     * @param $role
+     * @param $username
+     * @throws \Exception
+     */
 	public function actionAssign($role, $username)
 	{
 		$user = $this->findUser($username);
@@ -401,7 +408,7 @@ class RbacController extends Controller
 	{
 		$user = $this->findUser($username);
 		$auth = Yii::$app->authManager;	
-		$access = $auth->checkAccess($user->id, $rule) ? 'has' : 'does not have';
+		$access = $auth->checkAccess($user->id, $rule, $params) ? 'has' : 'does not have';
 		echo "{$username} {$access} `{$rule}` permission.\n";
 	}
 	

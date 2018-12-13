@@ -8,12 +8,12 @@ use app\models\user\User;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\user\User */
+/* @var $rolesModel \yii\data\ActiveDataProvider */
 
 $this->title = $model->last_nm . ', ' . $model->first_nm;
 $this->params['breadcrumbs'][] = ['label' => 'User Records', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$controller = '*';
 
 ?>
 <div class="user-record-view forty-pct">
@@ -36,7 +36,8 @@ $controller = '*';
         <?php endif; ?>
     </p>
 
-    <?= DetailView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    DetailView::widget([
         'model' => $model,
         'attributes' => [
             [
@@ -57,7 +58,8 @@ $controller = '*';
         ],
     ]) ?>
     
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
     		'dataProvider' => $rolesModel,
 			'panel'=>[
 					'type'=>GridView::TYPE_DEFAULT,
@@ -70,7 +72,8 @@ $controller = '*';
 					[
 							'class'=>'kartik\grid\ExpandRowColumn',
 							'width'=>'50px',
-							'value'=>function ($model, $key, $index, $column) {
+							'value'=>function (/** @noinspection PhpUnusedParameterInspection */
+                                $model, $key, $index, $column) {
 										return GridView::ROW_COLLAPSED;
 									 },
 							'detailUrl'=> Yii::$app->urlManager->createUrl(['role/summary-ajax']),
@@ -83,17 +86,33 @@ $controller = '*';
    					],
 					[
 							'class' => 	'kartik\grid\ActionColumn',
-							'controller' => $controller,
-							'template' => '{delete}',
+							'template' => '{revoke}',
+                            'buttons' => [
+                                'revoke' => function ($url, $model) {
+                                    return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+                                        'title' => Yii::t('app', 'Revoke'),
+                                        'data-confirm' => 'Are you sure you want to revoke this role?',
+                                    ]);
+                                }
+                            ],
 							'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add',
 									[
-											'value' => Url::to(["/{$controller}/create", 'relation_id'  => $model->id]),
-											'id' => 'emailCreateButton',
+											'value' => Url::to(["role/add", 'user_id'  => $model->id]),
+											'id' => 'roleAddButton',
 											'class' => 'btn btn-default btn-modal btn-embedded',
 											'data-title' => 'Role',
 							]),
+                            'urlCreator' => function ($action, $model, $key, $index) {
+                                if ($action === 'revoke') {
+                                    $url ='/role/revoke?role=' .$model->item_name . '&user_id=' . $model->user_id;
+                                    return $url;
+                                }
+                            }
+
 					],
 			],
     ]); ?>
 
 </div>
+
+<?= $this->render('../partials/_modal') ?>

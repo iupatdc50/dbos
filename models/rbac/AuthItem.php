@@ -15,14 +15,16 @@ use Yii;
  * @property integer $created_at
  * @property integer $updated_at
  *
- * @property AuthAssignments[] $authAssignments
+ * @property AuthAssignment[] $authAssignments
  * @property AuthItemChild[] $authItemChilds
  * @property AuthItem[] $children
  * @property AuthItem[] $parents
- * @property AuthRules $ruleName
- */
+ * @property AuthRule $ruleName
+ **/
 class AuthItem extends \yii\db\ActiveRecord
 {
+    private $_descendants = [];
+
     /**
      * @inheritdoc
      */
@@ -41,7 +43,7 @@ class AuthItem extends \yii\db\ActiveRecord
             [['type', 'created_at', 'updated_at'], 'integer'],
             [['description', 'data'], 'string'],
             [['name', 'rule_name'], 'string', 'max' => 64],
-            [['rule_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthRules::className(), 'targetAttribute' => ['rule_name' => 'name']],
+            [['rule_name'], 'exist', 'skipOnError' => true, 'targetClass' => AuthRule::className(), 'targetAttribute' => ['rule_name' => 'name']],
         ];
     }
 
@@ -66,7 +68,7 @@ class AuthItem extends \yii\db\ActiveRecord
      */
     public function getAuthAssignments()
     {
-        return $this->hasMany(AuthAssignments::className(), ['item_name' => 'name']);
+        return $this->hasMany(AuthAssignment::className(), ['item_name' => 'name']);
     }
 
     /**
@@ -98,6 +100,39 @@ class AuthItem extends \yii\db\ActiveRecord
      */
     public function getRuleName()
     {
-        return $this->hasOne(AuthRules::className(), ['name' => 'rule_name']);
+        return $this->hasOne(AuthRule::className(), ['name' => 'rule_name']);
     }
+
+    /**
+     * @param $parent
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public function getDescendants($parent=null)
+    {
+        if (is_null($parent)) {
+            $parent = $this->name;
+            $this->_descendants = [];
+        }
+
+        $sql = <<<SQL
+          SELECT child FROM AuthItemChilds AS C JOIN AuthItems AS AI ON C.child = AI.name AND AI.type = 1
+            WHERE C.parent = :parent;
+SQL;
+
+        $db = yii::$app->db;
+        $children = $db->createCommand($sql)
+            ->bindValue(':parent', $parent)
+            ->queryColumn();
+
+        if (count($children) > 0)
+            $this->_descendants = array_unique(array_merge($this->_descendants, $children));
+
+        foreach ($children as $child)
+            $this->getDescendants ($child);
+
+        return $this->_descendants;
+
+    }
+
 }
