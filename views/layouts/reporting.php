@@ -139,7 +139,12 @@ use kartik\widgets\SideNav;
 															'url'=>'/report/candidate-drops',
 															'active' => (yii::$app->requestedRoute == 'report/candidate-drops'),
 														],
-														
+                                                        [
+                                                            'label' => 'Yearly Totals',
+                                                            'url'=>'/report/yearly-totals',
+                                                            'active' => (yii::$app->requestedRoute == 'report/yearly-totals'),
+                                                        ],
+
 												],
 										],
 										[

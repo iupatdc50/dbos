@@ -208,5 +208,14 @@ class ReportController extends Controller
 				'report_nm' => 'candidatedrops',
 		]);
 	}
+
+	public function actionYearlyTotals()
+    {
+        return $this->render('reportico', [
+            'folder' => 'accountingrpts',
+            'report_nm' => 'yearlytotals',
+        ]);
+
+    }
 	
 }
