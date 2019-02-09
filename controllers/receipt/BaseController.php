@@ -12,7 +12,7 @@ use app\models\accounting\Receipt;
 use app\models\member\Member;
 use app\models\member\Status;
 use app\models\member\Standing;
-use yii\db\Exception;
+use yii\db\Exception as DbException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -23,6 +23,7 @@ use app\models\accounting\ReceiptAllocSumm;
 use app\models\accounting\DuesAllocation;
 use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -90,7 +91,11 @@ class BaseController extends Controller
     {
     	return $this->redirect("/accounting");
     }
-    
+
+    /**
+     * @param $id
+     * @throws NotFoundHttpException
+     */
     public function actionBalancesJson($id)
     {
         $model = $this->findModel($id);
@@ -106,6 +111,7 @@ class BaseController extends Controller
      * @param $id
      * @return string|\yii\web\Response
      * @throws \yii\db\Exception
+     * @throws NotFoundHttpException
      */
     public function actionBalance($id)
     {
@@ -114,7 +120,7 @@ class BaseController extends Controller
     		if($model->save()) {
     			return $this->goBack();
     		}
-    		throw new \yii\db\Exception('Problem with post.  Errors: ' . print_r($model->errors, true));
+    		throw new DbException('Problem with post.  Errors: ' . print_r($model->errors, true));
     	}
         /** @noinspection MissedViewInspection */
         return $this->renderAjax('/receipt/balance', compact('model'));
@@ -127,7 +133,8 @@ class BaseController extends Controller
      *
      * @param integer $id Receipt ID
      * @return \yii\web\Response
-     * @throws Exception
+     * @throws DbException
+     * @throws NotFoundHttpException
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\StaleObjectException
      */
@@ -178,7 +185,8 @@ class BaseController extends Controller
     /**
      * @param $id
      * @return string
-     * @throws Exception
+     * @throws DbException
+     * @throws NotFoundHttpException
      * @throws \yii\base\InvalidConfigException
      */
     public function actionUpdate($id)
@@ -313,12 +321,17 @@ class BaseController extends Controller
     	return $this->redirect(['index']);
     }
 
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
     public function actionCancelUpdate($id)
     {
         $model = $this->findModel($id);
         try {
             $model->cancelUpdate($id);
-        } catch (Exception $e) {
+        } catch (DbException $e) {
             Yii::$app->session->addFlash('error', 'Could not complete cancel action.  Check log for details. Code `BC040`');
             Yii::error("*** BC040 Receipt cancellation error(s).  Errors: " . print_r($e->errorInfo, true) . " Receipt: " . print_r($model, true));
             return $this->goBack();
@@ -328,6 +341,11 @@ class BaseController extends Controller
         return $this->redirect(['view', 'id' => $id]);
     }
 
+    /**
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
     public function actionPrintPreview($id)
     {
     	$this->layout = 'noheadreport';
@@ -338,18 +356,23 @@ class BaseController extends Controller
         /** @noinspection MissedViewInspection */
         return $this->render('/receipt/print-preview', compact('model', 'allocProvider'));
     }
-    
+
     /**
-     * Signature for finding the Receipt model based on its primary key value.
-     * Must be overriden.
+     * Finds the Receipt model based on its primary key value.
+     *
+     * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
      * @return Receipt the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    public function findModel($id)
     {
-        return null;
+        if (($model = Receipt::findOne($id)) == null)
+            throw new NotFoundHttpException('The requested page does not exist.');
+        return $model;
     }
-    
+
+
     /**
      * Allows GoBack() to return to the sending page instead of the home page
      */
@@ -415,7 +438,6 @@ class BaseController extends Controller
     /**
      * @param $alloc
      * @return StatusManagerDues
-     * @throws \yii\base\InvalidConfigException
      */
     protected function prepareManager($alloc)
     {

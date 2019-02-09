@@ -1,10 +1,8 @@
 <?php
 namespace app\models\accounting;
 
-use Yii;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
-use app\models\accounting\Receipt;
 use app\models\value\Lob;
 
 class CreateReceiptForm extends Model
@@ -13,6 +11,7 @@ class CreateReceiptForm extends Model
 	public $member_id;
 	public $license_nbr;
 	public $lob_cd;
+	public $other_lob_cd;
 	
 	public function rules()
 	{
@@ -28,7 +27,12 @@ class CreateReceiptForm extends Model
 				}, 'whenClient' => "function (attribute, value) {
 						return $('#payortype').val() == " . Receipt::PAYOR_CONTRACTOR . ";
 				}"],
-		];	
+                [['other_lob_cd'], 'required', 'when' => function($model) {
+                    return $model->payor_type == Receipt::PAYOR_OTHER;
+                }, 'whenClient' => "function (attribute, value) {
+						return $('#payortype').val() == " . Receipt::PAYOR_OTHER . ";
+				}"],
+		];
 	}
 	
 	public function attributeLabels()
@@ -37,6 +41,7 @@ class CreateReceiptForm extends Model
 				'member_id' => 'Member',
  				'license_nbr' => 'Contractor',
 				'lob_cd' => 'Trade',
+                'other_lob_cd' => 'Trade'
 		];
 	}
 	

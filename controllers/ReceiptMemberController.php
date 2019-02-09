@@ -54,7 +54,7 @@ class ReceiptMemberController extends BaseController
      *
      * @param $lob_cd
      * @param null $id
-     * @return \yii\web\Response|string|Ambigous <string, string>
+     * @return string
      * @throws \Exception
      * @throws \yii\db\Exception
      */
@@ -158,7 +158,8 @@ class ReceiptMemberController extends BaseController
 	{
 		$searchModel = new ReceiptMemberSearch();
 		$searchModel->member_id = $id;
-		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        /** @noinspection PhpUndefinedMethodInspection */
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 		return $this->renderAjax('_summary', [
 				'dataProvider' => $dataProvider,
 				'searchModel' => $searchModel,
@@ -199,21 +200,6 @@ class ReceiptMemberController extends BaseController
         }
     }
 
-	/**
-	 * Finds the Receipt model based on its primary key value.  
-	 *
-	 * If the model is not found, a 404 HTTP exception will be thrown.
-	 * @param integer $id
-	 * @return ReceiptMember the loaded model
-	 * @throws NotFoundHttpException if the model cannot be found
-	 */
-	public function findModel($id)
-	{
-		if (($model = ReceiptMember::findOne($id)) == null)
-			throw new NotFoundHttpException('The requested page does not exist.');
-		return $model;
-	}
-	
 	protected function buildAllocProvider($id)
 	{
 		$query = BaseAllocation::find()->joinWith(['allocatedMember'])->where(['receipt_id' => $id])->orderBy('fee_type');

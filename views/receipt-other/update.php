@@ -3,7 +3,6 @@
 use app\models\accounting\AllocatedMemberSearch;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use kartik\form\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -34,19 +33,7 @@ $this->params['breadcrumbs'][] = 'Update';
     <div class="leftside forty-pct">
 
 
-    <?= $form->field($modelReceipt, 'payor_nm', [
-        'addon' => [
-            'append' => [
-                'content' => Html::button('<i class="glyphicon glyphicon-transfer"></i>&nbsp;Change Employer', [
-                    'value' => Url::to(['/responsible-employer/update', 'id' => $modelReceipt->id]),
-                    'class' => 'btn btn-default btn-modal',
-                    'data-title' => 'Reassign',
-                    'title' => Yii::t('app', 'Change Employer'),
-                ]),
-                'asButton' => true
-            ]
-        ]
-    ]) ?>
+    <?= $form->field($modelReceipt, 'payor_nm')->textInput(['maxlength' => true]); ?>
 
     <?= $this->render('../receipt/_formfields', [
         'form' => $form,
@@ -56,10 +43,6 @@ $this->params['breadcrumbs'][] = 'Update';
 
     <?= $form->field($modelReceipt, 'unallocated_amt')->textInput(['maxlength' => true, 'readonly' => (!$modelReceipt->isNewRecord)]) ?>
 
-    <?= $this->render('../receipt/_helperfields', [
-        'form' => $form,
-        'model' => $modelReceipt,
-    ]) ?>
 
     <?php ActiveForm::end(); ?>
 

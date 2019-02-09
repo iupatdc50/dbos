@@ -4,8 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use \yii\web\Controller;
-use yii\web\Response;
-use yii\helpers\Json;
 use app\models\accounting\CreateReceiptForm;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptSearch;
@@ -15,8 +13,9 @@ class AccountingController extends Controller
 {
 	
 // 	public $layout = 'accounting';
-	
+
     /**
+     * @param null $mine_only
      * @return mixed
      */
     public function actionIndex($mine_only = null)
@@ -50,8 +49,8 @@ class AccountingController extends Controller
 	    					'lob_cd' => $member->currentStatus->lob_cd, 
 	    					'id' => $model->member_id,
 	    			]);
-	    		} else {
-	    			throw new HttpException('Feature not supported');
+	    		} else {  // Receipt::PAYOR_OTHER
+                    return $this->redirect(['/receipt-other/create', 'lob_cd' => $model->other_lob_cd]);
 	    		}
     		}
     	}

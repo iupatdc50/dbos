@@ -7,7 +7,8 @@ use yii\helpers\Json;
 use yii\db\Exception;
 use app\controllers\base\SubmodelController;
 use app\models\accounting\AddTypeForm;
-use app\models\accounting\ReceiptContractor;
+use app\models\accounting\Receipt;
+use app\models\accounting\ReceiptMultiMember;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\AllocatedMember;
 use app\models\accounting\AllocationBuilder;
@@ -37,7 +38,7 @@ class StagedAllocationController extends SubmodelController
      */
 	public function actionAdd($receipt_id)
 	{
-		/** @var ReceiptContractor $receipt */
+		/** @var ReceiptMultiMember $receipt */
 		$receipt = $this->findReceiptModel($receipt_id);		
 //		$license_nbr = $receipt->responsible->license_nbr;
 		$lob_cd = $receipt->lob_cd;
@@ -73,7 +74,7 @@ class StagedAllocationController extends SubmodelController
     public function actionAddType($receipt_id)
 	{
 		
-		/** @var ReceiptContractor $receipt */
+		/** @var ReceiptMultiMember $receipt */
 		$receipt = $this->findReceiptModel($receipt_id);		
 				
 		$model = new AddTypeForm([
@@ -162,7 +163,12 @@ class StagedAllocationController extends SubmodelController
 		}
 		
 	}
-	
+
+    /**
+     * @param int $id
+     * @return mixed|\yii\web\Response
+     * @throws \yii\db\StaleObjectException
+     */
 	public function actionDelete($id)
 	{
 		function deleteAllocs($allocs)
@@ -170,7 +176,8 @@ class StagedAllocationController extends SubmodelController
 			$result = true;
 			foreach ($allocs as $alloc)
 			    /** @var BaseAllocation $alloc */
-				if (!$alloc->delete()) {
+                /** @noinspection PhpUnhandledExceptionInspection */
+                if (!$alloc->delete()) {
 					Yii::$app->session->addFlash('error', 'Could not remove allocation.  Check log for details. Code `SAC010`');
 					Yii::error("*** SAC010 Allocation delete error.  Allocation: " . print_r($alloc, true));
 					$result = false;
@@ -197,14 +204,15 @@ class StagedAllocationController extends SubmodelController
 
     /**
      * @param $id
-     * @return ReceiptContractor
+     * @return Receipt
      * @throws Yii\base\InvalidConfigException
      */
 	protected function findReceiptModel($id)
 	{
-		$receipt = ReceiptContractor::findOne($id);
+		$receipt = Receipt::findOne($id);
         if (!$receipt)
         	throw new \InvalidArgumentException('Attemtping to access a non-existent receipt: ' . $id);
+        /* @var $receipt ReceiptMultiMember */
         $receipt->responsible = ResponsibleEmployer::findOne($id);
         if (!$receipt->responsible)
         	throw new Yii\base\InvalidConfigException('Contractor receipt does not have an associated responsible contrator');

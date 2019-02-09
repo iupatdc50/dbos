@@ -3,54 +3,19 @@
 namespace app\controllers;
 
 use Yii;
-use app\controllers\receipt\BaseController;
+use app\controllers\receipt\MultiMemberController;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptContractor;
 use app\models\accounting\ReceiptContractorSearch;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\RemittanceExcel;
-use app\models\accounting\AllocatedMemberSearch;
-use app\models\accounting\StagedAllocationSearch;
 use app\models\member\Member;
-use app\models\accounting\StagedAllocation;
 use app\models\accounting\AllocationBuilder;
-use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
 use yii\helpers\Json;
-use yii\web\NotFoundHttpException;
 
-class ReceiptContractorController extends BaseController
+class ReceiptContractorController extends MultiMemberController
 {
-
-    /**
-     * Displays a single Receipt model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException
-     */
-    public function actionView($id)
-    {
-    	$model = $this->findModel($id);
-
-        /* @var $model ReceiptContractor */
-        if ($model->isUpdating())
-            return $this->redirect([
-                'update',
-                'id' => $model->id,
-            ]);
-
-        if($model->outOfBalance != 0.00)
-			return $this->redirect([
-					'itemize', 
-					'id' => $model->id,
-					'fee_types' => $model->feeTypesArray,
-			]);
-    		    	    	
-    	$searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
-    	$membProvider = $searchMemb->search(Yii::$app->request->queryParams);
-
-    	return $this->render('view', compact('model', 'membProvider', 'searchMemb'));
-    }
 
     /**
      * @param $lob_cd
@@ -157,38 +122,6 @@ class ReceiptContractorController extends BaseController
 		
 	}
 
-    /**
-     * @param $id
-     * @param array $fee_types
-     * @return string
-     * @throws NotFoundHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     */
-    public function actionItemize($id, array $fee_types = [])
-	{
-		$this->storeReturnUrl();
-		$modelReceipt = $this->findModel($id);
-		StagedAllocation::makeTable($modelReceipt, $fee_types);
-		$searchAlloc = new StagedAllocationSearch(['receipt_id' => $id]);
-		$allocProvider = $searchAlloc->search(Yii::$app->request->queryParams);
-		
-        return $this->render('itemize', [
-            'modelReceipt' => $modelReceipt,
-        	'searchAlloc' => $searchAlloc,
-        	'allocProvider' => $allocProvider,
-        ]);
-	}
-
-	public function actionUpdate($id)
-    {
-        $searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
-        $this->config['searchMemb'] = $searchMemb;
-        $this->config['membProvider'] = $searchMemb->search(Yii::$app->request->queryParams);
-
-        return parent::actionUpdate($id);
-    }
-
     public function actionSummaryJson($id)
 	{
     	if (!Yii::$app->user->can('browseReceipt')) {
@@ -196,8 +129,8 @@ class ReceiptContractorController extends BaseController
     	} else {
 			$searchModel = new ReceiptContractorSearch();
 			$searchModel->license_nbr = $id;
-			/* @var $dataProvider ActiveDataProvider */
-			$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+            /** @noinspection PhpUndefinedMethodInspection */
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 //			$dataProvider->pagination = ['pageSize' => 8];
 			echo Json::encode($this->renderAjax('_summary', [
 					'dataProvider' => $dataProvider,
@@ -239,23 +172,6 @@ class ReceiptContractorController extends BaseController
         }
 
     }
-	
-	/**
-     * Finds the Receipt model based on its primary key value.  Injects responsible employer
-     * object
-     * 
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return ReceiptContractor the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-	public function findModel($id) 
-	{
-        if (($model = ReceiptContractor::findOne($id)) == null) 
-            throw new NotFoundHttpException('The requested page does not exist.');
-        $model->responsible = ResponsibleEmployer::findOne(['receipt_id' => $id]);
-        return $model;
-	}
-	
-	
+
+
 }

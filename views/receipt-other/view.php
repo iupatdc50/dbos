@@ -34,7 +34,7 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
                 'searchMemb' => $searchMemb,
                 'membProvider' => $membProvider,
         ]); ?>
-
+	        
     </div>
 	
 </div>

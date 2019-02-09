@@ -18,7 +18,7 @@
     LEFT OUTER JOIN AllocAbbrev AS AA ON AA.receipt_id = Re.`id`
   WHERE 1 = 1 
     [  AND Re.acct_month = CONCAT(LEFT({report_month}, 4), SUBSTR({report_month}, 6, 2)) ]
-    [ AND {journal} = '1' AND Re.payor_type = 'C' ]
+    [ AND {journal} = '1' AND Re.payor_type IN ('C', 'O') ]
     [ AND Re.lob_cd = {lob_cd} ]
   GROUP BY Re.`id`, Re.received_dt, Re.received_amt, Re.payor_nm, Re.helper_dues
 ;    

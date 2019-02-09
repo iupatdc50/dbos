@@ -2,13 +2,11 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\models\accounting\Receipt;
 
 /* @var $modelReceipt \app\models\accounting\Receipt */
 /* @var $this \yii\web\View */
 
-$pt = ($modelReceipt->payor_type == Receipt::PAYOR_CONTRACTOR) ? 'contractor' : 'member';
-$url = Yii::$app->urlManager->createUrl(['receipt-' . $pt. '/balances-json', 'id' => $modelReceipt->id]);
+$url = Yii::$app->urlManager->createUrl(['receipt-' . $modelReceipt->getUrlQual() . '/balances-json', 'id' => $modelReceipt->id]);
 $cancel_action = ($modelReceipt->isUpdating()) ? 'cancel-update' : 'cancel-create';
 
 ?>

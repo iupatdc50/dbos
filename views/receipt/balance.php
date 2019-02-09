@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use kartik\form\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\accounting\BaseAllocation */
+/* @var $model app\models\accounting\Receipt */
 /* @var $receipt_id string */
 
 ?>
@@ -19,10 +19,13 @@ use kartik\form\ActiveForm;
     
     <?=  $form->field($model, 'received_amt') ?>
     <?=  $form->field($model, 'unallocated_amt') ?>
-    <?= $this->render('../receipt/_helperfields', [
-        'form' => $form,
-        'model' => $model,
-    ]) ?>
+    <?php
+        if($model instanceof \app\models\accounting\ReceiptContractor)
+            echo $this->render('../receipt/_helperfields', [
+                'form' => $form,
+                'model' => $model,
+            ]);
+    ?>
 
 
     <div class="form-group">

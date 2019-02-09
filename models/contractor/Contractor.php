@@ -2,6 +2,7 @@
 
 namespace app\models\contractor;
 
+use yii\base\InvalidParamException;
 use yii\db\Query;
 use app\models\base\iNotableInterface;
 use app\models\member\Member;
@@ -9,6 +10,7 @@ use app\helpers\OptionHelper;
 use yii\helpers\ArrayHelper;
 use app\models\project\BaseRegistration;
 use app\models\value\Lob;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "Contractors".
@@ -23,6 +25,7 @@ use app\models\value\Lob;
  * @property UnionContractor $currentSignatory
  * @property Address[] $addresses
  * @property Phone[] $phones
+ * @property Email[] $emails;
  * @property Signatory[] $signatories
  * @property integer $employeeCount
  * @property Member[] $employees
@@ -32,7 +35,9 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
 {
 	CONST STATUS_ACTIVE = 'T';
 	CONST STATUS_INACTIVE = 'F';
-	
+
+    CONST CONTRACTOR_OTHER_PAYOR = 'XX-10008';
+
     /**
      * @inheritdoc
      */
@@ -137,6 +142,9 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     	return $this->hasOne(PhoneDefault::className(), ['license_nbr' => 'license_nbr']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getEmails()
     {
         return $this->hasMany(Email::className(), ['license_nbr' => 'license_nbr']);
@@ -171,15 +179,19 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
      */
     public function getCurrentLobOptions()
     {
-    	$lobs = explode(', ', $this->currentSignatory->lobs);
-    	if (empty($lobs))
-    		return null;
-    	$records = Lob::find()->where(['lob_cd' => $lobs])->orderBy('lob_cd')->all();
+        if ($this->license_nbr == self::CONTRACTOR_OTHER_PAYOR) {
+            $records = Lob::find()->orderBy('lob_cd')->all();
+        } else {
+            if (!isset($this->currentSignatory))
+                return null;
+            $lobs = explode(', ', $this->currentSignatory->lobs);
+            $records = Lob::find()->where(['lob_cd' => $lobs])->orderBy('lob_cd')->all();
+        }
     	$options = [];
 		foreach($records as $record) {
 			$options[] = ['id' => $record['lob_cd'], 'name' => $record['short_descrip']];
 		}
-   		return empty($lobs) ? null : $options;
+   		return $options;
     }
     
     /**
@@ -283,7 +295,9 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
    		if (!($note instanceof Note))
    			throw new \BadMethodCallException('Not an instance of ContractorNote');
    		$note->license_nbr = $this->license_nbr;
-   		$image = $note->uploadImage();
+        /** @noinspection PhpUndefinedMethodInspection */
+        $image = $note->uploadImage();
+        /* @var $image UploadedFile */
    		if ($note->save()) {
    			if ($image !== false) {
    				$path = $note->imagePath;

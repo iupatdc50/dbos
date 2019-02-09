@@ -52,12 +52,11 @@ class Receipt extends \yii\db\ActiveRecord
 	CONST PAYOR_CONTRACTOR = 'C';
 	CONST PAYOR_MEMBER = 'M';
 	CONST PAYOR_OTHER = 'O';
-	
+
 	protected $_validationRules = [];
 	protected $_labels = [];
 	protected $_remit_filter;
-	protected $_customAttributes = [];
-	
+
 //	public $lob_cd;
 	public $fee_types = [];
     /**
@@ -89,6 +88,8 @@ class Receipt extends \yii\db\ActiveRecord
             return new ReceiptContractor();
         elseif ($row['payor_type'] == self::PAYOR_MEMBER)
             return new ReceiptMember();
+        elseif ($row['payor_type'] == self::PAYOR_OTHER)
+            return new ReceiptOther();
         return new self;
     }
 
@@ -135,7 +136,7 @@ class Receipt extends \yii\db\ActiveRecord
         $common_rules = [
             [['payor_nm'], 'string', 'max' => 100],
         	[['payor_nm', 'helper_hrs'], 'default', 'value' => null],
-        	[['payment_method', 'payor_type', 'received_dt', 'received_amt', 'acct_month'], 'required'],
+        	[['payment_method', 'received_dt', 'received_amt', 'acct_month'], 'required'],
         	[['payment_method'], 'in', 'range' => self::getAllowedMethods()],
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
         	[['received_dt'], 'date', 'format' => 'php:Y-m-d'],
@@ -188,8 +189,9 @@ class Receipt extends \yii\db\ActiveRecord
         ];
         return array_merge($this->_labels, $common_labels);
     }
-    
-    public function validateReceivedDt($attribute, $params)
+
+    public function validateReceivedDt($attribute, /** @noinspection PhpUnusedParameterInspection */
+                                       $params)
     {
     	$dt = (new OpDate)->setFromMySql($this->$attribute);
     	if (OpDate::dateDiff($this->today, $dt) > 0)
@@ -270,6 +272,16 @@ class Receipt extends \yii\db\ActiveRecord
     	$payor = isset($code) ? $code : $this->payor_type;
     	$options = self::getPayorOptions();
     	return isset($options[$payor]) ? $options[$payor] : "Unknown Payor Type `{$payor}`";
+    }
+
+    /**
+     * @return string Lower case qualifier for use in routing URLs
+     */
+    public function getUrlQual()
+    {
+        $type = $this->payor_type;
+        $options = self::getPayorOptions();
+        return isset($options[$type]) ? strtolower($options[$type]) : "Unknown Payor Type `{$type}`";
     }
 
     /**
@@ -421,10 +433,15 @@ class Receipt extends \yii\db\ActiveRecord
     
     	return true;
     }
-    
-    public function getCustomAttributes($forPrint = false)
+
+    /**
+     * @param bool $forPrint If true, excludes certain attributes from printable receipt
+     * @return array
+     */
+    public function getCustomAttributes(/** @noinspection PhpUnusedParameterInspection */
+        $forPrint = false)
     {
-    	return $this->_customAttributes;
+    	return [];
     }
 
     /**

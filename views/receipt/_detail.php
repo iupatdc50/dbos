@@ -21,7 +21,7 @@ use app\helpers\OptionHelper;
 			],
         	[
             		'attribute' => 'payor_nm',
-            		'value' => $modelReceipt->payor_nm . ($modelReceipt->payor_type == 'O' ? ' (for ' . $modelReceipt->responsible->employer->contractor . ')' : ''),
+            		'value' => $modelReceipt->payor_nm,
     		],
             [
             		'attribute' => 'payment_method',

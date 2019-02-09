@@ -10,6 +10,7 @@ use kartik\widgets\DepDrop;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\Receipt */
+/* @var $payorOptions array */
 
 $this->title = 'Choose Receipt Type';
 // The controller action that will render the list
@@ -65,7 +66,7 @@ $url = Url::to(['/contractor/contractor-list']);
 			'templateSelection' => new JsExpression('function(employer) { return employer.text; }'),
 	    ],
 	]); ?>
-	
+
 	<?= $form->field($model, 'lob_cd')->widget(DepDrop::className(), [
 			'type'=>DepDrop::TYPE_SELECT2,
 			'select2Options'=>['size' => Select2::SMALL],
@@ -76,6 +77,18 @@ $url = Url::to(['/contractor/contractor-list']);
 	]); ?>
 	
 	</div>
+    <div id="other-option">
+
+    <?= $form->field($model, 'other_lob_cd')->widget(Select2::classname(), [
+        'data' => $model->lobOptions,
+        'hideSearch' => true,
+        'size' => Select2::SMALL,
+        'options' => [
+            'placeholder' => 'Select ...',
+            'id' => 'lob-cd',
+        ],
+    ]); ?>
+    </div>
     
     <div class="form-group">
         <?= Html::submitButton('Begin', ['class' => 'btn btn-success']) ?>
@@ -91,17 +104,24 @@ $script = <<< JS
 $(function() {
 		$('#member-option').hide();
 		$('#contractor-option').hide();
+		$('#other-option').hide();
 });
 		
 $('#payortype').change(function() {
 	var typ = $('#payortype').find('input:checked').val();
-	$('#member-option').hide();
-	$('#contractor-option').hide();
+	var membopt = $('#member-option');
+	var contopt = $('#contractor-option');
+	var otheropt = $('#other-option');
+	membopt.hide();
+	contopt.hide();
+	otheropt.hide();
 	if(typ === "M") {
-		$('#member-option').show();
+		membopt.show();
 	} else if(typ === "C") {
-		$('#contractor-option').show();
-	};
+		contopt.show();
+	} else if(typ === "O") {
+	    otheropt.show();
+	}
 });
 
 JS;

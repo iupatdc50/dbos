@@ -1,8 +1,6 @@
 <?php
 
 use app\models\accounting\AllocatedMemberSearch;
-use app\models\accounting\Receipt;
-use kartik\grid\GridView;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 // use yii\bootstrap\ActiveForm;
@@ -54,6 +52,7 @@ $this->params['breadcrumbs'][] = 'Update';
     <?= $this->render('../receipt/_formfields', [
         'form' => $form,
         'model' => $modelReceipt,
+        'opt' => '',
     ]) ?>
 
     <?php ActiveForm::end(); ?>

@@ -53,6 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $this->render('../receipt/_formfields', [
     	'form' => $form,
         'model' => $model,
+        'opt' => '(Optional)',
     ]) ?>
 
     <?= /** @noinspection PhpUnhandledExceptionInspection */
@@ -78,7 +79,7 @@ $script = <<< JS
 $(function() {
 		$('#otherlocallbl').hide();
 		$('#otherlocal').hide();
-})
+});
 
 $('#receiptmember-fee_types').change(function() {
 	var ccexists = false;
@@ -93,7 +94,7 @@ $('#receiptmember-fee_types').change(function() {
 	} else {
 		$('#otherlocallbl').hide();
 		$('#otherlocal').hide();
-	};
+	}
 });
 
 JS;

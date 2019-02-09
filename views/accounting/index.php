@@ -4,8 +4,6 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
 use app\helpers\OptionHelper;
-use yii\bootstrap\Modal;
-use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\accounting\ReceiptSearch */
@@ -105,16 +103,18 @@ $toggle_mine_only = !$mine_only;
     			'class' => 'yii\grid\ActionColumn',
     			'template' => '{view}',
     			'buttons' => [
-    				'view' => function($url, $model, $key) {
+    				'view' => function(/** @noinspection PhpUnusedParameterInspection */
+    				                    $url, $model, $key) {
     							return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, [
     							        'title' => 'View',
                                         'target' => '_blank',
                                 ]);
     				},
     			],
-    			'urlCreator' => function ($action, $model, $key, $index) {
+    			'urlCreator' => function (/** @noinspection PhpUnusedParameterInspection */
+    			                        $action, $model, $key, $index) {
 					    			if ($action === 'view') {
-					    				$route = ($model->payor_type == 'C') ? '/receipt-contractor' : '/receipt-member';
+					    				$route = '/receipt-' . $model->urlQual;
 					    				$url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model->id]);
 					    				return $url;
 					    			}

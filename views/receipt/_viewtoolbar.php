@@ -5,7 +5,6 @@ use yii\helpers\Url;
 
 /* @var $model app\models\accounting\Receipt  */
 /* @var $this \yii\web\View */
-/* @var $class string */
 
 ?>
 
@@ -31,7 +30,7 @@ use yii\helpers\Url;
         	<?php if(Yii::$app->user->can('reportAccounting')): ?>
 				<?=  Html::a(
 				        '<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
-                        ['/receipt-' . $class . '/print-preview', 'id' => $model->id],
+                        ['/receipt-' . $model->getUrlQual() . '/print-preview', 'id' => $model->id],
                         ['class' => 'btn btn-default', 'target' => '_blank'])
                 ?>
 			<?php endif; ?>

@@ -3,7 +3,9 @@
 namespace app\models\member;
 
 use app\models\accounting\DuesAllocation;
+use app\models\base\iIdInterface;
 use app\models\training\WorkHoursSummary;
+use app\models\ZipCode;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -11,7 +13,6 @@ use yii\web\UploadedFile;
 use app\models\value\Size;
 use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
-use app\models\base\iIdInterface;
 use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
@@ -24,6 +25,7 @@ use app\models\training\CurrentMemberCredential;
 use app\modules\admin\models\FeeType;
 use app\helpers\SsnHelper;
 use app\components\validators\SsnValidator;
+use yii\db\Exception;
 
 /**
  * This is the model class for table "Members".
@@ -44,13 +46,14 @@ use app\components\validators\SsnValidator;
  * @property string $remarks
  * @property string $photo_id Stored the generated filename
  * @property string $imse_id
- * @property date $application_dt
- * @property date $init_dt
- * @property date $dues_paid_thru_dt
- * @property date $drug_test_dt
+ * @property string $application_dt
+ * @property string $init_dt
+ * @property string $dues_paid_thru_dt
+ * @property string $drug_test_dt
  * @property number $overage
  * @property string $card_id [varchar(20)]
  *
+ * @property string $fullName
  * @property Phone[] $phones
  * @property Address[] $addresses
  * @property Address $mailingAddress
@@ -79,28 +82,28 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 
 	CONST CUTOFF_DAY = 20;
 	
-	/*
+	/**
 	 * @var OpDate
 	 */
 	protected $_application_dt;
 	
-	/*
+	/**
 	 * @var OpDate
 	 */
 	protected $_dues_paid_thru_dt;
 	
-	/*
+	/**
 	 * @var OpDate How old the application date can be
 	 */
 	public $app_cutoff_dt;
 	
-	/*
+	/**
 	 * @var OpDate Acceptable age of applicant
 	 */
 	public $age_cutoff_dt;
 	
-	/* 
-	 * @var iIdInterface idGenerator 
+	/**
+	 * @var iIdInterface idGenerator
 	 */
 	public $idGenerator;
 	
@@ -265,7 +268,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         ];
     }
     
-    public function validateApplicationDt($attribute, $params)
+    public function validateApplicationDt($attribute, /** @noinspection PhpUnusedParameterInspection */
+                                          $params)
     {
     	$dt = (new OpDate)->setFromMySql($this->$attribute);
     	if (OpDate::dateDiff($this->app_cutoff_dt, $dt) <= 0)
@@ -274,7 +278,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	    $this->addError($attribute, 'Application date cannot be future');
     }
     
-    public function validateBirthDt($attribute, $params)
+    public function validateBirthDt($attribute, /** @noinspection PhpUnusedParameterInspection */
+                                    $params)
     {
     	$dt = (new OpDate)->setFromMySql($this->$attribute);
     	if (OpDate::dateDiff($this->age_cutoff_dt, $dt) > 0)
@@ -305,7 +310,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     				$this->member_id = $this->idGenerator->newId();
     				if($this->ssnumber == '000-00-0000')
     					$this->ssnumber = '000-00-' . substr($this->member_id, 4, 4);
-    			} catch (Exception $e) {
+    			} catch (\Exception $e) {
     				throw new \yii\base\InvalidConfigException('Missing ID generator');
     			}
     			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
@@ -322,7 +327,11 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	}
     	return false;
     }
-    
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
     	parent::afterSave($insert, $changedAttributes); 
@@ -400,7 +409,11 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
     	return $this->hasMany(Specialty::className(), ['member_id' => 'member_id']);
     }
-    
+
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function getAvailableSpecialties()
     {
     	$sql = "SELECT specialty "
@@ -418,7 +431,11 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	]);
     	return $cmd->queryAll();
     }
-    
+
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function getUnfiledDocs()
     {
     	$sql = "SELECT doc_type "
@@ -487,7 +504,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * @return bool
      * @throws \BadMethodCallException
      */
-    public function addStatus(Status $status, $config = [])
+    public function addStatus(Status $status, /** @noinspection PhpUnusedParameterInspection */ $config = [])
     {
     	if (!($status instanceof Status))
     		throw new \BadMethodCallException('Not an instance of MemberStatus');
@@ -539,7 +556,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
         return $this->hasMany(MemberClass::className(), ['member_id' => 'member_id']);
     }
     
-    public function addClass(MemberClass $class, $config = [])
+    public function addClass(MemberClass $class, /** @noinspection PhpUnusedParameterInspection */ $config = [])
     {
     	if (!($class instanceof MemberClass))
     		throw new \BadMethodCallException('Not an instance of MemberClass');
@@ -547,9 +564,9 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if ($class->resolveClasses()) {
     		try {
     			$result = $class->save();
-    		} catch (\yii\db\Exception $e) {
+    		} catch (\Exception $e) {
 	    		// return error message
-	    		$result = $e->errorInfo[2];
+	    		$result = 'Could not save added class';
     		}
     		return $result;
     	}
@@ -625,10 +642,12 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	if (!($note instanceof Note))
     		throw new \BadMethodCallException('Not an instance of MemberNote');
     	$note->member_id = $this->member_id;
+        /** @noinspection PhpUndefinedMethodInspection */
    		$image = $note->uploadImage();
    		if ($note->save()) {
    			if ($image !== false) {
    				$path = $note->imagePath;
+                /* @var $image UploadedFile */
    				$image->saveAs($path);
    			}
    			return true;
@@ -844,7 +863,8 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     	return $this->hasMany(Assessment::classname(), ['member_id' => 'member_id']);	
     }
     
-    public function addAssessment(Assessment $class, $config = [])
+    public function addAssessment(Assessment $class, /** @noinspection PhpUnusedParameterInspection */
+                                  $config = [])
     {
     	if (!($class instanceof Assessment))
     		throw new \BadMethodCallException('Not an instance of Assessment');
@@ -867,7 +887,6 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * Builds an APF assessment record for the member
      *
      * @return boolean
-     * @throws \yii\base\InvalidConfigException
      */
     public function createApfAssessment()
     {   	

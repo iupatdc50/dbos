@@ -6,15 +6,13 @@ use yii\helpers\Html;
     /* @var $searchAlloc app\models\accounting\StagedAllocationSearch */
     /* @var $allocProvider yii\data\ActiveDataProvider */
     /* @var $modelReceipt app\models\accounting\ReceiptContractor */
-    /* @var $fee_types array */
     /* @var $this \yii\web\View */
 
 
-    $this->title = 'Build Employer Receipt ' . $modelReceipt->id;
-    $this->params['breadcrumbs'][] = ['label' => 'Employer Receipts', 'url' => ['index']];
+    $this->title = 'Build Receipt (Other) ' . $modelReceipt->id;
+    $this->params['breadcrumbs'][] = ['label' => 'Other Receipts', 'url' => ['index']];
     $this->params['breadcrumbs'][] = $modelReceipt->id;
 
-    // $url = ["balance", 'id' => $modelReceipt->id, 'fee_types' => $fee_types];
 
     ?>
     <div class="receipt-view">

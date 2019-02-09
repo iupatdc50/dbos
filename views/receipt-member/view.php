@@ -1,15 +1,10 @@
 <?php
 
 /* @var $this \yii\web\View */
+/* @var $allocProvider yii\data\ActiveDataProvider */
 
 use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
-use yii\helpers\Url;
-use yii\web\JsExpression;
-use kartik\select2\Select2;
 use kartik\grid\GridView;
-use yii\bootstrap\Modal;
-use kartik\editable\Editable;
 use app\helpers\OptionHelper;
 
 
@@ -32,7 +27,7 @@ elseif (isset($model->payingMember)) {
 	<h1><?= Html::encode('Receipt: ' . $this->title)  . $receipt_for ?></h1>
     
     <div class="leftside sixty-pct">
-    	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model, 'class' => 'member']); ?>
+    	<?= $this->render('../receipt/_viewtoolbar', ['model' => $model]); ?>
     	<?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
     </div>
     
@@ -53,7 +48,8 @@ elseif (isset($model->payingMember)) {
         		[
         				'class'=>'kartik\grid\ExpandRowColumn',
         				'width'=>'50px',
-        				'value'=>function ($model, $key, $index, $column) {
+        				'value'=>function (/** @noinspection PhpUnusedParameterInspection */
+        				                    $model, $key, $index, $column) {
         							return ($model['fee_type'] == 'DU') ? GridView::ROW_COLLAPSED : '';
         				        },
         				'detailUrl'=> Yii::$app->urlManager->createUrl(['allocation/detail-ajax']),
@@ -63,6 +59,7 @@ elseif (isset($model->payingMember)) {
         		
         		'fee_type',
         		[
+        		        'class' => 'kartik\grid\DataColumn',
         				'attribute' => 'allocation_amt',
         				'hAlign' => 'right',
         				'format' => ['decimal', 2],

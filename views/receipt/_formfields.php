@@ -2,14 +2,11 @@
 
 use kartik\select2\Select2;
 use kartik\datecontrol\DateControl;
-use yii\helpers\Html;
-use yii\helpers\Url;
-use app\models\accounting\Receipt;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\ReceiptContractor */
 /* @var $form kartik\widgets\ActiveForm */
-
+/* @var $opt string */
 
 ?>
 
@@ -17,7 +14,7 @@ use app\models\accounting\Receipt;
 
     <?php if ($model->isNewRecord): ?>
 
-    <?= $form->field($model, 'payor_nm')->textInput(['maxlength' => true])->input('payor_nm', ['placeholder' => "(Optional)"]) ?>
+    <?= $form->field($model, 'payor_nm')->textInput(['maxlength' => true])->input('payor_nm', ['placeholder' => $opt]) ?>
 
     <?php endif; ?>
 
@@ -56,18 +53,20 @@ $('#paymentmethod').change(function() {
 });
 
 function toggletracking(paymethod) {
+    var lbl = $('#trackinglbl');
+    var nbr = $('#trackingnbr');
 	if(paymethod > 1) {
-		$('#trackinglbl').show();
-		$('#trackingnbr').show();
+		lbl.show();
+		nbr.show();
 		if(paymethod == 2) {
-			$('#trackinglbl').text('Check Number');
+			lbl.text('Check Number');
 		} else if(paymethod == 3) {
-			$('#trackinglbl').text('Auth Code');
+			lbl.text('Auth Code');
 		} 
 	} else {
-		$('#trackinglbl').hide();
-		$('#trackingnbr').hide();
-	};
+		lbl.hide();
+		nbr.hide();
+	}
     
 }
 
