@@ -13,8 +13,6 @@ use kartik\widgets\DepDrop;
 /* @var $payorOptions array */
 
 $this->title = 'Choose Receipt Type';
-// The controller action that will render the list
-$url = Url::to(['/contractor/contractor-list']);
 
 ?>
 
@@ -23,7 +21,8 @@ $url = Url::to(['/contractor/contractor-list']);
     <?php $form = ActiveForm::begin([
     		'type' => ActiveForm::TYPE_HORIZONTAL,
      		'id' => 'recptchoice-form', 
-    		'enableClientValidation' => true,
+            'enableAjaxValidation' => true,
+            'validationUrl' => Url::toRoute('accounting/validation'),
     ]); ?>
     
     <?= $form->field($model, 'payor_type', ['options' => ['id' => 'payortype']])->radioList($payorOptions)->label('Select'); ?>
@@ -102,12 +101,14 @@ $url = Url::to(['/contractor/contractor-list']);
 $script = <<< JS
 
 $(function() {
-		$('#member-option').hide();
-		$('#contractor-option').hide();
-		$('#other-option').hide();
+    toggle();
 });
-		
+
 $('#payortype').change(function() {
+    toggle();
+});
+
+function toggle() {
 	var typ = $('#payortype').find('input:checked').val();
 	var membopt = $('#member-option');
 	var contopt = $('#contractor-option');
@@ -122,7 +123,7 @@ $('#payortype').change(function() {
 	} else if(typ === "O") {
 	    otheropt.show();
 	}
-});
+}
 
 JS;
 $this->registerJs($script);

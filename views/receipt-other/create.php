@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $this->render('../receipt/_formfields', [
     	'form' => $form,
         'model' => $model,
-        'opt' => '(Optional)',
+        'opt' => '',
     ]) ?>
     
     <?= $form->field($model, 'unallocated_amt')->textInput(['maxlength' => true]) ?>

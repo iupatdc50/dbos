@@ -17,6 +17,7 @@ class CreateReceiptForm extends Model
 	{
 		return [
 				[['payor_type'], 'required'],
+                ['payor_type', 'in', 'range' => Receipt::getAllowedPayors()],
 				['member_id', 'required', 'when' => function($model) {
 						return $model->payor_type == Receipt::PAYOR_MEMBER;
 				}, 'whenClient' => "function (attribute, value) {
@@ -27,7 +28,7 @@ class CreateReceiptForm extends Model
 				}, 'whenClient' => "function (attribute, value) {
 						return $('#payortype').val() == " . Receipt::PAYOR_CONTRACTOR . ";
 				}"],
-                [['other_lob_cd'], 'required', 'when' => function($model) {
+                ['other_lob_cd', 'required', 'when' => function($model) {
                     return $model->payor_type == Receipt::PAYOR_OTHER;
                 }, 'whenClient' => "function (attribute, value) {
 						return $('#payortype').val() == " . Receipt::PAYOR_OTHER . ";
