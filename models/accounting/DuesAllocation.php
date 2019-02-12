@@ -67,6 +67,7 @@ class DuesAllocation extends BaseAllocation
      * @return bool
      * @throws InvalidConfigException
      * @throws \yii\db\StaleObjectException
+     * @throws \yii\db\Exception
      */
     public function beforeDelete()
     {
@@ -81,14 +82,16 @@ class DuesAllocation extends BaseAllocation
      * @param bool $clear
      * @return bool
      * @throws InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function backOutDuesThru($clear = false)
     {
         if(($this->months != null) && ($this->member->dues_paid_thru_dt == $this->paid_thru_dt)) {
             $dt = $this->calcPaidThru($this->months, OpDate::OP_SUBTRACT);
-            $this->member->dues_paid_thru_dt = $dt;
-            $this->member->overage = 0.00;
-            $this->member->save();
+            $member = $this->member;
+            $member->dues_paid_thru_dt = $dt;
+            $member->overage = isset($member->matchingOverage) ? $member->matchingOverage->overage : 0.00;
+            $member->save();
             if($clear) {
                 $this->months = null;
                 $this->paid_thru_dt = null;
@@ -121,6 +124,7 @@ class DuesAllocation extends BaseAllocation
      * @param float $overage
      * @return NULL|integer
      * @throws InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function calcMonths($overage = 0.00)
     {
@@ -158,6 +162,7 @@ class DuesAllocation extends BaseAllocation
      * @param null $op
      * @return string Paid thru date in MySql format
      * @throws InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function calcPaidThru($months = null, $op = null)
     {

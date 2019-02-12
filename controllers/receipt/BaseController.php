@@ -12,6 +12,7 @@ use app\models\accounting\Receipt;
 use app\models\member\Member;
 use app\models\member\Status;
 use app\models\member\Standing;
+use app\models\member\OverageHistory;
 use yii\db\Exception as DbException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -163,6 +164,12 @@ class BaseController extends Controller
     		if ($this->retainAlloc($alloc)) {
 	    		$manager = $this->prepareManager($alloc);
 	    		$this->_dbErrors = array_merge($this->_dbErrors, $manager->applyDues($alloc));
+	    		if($alloc->member->overage <> 0.00) {
+	    		    $history = $this->prepareOverageHistory($alloc->member);
+                    $history->receipt_id = $alloc->allocatedMember->receipt_id;
+                    $history->overage = $alloc->member->overage;
+	    		    $alloc->member->addOverageHistory($history);
+                }
     		}
     	}
 
@@ -414,6 +421,23 @@ class BaseController extends Controller
             return $status;
     	;
     	return new Status(['effective_dt' => $date]);
+    }
+
+    /**
+     * Look for existing overage history to overlay
+     *
+     * @param Member $member
+     * @return OverageHistory
+     */
+    protected function prepareOverageHistory(Member $member)
+    {
+        $history = OverageHistory::findOne(['member_id' => $member->member_id, 'dues_paid_thru_dt' => $member->dues_paid_thru_dt]);
+        if (!isset($history))
+            $history = new OverageHistory([
+                'member_id' => $member->member_id,
+                'dues_paid_thru_dt' => $member->dues_paid_thru_dt,
+            ]);
+        return $history;
     }
     
     /**

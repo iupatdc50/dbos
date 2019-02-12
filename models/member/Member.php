@@ -6,6 +6,7 @@ use app\models\accounting\DuesAllocation;
 use app\models\base\iIdInterface;
 use app\models\training\WorkHoursSummary;
 use app\models\ZipCode;
+use BadMethodCallException;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -502,16 +503,16 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * @param Status $status
      * @param array $config
      * @return bool
-     * @throws \BadMethodCallException
+     * @throws BadMethodCallException
      */
     public function addStatus(Status $status, /** @noinspection PhpUnusedParameterInspection */ $config = [])
     {
     	if (!($status instanceof Status))
-    		throw new \BadMethodCallException('Not an instance of MemberStatus');
+    		throw new BadMethodCallException('Not an instance of MemberStatus');
     	$status->member_id = $this->member_id;
     	if (!isset($status->lob_cd)) {
     		if (!isset($this->currentStatus))
-    			throw new \BadMethodCallException('No local can be determined for new Status');
+    			throw new BadMethodCallException('No local can be determined for new Status');
     		$status->lob_cd = $this->currentStatus->lob_cd;
     	}
     	if ($status->reason == Status::REASON_NEW)
@@ -555,19 +556,20 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     {
         return $this->hasMany(MemberClass::className(), ['member_id' => 'member_id']);
     }
-    
+
+    /**
+     * @param MemberClass $class
+     * @param array $config
+     * @return bool|string
+     */
     public function addClass(MemberClass $class, /** @noinspection PhpUnusedParameterInspection */ $config = [])
     {
     	if (!($class instanceof MemberClass))
-    		throw new \BadMethodCallException('Not an instance of MemberClass');
+    		throw new BadMethodCallException('Not an instance of MemberClass');
     	$class->member_id = $this->member_id;
     	if ($class->resolveClasses()) {
-    		try {
-    			$result = $class->save();
-    		} catch (\Exception $e) {
-	    		// return error message
-	    		$result = 'Could not save added class';
-    		}
+    	    if (!($result = $class->save()))
+	    		$result = 'Could not save added class'; // return error message
     		return $result;
     	}
     	return false;
@@ -634,13 +636,13 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * Adds a journal note to this member
      * 
      * @param Note $note
-     * @throws \BadMethodCallException
+     * @throws BadMethodCallException
      * @return boolean
      */
     public function addNote($note)
     {
     	if (!($note instanceof Note))
-    		throw new \BadMethodCallException('Not an instance of MemberNote');
+    		throw new BadMethodCallException('Not an instance of MemberNote');
     	$note->member_id = $this->member_id;
         /** @noinspection PhpUndefinedMethodInspection */
    		$image = $note->uploadImage();
@@ -867,7 +869,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
                                   $config = [])
     {
     	if (!($class instanceof Assessment))
-    		throw new \BadMethodCallException('Not an instance of Assessment');
+    		throw new BadMethodCallException('Not an instance of Assessment');
     	$class->member_id = $this->member_id;
     	return $class->save(); 
     }
@@ -978,6 +980,28 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     public function getLocalPacText()
     {
     	return OptionHelper::getTFText($this->local_pac);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMatchingOverage()
+    {
+        return $this->hasOne(OverageHistory::className(), ['member_id' => 'member_id', 'dues_paid_thru_dt' => 'dues_paid_thru_dt']);
+    }
+
+    /**
+     * @param OverageHistory $history
+     * @return bool
+     */
+    public function addOverageHistory(OverageHistory $history)
+    {
+        if (!($history instanceof OverageHistory))
+            throw new BadMethodCallException('Not an instance of OverageHistory');
+        $history->member_id = $this->member_id;
+        $history->dues_paid_thru_dt = $this->dues_paid_thru_dt;
+        $history->overage = $this->overage;
+        return $history->save();
     }
     
     /**
