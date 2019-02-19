@@ -16,6 +16,8 @@ use yii\helpers\Url;
 		<div class="flash-notice"><?= Yii::$app->session->getFlash('balance') ?></div>
 	<?php endif; ?>
 
+    <?php if(Yii::$app->user->can('resetPT')): ?>
+
     <p class="pull-right">
         <?= Html::button('<i class="glyphicon glyphicon-wrench"></i>&nbsp;Repair Paid Thru', [
             'id' => 'repairHistory',
@@ -26,6 +28,8 @@ use yii\helpers\Url;
 //            'disabled' => !(Yii::$app->user->can('repairPaidThru')),
         ]) ?>
     </p>
+
+    <?php endif; ?>
 
 	<table class="fifty-pct table table-striped table-bordered detail-view"><tbody>
 		<tr>
