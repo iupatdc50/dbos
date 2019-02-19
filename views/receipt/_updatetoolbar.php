@@ -25,7 +25,7 @@ $cancel_action = ($modelReceipt->isUpdating()) ? 'cancel-update' : 'cancel-creat
         <?php
             if($modelReceipt->isUpdating())
                 echo Html::submitButton('Post', ['id' => 'post-btn', 'class' => 'btn btn-success']);
-            else
+            else  // New receipt
                 echo Html::a('Post', ['post', 'id' => $modelReceipt->id], ['id' => 'post-btn', 'class' => 'btn btn-success']);
         ?>
         <?= Html::button('<i class="glyphicon glyphicon-check"></i>&nbsp;Balance', [

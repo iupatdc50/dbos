@@ -5,6 +5,8 @@ namespace app\models\accounting;
 use app\components\utilities\OpDate;
 use app\modules\admin\models\FeeType;
 use yii\base\InvalidConfigException;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /** @noinspection PropertiesInspection */
 
@@ -38,6 +40,38 @@ class DuesAllocation extends BaseAllocation
     {
         return new AllocationQuery(get_called_class(), ['type' => self::allocTypes(), 'tableName' => self::tableName()]);
     }
+
+    /**
+     * Returns a set of dues allocations for Select2 picklist. Receipt ID, amount & dues paid thru date
+     * are returned as text (id, text are required columns for Select2)
+     *
+     * @param string|array $search Criteria used for partial receipt list. If an array, then descrip
+     *                               key will be a like search
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public static function listAll($search)
+    {
+        /* @var Query $query */
+        $query = new Query;
+        $query->select('id as id, descrip as text')
+            ->from('DuesAllocPickList')
+            ->limit(10)
+            ->orderBy('id desc')
+            ->distinct();
+        if (ArrayHelper::isAssociative($search)) {
+            if (isset($search['descrip'])) {
+                $query->where(['like', 'descrip', $search['descrip']]);
+                unset($search['descrip']);
+            }
+            $query->andWhere($search);
+        } elseif (!is_null($search))
+            $query->where(['like', 'descrip', $search]);
+        $command = $query->createCommand();
+        return $command->queryAll();
+    }
+
+
 
     /**
      * @inheritdoc
@@ -76,6 +110,11 @@ class DuesAllocation extends BaseAllocation
 		    return true;
     	}
     	return false;
+    }
+
+    public function getPickList()
+    {
+        $this->hasOne(DuesAllocPickList::className(), ['id' => 'id']);
     }
 
     /**
@@ -164,7 +203,7 @@ class DuesAllocation extends BaseAllocation
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function calcPaidThru($months = null, $op = null)
+    public function  calcPaidThru($months = null, $op = null)
     {
     	if ($months === null)
     		$months = $this->calcMonths();

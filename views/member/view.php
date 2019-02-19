@@ -67,11 +67,12 @@ $this->params['breadcrumbs'][] = $this->title;
                         Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
                             '/receipt-' . (($model->lastDuesReceipt->payor_type == Receipt::PAYOR_MEMBER) ? 'member' : 'contractor')
                             . '/view?id=' . $model->lastDuesReceipt->receipt_id)
-                        . Html::button('History', [
+                        . Html::button('<i class="glyphicon glyphicon-th-list"></i>', [
                                 'id' => 'duesHistoryButton',
                                 'value' => Url::to(['/member-balances/dues-summary-ajax', 'id' => $model->member_id]),
                                 'class' => 'btn btn-default btn-modal btn-embedded pull-right',
                                 'data-title' => '#Paid Thru History',
+                                'title' => 'Show dues history',
                                 'disabled' => !(Yii::$app->user->can('browseReceipt')),
                         ])
                         : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),

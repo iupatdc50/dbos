@@ -1,6 +1,8 @@
 <?php
 
 use app\models\member\Member;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $member Member */
@@ -14,6 +16,16 @@ use app\models\member\Member;
 		<div class="flash-notice"><?= Yii::$app->session->getFlash('balance') ?></div>
 	<?php endif; ?>
 
+    <p class="pull-right">
+        <?= Html::button('<i class="glyphicon glyphicon-wrench"></i>&nbsp;Repair Paid Thru', [
+            'id' => 'repairHistory',
+            'value' => Url::to(['repair-dues', 'id' => $member->member_id]),
+            'class' => 'btn btn-default btn-modal btn-embedded',
+            'data-title' => 'Last Correct Period',
+            'title' => 'Repair dues paid thru',
+//            'disabled' => !(Yii::$app->user->can('repairPaidThru')),
+        ]) ?>
+    </p>
 
 	<table class="fifty-pct table table-striped table-bordered detail-view"><tbody>
 		<tr>
@@ -37,14 +49,16 @@ use app\models\member\Member;
 	   
 	</tbody></table>
 
-<div>
+    <div>
 
-<?= $this->render('../assessment/_summary', [
-		'dataProvider' => $assessProvider,
-		'relation_id' => $member->member_id,
-]);  ?>
+        <?= $this->render('../assessment/_summary', [
+                'dataProvider' => $assessProvider,
+                'relation_id' => $member->member_id,
+        ]);  ?>
 
-</div>
+    </div>
 
 
 <?= $this->render('../partials/_modal') ?>
+
+

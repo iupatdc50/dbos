@@ -3,15 +3,12 @@
 namespace app\models\member;
 
 use yii\base\Model;
-use Yii;
-use yii\helpers\ArrayHelper;
-use app\models\value\Lob;
 
 class CcForm extends Model
 {
 	public $effective_dt;
 	public $other_local;
-	public $reason;
+	public $remarks;
 
 	public function rules()
 	{
@@ -30,7 +27,7 @@ class CcForm extends Model
         return [
         		'effective_dt' => 'Effective',
         		'other_local' => 'Other Local',
-        		'reamrks' => 'Remarks',
+        		'remarks' => 'Remarks',
         ];
     }
 	

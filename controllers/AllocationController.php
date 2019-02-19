@@ -2,18 +2,14 @@
 
 namespace app\controllers;
 
-use app\helpers\ClassHelper;
 use app\models\accounting\AllocatedMember;
 use Yii;
 use app\models\accounting\DuesAllocation;
-use app\models\accounting\AssessmentAllocation;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\helpers\Json;
-use yii\helpers\ArrayHelper;
 use app\models\accounting\BaseAllocation;
-use app\models\accounting\TradeFeeType;
 use app\modules\admin\models\FeeType;
 
 class AllocationController extends Controller
