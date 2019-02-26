@@ -76,6 +76,16 @@ $this->params['breadcrumbs'][] = $this->title;
                         return ($model->photo_id != null) ? Html::tag('i', '', ['class' => 'glyphicon glyphicon-camera']) : '';
                     },
             ],
+            /*
+            [
+                    'encodeLabel' => false,
+                    'attribute' => 'photo_id',
+                    'format' => 'html',
+                    'value' => function($model) {
+                        return Html::img($model->imageUrl, ['width'=>'30', 'height'=>'40']);
+                    }
+            ],
+            */
             [
                     'attribute' => 'fullName',
                     'contentOptions' => ['style' => 'white-space: nowrap;'],
