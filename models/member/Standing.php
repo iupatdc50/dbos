@@ -84,11 +84,14 @@ class Standing extends Model
 	public function getBillingDescrip()
 	{
 		$obligation_dt = $this->getDuesObligation();
+
+		$cr = ' - ';
 		
 		switch ($this->monthsToCurrent) {
 			case 0:
 				$paid_thru_dt = $this->member->duesPaidThruDtObject;
 				$descrip = 'Paid thru ' . $paid_thru_dt->getMonthName(true) . ' ' . $paid_thru_dt->getYear();
+				$cr = ' + ';
 				break;
 			case 1:
 				$descrip = $obligation_dt->getMonthName(true);
@@ -100,7 +103,7 @@ class Standing extends Model
 		}
 
 		if($this->member->overage > 0.00)
-		    $descrip .= ' - Credit (' . number_format($this->member->overage, 2) .  ')';
+		    $descrip .= $cr . 'Credit ' . number_format($this->member->overage, 2);
 		
 		if ($this->getOutStandingAssessment(FeeType::TYPE_INIT))
 			$descrip .= ' + Init Fee';
