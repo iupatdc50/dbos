@@ -91,12 +91,28 @@ div.flash-notice
 	border-color:#FFD324;
 }
 
-div.flash-successnoheadreport.php
+div.flash-success
 {
 	background:#dff0d8;
 	color:#3c763d;
 	border-color:#3c763d;
 }
+
+/* ==================================    Camera booth */
+
+div.booth {
+	width: 400px;
+	background-color: #ccc;
+	border: 10px solid #ddd;
+	margin:0 auto;
+}
+
+.video {
+	width: 150px;
+	height: 200px;
+}
+
+/* ==================================    End Camera booth */
 
 /* ==================================    For PVC card print */
 

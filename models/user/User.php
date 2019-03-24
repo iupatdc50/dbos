@@ -31,7 +31,7 @@ use kartik\password\StrengthValidator;
  * @property string $last_login [datetime]
  *
  * @property string $fullName
- * $property string $inUseRoles
+ * @property string $inUseRoles
  * 
  */
 class User extends \yii\db\ActiveRecord
