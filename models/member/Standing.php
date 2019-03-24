@@ -98,6 +98,9 @@ class Standing extends Model
 				$start_dt->modify('+1 month');
 				$descrip = $start_dt->getMonthName(true) . '-' . $obligation_dt->getMonthName(true) . ' (' . $this->monthsToCurrent . ' months)';
 		}
+
+		if($this->member->overage > 0.00)
+		    $descrip .= ' - Credit (' . number_format($this->member->overage, 2) .  ')';
 		
 		if ($this->getOutStandingAssessment(FeeType::TYPE_INIT))
 			$descrip .= ' + Init Fee';

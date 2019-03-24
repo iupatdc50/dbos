@@ -82,8 +82,13 @@ class StagedBill extends \yii\db\ActiveRecord
 	 */
 	public function getDU()
 	{
-		if ($this->employer->deducts_dues == 'T')
-			return $this->standing->getDuesBalance($this->rateFinder);
+		if ($this->employer->deducts_dues == 'T') {
+		    $overage = isset($this->member->overage) ? $this->member->overage : 0.00;
+		    $dues = $this->standing->getDuesBalance($this->rateFinder);
+		    $owed = ($dues > $overage) ? $dues - $overage : 0.00;
+            return  $owed;
+        }
+
 		return null;
 	}
 	
