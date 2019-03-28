@@ -90,7 +90,7 @@ class ReceiptMember extends Receipt
                 Re.payor_type,
                 CASE WHEN Re.payor_type = 'M' THEN 'Member' ELSE Re.payor_nm END AS payor, " .
                 $cols .
-           "    SUM(AA.amt) AS total
+           "    SUM(CASE WHEN AA.fee_type <> 'HR' THEN AA.amt ELSE 0.00 END) AS total
               FROM Receipts AS Re
                 JOIN AllocAbbrev AS AA ON AA.receipt_id = Re.`id` AND AA.member_id = :member_id " .
            $date_constraint .

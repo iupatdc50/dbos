@@ -407,19 +407,22 @@ class MemberController extends RootController
 
     /**
      * @param $id
+     * @param null $report_year
      * @return string
      * @throws NotFoundHttpException
      * @throws \yii\db\Exception
      */
-    public function actionPrintPreview($id)
+    public function actionPrintPreview($id, $report_year = null)
     {
+        $year = is_null($report_year) ? $this->getToday()->getYear() - 1 : $report_year;
+
         $this->layout = 'noheadreport';
         $model = $this->findModel($id);
 
-        $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($id, '2018');
+        $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($id, $year);
 
         $sqlProvider = new SqlDataProvider([
-            'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted, '2018'),
+            'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted, $year),
             'params' => [':member_id' => $id],
             'pagination' => false,
         ]);
