@@ -4,6 +4,7 @@ namespace app\models\accounting;
 
 use app\models\member\Status;
 use app\modules\admin\models\FeeType;
+use yii\db\Exception;
 
 class StatusManagerAssessment extends StatusManager
 {
@@ -11,6 +12,7 @@ class StatusManagerAssessment extends StatusManager
     /**
      * @param AssessmentAllocation $alloc
      * @return array
+     * @throws Exception
      */
     public function applyAssessment(AssessmentAllocation $alloc)
     {
@@ -37,7 +39,8 @@ class StatusManagerAssessment extends StatusManager
                 if (!$member->addStatus($status))
                     $errors = array_merge($errors, $status->errors);
             }
-        }
+        } elseif ($alloc->fee_type == FeeType::TYPE_INIT)
+            $errors = array_merge($errors, $this->checkApf($alloc));
 
         return $errors;
     }

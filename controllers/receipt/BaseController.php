@@ -6,6 +6,7 @@ use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\StatusManagerAssessment;
 use app\models\accounting\StatusManagerDues;
 use app\models\accounting\UndoAllocation;
+use Exception;
 use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
@@ -13,7 +14,9 @@ use app\models\member\Member;
 use app\models\member\Status;
 use app\models\member\Standing;
 use app\models\member\OverageHistory;
+use yii\base\InvalidConfigException;
 use yii\db\Exception as DbException;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -25,6 +28,7 @@ use app\models\accounting\DuesAllocation;
 use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 
 /**
@@ -110,8 +114,8 @@ class BaseController extends Controller
 
     /**
      * @param $id
-     * @return string|\yii\web\Response
-     * @throws \yii\db\Exception
+     * @return string|Response
+     * @throws DbException
      * @throws NotFoundHttpException
      */
     public function actionBalance($id)
@@ -133,11 +137,11 @@ class BaseController extends Controller
      * Assessment allocations are applied first because APF status is checked when dues are applied
      *
      * @param integer $id Receipt ID
-     * @return \yii\web\Response
+     * @return Response
      * @throws DbException
      * @throws NotFoundHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\StaleObjectException
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
      */
     public function actionPost($id)
     {
@@ -194,7 +198,7 @@ class BaseController extends Controller
      * @return string
      * @throws DbException
      * @throws NotFoundHttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionUpdate($id)
     {
@@ -258,8 +262,8 @@ class BaseController extends Controller
      *
      * @param integer $id
      * @return mixed
-     * @throws \Exception
-     * @throws \yii\db\StaleObjectException
+     * @throws Exception
+     * @throws StaleObjectException
      */
     public function actionVoid($id)
     {
@@ -298,9 +302,9 @@ class BaseController extends Controller
      * Backs out of a create or update action.  If the receipt is held in the Undo tables, the held receipt is restored.
      *
      * @param integer $id
-     * @return \yii\web\Response
-     * @throws \Exception
-     * @throws \yii\db\StaleObjectException
+     * @return Response
+     * @throws Exception
+     * @throws StaleObjectException
      */
     public function actionCancelCreate($id)
     {
@@ -330,7 +334,7 @@ class BaseController extends Controller
 
     /**
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
      */
     public function actionCancelUpdate($id)
@@ -393,8 +397,8 @@ class BaseController extends Controller
      *
      * @param BaseAllocation $alloc
      * @return boolean Returns false if a database record deletion is unsuccessful
-     * @throws \Exception
-     * @throws \yii\db\StaleObjectException
+     * @throws Exception
+     * @throws StaleObjectException
      */
     protected function retainAlloc(BaseAllocation $alloc)
     {
@@ -413,7 +417,7 @@ class BaseController extends Controller
      * 
      * @param Member $member
      * @param string $date
-     * @return \yii\db\static|\app\models\member\Status
+     * @return Status
      */
     protected function prepareStatus(Member $member, $date)
     {
@@ -443,7 +447,7 @@ class BaseController extends Controller
     /**
      * Override this function when testing with fixed date
      *
-     * @return \app\components\utilities\OpDate
+     * @return OpDate
      */
     protected function getToday()
     {

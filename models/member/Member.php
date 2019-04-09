@@ -8,6 +8,9 @@ use app\models\training\WorkHoursSummary;
 use app\models\ZipCode;
 use BadMethodCallException;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
@@ -71,7 +74,7 @@ use yii\db\Exception;
  * @property LastDuesReceipt $lastDuesReceipt
  * @property Note[] $notes
  */
-class Member extends \yii\db\ActiveRecord implements iNotableInterface
+class Member extends ActiveRecord implements iNotableInterface
 {
 	CONST UNCHECKED = 0;
 	CONST CHECKED = 1;
@@ -123,7 +126,17 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 	 * @var boolean Stages whether new member should be APF exempt
 	 */
 	public $exempt_apf;
-	
+
+    /**
+     * @var Standing 	May be injected, if required
+     */
+    public $standing;
+
+    /**
+     * @var DuesRateFinder May be injected, if required
+     */
+    public $rateFinder;
+
     /**
      * @inheritdoc
      */
@@ -139,7 +152,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * @param string|array $search      Criteria used for partial member list. If an array, then member
      *                                  key will be a like search
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public static function listAll($search)
     {
@@ -168,7 +181,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * @param string|array $search      Criteria used for partial member list. If an array, then member
      *                                  key will be a like search
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public static function listSsnAll($search)
     {
@@ -301,7 +314,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * @param bool $insert
      * @return bool
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function beforeSave($insert) 
     {
@@ -312,7 +325,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     				if($this->ssnumber == '000-00-0000')
     					$this->ssnumber = '000-00-' . substr($this->member_id, 4, 4);
     			} catch (\Exception $e) {
-    				throw new \yii\base\InvalidConfigException('Missing ID generator');
+    				throw new InvalidConfigException('Missing ID generator');
     			}
     			if ($this->isAttributeChanged('application_dt') && ($this->dues_paid_thru_dt === null))
     				$this->dues_paid_thru_dt = $this->getDuesStartDt()->getMySqlDate();
@@ -348,7 +361,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getZipCode()
     {
@@ -356,7 +369,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }  
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAddresses()
     {
@@ -364,7 +377,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAddressDefault()
     {
@@ -372,7 +385,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMailingAddress()
     {
@@ -380,7 +393,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPhones()
     {
@@ -388,7 +401,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPhoneDefault()
     {
@@ -396,7 +409,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getEmails()
     {
@@ -404,7 +417,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getSpecialties()
     {
@@ -453,7 +466,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getSize()
     {
@@ -461,7 +474,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     } 
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCurrentStatus()
     {
@@ -474,7 +487,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * Query for a grant in-svc status that would forgive qualifying dues during that period
      * Status must effective after member's current dues paid thru date
      * 
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getInServicePeriod()
     {
@@ -487,7 +500,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getStatuses()
     {
@@ -531,7 +544,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getWorksFor()
     {
@@ -540,7 +553,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCurrentClass()
     {
@@ -550,7 +563,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getClasses()
     {
@@ -576,7 +589,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getClassification()
     {
@@ -584,7 +597,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getWorkHoursSummary()
     {
@@ -593,7 +606,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
 
     /**
      * @param  string $catg Compliance credential category
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCredentials($catg)
     {
@@ -603,7 +616,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getEmployer()
     {
@@ -613,7 +626,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * Returns current employer iff still actively employed
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getEmployerActive()
     {
@@ -623,7 +636,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getDuesAllocations()
     {
@@ -658,7 +671,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getNotes()
     {
@@ -810,7 +823,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      * prior to the 20th, the starting paid thru is the end of the previous month.
      * Otherwise it is the end of the current month.
      *  
-     * @return \app\components\utilities\OpDate
+     * @return OpDate
      */
     public function getDuesStartDt()
     {
@@ -858,7 +871,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAssessments()
     {
@@ -875,7 +888,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCurrentApf()
     {
@@ -892,15 +905,13 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
      */
     public function createApfAssessment()
     {   	
-    	$lob_cd = $this->currentStatus->lob_cd;
-    	$class = $this->currentClass;
     	// consider injecting the InitFee to simplify testing
     	$init = InitFee::findOne([
-    			'lob_cd' => $lob_cd,
-    			'member_class' => $class->member_class,
+    			'lob_cd' => $this->currentStatus->lob_cd,
+    			'member_class' => $this->currentClass->member_class,
     	]);
     	if (!is_null($init)) {
-	    	$amount = $init->getAssessmentAmount(new DuesRateFinder($lob_cd, $class->rate_class));
+	    	$amount = $init->getAssessmentAmount($this->getRateFinder());
 	    	$apf_assessment = new ApfAssessment([
 	    			'member_id' => $this->member_id,
 	    			'fee_type' => FeeType::TYPE_INIT,
@@ -958,7 +969,20 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     		$this->_dues_paid_thru_dt = (new OpDate)->setFromMySql($this->dues_paid_thru_dt);
     	return $this->_dues_paid_thru_dt;
     }
-    
+
+    /**
+     * Uses Standing class to estimate the dues owed for a member
+     *
+     * @param bool $apf_only
+     * @return false|float|string|null
+     * @throws Exception
+     */
+    public function estimateDuesOwed($apf_only = false)
+    {
+        $standing = $this->getStanding($apf_only);
+        return $standing->getDuesBalance($this->getRateFinder());
+    }
+
     protected function isOlderThanCutoff($months)
     {
     	$cutoff = $this->getToday();
@@ -983,7 +1007,7 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMatchingOverage()
     {
@@ -1007,11 +1031,40 @@ class Member extends \yii\db\ActiveRecord implements iNotableInterface
     /**
      * Override this function when testing with fixed date
      * 
-     * @return \app\components\utilities\OpDate
+     * @return OpDate
      */
     protected function getToday()
     {
     	return new OpDate();
     }
-    
+
+    /**
+     * @param bool $apf_only
+     * @return Standing
+     */
+    private function getStanding($apf_only = false)
+    {
+        if(!(isset($this->standing)))
+            $this->standing = new Standing([
+                'member' => $this,
+                'apf_only' => $apf_only,
+            ]);
+        return $this->standing;
+    }
+
+    /**
+     * @return DuesRateFinder
+     */
+    private function getRateFinder()
+    {
+        if(!(isset($this->rateFinder)))
+        {
+            $lob_cd = $this->currentStatus->lob_cd;
+            $class = $this->currentClass->rate_class;
+            $this->rateFinder = new DuesRateFinder($lob_cd, $class);
+        }
+        return $this->rateFinder;
+    }
+
+
 }

@@ -10,6 +10,7 @@ use app\components\utilities\OpDate;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 use app\models\accounting\BaseAllocation;
+use yii\db\Exception;
 
 /** 
  * Model class for determining the financial status of a member
@@ -116,7 +117,7 @@ class Standing extends Model
      *
      * @param DuesRateFinder $rateFinder
      * @return false|float|string|null
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
 	public function getDuesBalance(DuesRateFinder $rateFinder)
 	{
@@ -173,7 +174,7 @@ SQL;
     /**
      * Returns the last day of the current month
      *
-     * @return \app\components\utilities\OpDate
+     * @return OpDate
      */
 	private function getCurrentMonthEnd()
 	{
@@ -191,8 +192,8 @@ SQL;
      * If member, is in application, this date is determined by adding the APF dues months to the current application
      * date.  Otherwise, the current month end is used.
      *
+     * @return OpDate
      * @see Member::getDuesStartDt
-     * @return \app\components\utilities\OpDate
      */
 	private function getDuesObligation()
 	{

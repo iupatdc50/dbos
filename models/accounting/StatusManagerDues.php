@@ -2,9 +2,9 @@
 
 namespace app\models\accounting;
 
-use app\models\member\Status;
 use yii\base\InvalidConfigException;
 use app\models\member\Standing;
+use yii\db\Exception;
 
 class StatusManagerDues extends StatusManager
 {
@@ -26,11 +26,10 @@ class StatusManagerDues extends StatusManager
      * @param DuesAllocation $alloc
      * @return array
      * @throws InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function applyDues(DuesAllocation $alloc)
     {
-        $errors = [];
         $member = $this->standing->member;
         $alloc->months = $alloc->calcMonths($member->overage) + $this->standing->getDiscountedMonths();
         $alloc->paid_thru_dt = $alloc->calcPaidThru($alloc->months);
@@ -40,21 +39,10 @@ class StatusManagerDues extends StatusManager
         } else {
             $member->dues_paid_thru_dt = $alloc->paid_thru_dt;
             $member->overage = $alloc->unalloc_remainder;
-            if ($member->save()) {
-                if ($member->isInApplication() && ($member->currentApf->balance == 0.00) && ($alloc->estimateOwed(true) == 0.00)) {
-                    $received_dt = $alloc->allocatedMember->receipt->received_dt;
-                    $status = $this->prepareStatus($member, $received_dt);
-                    $status->member_status = Status::ACTIVE;
-                    $status->reason = Status::REASON_APF;
-                    $status->alloc_id = $alloc->id;
-                    $member->addStatus($status);
-                    $member->init_dt = $received_dt;
-                    if (!$member->save())
-                        $errors = $member->errors;
-                }
-            } else {
+            if ($member->save())
+                $errors = $this->checkApf($alloc);
+            else
                 $errors = $member->errors;
-            }
         }
 
         return $errors;
