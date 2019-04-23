@@ -2,7 +2,7 @@
 
 namespace app\models\training;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "WorkHoursSumm".
@@ -10,9 +10,9 @@ use Yii;
  * @property string $member_id
  * @property integer $wp_seq
  * @property string $work_process
- * @property string $SUM(hours)
+ * @property string $hours [decimal(31,2)]
  */
-class WorkHoursSummary extends \yii\db\ActiveRecord
+class WorkHoursSummary extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -30,7 +30,7 @@ class WorkHoursSummary extends \yii\db\ActiveRecord
         return [
             [['member_id', 'wp_seq', 'work_process'], 'required'],
             [['wp_seq'], 'integer'],
-            [['SUM(hours)'], 'number'],
+            [['hours'], 'number'],
             [['member_id'], 'string', 'max' => 11],
             [['work_process'], 'string', 'max' => 50],
         ];
@@ -45,7 +45,7 @@ class WorkHoursSummary extends \yii\db\ActiveRecord
             'member_id' => 'Member ID',
             'wp_seq' => 'Wp Seq',
             'work_process' => 'Work Process',
-            'SUM(hours)' => 'Sum(hours)',
+            'hours' => 'Hours',
         ];
     }
 }

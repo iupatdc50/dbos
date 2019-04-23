@@ -601,7 +601,8 @@ class Member extends ActiveRecord implements iNotableInterface
      */
     public function getWorkHoursSummary()
     {
-        return $this->hasMany(WorkHoursSummary::className(), ['member_id' => 'member_id']);
+        return $this->hasMany(WorkHoursSummary::className(), ['member_id' => 'member_id'])
+            ->orderBy(['wp_seq' => SORT_ASC]);
     }
 
     /**

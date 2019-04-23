@@ -1,5 +1,6 @@
 <?php
 
+use yii\grid\ActionColumn;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
@@ -28,7 +29,7 @@ $expires_column = $expires ? [[
 
 $action_column = [
     [
-        'class' => \yii\grid\ActionColumn::className(),
+        'class' => ActionColumn::className(),
         'controller' => $controller,
         'template' => '{delete}',
 
@@ -36,7 +37,7 @@ $action_column = [
             'value' => Url::to(["/{$controller}/create", 'relation_id' => $relation_id]),
             'id' => 'credentialCreateButton',
             'class' => 'btn btn-default btn-modal btn-embedded',
-            'data-title' => 'Assessment',
+            'data-title' => 'Credential',
         ]),
         'visible' => Yii::$app->user->can('updateReceipt'),
 
@@ -44,8 +45,8 @@ $action_column = [
 ];
 
 
-try {
-    echo GridView::widget([
+/** @noinspection PhpUnhandledExceptionInspection */
+echo GridView::widget([
         'id' => 'credential-grid',
         'dataProvider' => $dataProvider,
         'panel' => [
@@ -66,8 +67,6 @@ try {
         'columns' => array_merge($base_columns, $expires_column, $action_column),
 
     ]);
-} catch (Exception $e) {
-}
 
 
 

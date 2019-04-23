@@ -14,32 +14,37 @@ class MemberCredentialsController extends Controller
 	
 	public function actionSummaryJson($id)
 	{
-		$member = Member::findOne($id);
+        if (!Yii::$app->user->can('manageTraining')) {
+            echo Json::encode($this->renderAjax('/partials/_deniedview'));
+        } else {
 
-        $recurProvider = new ActiveDataProvider([
-            'query' => $member->getCredentials(CredCategory::CATG_RECURRING),
-            'sort' => ['defaultOrder' => ['credential_id' => SORT_ASC]],
-        ]);
-        $nonrecurProvider = new ActiveDataProvider([
-            'query' => $member->getCredentials(CredCategory::CATG_NONRECUR),
-            'sort' => ['defaultOrder' => ['credential_id' => SORT_ASC]],
-        ]);
-        $medtestsProvider = new ActiveDataProvider([
-            'query' => $member->getCredentials(CredCategory::CATG_MEDTESTS),
-            'sort' => ['defaultOrder' => ['credential_id' => SORT_ASC]],
-        ]);
-        $coreProvider = new ActiveDataProvider([
-            'query' => $member->getCredentials(CredCategory::CATG_CORE),
-            'sort' => ['defaultOrder' => ['complete_dt' => SORT_DESC]],
-        ]);
+            $member = Member::findOne($id);
 
-        echo Json::encode($this->renderAjax('_credentials', [
+            $recurProvider = new ActiveDataProvider([
+                'query' => $member->getCredentials(CredCategory::CATG_RECURRING),
+                'sort' => ['defaultOrder' => ['credential_id' => SORT_ASC]],
+            ]);
+            $nonrecurProvider = new ActiveDataProvider([
+                'query' => $member->getCredentials(CredCategory::CATG_NONRECUR),
+                'sort' => ['defaultOrder' => ['credential_id' => SORT_ASC]],
+            ]);
+            $medtestsProvider = new ActiveDataProvider([
+                'query' => $member->getCredentials(CredCategory::CATG_MEDTESTS),
+                'sort' => ['defaultOrder' => ['credential_id' => SORT_ASC]],
+            ]);
+            $coreProvider = new ActiveDataProvider([
+                'query' => $member->getCredentials(CredCategory::CATG_CORE),
+                'sort' => ['defaultOrder' => ['complete_dt' => SORT_DESC]],
+            ]);
+
+            echo Json::encode($this->renderAjax('_credentials', [
                 'member' => $member,
                 'recurProvider' => $recurProvider,
                 'nonrecurProvider' => $nonrecurProvider,
                 'medtestsProvider' => $medtestsProvider,
                 'coreProvider' => $coreProvider,
-        ]));
+            ]));
+        }
 	}
 	
 	

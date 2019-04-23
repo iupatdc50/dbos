@@ -6,8 +6,10 @@ use app\controllers\base\SummaryController;
 use Yii;
 use app\models\member\MemberClass;
 use app\models\member\Member;
+use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use yii\bootstrap\ActiveForm;
+use yii\web\Response;
 
 
 /**
@@ -24,10 +26,10 @@ class MemberClassController extends SummaryController
      * Had to override because of the pass by value of $model.  Clean
      * this up.
      *
-     * @see \app\controllers\base\SubmodelController::actionCreate()
      * @param $relation_id      Member ID
-     * @return array|string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
+     *@see \app\controllers\base\SubmodelController::actionCreate()
      */
     public function actionCreate($relation_id)
     {
@@ -58,15 +60,14 @@ class MemberClassController extends SummaryController
 
     public function actionSummaryJson($id)
     {
-        /*
+        /** @noinspection PhpUnhandledExceptionInspection */
         $hoursProvider = new ActiveDataProvider([
             'query' => $this->setMember($id)->getWorkHoursSummary(),
         ]);
-        */
         $class = isset($this->member->currentClass) ? $this->member->currentClass->member_class : null;
         $this->viewParams = [
             'class' => $class,
-//            'hoursProvider' => $hoursProvider,
+            'hoursProvider' => $hoursProvider,
         ];
         parent::actionSummaryJson($id);
     }

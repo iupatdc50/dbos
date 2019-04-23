@@ -1,5 +1,7 @@
 <?php
 
+use yii\data\ActiveDataProvider;
+use yii\grid\ActionColumn;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
@@ -7,9 +9,9 @@ use yii\widgets\Pjax;
 use app\models\member\ClassCode;
 
 /* @var $this yii\web\View */
-/* @var $hoursProvider \yii\data\ActiveDataProvider */
+/* @var $hoursProvider ActiveDataProvider */
 /* @var $class string */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider ActiveDataProvider */
 /* @var $id string */
 
 // Member Class
@@ -17,11 +19,12 @@ $controller = 'member-class';
 ?>
 
 <div class="form-group">
+    <?php if(Yii::$app->user->can('manageTraining')): ?>
     <?php if (($class == ClassCode::CLASS_APPRENTICE) || ($class == ClassCode::CLASS_HANDLER)): ?>
     <div class="pull-right">
         <?php
         /** @noinspection PhpUnhandledExceptionInspection */
-        /*
+
         echo GridView::widget([
                 'id' => 'hours-summary',
                 'dataProvider' => $hoursProvider,
@@ -35,19 +38,26 @@ $controller = 'member-class';
                 ],
                 'toolbar' => [
                     'content' =>
-                        Html::button('<i class="glyphicon glyphicon-calendar"></i>&nbsp;View Timesheets',
-                            ['value' => Url::to(["*", 'member_id'  => $id]),
-                                'id' => 'timesheetButton',
-                                'class' => 'btn btn-default btn-modal',
-                                'data-title' => 'Timesheets',
-                                'title' => 'View Timesheets',
-                            ])
+                      Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;Timesheets',
+                        ['/timesheet/index', 'member_id' => $id],
+                        ['class' => 'btn btn-default', 'target' => '_blank'])
                 ],
                 'summary' => '',
                 'showPageSummary' => true,
                 'columns' => [
+                    [
+                        'class'=>'kartik\grid\BooleanColumn',
+                        'falseIcon' => '<span></span>',
+                        'attribute' => 'target',
+                        'label' => false,
+                        'value' => function($model) {
+                            return ($model->target > $model->hours) ? false : true;
+                        }
+
+                    ],
                     'work_process',
                     [
+                        'class' => 'kartik\grid\DataColumn',
                         'attribute' => 'hours',
                         'hAlign' => 'right',
                         'format' => ['decimal', 2],
@@ -55,9 +65,10 @@ $controller = 'member-class';
                     ],
                 ],
             ]);
-        */
+
         ?>
     </div>
+    <?php endif; ?>
     <?php endif; ?>
     <div class="pull-left">
         <?php
@@ -106,7 +117,7 @@ $controller = 'member-class';
                         },
                     ],
                     [
-                        'class' => \yii\grid\ActionColumn::className(),
+                        'class' => ActionColumn::className(),
                         'controller' => $controller,
                         'template' => '{delete}',
                         'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
