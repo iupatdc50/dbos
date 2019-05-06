@@ -165,7 +165,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     $historyUrl = Yii::$app->urlManager->createUrl(['receipt-member/summ-flattened-json', 'member_id' => $model->member_id]);
 
-    $complianceUrl = Yii::$app->urlManager->createUrl(['member-credentials/summary-json', 'id' => $model->member_id]);
+    $complianceUrl = Yii::$app->urlManager->createUrl(['member-credential/summary-json', 'id' => $model->member_id]);
     
     $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);

@@ -609,11 +609,12 @@ class Member extends ActiveRecord implements iNotableInterface
      * @param  string $catg Compliance credential category
      * @return ActiveQuery
      */
-    public function getCredentials($catg)
+    public function getCredentials($catg = null)
     {
-        return $this->hasMany(CurrentMemberCredential::className(), ['member_id' => 'member_id'])
-                    ->onCondition(['catg' => $catg])
-        ;
+        $query = $this->hasMany(CurrentMemberCredential::className(), ['member_id' => 'member_id']);
+        if (isset($catg))
+            $query->onCondition(['catg' => $catg]);
+        return $query;
     }
     
     /**

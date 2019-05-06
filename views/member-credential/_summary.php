@@ -9,6 +9,7 @@ use kartik\grid\GridView;
 /* @var $heading string */
 /* @var $expires bool */
 /* @var $relation_id string */
+/* @var $catg string */
 
 $controller = 'member-credential';
 
@@ -23,7 +24,7 @@ $base_columns = [
 
 $expires_column = $expires ? [[
     'attribute' => 'expire_dt',
-    'format' => ['date', 'php:m/Y'],
+    'format' => ['date'],
     'label' => 'Expires',
 ]] : [];
 
@@ -34,8 +35,8 @@ $action_column = [
         'template' => '{delete}',
 
         'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
-            'value' => Url::to(["/{$controller}/create", 'relation_id' => $relation_id]),
-            'id' => 'credentialCreateButton',
+            'value' => Url::to(["/{$controller}/create", 'member_id' => $relation_id, 'catg' => $catg]),
+            'id' => $catg . 'CreateButton',
             'class' => 'btn btn-default btn-modal btn-embedded',
             'data-title' => 'Credential',
         ]),

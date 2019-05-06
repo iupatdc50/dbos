@@ -2,8 +2,13 @@
 
 namespace app\models\training;
 
+use app\components\utilities\OpDate;
 use Yii;
 use app\models\member\Member;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "MemberCredentials".
@@ -13,14 +18,18 @@ use app\models\member\Member;
  * @property integer $credential_id
  * @property string $complete_dt
  * @property string $expire_dt
- * @property string $catg
- * @property integer display_seq
  *
- * @property Member $member
- * @property CredCategory $category
+ * @property Credential $credential
  */
-class MemberCredential extends \yii\db\ActiveRecord
+class MemberCredential extends ActiveRecord
 {
+    /*
+     * Injected Member object, used for creating new entries
+     */
+    public $member;
+
+    public $catg;
+
     /**
      * @inheritdoc
      */
@@ -35,9 +44,9 @@ class MemberCredential extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['member_id', 'credential_id', 'complete_dt'], 'required'],
+            [['credential_id', 'complete_dt'], 'required'],
             [['credential_id'], 'integer'],
-            [['complete_dt', 'expire_dt'], 'safe'],
+            [['expire_dt'], 'safe'],
             [['member_id'], 'string', 'max' => 11],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
             [['credential_id'], 'exist', 'skipOnError' => true, 'targetClass' => Credential::className(), 'targetAttribute' => ['credential_id' => 'id']],
@@ -52,22 +61,50 @@ class MemberCredential extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'member_id' => 'Member ID',
-            'credential_id' => 'Credential ID',
-            'complete_dt' => 'Complete Dt',
-            'expire_dt' => 'Expire Dt',
+            'credential_id' => 'Credential',
+            'complete_dt' => 'Completed',
+            'expire_dt' => 'Expires',
         ];
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param bool $insert
+     * @return bool
+     * @throws InvalidConfigException
      */
-    public function getMember()
+    public function beforeSave($insert)
     {
-        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+        if (parent::beforeSave($insert)) {
+            if (!(isset($this->member) && ($this->member instanceof Member)))
+                throw new InvalidConfigException('No member object injected');
+            if ($insert)
+                $this->member_id = $this->member->member_id;
+            if ($this->isAttributeChanged('complete_dt') && isset($this->credential->duration)) {
+                $expire_dt = new OpDate();
+                $expire_dt->setFromMySql($this->complete_dt)->modify("+{$this->credential->duration} month");
+                $this->expire_dt = $expire_dt->getMySqlDate(false);
+            }
+            return true;
+        }
+        return false;
+
     }
 
-    public function getCategory()
+    /**
+     * @return ActiveQuery
+     */
+    public function getCredential()
     {
-        return $this->hasOne(CredCategory::className(), ['catg' => 'catg']);
+        return $this->hasOne(Credential::className(), ['id' => 'credential_id']);
     }
+
+    /**
+     * @param $catg
+     * @return array
+     */
+    public function getCredentialOptions($catg)
+    {
+        return ArrayHelper::map(Credential::find()->where(['catg' => $catg])->orderBy('display_seq')->all(), 'id', 'credential');
+    }
+
 }

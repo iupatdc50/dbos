@@ -1,6 +1,9 @@
 <?php
 
+use app\models\training\CredCategory;
 use yii\bootstrap\Tabs;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $member app\models\member\Member */
@@ -20,15 +23,17 @@ echo Tabs::widget([
                 'relation_id' => $member->member_id,
                 'heading' => false,
                 'expires' => true,
+                'catg' => CredCategory::CATG_RECURRING,
             ]),
         ],
         [
-            'label' => 'Non-recurring',
+            'label' => 'Non-expiring',
             'content' => $this->render('_summary', [
                 'dataProvider' => $nonrecurProvider,
                 'relation_id' => $member->member_id,
                 'heading' => false,
                 'expires' => false,
+                'catg' => CredCategory::CATG_NONRECUR,
             ]),
         ],
         [
@@ -38,6 +43,7 @@ echo Tabs::widget([
                 'relation_id' => $member->member_id,
                 'heading' => false,
                 'expires' => true,
+                'catg' => CredCategory::CATG_MEDTESTS,
             ]),
         ],
         [
@@ -47,9 +53,16 @@ echo Tabs::widget([
                 'relation_id' => $member->member_id,
                 'heading' => false,
                 'expires' => false,
+                'catg'=> CredCategory::CATG_CORE,
             ]),
         ],
     ],
 
 ]);
+
+echo Html::a(
+    '<i class="glyphicon glyphicon-export"></i>&nbsp;Excel Certificate',
+    ['certificate', 'member_id' => $member->member_id],
+    ['class' => 'btn btn-default']
+);
 

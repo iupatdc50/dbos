@@ -2,23 +2,16 @@
 
 namespace app\models\training;
 
-use Yii;
-use app\models\member\Member;
 
 /**
  * This is the model class for table "CurrentMemberCredentials".
  *
- * @property integer $id
- * @property string $member_id
- * @property integer $credential_id
- * @property string $complete_dt
- * @property string $expire_dt
  * @property string $catg
+ * @property int $display_seq [int(11)]
+ * @property string $show_on_cert [enum('T', 'F')]
  *
- * @property Member $member
- * @property Credential $credential
  */
-class CurrentMemberCredential extends \yii\db\ActiveRecord
+class CurrentMemberCredential extends MemberCredential
 {
     /**
      * @inheritdoc
@@ -28,46 +21,9 @@ class CurrentMemberCredential extends \yii\db\ActiveRecord
         return 'CurrentMemberCredentials';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
+    public static function primaryKey()
     {
-        return [
-            [['id', 'credential_id'], 'integer'],
-            [['member_id', 'credential_id', 'complete_dt', 'catg'], 'required'],
-            [['complete_dt', 'expire_dt'], 'safe'],
-            [['member_id'], 'string', 'max' => 11],
-        ];
+        return ['id'];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'member_id' => 'Member ID',
-            'credential_id' => 'Credential ID',
-            'complete_dt' => 'Completed',
-            'expire_dt' => 'Expires',
-        ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getMember()
-    {
-        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCredential()
-    {
-        return $this->hasOne(Credential::className(), ['id' => 'credential_id']);
-    }
 }
