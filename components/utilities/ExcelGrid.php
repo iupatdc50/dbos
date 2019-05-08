@@ -1,47 +1,61 @@
 <?php
 namespace app\components\utilities;
 
+use Exception;
+use PHPExcel_Exception;
+use PHPExcel_Reader_Exception;
+use PHPExcel_Worksheet;
+use PHPExcel_Writer_Exception;
+use PHPExcel_Writer_IWriter;
 use Yii;
-use Closure;
-use yii\base\ErrorException;
-use yii\i18n\Formatter;
 use yii\base\InvalidConfigException;
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\helpers\Json;
+use yii\data\ActiveDataProvider;
+use yii\db\ActiveQueryInterface;
+use yii\grid\ActionColumn;
+use yii\grid\DataColumn;
+use yii\grid\GridView;
+use yii\grid\SerialColumn;
 use yii\helpers\ArrayHelper;
-use yii\widgets\BaseListView;
 use yii\base\Model;
 use \PHPExcel;
 use \PHPExcel_IOFactory;
-use \PHPExcel_Settings;
-use \PHPExcel_Style_Fill;
-use \PHPExcel_Writer_IWriter;
-use \PHPExcel_Worksheet;
 use \PHPExcel_Style_NumberFormat;
 
-class ExcelGrid extends \yii\grid\GridView
+class ExcelGrid extends GridView
 {
 	public $columns_array;
 	public $properties;
 	public $filename='excel';
 	public $extension='xlsx';
 	public $summaryCols;
+	/* @var $_provider ActiveDataProvider */
 	private $_provider;
 	private $_visibleColumns;
 	private $_beginRow = 1;
 	private $_endRow;
 	private $_endCol;
 	private $_objPHPExcel;
+	/* @var $_objPHPExcelSheet PHPExcel_Worksheet */
 	private $_objPHPExcelSheet;
+    /* @var $_objPHPExcelWriter PHPExcel_Writer_IWriter */
 	private $_objPHPExcelWriter;
 
+    /**
+     * @throws InvalidConfigException
+     */
 	public function init(){
 		parent::init();
 	}
 
+    /**
+     * @return string|void
+     * @throws PHPExcel_Exception
+     * @throws PHPExcel_Reader_Exception
+     * @throws PHPExcel_Writer_Exception
+     */
 	public function run(){
 		//$this->test();
+        $oldEncoding = null;
 		if (function_exists('mb_internal_encoding')) {
 			$oldEncoding=mb_internal_encoding();
 			mb_internal_encoding('utf8');
@@ -60,14 +74,18 @@ class ExcelGrid extends \yii\grid\GridView
 		if (function_exists('mb_internal_encoding'))
 			mb_internal_encoding($oldEncoding);
 		exit;
-		Yii::$app->end();
+		//Yii::$app->end();
 		//$writer->save('test.xlsx');
-		parent::run();
+		//parent::run();
 	}
 
 	public function init_provider(){
 		$this->_provider = clone($this->dataProvider);
 	}
+
+    /**
+     * @throws PHPExcel_Exception
+     */
 	public function init_excel_sheet(){
 		$this->_objPHPExcel=new PHPExcel();
 		$creator = '';
@@ -95,6 +113,11 @@ class ExcelGrid extends \yii\grid\GridView
 		if(isset($this->properties['sheetTitle']))
 			$this->_objPHPExcelSheet->setTitle($this->properties['sheetTitle']);
 	}
+
+    /**
+     * @param $writer
+     * @throws PHPExcel_Reader_Exception
+     */
 	public function initPHPExcelWriter($writer)
 	{
 		$this->_objPHPExcelWriter = PHPExcel_IOFactory::createWriter(
@@ -102,6 +125,10 @@ class ExcelGrid extends \yii\grid\GridView
 				$writer
 		);
 	}
+
+    /**
+     * @throws PHPExcel_Exception
+     */
 	public function generateHeader(){
 		$this->setVisibleColumns();
 		$sheet = $this->_objPHPExcelSheet;
@@ -109,19 +136,24 @@ class ExcelGrid extends \yii\grid\GridView
 		$this->_endCol = 0;
 		foreach ($this->_visibleColumns as $column) {
 			$this->_endCol++;
-			$head = ($column instanceof \yii\grid\DataColumn) ? $this->getColumnHeader($column) : $column->header;
-			$cell = $sheet->setCellValue(self::columnName($this->_endCol) . $this->_beginRow, $head, true);
+			$head = ($column instanceof DataColumn) ? $this->getColumnHeader($column) : $column->header;
+			$sheet->setCellValue(self::columnName($this->_endCol) . $this->_beginRow, $head, true);
 		}
 		$sheet->freezePane($colFirst . ($this->_beginRow + 1));
 	}
 
+    /**
+     * @return int
+     * @throws PHPExcel_Exception
+     * @throws Exception
+     */
 	public function generateBody()
 	{
 		$columns = $this->_visibleColumns;
 		$models = array_values($this->_provider->getModels());
 		if (count($columns) == 0) {
-			$cell = $this->_objPHPExcelSheet->setCellValue('A1', $this->emptyText, true);
-			$model = reset($models);
+			$this->_objPHPExcelSheet->setCellValue('A1', $this->emptyText, true);
+			reset($models);
 			return 0;
 		}
 		$keys = $this->_provider->getKeys();
@@ -140,7 +172,7 @@ class ExcelGrid extends \yii\grid\GridView
 				$this->_endRow
 		);
 		
-		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . $this->_endRow + 1);
+		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . strval($this->_endRow + 1));
 		$style->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
 
 		for($col = 1; $col <= $this->_endCol; $col++) {
@@ -154,17 +186,17 @@ class ExcelGrid extends \yii\grid\GridView
      * @param $model
      * @param $key
      * @param $index
-     * @throws \Exception
+     * @throws Exception
      */
 	public function generateRow($model, $key, $index)
 	{
 		$cells = [];
 		$this->_endCol = 0;
 		foreach ($this->_visibleColumns as $column) {
-			if ($column instanceof \yii\grid\SerialColumn || $column instanceof \yii\grid\ActionColumn) {
+			if ($column instanceof SerialColumn || $column instanceof ActionColumn) {
 				continue;
 			} else {
-                /* @var $column \yii\grid\DataColumn */
+                /* @var $column DataColumn */
 				$format = $column->format;
 				try {
 				    if ($column->content === null) {
@@ -174,7 +206,7 @@ class ExcelGrid extends \yii\grid\GridView
 				        $content = $column->content;
                         $value = call_user_func($content, $model, $key, $index, $column);
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     /** @noinspection PhpUndefinedVariableInspection */
                     Yii::error("*** EG010 Problem with encode: " . print_r($content, true));
 				    throw $e;
@@ -207,7 +239,7 @@ class ExcelGrid extends \yii\grid\GridView
 	{
 		$cols = [];
 		foreach ($this->columns as $key => $column) {
-			if ($column instanceof \yii\grid\SerialColumn || $column instanceof \yii\grid\ActionColumn) {
+			if ($column instanceof SerialColumn || $column instanceof ActionColumn) {
 				continue;
 			}
 			$cols[] = $column;
@@ -258,7 +290,8 @@ class ExcelGrid extends \yii\grid\GridView
 	{
 		header("Cache-Control: no-cache");
 		header("Pragma: no-cache");
-		header("Content-Type: application/{$this->extension}; charset=utf-8");
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/{$this->extension}; charset=utf-8");
 		header("Content-Disposition: attachment; filename={$this->filename}.{$this->extension}");
 		header("Expires: 0");
 	}

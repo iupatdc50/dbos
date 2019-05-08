@@ -5,8 +5,13 @@ namespace app\controllers;
 use app\models\training\CredCategory;
 use app\models\training\MemberCredential;
 use InvalidArgumentException;
-use PHPExcel;
+use PHPExcel_Exception;
 use PHPExcel_IOFactory;
+use PHPExcel_Reader_Exception;
+use PHPExcel_Shared_Date;
+use PHPExcel_Style_Color;
+use PHPExcel_Worksheet;
+use PHPExcel_Writer_Exception;
 use Yii;
 use app\models\member\Member;
 use yii\db\Exception;
@@ -94,35 +99,53 @@ class MemberCredentialController extends Controller
 	}
 
     /**
+     * Build certificate spreadsheet from training credentials
+     *
+     * Template `TRAINING CERTIFICATION.xltx` has named ranges based on credential_id.  Conditional formatting of
+     * expired credentials has to handled here.
+     *
      * @param $member_id
      * @return string
-     * @throws \PHPExcel_Reader_Exception
-     * @throws \PHPExcel_Writer_Exception
-     * @throws \PHPExcel_Exception
+     * @throws PHPExcel_Reader_Exception
+     * @throws PHPExcel_Writer_Exception
+     * @throws PHPExcel_Exception
      */
 	public function actionCertificate($member_id)
     {
         $member = Member::findOne($member_id);
-        $query = $member->getCredentials()->where(['show_on_cert' => 'T']);
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'sort' => ['defaultOrder' => ['display_seq' => SORT_ASC]],
-            'pagination' => false,
-        ]);
+        $credentials = $member->getCredentials()->where(['show_on_cert' => 'T'])->orderBy(['display_seq' => SORT_ASC])->all();
 
         $template_nm = 'TRAINING CERTIFICATION.xltx';
-        $file_nm = 'Certificate_' . substr($member->report_id, -4) . $member->last_nm;
+        $file_nm = 'Cert_' . substr($member->report_id, -4);
         $extension = 'xlsx';
         $template_path = implode(DIRECTORY_SEPARATOR, [Yii::$app->getRuntimePath(), 'templates', 'xlsx', $template_nm]);
 
         $objReader = PHPExcel_IOFactory::createReader('Excel2007');
         $objPHPExcel = $objReader->load($template_path);
 
-        $objPHPExcel->setActiveSheetIndex(0);
         $sheet = $objPHPExcel->getActiveSheet();
-//        $sheet->namedRangeToArray()
-        $sheet->getCell('trade')->setValue($member->currentStatus->lob->short_descrip);
+        $sheet->getCell($objPHPExcel->getNamedRange('full_nm')->getRange())->setValue($member->fullName);
+        $sheet->getCell($objPHPExcel->getNamedRange('trade')->getRange())->setValue($member->currentStatus->lob->short_descrip);
+
+        foreach ($credentials as $credential)
+        {
+            /* @var $credential MemberCredential */
+            $complete_dt = PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->complete_dt));
+            $range = $objPHPExcel->getNamedRange('complete_dt' . $credential->credential_id)->getRange();
+            $sheet->getCell($range)->setValue($complete_dt);
+            $named_range = $objPHPExcel->getNamedRange('expire_dt' . $credential->credential_id);
+            if (isset($named_range) && (($range = $named_range->getRange()) != null)) {
+                $expire_timestamp = strtotime($credential->expire_dt);
+                $expire_dt = ($expire_timestamp > time()) ? PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->expire_dt)) : 'Expired';
+                $sheet->getCell($range)->setValue($expire_dt);
+                if ($expire_dt == 'Expired') {
+                    $this->alertCell($sheet, $range);
+                    // Haz/lead includes other credentials in certificate
+                    if ($credential->credential_id == 25)
+                        $this->alertCell($sheet, 'H8:J10');
+                }
+            }
+        }
 
         header("Cache-Control: no-cache");
         header("Pragma: no-cache");
@@ -130,10 +153,12 @@ class MemberCredentialController extends Controller
         header("Content-Type: application/{$extension}; charset=utf-8");
         header("Content-Disposition: attachment; filename={$file_nm}.{$extension}");
         header("Expires: 0");
+
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
 
-        return $this->render('certificate', ['member' => $member]);
+        return $this->goBack();
+
     }
 
     /**
@@ -151,5 +176,15 @@ class MemberCredentialController extends Controller
         return $this->goBack();
     }
 
+    /**
+     * @param PHPExcel_Worksheet $sheet
+     * @param $range
+     * @throws PHPExcel_Exception
+     */
+    private function alertCell(PHPExcel_Worksheet $sheet, $range)
+    {
+        $sheet->getStyle($range)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+        $sheet->getStyle($range)->getFont()->setBold(true);
+    }
 
 }

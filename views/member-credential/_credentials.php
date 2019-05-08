@@ -3,7 +3,6 @@
 use app\models\training\CredCategory;
 use yii\bootstrap\Tabs;
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $member app\models\member\Member */
@@ -62,7 +61,7 @@ echo Tabs::widget([
 
 echo Html::a(
     '<i class="glyphicon glyphicon-export"></i>&nbsp;Excel Certificate',
-    ['*', 'member_id' => $member->member_id],
+    ['certificate', 'member_id' => $member->member_id],
     ['class' => 'btn btn-default']
 );
 
