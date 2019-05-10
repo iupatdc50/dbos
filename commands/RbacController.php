@@ -3,7 +3,10 @@
 namespace app\commands;
 
 use app\models\user\User;
+use app\rbac\OwnerRule;
+use Exception;
 use Yii;
+use yii\base\Exception as BaseException;
 use yii\console\Controller;
 use yii\base\InvalidParamException;
 
@@ -12,8 +15,8 @@ class RbacController extends Controller
 
     /**
      * @return int
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws BaseException
+     * @throws Exception
      */
 	public function actionInit()
 	{
@@ -29,7 +32,8 @@ class RbacController extends Controller
 		$uploadDocs = $auth->createPermission('uploadDocs');
 		$uploadDocs->description = 'Upload scanned documents';
 		$auth->add($uploadDocs);
-		
+        echo "...complete\n";
+
 		// Member permissions
 		echo "Preparing member permissions";
 		$browseMember = $auth->createPermission('browseMember');
@@ -271,7 +275,7 @@ class RbacController extends Controller
 		$updateUser = $auth->createPermission('updateUser');
 		$updateUser->description = 'Update user account information';
 		$auth->add($updateUser);
-		$ownerRule = new \app\rbac\OwnerRule;
+		$ownerRule = new OwnerRule;
 		$auth->add($ownerRule);
 		$updateOwnProfile = $auth->createPermission('updateOwnProfile');
 		$updateOwnProfile->description = 'Update own profile information';
@@ -307,7 +311,8 @@ class RbacController extends Controller
 		$auth->add($frontDesk);
 		$auth->addChild($frontDesk, $memberEditor);
 		$auth->addChild($frontDesk, $contractorEditor);
-		$auth->addChild($frontDesk, $accountingEditor);
+        $auth->addChild($frontDesk, $accountingEditor);
+        $auth->addChild($frontDesk, $trainingViewer);
 		echo "...complete\n";
 		
 		// Office Manager role
@@ -319,6 +324,7 @@ class RbacController extends Controller
 		$auth->addChild($officeMgr, $memberAdmin);
 		$auth->addChild($officeMgr, $contractorAdmin);
 		$auth->addChild($officeMgr, $accountingAdmin);
+        $auth->addChild($officeMgr, $trainingEditor);
 		$auth->addChild($officeMgr, $projectAdmin);
 		echo "...complete\n";
 		
@@ -327,8 +333,9 @@ class RbacController extends Controller
 		$bizMgr = $auth->createRole('bizRep');
 		$bizMgr->description = 'Business Rep*';
 		$auth->add($bizMgr);
-		$auth->addChild($bizMgr, $memberViewer); 
-		$auth->addChild($bizMgr, $contractorViewer);
+		$auth->addChild($bizMgr, $memberViewer);
+        $auth->addChild($bizMgr, $contractorViewer);
+        $auth->addChild($bizMgr, $accountingViewer);
 		echo "...complete\n";
 		
 		//Training role
@@ -338,7 +345,7 @@ class RbacController extends Controller
 		$auth->add($training);
 		$auth->addChild($training, $memberDemoEditor);
 		$auth->addChild($training, $contractorViewer);
-		$auth->addChild($training, $trainingViewer);
+		$auth->addChild($training, $trainingEditor);
 		echo "...complete\n";
 		
 		// System Admin role
@@ -362,7 +369,7 @@ class RbacController extends Controller
     /**
      * @param $role
      * @param $username
-     * @throws \Exception
+     * @throws Exception
      */
 	public function actionAssign($role, $username)
 	{

@@ -40,7 +40,7 @@ $action_column = [
             'class' => 'btn btn-default btn-modal btn-embedded',
             'data-title' => 'Credential',
         ]),
-        'visible' => Yii::$app->user->can('updateReceipt'),
+        'visible' => Yii::$app->user->can('manageTraining'),
 
     ],
 ];

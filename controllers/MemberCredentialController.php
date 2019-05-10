@@ -20,6 +20,7 @@ use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\helpers\Json;
 use yii\data\ActiveDataProvider;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -82,7 +83,7 @@ class MemberCredentialController extends Controller
             return $provider;
         }
 
-        if (!Yii::$app->user->can('manageTraining')) {
+        if (!Yii::$app->user->can('browseTraining')) {
             echo Json::encode($this->renderAjax('/partials/_deniedview'));
         } else {
 
@@ -109,56 +110,59 @@ class MemberCredentialController extends Controller
      * @throws PHPExcel_Reader_Exception
      * @throws PHPExcel_Writer_Exception
      * @throws PHPExcel_Exception
+     * @throws ForbiddenHttpException
      */
 	public function actionCertificate($member_id)
     {
-        $member = Member::findOne($member_id);
-        $credentials = $member->getCredentials()->where(['show_on_cert' => 'T'])->orderBy(['display_seq' => SORT_ASC])->all();
+        if (Yii::$app->user->can('manageTraining')) {
+            $member = Member::findOne($member_id);
+            $credentials = $member->getCredentials()->where(['show_on_cert' => 'T'])->orderBy(['display_seq' => SORT_ASC])->all();
 
-        $template_nm = 'TRAINING CERTIFICATION.xltx';
-        $file_nm = 'Cert_' . substr($member->report_id, -4);
-        $extension = 'xlsx';
-        $template_path = implode(DIRECTORY_SEPARATOR, [Yii::$app->getRuntimePath(), 'templates', 'xlsx', $template_nm]);
+            $template_nm = 'TRAINING CERTIFICATION.xltx';
+            $file_nm = 'Cert_' . substr($member->report_id, -4);
+            $extension = 'xlsx';
+            $template_path = implode(DIRECTORY_SEPARATOR, [Yii::$app->getRuntimePath(), 'templates', 'xlsx', $template_nm]);
 
-        $objReader = PHPExcel_IOFactory::createReader('Excel2007');
-        $objPHPExcel = $objReader->load($template_path);
+            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objPHPExcel = $objReader->load($template_path);
 
-        $sheet = $objPHPExcel->getActiveSheet();
-        $sheet->getCell($objPHPExcel->getNamedRange('full_nm')->getRange())->setValue($member->fullName);
-        $sheet->getCell($objPHPExcel->getNamedRange('trade')->getRange())->setValue($member->currentStatus->lob->short_descrip);
+            $sheet = $objPHPExcel->getActiveSheet();
+            $sheet->getCell($objPHPExcel->getNamedRange('full_nm')->getRange())->setValue($member->fullName);
+            $sheet->getCell($objPHPExcel->getNamedRange('trade')->getRange())->setValue($member->currentStatus->lob->short_descrip);
 
-        foreach ($credentials as $credential)
-        {
-            /* @var $credential MemberCredential */
-            $complete_dt = PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->complete_dt));
-            $range = $objPHPExcel->getNamedRange('complete_dt' . $credential->credential_id)->getRange();
-            $sheet->getCell($range)->setValue($complete_dt);
-            $named_range = $objPHPExcel->getNamedRange('expire_dt' . $credential->credential_id);
-            if (isset($named_range) && (($range = $named_range->getRange()) != null)) {
-                $expire_timestamp = strtotime($credential->expire_dt);
-                $expire_dt = ($expire_timestamp > time()) ? PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->expire_dt)) : 'Expired';
-                $sheet->getCell($range)->setValue($expire_dt);
-                if ($expire_dt == 'Expired') {
-                    $this->alertCell($sheet, $range);
-                    // Haz/lead includes other credentials in certificate
-                    if ($credential->credential_id == 25)
-                        $this->alertCell($sheet, 'H8:J10');
+            foreach ($credentials as $credential) {
+                /* @var $credential MemberCredential */
+                $complete_dt = PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->complete_dt));
+                $range = $objPHPExcel->getNamedRange('complete_dt' . $credential->credential_id)->getRange();
+                $sheet->getCell($range)->setValue($complete_dt);
+                $named_range = $objPHPExcel->getNamedRange('expire_dt' . $credential->credential_id);
+                if (isset($named_range) && (($range = $named_range->getRange()) != null)) {
+                    $expire_timestamp = strtotime($credential->expire_dt);
+                    $expire_dt = ($expire_timestamp > time()) ? PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->expire_dt)) : 'Expired';
+                    $sheet->getCell($range)->setValue($expire_dt);
+                    if ($expire_dt == 'Expired') {
+                        $this->alertCell($sheet, $range);
+                        // Haz/lead includes other credentials in certificate
+                        if ($credential->credential_id == 25)
+                            $this->alertCell($sheet, 'H8:J10');
+                    }
                 }
             }
+
+            header("Cache-Control: no-cache");
+            header("Pragma: no-cache");
+            header("Content-Type: application/force-download");
+            header("Content-Type: application/{$extension}; charset=utf-8");
+            header("Content-Disposition: attachment; filename={$file_nm}.{$extension}");
+            header("Expires: 0");
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+            $objWriter->save('php://output');
+
+            return $this->goBack();
         }
 
-        header("Cache-Control: no-cache");
-        header("Pragma: no-cache");
-        header("Content-Type: application/force-download");
-        header("Content-Type: application/{$extension}; charset=utf-8");
-        header("Content-Disposition: attachment; filename={$file_nm}.{$extension}");
-        header("Expires: 0");
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
-
-        return $this->goBack();
-
+        throw new ForbiddenHttpException("You are not allowed to perform this action ({$member_id})");
     }
 
     /**
@@ -166,14 +170,19 @@ class MemberCredentialController extends Controller
      * @return Response
      * @throws NotFoundHttpException
      * @throws StaleObjectException
+     * @throws ForbiddenHttpException
      */
     public function actionDelete($id)
     {
-        if (($model = MemberCredential::findOne($id)) == null)
-            throw new NotFoundHttpException('The requested page does not exist');
-        $model->delete();
-        Yii::$app->session->setFlash('success', "Credential entry deleted. Previous entry promoted");
-        return $this->goBack();
+        if (Yii::$app->user->can('manageTraining')) {
+            if (($model = MemberCredential::findOne($id)) == null)
+                throw new NotFoundHttpException('The requested page does not exist');
+            $model->delete();
+            Yii::$app->session->setFlash('success', "Credential entry deleted. Previous entry promoted");
+            return $this->goBack();
+        }
+        throw new ForbiddenHttpException("You are not allowed to perform this action ({$id})");
+
     }
 
     /**

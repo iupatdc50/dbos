@@ -59,9 +59,10 @@ echo Tabs::widget([
 
 ]);
 
-echo Html::a(
-    '<i class="glyphicon glyphicon-export"></i>&nbsp;Excel Certificate',
-    ['certificate', 'member_id' => $member->member_id],
-    ['class' => 'btn btn-default']
-);
+if (Yii::$app->user->can('manageTraining'))
+    echo Html::a(
+        '<i class="glyphicon glyphicon-export"></i>&nbsp;Excel Certificate',
+        ['certificate', 'member_id' => $member->member_id],
+        ['class' => 'btn btn-default']
+    );
 
