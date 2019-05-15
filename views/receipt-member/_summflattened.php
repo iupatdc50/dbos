@@ -2,10 +2,11 @@
 
 use kartik\grid\GridView;
 use kartik\helpers\Html;
+use yii\data\SqlDataProvider;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
-/* @var $sqlProvider \yii\data\SqlDataProvider */
+/* @var $sqlProvider SqlDataProvider */
 /* @var $typesSubmitted array fee types submittted */
 
 $baseColumns = [
@@ -47,7 +48,7 @@ $aftColumns  = [
             'contentOptions' => ['style' => 'white-space: nowrap;'],
             'template' => '{view}',
             'buttons' => [
-                'view' => function ($url, $model, $key) {
+                'view' => function ($url) {
                     return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, [
                         'title' => 'View',
                         'target' => '_blank',
@@ -55,12 +56,13 @@ $aftColumns  = [
                     ]);
                 },
             ],
-            'urlCreator' => function ($action, $model, $key, $index) {
+            'urlCreator' => function ($action, $model) {
                 if ($action === 'view') {
-                    $route = ($model['payor_type'] == 'C') ? '/receipt-contractor' : '/receipt-member';
+                    $route = ($model['payor_type'] == 'M') ? '/receipt-member' : '/receipt-contractor';
                     $url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model['id']]);
                     return $url;
                 }
+                return null;
             },
         ],
 ];

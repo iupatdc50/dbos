@@ -1,12 +1,12 @@
 <?php
 
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use kartik\grid\GridView;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider ActiveDataProvider */
 
 ?>
 
@@ -59,16 +59,17 @@ echo GridView::widget([
                     'contentOptions' => ['style' => 'white-space: nowrap;'],
                     'template' => '{view}',
                     'buttons' => [
-                        'view' => function ($url, $model, $key) {
+                        'view' => function ($url) {
                             return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', null, ['title' => 'View', 'onclick' => "window.open('{$url}');"]);
                         },
                     ],
-                    'urlCreator' => function ($action, $model, $key, $index) {
+                    'urlCreator' => function ($action, $model) {
                         if ($action === 'view') {
-                            $route = ($model->receipt->payor_type == 'C') ? '/receipt-contractor' : '/receipt-member';
+                            $route = ($model->receipt->payor_type == 'M') ? '/receipt-member' : '/receipt-contractor';
                             $url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model->receipt_id]);
                             return $url;
                         }
+                        return null;
                     },
                 ],
 		],
