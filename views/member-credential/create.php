@@ -7,6 +7,7 @@ use kartik\widgets\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\training\MemberCredential */
+/* @var $modelResp app\models\training\MemberRespirator */
 /* @var $form kartik\form\ActiveForm */
 ?>
 
@@ -23,12 +24,36 @@ use kartik\widgets\Select2;
         'data' => $model->getCredentialOptions($model->catg),
         'hideSearch' => false,
         'size' => Select2::SMALL,
-        'options' => ['placeholder' => 'Select...', 'id' => 'mclass'],
+        'options' => ['placeholder' => 'Select...', 'id' => 'credId'],
     ]) ?>
 
     <?= $form->field($model, 'complete_dt')->widget(DateControl::className(), [
         'type' => DateControl::FORMAT_DATE,
     ])  ?>
+
+    <div id="respirator">
+        <?= $form->field($modelResp, 'brand')->widget(Select2::className(), [
+            'data' => $modelResp->getBrandOptions(),
+            'hideSearch' => false,
+            'size' => Select2::SMALL,
+            'options' => ['placeholder' => 'Select...', 'id' => 'brand'],
+        ]) ?>
+
+        <?= $form->field($modelResp, 'resp_size')->widget(Select2::className(), [
+            'data' => $modelResp->getSizeOptions(),
+            'hideSearch' => true,
+            'size' => Select2::SMALL,
+            'options' => ['placeholder' => 'Select...', 'id' => 'size'],
+        ]) ?>
+
+        <?= $form->field($modelResp, 'resp_type')->widget(Select2::className(), [
+            'data' => $modelResp->getTypeOptions(),
+            'hideSearch' => true,
+            'size' => Select2::SMALL,
+            'options' => ['placeholder' => 'Select...', 'id' => 'type'],
+        ]) ?>
+
+    </div>
 
     <div class="form-group">
         <?= Html::submitButton('Create', ['class' => 'btn btn-success']); ?>
@@ -37,4 +62,28 @@ use kartik\widgets\Select2;
     <?php ActiveForm::end(); ?>
 
 </div>
+
+<?php
+$script = <<< JS
+
+$(function() {
+    toggle($('#credId').val());
+});
+
+$('#credId').change(function() {
+    toggle($(this).val());
+});
+
+function toggle(credId) {
+    var respopt = $('#respirator');
+    if(credId == 28) {
+        respopt.show();
+    } else {
+        respopt.hide();
+    }
+}
+
+JS;
+$this->registerJs($script);
+?>
 

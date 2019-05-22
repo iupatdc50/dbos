@@ -289,6 +289,10 @@ table .total-border {
 }
 .btn-xs, .btn-group-xs > .btn {padding: 1px 5px;}
 .btn-embedded {margin: -6px}
+.btn-compliance {
+	margin-top: -6px;
+	margin-bottom: -6px;
+}
 .btn-detail {
 	padding: 1px 5px;
 }

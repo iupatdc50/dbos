@@ -9,6 +9,9 @@ namespace app\models\training;
  * @property string $catg
  * @property int $display_seq [int(11)]
  * @property string $show_on_cert [enum('T', 'F')]
+ * @property string $card_descrip [varchar(20)]
+ * @property string $show_on_id [enum('T', 'F')]
+ * @property string $schedule_dt [date]
  *
  */
 class CurrentMemberCredential extends MemberCredential

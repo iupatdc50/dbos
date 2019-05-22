@@ -46,7 +46,7 @@ echo Tabs::widget([
             ]),
         ],
         [
-            'label' => 'PD Core',
+            'label' => 'Apprenticeship School',
             'content' => $this->render('_summary', [
                 'dataProvider' => $coreProvider,
                 'relation_id' => $member->member_id,

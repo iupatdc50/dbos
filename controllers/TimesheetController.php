@@ -17,6 +17,15 @@ use yii\filters\VerbFilter;
 class TimesheetController extends Controller
 {
     /**
+     * @var Member
+     */
+    private $_member;
+    /**
+     * @var array
+     */
+    private $_processes;
+
+    /**
      * @inheritdoc
      */
     public function behaviors()
@@ -38,22 +47,24 @@ class TimesheetController extends Controller
      */
     public function actionIndex($member_id)
     {
-        $member = Member::findOne($member_id);
-        $processes = WorkProcess::find()->where([
-            'lob_cd' => $member->currentStatus->lob_cd,
-        ])->orderBy('seq')->all();
+        $this->setupProcesses($member_id);
 
         $dataProvider = new SqlDataProvider([
-            'sql' => Timesheet::getFlattenedTimesheetsSql($processes),
+            'sql' => Timesheet::getFlattenedTimesheetsSql($this->_processes),
             'params' => ['member_id' => $member_id],
             'pagination' => ['pageSize' => 20],
         ]);
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
-            'member' => $member,
-            'processes' => $processes,
+            'member' => $this->_member,
+            'processes' => $this->_processes,
         ]);
+    }
+
+    public function actionCreate($member_id)
+    {
+        $this->setupProcesses($member_id);
     }
 
     /**
@@ -80,10 +91,17 @@ class TimesheetController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Timesheet::findOne($id)) !== null) {
+        if (($model = Timesheet::findOne($id)) !== null)
             return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    protected function setupProcesses($member_id)
+    {
+        $this->_member = Member::findOne($member_id);
+        $this->_processes = WorkProcess::find()->where([
+            'lob_cd' => $this->_member->currentStatus->lob_cd,
+        ])->orderBy('seq')->all();
+
     }
 }
