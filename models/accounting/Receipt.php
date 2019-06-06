@@ -3,6 +3,11 @@
 namespace app\models\accounting;
 
 use Yii;
+use yii\base\Exception;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 use app\helpers\OptionHelper;
@@ -40,7 +45,7 @@ use app\components\utilities\OpDate;
  * @property User $createdBy
  * @property User $updatedBy
  */
-class Receipt extends \yii\db\ActiveRecord
+class Receipt extends ActiveRecord
 {
 	CONST SCENARIO_CONFIG = 'config';
     CONST SCENARIO_CREATE = 'create';
@@ -123,8 +128,8 @@ class Receipt extends \yii\db\ActiveRecord
     public function behaviors()
 	{
 		return [
-				['class' => \yii\behaviors\TimestampBehavior::className()],
-				['class' => \yii\behaviors\BlameableBehavior::className()],
+				['class' => TimestampBehavior::className()],
+				['class' => BlameableBehavior::className()],
 		];
 	}
 
@@ -214,7 +219,7 @@ class Receipt extends \yii\db\ActiveRecord
 	}
 	
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMembers()
     {
@@ -222,7 +227,7 @@ class Receipt extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCreatedBy()
     {
@@ -230,7 +235,7 @@ class Receipt extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getUpdatedBy()
     {
@@ -246,7 +251,8 @@ class Receipt extends \yii\db\ActiveRecord
     {
     	if (!isset($base_dt)) {
     		$base_dt = new OpDate();
-    		$base_dt = (isset($this->received_dt)) ? $base_dt->setFromMySql($this->received_dt) : $base_dt->setFromMySql($this->getToday());
+    		 if (isset($this->received_dt))
+    		     $base_dt->setFromMySql($this->received_dt);
     	}
     	return OpDate::getMonthsList($base_dt, 2);
     }
@@ -300,7 +306,7 @@ class Receipt extends \yii\db\ActiveRecord
     /**
      * Uses an SQL view to determine unique fee types currently on this receipt
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFeeTypes()
     {
@@ -392,7 +398,7 @@ class Receipt extends \yii\db\ActiveRecord
      * Process upload of spreadsheet
      *
      * @return mixed the uploaded spreadsheet
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function uploadFile()
     {
@@ -445,7 +451,7 @@ class Receipt extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getLob()
     {
@@ -508,7 +514,7 @@ class Receipt extends \yii\db\ActiveRecord
     /**
      * Override this function when testing with fixed date
      *
-     * @return \app\components\utilities\OpDate
+     * @return OpDate
      */
     protected function getToday()
     {

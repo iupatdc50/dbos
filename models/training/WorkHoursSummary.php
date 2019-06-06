@@ -11,6 +11,7 @@ use yii\db\ActiveRecord;
  * @property integer $wp_seq
  * @property string $work_process
  * @property string $hours [decimal(31,2)]
+ * @property int $target [int(11)]
  */
 class WorkHoursSummary extends ActiveRecord
 {

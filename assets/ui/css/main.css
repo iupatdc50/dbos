@@ -270,13 +270,13 @@ table .total-border {
 
 .vertical-colhead {
 
-	transform: rotate(-70deg);
+	transform: rotate(-90deg);
 	transform-origin: 50% 50%;
 	padding: 0 !important;
 	text-align: left;
 	vertical-align: middle !important;
-	width: 100px;
-	height: 150px;
+	width: 75px;
+	height: 200px;
 }
 
 .negative {

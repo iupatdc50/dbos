@@ -5,6 +5,7 @@ namespace app\models\member;
 use app\models\accounting\DuesAllocation;
 use app\models\base\iIdInterface;
 use app\models\training\WorkHoursSummary;
+use app\models\training\WorkProcess;
 use app\models\ZipCode;
 use BadMethodCallException;
 use Yii;
@@ -73,6 +74,8 @@ use yii\db\Exception;
  * @property ApfAssessment $currentApf
  * @property LastDuesReceipt $lastDuesReceipt
  * @property Note[] $notes
+ * @property WorkProcess[] $processes
+ *
  */
 class Member extends ActiveRecord implements iNotableInterface
 {
@@ -95,6 +98,11 @@ class Member extends ActiveRecord implements iNotableInterface
 	 * @var OpDate
 	 */
 	protected $_dues_paid_thru_dt;
+
+    /**
+     * @var WorkProcess[]
+     */
+	protected $_processes;
 	
 	/**
 	 * @var OpDate How old the application date can be
@@ -1030,7 +1038,30 @@ class Member extends ActiveRecord implements iNotableInterface
         $history->overage = $this->overage;
         return $history->save();
     }
-    
+
+    /**
+     * Return an array of WorkProcess active records that are pertinent to the member's current trade
+     *
+     * @return WorkProcess[]|Size[]|array|ActiveRecord[]
+     */
+    public function getProcesses()
+    {
+        if (!(isset($this->_processes)))
+            $this->_processes = WorkProcess::find()->where([
+                'lob_cd' => $this->currentStatus->lob_cd,
+            ])->indexBy('id')->orderBy('seq')->all();
+
+        return $this->_processes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProcOptions()
+    {
+        return ArrayHelper::map($this->processes, 'seq', 'work_process');
+    }
+
     /**
      * Override this function when testing with fixed date
      * 

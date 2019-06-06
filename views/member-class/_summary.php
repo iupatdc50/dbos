@@ -40,7 +40,7 @@ $controller = 'member-class';
                     'content' =>
                       Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;Timesheets',
                         ['/timesheet/index', 'member_id' => $id],
-                        ['class' => 'btn btn-default', 'target' => '_blank'])
+                        ['class' => 'btn btn-default'])
                 ],
                 'summary' => '',
                 'showPageSummary' => true,
@@ -52,8 +52,8 @@ $controller = 'member-class';
                         'label' => false,
                         'value' => function($model) {
                             return ($model->target > $model->hours) ? false : true;
-                        }
-
+                        },
+                        'width' => '50px',
                     ],
                     'work_process',
                     [

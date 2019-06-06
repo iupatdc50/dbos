@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Because this view uses an SqlDataProvider, which returns an array, accessing content uses $model[col] notation.
+ */
+
 use app\models\member\Member;
 use yii\helpers\Html;
 use kartik\grid\GridView;
@@ -8,10 +12,14 @@ use yii\helpers\Url;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $member Member */
-/* @var $processes array */
+/* @var $image_path string */
 
 $this->title = 'Timesheets for ' . $member->fullName;
-$this->params['breadcrumbs'][] = $this->title;
+
+$this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['/member/index']];
+$this->params['breadcrumbs'][] = ['label' => $member->fullName, 'url' => ['/member/view', 'id' => $member->member_id]];
+$this->params['breadcrumbs'][] = 'Timesheets';
+
 ?>
 <div class="timesheet-index">
 
@@ -27,7 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ];
 
         $hourColumns = [];
-        foreach ($processes as $process)
+        foreach ($member->processes as $process)
         {
             $hourColumns[] = [
                 'attribute' => $process['work_process'],
@@ -51,8 +59,15 @@ $this->params['breadcrumbs'][] = $this->title;
                 'contentOptions' => ['class' => 'grid-rowtotal'],
             ],
             [
-                'attribute' => 'doc_id',
+                'attribute' => 'showPdf',
                 'label' => 'Doc',
+                'hAlign' => 'center',
+                'format' => 'raw',
+                'value' => function($model) {
+                    return (isset($model['doc_id'])) ?
+                        Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show DPR']),
+                            $model['imageUrl'], ['target' => '_blank', 'data-pjax'=>"0"]) : '';
+                },
             ],
             [
                 'attribute' => 'username',
@@ -66,7 +81,50 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => 'yii\grid\ActionColumn',
                 'contentOptions' => ['style' => 'white-space: nowrap;'],
-                'template' => '{update} {delete}',
+                'template' => '{attach} {update} {delete}',
+                'buttons' => [
+                    'attach' => function ($url, $model) {
+                        return Html::button('<i class="glyphicon glyphicon-save-file"></i>',
+                            [
+                                'value' => $url,
+                                'id' => 'attachButton' . $model['id'],
+                                'class' => 'btn btn-default btn-modal btn-detail btn-link',
+                                'title' => Yii::t('app','Attach document'),
+                                'data-title' => 'Attach',
+                            ]);
+                    },
+                    'update' => function ($url, $model) {
+                        return Html::button('<i class="glyphicon glyphicon-pencil"></i>',
+                            [
+                                'value' => $url,
+                                'id' => 'updateButton' . $model['id'],
+                                'class' => 'btn btn-default btn-modal btn-detail btn-link',
+                                'title' => Yii::t('app','Update'),
+                                'data-title' => 'Update',
+                            ]);
+                    },
+                    'delete' => function ($url) {
+                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+                            'title' => Yii::t('app', 'Delete'),
+                            'data-confirm' => 'Are you sure you want to delete this timesheet?',
+                            'data-method' => 'post',
+                        ]);
+                    }
+                ],
+                'urlCreator' => function ($action, $model) {
+                    if ($action === 'attach') {
+                        $url = '/timesheet/attach?id=' . $model['id'];
+                        return $url;
+                    } elseif ($action === 'update') {
+                        $url = '/timesheet/update?id=' . $model['id'];
+                        return $url;
+                    } elseif ($action === 'delete') {
+                        $url = '/timesheet/delete?id=' . $model['id'];
+                        return $url;
+                    }
+                    return null;
+                },
+                'visible' => Yii::$app->user->can('manageTraining'),
             ],
         ];
 
@@ -77,7 +135,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'type'=>GridView::TYPE_PRIMARY,
                 'heading'=> $this->title,
                 // workaround to prevent 1 in the before section
-                'before' => (Yii::$app->user->can('createReceipt')) ? '' : false,
+                'before' => (Yii::$app->user->can('manageTraining')) ? '' : false,
                 'after' => false,
             ],
             'toolbar' => [
@@ -86,11 +144,17 @@ $this->params['breadcrumbs'][] = $this->title;
                         [
                             'class' => 'btn btn-success btn-modal',
                             'id' => 'timesheetCreateButton',
-                            'value' => Url::to(["*"]),
+                            'value' => Url::to(["/timesheet/create", 'member_id' => $member->member_id]),
                             'data-title' => 'Timesheet',
-                            'disabled' => true,
                         ]),
             ],
+
+            'rowOptions' => function($model) {
+                $css = [];
+                $css['class'] = ($model['computed'] == $model['total']) ? 'default' : 'danger';
+                return $css;
+            },
+
             'formatter' => [
                 'class' => 'yii\i18n\Formatter',
                 'nullDisplay' => '',

@@ -2,9 +2,12 @@
 
 namespace app\models\training;
 
+use app\components\behaviors\OpImageBehavior;
+use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
 use app\models\member\Member;
 use app\models\user\User;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -23,9 +26,19 @@ use yii\db\ActiveRecord;
  * @property WorkHour[] $workHour
  * @property User $createdBy
  * @property string $enteredBy
+ * @property string $total_hours [decimal(9,2)]
+ * @property string $doc_id [varchar(20)]
+ *
+ * @method uploadImage()
+ *
  */
 class Timesheet extends ActiveRecord
 {
+    /**
+     * @var mixed	Stages document to be uploaded
+     */
+    public $doc_file;
+
     /**
      * @inheritdoc
      */
@@ -40,6 +53,7 @@ class Timesheet extends ActiveRecord
      */
     public static function getFlattenedTimesheetsSql($processes)
     {
+        $path = Yii::$app->urlManager->baseUrl . Yii::$app->params['docDir'];
         $cols = '';
         foreach ($processes as $process)
             $cols .= "MAX(CASE WHEN WH.wp_seq = " . $process['seq'] . " THEN WH.hours ELSE NULL END) AS `" . $process['work_process'] . "`, ";
@@ -50,7 +64,10 @@ class Timesheet extends ActiveRecord
                  T.`id`,
                  DATE_FORMAT(CONCAT(SUBSTRING(T.acct_month, 1, 4), '-', SUBSTRING(T.acct_month, 5, 2), '-01'), '%b %Y') AS acct_month, " .
             $cols .
-            "    SUM(WH.hours) AS total,
+            "    T.total_hours AS total,
+                 SUM(WH.hours) AS computed,
+                 T.doc_id,
+                 CONCAT('{$path}', T.doc_id) AS imageUrl,
                  U.username,
                  T.created_at
                FROM Timesheets AS T 
@@ -67,8 +84,9 @@ class Timesheet extends ActiveRecord
     public function behaviors()
     {
         return [
-            ['class' => TimestampBehavior::className()],
-            ['class' => BlameableBehavior::className()],
+            ['class' => OpImageBehavior::className()],
+            ['class' => TimestampBehavior::className(), 'updatedAtAttribute' => false],
+            ['class' => BlameableBehavior::className(), 'updatedByAttribute' => false],
         ];
     }
 
@@ -78,12 +96,14 @@ class Timesheet extends ActiveRecord
     public function rules()
     {
         return [
-            [['member_id', 'acct_month', 'created_at', 'created_by'], 'required'],
+            [['member_id', 'acct_month', 'total_hours'], 'required'],
             [['created_at', 'created_by'], 'integer'],
             [['member_id'], 'string', 'max' => 11],
             [['acct_month'], 'string', 'max' => 6],
             [['member_id', 'acct_month'], 'unique', 'targetAttribute' => ['member_id', 'acct_month'], 'message' => 'The combination of Member ID and Acct Month has already been taken.'],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
+            [['doc_id'], 'string', 'max' => 20],
+            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
         ];
     }
 
@@ -98,6 +118,8 @@ class Timesheet extends ActiveRecord
             'acct_month' => 'Acct Month',
             'created_at' => 'Created At',
             'created_by' => 'Created By',
+            'doc_id' => 'Doc',
+            'total_hours' => 'Total Hours',
         ];
     }
 
@@ -125,7 +147,17 @@ class Timesheet extends ActiveRecord
         return OptionHelper::getPrettyMonthYear($this->acct_month);
     }
 
-
+    /**
+     * @param OpDate|null $base_dt
+     * @return array
+     */
+    public function getAcctMonthOptions(OpDate $base_dt = null)
+    {
+        if (!isset($base_dt)) {
+            $base_dt = new OpDate();
+        }
+        return OpDate::getMonthsList($base_dt, 6);
+    }
 
     /**
      * @return ActiveQuery
@@ -139,4 +171,15 @@ class Timesheet extends ActiveRecord
     {
         return $this->createdBy->username . ' on ' . date('m/d/Y h:i a', $this->created_at);
     }
+
+    /**
+     * Override this function when testing with fixed date
+     *
+     * @return OpDate
+     */
+    protected function getToday()
+    {
+        return new OpDate();
+    }
+
 }
