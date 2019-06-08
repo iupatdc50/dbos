@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\accounting\ReceiptMember;
-use app\models\member\IdCard;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\member\Member;
@@ -18,9 +17,11 @@ use app\models\member\Note;
 use app\models\member\Document;
 use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
+use app\models\training\Standing as ClassStanding;
 use app\models\member\MemberSearch;
 use yii\data\SqlDataProvider;
-use yii\helpers\Json;
+use yii\db\Exception;
+use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -29,6 +30,7 @@ use app\helpers\OptionHelper;
 use app\components\utilities\OpDate;
 use yii\data\ActiveDataProvider;
 use yii\bootstrap\ActiveForm;
+use yii\web\Response;
 
 
 /**
@@ -97,8 +99,7 @@ class MemberController extends RootController
      * @param string $id
      * @return mixed
      * @throws NotFoundHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionView($id)
     {
@@ -120,6 +121,17 @@ class MemberController extends RootController
             $balance = number_format($balance, 2);
     	}
     	$params['balance'] = $balance;
+
+    	$wage_percent = [];
+        if (isset($model->currentStatus) && isset($model->currentClass)) {
+            $standing = new ClassStanding(['member' => $model]);
+            $result = $standing->wageShouldBe();
+            $wage_percent = [
+                'current' => $result['wage_percent'],
+                'should_be' => $result['should_be'],
+            ];
+        }
+        $params['wage_percent'] = $wage_percent;
     	
     	if (Yii::$app->user->can('browseMember')) {
     		$params['noteModel'] = $this->createNote($model);
@@ -144,7 +156,7 @@ class MemberController extends RootController
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionCreate()
     {
@@ -173,7 +185,7 @@ class MemberController extends RootController
         		
         		$model->init_dt = ($model->exempt_apf) ? $model->application_dt : null;
         		 
-        		$transaction = \Yii::$app->db->beginTransaction();
+        		$transaction = Yii::$app->db->beginTransaction();
         		try {
         			if ($model->save(false)) {
         				if ($image !== false) {
@@ -231,7 +243,11 @@ class MemberController extends RootController
         		'modelClass' => $modelClass,
         ]);
     }
-    
+
+    /**
+     * @return array|string|Response
+     * @throws Exception
+     */
     public function actionCreateStub()
     {
     	$idGenerator = new MemberId();
@@ -252,7 +268,7 @@ class MemberController extends RootController
 		
     	if ($model->load(Yii::$app->request->post()) && $modelStatus->load(Yii::$app->request->post())) {
     		if ($model->validate()) {
-    			$transaction = \Yii::$app->db->beginTransaction();
+    			$transaction = Yii::$app->db->beginTransaction();
     			try {
     				if ($model->save(false)) {
     					$modelStatus->effective_dt = $model->application_dt;
@@ -326,7 +342,7 @@ class MemberController extends RootController
      * Uploads a member's photo
      *
      * @param $id
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws NotFoundHttpException
      * @throws \yii\base\Exception
      */
@@ -358,7 +374,7 @@ class MemberController extends RootController
 
     /**
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
      */
     public function actionPhotoClear($id)
@@ -376,7 +392,7 @@ class MemberController extends RootController
      * @return mixed
      * @throws NotFoundHttpException
      * @throws \Exception
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -410,7 +426,7 @@ class MemberController extends RootController
      * @param null $report_year
      * @return string
      * @throws NotFoundHttpException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionPrintPreview($id, $report_year = null)
     {
@@ -438,11 +454,11 @@ class MemberController extends RootController
      * @param string|array $search Criteria used.
      * @param string $member_id Selected member's ID
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionMemberList($search = null, $member_id = null) 
     {
-    	\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    	Yii::$app->response->format = Response::FORMAT_JSON;
     	$out = ['results' => ['id' => '', 'text' => '']];
     	if (!is_null($search)) {
     		$data = Member::listAll($search);
@@ -463,11 +479,11 @@ class MemberController extends RootController
      * @param string $lob_cd
      * @param string $member_id Selected member's ID
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionMemberSsnList($search = null, $lob_cd = null, $member_id = null)
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = Response::FORMAT_JSON;
         $out = ['results' => ['id' => '', 'text' => '']];
         if (!is_null($search)) {
             $condition = (is_null($lob_cd)) ? $search : ['full_nm' => $search, 'lob_cd' => $lob_cd];
@@ -511,7 +527,7 @@ class MemberController extends RootController
     /**
      * Override this function when testing with fixed date
      *
-     * @return \app\components\utilities\OpDate
+     * @return OpDate
      */
     protected function getToday()
     {
@@ -521,7 +537,7 @@ class MemberController extends RootController
     protected function initCreate($model)
     {
     	if (!isset($model->application_dt)) {
-    		$model->application_dt = $this->today->getMySqlDate();
+    		$model->application_dt = $this->getToday()->getMySqlDate();
     	}
     }
     

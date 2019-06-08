@@ -12,6 +12,7 @@ use app\models\member\Status;
 /* @var $model app\models\member\Member */
 /* @var $noteModel app\models\member\Note */
 /* @var $balance string */
+/* @var $wage_percent array */
 
 $this->title = $model->fullName;
 $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
@@ -156,8 +157,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
     $status = isset($model->currentStatus) ? $model->currentStatus->status->descrip : 'Inactive';
     $statusUrl = Yii::$app->urlManager->createUrl(['member-status/summary-json', 'id' => $model->member_id]); 
-    
-    $class = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
+
+    $class = 'Unknown';
+    if (isset($model->currentClass)) {
+        $class = $model->currentClass->mClassDescrip;
+        if (($model->currentClass->wage_percent < 100) && (!empty($wage_percent))) {
+            if ($wage_percent['should_be'] > $wage_percent['current'])
+                $class .= Html::tag('span', " Qualifies for step increase", ['class' => 'negative']);
+        }
+
+    }
+
     $classUrl = Yii::$app->urlManager->createUrl(['member-class/summary-json', 'id' => $model->member_id]);
     
 //    $balance = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';

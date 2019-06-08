@@ -19,58 +19,8 @@ $controller = 'member-class';
 ?>
 
 <div class="form-group">
-    <?php if(Yii::$app->user->can('manageTraining')): ?>
-    <?php if (($class == ClassCode::CLASS_APPRENTICE) || ($class == ClassCode::CLASS_HANDLER)): ?>
-    <div class="pull-right">
-        <?php
-        /** @noinspection PhpUnhandledExceptionInspection */
 
-        echo GridView::widget([
-                'id' => 'hours-summary',
-                'dataProvider' => $hoursProvider,
-                'panel' => [
-                    'type'=>GridView::TYPE_DEFAULT,
-                    'heading'=>'Hours',
-                    'before' => (Yii::$app->user->can('manageTraining')) ? '' : false,
-                    'after' => false,
-                    'footer' => false,
-
-                ],
-                'toolbar' => [
-                    'content' =>
-                      Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;Timesheets',
-                        ['/timesheet/index', 'member_id' => $id],
-                        ['class' => 'btn btn-default'])
-                ],
-                'summary' => '',
-                'showPageSummary' => true,
-                'columns' => [
-                    [
-                        'class'=>'kartik\grid\BooleanColumn',
-                        'falseIcon' => '<span></span>',
-                        'attribute' => 'target',
-                        'label' => false,
-                        'value' => function($model) {
-                            return ($model->target > $model->hours) ? false : true;
-                        },
-                        'width' => '50px',
-                    ],
-                    'work_process',
-                    [
-                        'class' => 'kartik\grid\DataColumn',
-                        'attribute' => 'hours',
-                        'hAlign' => 'right',
-                        'format' => ['decimal', 2],
-                        'pageSummary' => true,
-                    ],
-                ],
-            ]);
-
-        ?>
-    </div>
-    <?php endif; ?>
-    <?php endif; ?>
-    <div class="pull-left">
+    <div class="leftside fifty-pct">
         <?php
         // 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
         Pjax::begin(['id' => 'class-history', 'enablePushState' => false]);
@@ -92,6 +42,7 @@ $controller = 'member-class';
                         'attribute' => 'mClass',
                         'label' => 'Class',
                         'value' => 'mClass.descrip',
+                        'contentOptions' => ['style' => 'white-space: nowrap;'],
                     ],
                     'effective_dt:date',
                     //				'end_dt:date',
@@ -103,7 +54,7 @@ $controller = 'member-class';
                     [
                         'class' => 'kartik\grid\DataColumn',
                         'attribute' => 'wage_percent',
-                        'label' => 'Percent',
+                        'label' => '%',
                         'hAlign' => 'right',
                     ],
                     [
@@ -136,4 +87,58 @@ $controller = 'member-class';
         Pjax::end();
         ?>
     </div>
+    <?php if(Yii::$app->user->can('manageTraining')): ?>
+    <?php if (($class == ClassCode::CLASS_APPRENTICE) || ($class == ClassCode::CLASS_HANDLER)): ?>
+    <div class="rightside fortyfive-pct">
+        <?php
+        /** @noinspection PhpUnhandledExceptionInspection */
+
+        echo GridView::widget([
+                'id' => 'hours-summary',
+                'dataProvider' => $hoursProvider,
+                'panel' => [
+                    'type'=>GridView::TYPE_DEFAULT,
+                    'heading'=>'Hours',
+                    'before' => (Yii::$app->user->can('manageTraining')) ? '' : false,
+                    'after' => false,
+                    'footer' => false,
+
+                ],
+                'toolbar' => [
+                    'content' =>
+                      Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;Timesheets',
+                        ['/timesheet/index', 'member_id' => $id],
+                        ['class' => 'btn btn-default'])
+                ],
+                'summary' => '',
+                'showPageSummary' => true,
+                'columns' => [
+                    [
+                        'class'=>'kartik\grid\BooleanColumn',
+                        'falseIcon' => '<span></span>',
+                        'attribute' => 'target',
+                        'label' => false,
+                        'value' => function($model) {
+                            return ($model->target > $model->hours) ? false : true;
+                        },
+//                        'width' => '50px',
+                    ],
+                    [
+                            'attribute' => 'work_process',
+                        'contentOptions' => ['style' => 'white-space: nowrap;'],
+                        ],
+                    [
+                        'class' => 'kartik\grid\DataColumn',
+                        'attribute' => 'hours',
+                        'hAlign' => 'right',
+                        'format' => ['decimal', 2],
+                        'pageSummary' => true,
+                    ],
+                ],
+            ]);
+
+        ?>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
 </div>

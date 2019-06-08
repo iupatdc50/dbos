@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = 'Timesheets';
                 'class' => 'kartik\grid\DataColumn',
                 'hAlign' => 'right',
                 'vAlign' => 'middle',
-                'format' => ['decimal', 1],
+                'format' => ['decimal', 2],
                 'headerOptions' => ['class' => 'vertical-colhead'],
             ];
         }
@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = 'Timesheets';
                 'class' => 'kartik\grid\DataColumn',
                 'hAlign' => 'right',
                 'vAlign' => 'middle',
-                'format' => ['decimal', 1],
+                'format' => ['decimal', 2],
                 'label' => 'TOTAL',
                 'headerOptions' => ['class' => 'vertical-colhead'],
                 'contentOptions' => ['class' => 'grid-rowtotal'],
