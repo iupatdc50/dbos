@@ -24,8 +24,8 @@ use yii\helpers\Html;
     <?= $form->field($modelHour, 'wp_seq')->widget(Select2::className(), [
         'size' => Select2::SMALL,
         'data' => $modelTimesheet->member->procOptions,
-        'options' => ['placeholder' => 'Select month...'],
-    ]) ?>
+        'options' => ['placeholder' => 'Select process...'],
+    ])->label('Process') ?>
     <?= $form->field($modelHour, 'hours')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
