@@ -42,7 +42,7 @@ use yii\helpers\Url;
                     'inputType' => Editable::INPUT_SELECT2,
                     'options' => [
                         'size' => Select2::SMALL,
-                        'data' => $modelTimesheet->member->procOptions,
+                        'data' => $modelTimesheet->unusedProcesses,
                         'options' => ['placeholder' => 'Select process...'],
                         'hideSearch' => true,
                     ],

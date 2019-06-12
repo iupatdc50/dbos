@@ -139,6 +139,17 @@ class Timesheet extends ActiveRecord
         return $this->hasMany(WorkHour::className(), ['timesheet_id' => 'id']);
     }
 
+    public function getUnusedProcesses()
+    {
+        $options = $this->member->getProcOptions();
+        $procs = $this->workHour;
+        foreach ($procs as $proc) {
+            unset($options[$proc->wp_seq]);
+        }
+
+        return $options;
+    }
+
     /**
      * @return string
      */
