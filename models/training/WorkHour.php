@@ -60,6 +60,17 @@ class WorkHour extends ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        $this->timesheet->popTotalHours();
+
+    }
+
+    /**
      * @return ActiveQuery
      */
     public function getTimesheet()

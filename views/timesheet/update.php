@@ -30,6 +30,8 @@ use yii\helpers\Url;
             'after' => false,
             'footer' => false,
         ],
+        'showPageSummary' => true,
+        'pageSummaryRowOptions' => ['class' => 'kv-page-summary default'],
         'columns' => [
             [
                 'attribute' => 'wp_seq',
@@ -64,6 +66,8 @@ use yii\helpers\Url;
                 'hAlign' => 'right',
                 'vAlign' => 'middle',
                 'format' => ['decimal', 2],
+                'pageSummary' => true,
+                'refreshGrid' => true,
             ],
             [
                 'class' => 'kartik\grid\ActionColumn',
@@ -106,7 +110,7 @@ use yii\helpers\Url;
 
     <?php $form = ActiveForm::begin([
         'layout' => 'horizontal',
-        'id' => 'allocation-add',
+        'id' => 'ts-update',
         'enableClientValidation' => true,
         'fieldConfig' => [
             'horizontalCssClasses' => [
@@ -121,8 +125,6 @@ use yii\helpers\Url;
         'data' => $modelTimesheet->acctMonthOptions,
         'options' => ['placeholder' => 'Select month...'],
     ]) ?>
-
-    <?= $form->field($modelTimesheet, 'total_hours')->textInput(['maxlength' => true, 'style' => 'width:100px']) ?>
 
     <hr>
 

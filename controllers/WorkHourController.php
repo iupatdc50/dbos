@@ -87,9 +87,11 @@ class WorkHourController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-//        $timesheet_id = $model->timesheet_id;
+        $timesheet_id = $model->timesheet_id;
 
-        $model->delete();
+        if ($model->delete()) {
+            Timesheet::findOne($timesheet_id)->popTotalHours();
+        }
 
         return $this->goBack();
 

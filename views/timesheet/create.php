@@ -36,14 +36,21 @@ use yii\helpers\Html;
 
     <?php
         foreach ($processes as $process) {
-            echo $form->field($modelHours, $process->id)->textInput(['maxlength' => true, 'style' => 'width:100px'])->label($process->work_process);
+            echo $form->field($modelHours, $process->id)->textInput([
+                    'maxlength' => true,
+                    'class' => 'hours',
+                    'style' => 'width:100px',
+            ])->label($process->work_process);
         }
 
     ?>
 
-    <hr>
+    <div class="form-group generated-total">
+        <label class="control-label col-sm-4" style="margin-right: 15px" for="total_hours">Total Hours</label>
+        <div id="total_hours" class="col-sm-4 flash-success">0.00</div>
+    </div>
 
-    <?= $form->field($modelTimesheet, 'total_hours')->textInput(['maxlength' => true, 'style' => 'width:100px']) ?>
+    <hr>
 
     <?= $form->field($modelTimesheet, "doc_file")->widget(FileInput::className(), [
         'options' => ['accept' => 'application/pdf'],
@@ -84,6 +91,14 @@ $(document).keydown(function(e) {
       }
       return false;
   }
+});
+
+$('.hours').change(function() {
+    var sum = 0;
+    $('.hours').each(function() {
+        sum += Number($(this).val());
+    });
+    $('#total_hours').html(sum);
 });
 
 JS;

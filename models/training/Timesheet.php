@@ -24,6 +24,7 @@ use yii\db\ActiveRecord;
  *
  * @property Member $member
  * @property WorkHour[] $workHour
+ * @property mixed $totalHours
  * @property User $createdBy
  * @property string $enteredBy
  * @property string $total_hours [decimal(9,2)]
@@ -96,11 +97,10 @@ class Timesheet extends ActiveRecord
     public function rules()
     {
         return [
-            [['member_id', 'acct_month', 'total_hours'], 'required'],
+            [['member_id', 'acct_month'], 'required'],
             [['created_at', 'created_by'], 'integer'],
             [['member_id'], 'string', 'max' => 11],
             [['acct_month'], 'string', 'max' => 6],
-            [['member_id', 'acct_month'], 'unique', 'targetAttribute' => ['member_id', 'acct_month'], 'message' => 'The combination of Member ID and Acct Month has already been taken.'],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
             [['doc_id'], 'string', 'max' => 20],
             [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
@@ -123,6 +123,12 @@ class Timesheet extends ActiveRecord
         ];
     }
 
+    public function popTotalHours()
+    {
+        $this->total_hours = $this->getTotalHours();
+        $this->save();
+    }
+
     /**
      * @return ActiveQuery
      */
@@ -137,6 +143,14 @@ class Timesheet extends ActiveRecord
     public function getWorkHour()
     {
         return $this->hasMany(WorkHour::className(), ['timesheet_id' => 'id']);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTotalHours()
+    {
+        return $this->hasMany(WorkHour::className(), ['timesheet_id' => 'id'])->sum('hours');
     }
 
     public function getUnusedProcesses()
