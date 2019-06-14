@@ -120,11 +120,21 @@ use yii\helpers\Url;
         ],
     ]); ?>
 
-    <?= $form->field($modelTimesheet, 'acct_month')->widget(Select2::className(), [
-        'size' => Select2::SMALL,
-        'data' => $modelTimesheet->acctMonthOptions,
-        'options' => ['placeholder' => 'Select month...'],
-    ]) ?>
+    <?php if(array_key_exists($modelTimesheet->acct_month, $modelTimesheet->acctMonthOptions)): ?>
+        <?= $form->field($modelTimesheet, 'acct_month')->widget(Select2::className(), [
+            'size' => Select2::SMALL,
+            'data' => $modelTimesheet->acctMonthOptions,
+            'options' => ['placeholder' => 'Select month...'],
+        ]) ?>
+    <?php else: ?>
+        <div class="form-group total">
+            <label class="control-label col-sm-4" style="margin-right: 15px" for="acct_month">Account Month</label>
+            <div id="acct_month" class="col-sm-4 flash-notice"><?= $modelTimesheet->acctMonthText ?></div>
+        </div>
+    <?php endif; ?>
+
+
+    <?= $form->field($modelTimesheet, 'remarks')->textarea(['rows' => 3]) ?>
 
     <hr>
 

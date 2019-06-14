@@ -52,6 +52,8 @@ use yii\helpers\Html;
 
     <hr>
 
+    <?= $form->field($modelTimesheet, 'remarks')->textarea(['rows' => 3]) ?>
+
     <?= $form->field($modelTimesheet, "doc_file")->widget(FileInput::className(), [
         'options' => ['accept' => 'application/pdf'],
         'pluginOptions'=> [

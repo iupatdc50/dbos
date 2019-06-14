@@ -29,6 +29,7 @@ use yii\db\ActiveRecord;
  * @property string $enteredBy
  * @property string $total_hours [decimal(9,2)]
  * @property string $doc_id [varchar(20)]
+ * @property string $remarks
  *
  * @method uploadImage()
  *
@@ -68,6 +69,7 @@ class Timesheet extends ActiveRecord
             "    T.total_hours AS total,
                  SUM(WH.hours) AS computed,
                  T.doc_id,
+                 T.remarks,
                  CONCAT('{$path}', T.doc_id) AS imageUrl,
                  U.username,
                  T.created_at
@@ -98,6 +100,7 @@ class Timesheet extends ActiveRecord
     {
         return [
             [['member_id', 'acct_month'], 'required'],
+            [['remarks'], 'safe'],
             [['created_at', 'created_by'], 'integer'],
             [['member_id'], 'string', 'max' => 11],
             [['acct_month'], 'string', 'max' => 6],
@@ -120,6 +123,7 @@ class Timesheet extends ActiveRecord
             'created_by' => 'Created By',
             'doc_id' => 'Doc',
             'total_hours' => 'Total Hours',
+            'remarks' => 'Remarks',
         ];
     }
 

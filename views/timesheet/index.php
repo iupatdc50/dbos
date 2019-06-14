@@ -69,6 +69,7 @@ $this->params['breadcrumbs'][] = 'Timesheets';
                             $model['imageUrl'], ['target' => '_blank', 'data-pjax'=>"0"]) : '';
                 },
             ],
+            'remarks',
             [
                 'attribute' => 'username',
                 'label' => 'Entered by',
