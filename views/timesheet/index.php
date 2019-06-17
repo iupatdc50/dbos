@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = 'Timesheets';
         foreach ($member->processes as $process)
         {
             $hourColumns[] = [
-                'attribute' => $process['work_process'],
+                'attribute' => $process['descrip'],
                 'class' => 'kartik\grid\DataColumn',
                 'hAlign' => 'right',
                 'vAlign' => 'middle',

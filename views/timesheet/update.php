@@ -50,7 +50,7 @@ use yii\helpers\Url;
                     ],
                 ],
                 'value' => function($model) {
-                    return $model->workProcess->work_process;
+                    return $model->workProcess->descrip;
                 },
                 'label' => 'Process',
             ],

@@ -24,6 +24,8 @@ class WorkHoursSummary extends ActiveRecord
     }
 
     /**
+     * In the VIEW, work_process returns the seq column concatenated with the short_descrip column
+     *
      * @inheritdoc
      */
     public function rules()

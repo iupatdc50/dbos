@@ -40,7 +40,7 @@ use yii\helpers\Html;
                     'maxlength' => true,
                     'class' => 'hours',
                     'style' => 'width:100px',
-            ])->label($process->work_process);
+            ])->label($process->descrip);
         }
 
     ?>

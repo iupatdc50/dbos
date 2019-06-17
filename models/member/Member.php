@@ -1059,7 +1059,11 @@ class Member extends ActiveRecord implements iNotableInterface
      */
     public function getProcOptions()
     {
-        return ArrayHelper::map($this->processes, 'seq', 'work_process');
+        $procs = $this->processes;
+        $options = [];
+        foreach ($procs as $proc)
+            $options[$proc->seq] = $proc->descrip;
+        return $options;
     }
 
     /**

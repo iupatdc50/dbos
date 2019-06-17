@@ -68,7 +68,7 @@ class WorkHourController extends Controller
 
                 if ($model->save()) {
 
-                    $output = isset($posted['wp_seq']) ? $model->workProcess->work_process : Yii::$app->formatter->asDecimal($model->hours, 2);
+                    $output = isset($posted['wp_seq']) ? $model->workProcess->descrip : Yii::$app->formatter->asDecimal($model->hours, 2);
                     $out = Json::encode(['output' => $output, 'message' => $message]);
                     echo $out;
                     return;

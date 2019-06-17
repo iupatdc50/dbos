@@ -121,12 +121,11 @@ $controller = 'member-class';
                         'value' => function($model) {
                             return ($model->target > $model->hours) ? false : true;
                         },
-//                        'width' => '50px',
                     ],
                     [
-                            'attribute' => 'work_process',
+                        'attribute' => 'work_process',
                         'contentOptions' => ['style' => 'white-space: nowrap;'],
-                        ],
+                    ],
                     [
                         'class' => 'kartik\grid\DataColumn',
                         'attribute' => 'hours',

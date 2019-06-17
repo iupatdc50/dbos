@@ -58,7 +58,7 @@ class Timesheet extends ActiveRecord
         $path = Yii::$app->urlManager->baseUrl . Yii::$app->params['docDir'];
         $cols = '';
         foreach ($processes as $process)
-            $cols .= "MAX(CASE WHEN WH.wp_seq = " . $process['seq'] . " THEN WH.hours ELSE NULL END) AS `" . $process['work_process'] . "`, ";
+            $cols .= "MAX(CASE WHEN WH.wp_seq = " . $process['seq'] . " THEN WH.hours ELSE NULL END) AS `" . $process['descrip'] . "`, ";
 
         $sql =
 
