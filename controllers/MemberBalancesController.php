@@ -12,8 +12,11 @@ use Yii;
 use app\models\member\Member;
 use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
+use yii\base\InvalidConfigException;
 use yii\bootstrap\ActiveForm;
 use yii\data\ActiveDataProvider;
+use yii\db\Exception;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\helpers\Json;
 use yii\web\Response;
@@ -22,7 +25,7 @@ class MemberBalancesController extends Controller
 {
     /**
      * @param $id
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
 	public function actionSummaryJson($id)
 	{
@@ -86,8 +89,8 @@ class MemberBalancesController extends Controller
     /**
      * @param $id
      * @return array|string|Response
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      */
     public function actionRepairDues($id)
     {
@@ -103,7 +106,7 @@ class MemberBalancesController extends Controller
             $faulties = DuesAllocPickList::find()
                 ->where(['member_id' => $member->member_id])
                 ->andWhere(['>', 'id', $model->alloc_id])
-                ->orderBy('id')
+                ->orderBy(['received_dt' => SORT_ASC, 'id' => SORT_ASC])
                 ->all()
             ;
 
@@ -168,7 +171,7 @@ class MemberBalancesController extends Controller
      * @param null $member_id
      * @param string $id Selected allocation ID
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionAllocList($search = null, $member_id = null, $id = null)
     {
@@ -203,7 +206,7 @@ class MemberBalancesController extends Controller
      * Assumes that $member contains the starting dues thru and overage
      *
      * @param Member $member
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      */
     public function resetOverageHistory(Member $member)
     {

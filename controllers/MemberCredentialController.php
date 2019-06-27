@@ -174,7 +174,7 @@ class MemberCredentialController extends Controller
                             if ($expire_dt == 'Expired') {
                                 $this->alertCell($sheet, $range);
                                 // Haz/lead includes other credentials in certificate
-                                if ($credential->credential_id == 25)
+                                if ($credential->credential_id == Credential::HAZ_LEAD)
                                     $this->alertCell($sheet, 'H8:J10');
                             }
                         }

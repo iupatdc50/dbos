@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
  */
 class Credential extends ActiveRecord
 {
+    const HAZ_LEAD = 25;
     const RESP_FIT = 28;
 
     /**
