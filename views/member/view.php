@@ -1,6 +1,5 @@
 <?php
 
-// use kartik\detail\DetailView;
 use yii\widgets\DetailView;
 use yii\jui\Accordion;
 use yii\helpers\Url;
@@ -180,8 +179,9 @@ $this->params['breadcrumbs'][] = $this->title;
     $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);
 
-	$docUrl = Yii::$app->urlManager->createUrl(['member-document/summary-json', 'id' => $model->member_id]);
-	
+    $docUrl = Yii::$app->urlManager->createUrl(['member-document/summary-json', 'id' => $model->member_id]);
+    $tdocUrl = Yii::$app->urlManager->createUrl(['training-document/summary-json', 'id' => $model->member_id]);
+
 ?>
 
 
@@ -210,15 +210,18 @@ try {
             [
                 'header' => Html::tag('span', 'Compliance'),
                 'content' => '<div data-url=' . $complianceUrl . '>loading...</div>',
-//                'content' => 'Feature is currently disabled',
             ],
             [
                 'header' => Html::tag('span', 'Employer: ') . $employer,
                 'content' => '<div data-url=' . $employerUrl . '>loading...</div>',
             ],
             [
-                'header' => Html::tag('span', 'Source Documents'),
+                'header' => Html::tag('span', 'Union Source Documents'),
                 'content' => '<div data-url=' . $docUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Training Source Documents'),
+                'content' => '<div data-url=' . $tdocUrl . '>loading...</div>',
             ],
         ],
         'options' => ['tag' => 'div'],
@@ -236,7 +239,7 @@ try {
 ?>
 </td><td class="forty-pct datatop">
 
-<?php if(Yii::$app->user->can('browseMemberExt')):?>
+<?php if(Yii::$app->user->can('updateDemo')):?>
 
 <div id="journal">
      <?php if ($model->noteCount >= 1): ?>

@@ -47,7 +47,6 @@ class MemberClassController extends SummaryController
         	if ($this->addClass($model)) {
         	    if ($image !== false) {
         	        $path = $model->imagePath;
-                    /** @noinspection PhpUndefinedMethodInspection */
                     $image->saveAs($path);
                 }
             }

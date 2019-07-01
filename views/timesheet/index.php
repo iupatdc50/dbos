@@ -12,6 +12,7 @@ use yii\helpers\Url;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $member Member */
+/* @var $totals array */
 /* @var $image_path string */
 
 $this->title = 'Timesheets for ' . $member->fullName;
@@ -30,7 +31,9 @@ $this->params['breadcrumbs'][] = 'Timesheets';
 //            'acctMonthText',
             [
                 'attribute' => 'acct_month',
+                'label' => 'Period',
                 'contentOptions' => ['style' => 'white-space: nowrap;'],
+                'footer' => 'TOTALS',
             ],
         ];
 
@@ -40,8 +43,8 @@ $this->params['breadcrumbs'][] = 'Timesheets';
             $hourColumns[] = [
                 'attribute' => $process['descrip'],
                 'class' => 'kartik\grid\DataColumn',
+                'footer' => isset($totals[$process['seq']]) ? number_format($totals[$process['seq']], 2) : null,
                 'hAlign' => 'right',
-                'vAlign' => 'middle',
                 'format' => ['decimal', 2],
                 'headerOptions' => ['class' => 'vertical-colhead'],
             ];
@@ -51,8 +54,8 @@ $this->params['breadcrumbs'][] = 'Timesheets';
             [
                 'attribute' => 'total',
                 'class' => 'kartik\grid\DataColumn',
+                'footer' => number_format($totals['grand_tot'], 2),
                 'hAlign' => 'right',
-                'vAlign' => 'middle',
                 'format' => ['decimal', 2],
                 'label' => 'TOTAL',
                 'headerOptions' => ['class' => 'vertical-colhead'],
@@ -69,10 +72,14 @@ $this->params['breadcrumbs'][] = 'Timesheets';
                             $model['imageUrl'], ['target' => '_blank', 'data-pjax'=>"0"]) : '';
                 },
             ],
+            [
+                'attribute' => 'contractor',
+                'contentOptions' => ['style' => 'white-space: nowrap;'],
+            ],
             'remarks',
             [
                 'attribute' => 'username',
-                'label' => 'Entered by',
+                'label' => 'Recorder',
             ],
             [
                 'attribute' => 'created_at',
@@ -132,6 +139,7 @@ $this->params['breadcrumbs'][] = 'Timesheets';
         /** @noinspection PhpUnhandledExceptionInspection */
         echo GridView::widget([
             'dataProvider' => $dataProvider,
+            'showFooter' => true,
             'panel'=>[
                 'type'=>GridView::TYPE_PRIMARY,
                 'heading'=> $this->title,

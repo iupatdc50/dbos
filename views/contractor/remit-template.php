@@ -2,8 +2,9 @@
 
 use app\components\utilities\ExcelGrid;
 use app\modules\admin\models\FeeType;
+use yii\web\View;
 
-/* @var $this \yii\web\View */
+/* @var $this View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $modelContractor app\models\contractor\Contractor */
 /* @var $modelsFeeType app\models\accounting\TradeFeeType[] */
@@ -12,7 +13,7 @@ use app\modules\admin\models\FeeType;
 $file_nm = 'RemitTemplate_' . $modelContractor->license_nbr . '_' . $lob_cd;
 $sheetTitle = substr($modelContractor->contractor, 0, 23) . ' (' . $lob_cd . ')';
 
-// 9 base columns
+// 8 base columns
 $base = [
 		
 			[
@@ -30,22 +31,18 @@ $base = [
 					'attribute' => 'member_status', 			// column F
 					'label' => 'I',					
 			],
-			[
-					'attribute' => 'standing.billingDescrip', 	//column G
-					'label' => 'Remarks',
-			],
             [
-                    'label' => 'HR: Hours Worked',  			// column H [8]
+                    'label' => 'HR: Hours Worked',  			// column G [7]
                     'value' => null,
             ],
 			[
-					'label' => 'GW: Gross Wages',  				// column I [9]
+					'label' => 'GW: Gross Wages',  				// column H [8]
 					'value' => null,
 			],
 ];
 
-$summaryCols = [8, 9];
-$col_nbr = 9;
+$summaryCols = [7, 8];
+$col_nbr = 8;
 
 $submittables = [];
 foreach ($modelsFeeType as $modelFeeType) {

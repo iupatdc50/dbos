@@ -48,6 +48,7 @@ class TimesheetController extends Controller
     public function actionIndex($member_id)
     {
         Yii::$app->user->returnUrl = Yii::$app->request->url;
+
         $member = Member::findOne($member_id);
 
         $count = Yii::$app->db->createCommand(
@@ -57,14 +58,24 @@ class TimesheetController extends Controller
         $dataProvider = new SqlDataProvider([
             'sql' => Timesheet::getFlattenedTimesheetsSql($member->processes),
             'params' => ['member_id' => $member_id],
-            'pagination' => ['pageSize' => 20],
+            'pagination' => ['pageSize' => 15],
             'totalCount' => $count,
             'key' => 'id',
         ]);
 
+        $summary = $member->workHoursSummary;
+        $totals = [];
+
+        foreach ($summary as $wp)
+            $totals[$wp->wp_seq] = $wp->hours;
+
+        $grand_tot = array_sum($totals);
+        $totals['grand_tot'] = $grand_tot;
+
         return $this->render('index', [
             'dataProvider' => $dataProvider,
             'member' => $member,
+            'totals' => $totals,
         ]);
     }
 
@@ -111,6 +122,9 @@ class TimesheetController extends Controller
 
             return $this->goBack();
         }
+
+        if (!isset($modelTimesheet->license_nbr))
+            $modelTimesheet->license_nbr = $member->employer->dues_payor;
 
         return $this->renderAjax('create', [
             'modelTimesheet' => $modelTimesheet,

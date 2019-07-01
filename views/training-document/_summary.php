@@ -9,6 +9,7 @@ use yii\data\ActiveDataProvider;
 echo $this->render('../partials/_documentsummary', [
     'dataProvider' => $dataProvider,
     'id' => $id,
-    'controller' => 'member-document',
-    'permission' => 'uploadDocs',
+    'controller' => 'training-document',
+    'permission' => 'manageTraining',
 ]);
+

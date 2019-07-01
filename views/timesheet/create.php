@@ -4,11 +4,17 @@ use kartik\select2\Select2;
 use kartik\widgets\FileInput;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\JsExpression;
 
 /* @var $this yii\web\View */
 /* @var $modelTimesheet app\models\training\Timesheet */
 /* @var $modelHours yii\base\DynamicModel */
 /* @var $processes array */
+
+// The controller action that will render the list
+$url = Url::to(['/contractor/contractor-list']);
+$init_contractor = empty($modelTimesheet->license_nbr) ? 'Search for a contractor...' : $modelTimesheet->contractor->contractor;
 
 ?>
 
@@ -53,6 +59,24 @@ use yii\helpers\Html;
     <hr>
 
     <?= $form->field($modelTimesheet, 'remarks')->textarea(['rows' => 3]) ?>
+
+    <?= $form->field($modelTimesheet, 'license_nbr')->widget(Select2::classname(), [
+        'size' => Select2::SMALL,
+        'initValueText' => $init_contractor,
+        'options' => ['placeholder' => 'Search for a contractor...'],
+        'pluginOptions' => [
+            'allowClear' => true,
+            'minimumInputLength' => 3,
+            'ajax' => [
+                'url' => $url,
+                'dataType' => 'json',
+                'data' => new JsExpression('function(params) { return {search:params.term}; }'),
+            ],
+            'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+            'templateResult' => new JsExpression('function(license_nbr) { return license_nbr.text; }'),
+            'templateSelection' => new JsExpression('function(license_nbr) { return license_nbr.text; }'),
+        ],
+    ]); ?>
 
     <?= $form->field($modelTimesheet, "doc_file")->widget(FileInput::className(), [
         'options' => ['accept' => 'application/pdf'],

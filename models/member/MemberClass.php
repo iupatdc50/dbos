@@ -2,9 +2,12 @@
 
 namespace app\models\member;
 
+use app\components\behaviors\OpImageBehavior;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use app\models\value\RateClass;
 use app\models\base\BaseEndable;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "MemberClasses".
@@ -20,7 +23,7 @@ use app\models\base\BaseEndable;
  *
  * @property MemberClass $mClass
  * @property RateClass $rClass
- * @method uploadImage()
+ * @method UploadedFile uploadImage()
  */
 class MemberClass extends BaseEndable
 {
@@ -65,7 +68,7 @@ class MemberClass extends BaseEndable
     public function behaviors()
     {
         return [
-            \app\components\behaviors\OpImageBehavior::className(),
+            OpImageBehavior::className(),
         ];
     }
 
@@ -135,7 +138,7 @@ class MemberClass extends BaseEndable
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMClass()
     {
@@ -148,7 +151,7 @@ class MemberClass extends BaseEndable
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getRClass()
     {

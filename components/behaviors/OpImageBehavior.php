@@ -4,11 +4,14 @@ namespace app\components\behaviors;
 
 use Yii;
 use yii\base\Behavior;
+use yii\base\Exception;
 use yii\web\UploadedFile;
 
 /**
  * Handles file uploads and deletions.  Should be attached to model that manages the ID
  * of the uploaded
+ *
+ * NOTE:  May have to define
  * 
  * @author jmdemoor
  */
@@ -54,12 +57,14 @@ class OpImageBehavior extends Behavior
     /**
      * Process upload of image
      *
-     * @return mixed the uploaded image instance
-     * @throws \yii\base\Exception
+     * @return boolean|UploadedFile the uploaded image instance
+     * @throws Exception
      */
 	public function uploadImage()
 	{
-		$image = UploadedFile::getInstance($this->owner, $this->doc_file);
+	    // $this->owner is normally a controller, not a model, so inspection is bypassed
+        /** @noinspection PhpParamsInspection */
+        $image = UploadedFile::getInstance($this->owner, $this->doc_file);
 		if (empty($image)) {
 			return false;
 		}

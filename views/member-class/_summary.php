@@ -89,55 +89,64 @@ $controller = 'member-class';
     </div>
     <?php if(Yii::$app->user->can('manageTraining')): ?>
     <?php if (($class == ClassCode::CLASS_APPRENTICE) || ($class == ClassCode::CLASS_HANDLER)): ?>
-    <div class="rightside fortyfive-pct">
-        <?php
-        /** @noinspection PhpUnhandledExceptionInspection */
+        <div class="rightside fortyfive-pct">
+            <?php
+            /** @noinspection PhpUnhandledExceptionInspection */
 
-        echo GridView::widget([
-                'id' => 'hours-summary',
-                'dataProvider' => $hoursProvider,
-                'panel' => [
-                    'type'=>GridView::TYPE_DEFAULT,
-                    'heading'=>'Hours',
-                    'before' => (Yii::$app->user->can('manageTraining')) ? '' : false,
-                    'after' => false,
-                    'footer' => false,
+            echo GridView::widget([
+                    'id' => 'hours-summary',
+                    'dataProvider' => $hoursProvider,
+                    'panel' => [
+                        'type'=>GridView::TYPE_DEFAULT,
+                        'heading'=>'Hours',
+                        'before' => (Yii::$app->user->can('manageTraining')) ? '' : false,
+                        'after' => false,
+                        'footer' => false,
 
-                ],
-                'toolbar' => [
-                    'content' =>
-                      Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;Timesheets',
-                        ['/timesheet/index', 'member_id' => $id],
-                        ['class' => 'btn btn-default'])
-                ],
-                'summary' => '',
-                'showPageSummary' => true,
-                'columns' => [
-                    [
-                        'class'=>'kartik\grid\BooleanColumn',
-                        'falseIcon' => '<span></span>',
-                        'attribute' => 'target',
-                        'label' => false,
-                        'value' => function($model) {
-                            return ($model->target > $model->hours) ? false : true;
-                        },
                     ],
-                    [
-                        'attribute' => 'work_process',
-                        'contentOptions' => ['style' => 'white-space: nowrap;'],
+                    'toolbar' => [
+                        'content' =>
+                          Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;DPR Timesheets',
+                            ['/timesheet/index', 'member_id' => $id],
+                            ['class' => 'btn btn-default'])
                     ],
-                    [
-                        'class' => 'kartik\grid\DataColumn',
-                        'attribute' => 'hours',
-                        'hAlign' => 'right',
-                        'format' => ['decimal', 2],
-                        'pageSummary' => true,
+                    'summary' => '',
+                    'showPageSummary' => true,
+                    'columns' => [
+                        [
+                            'class'=>'kartik\grid\BooleanColumn',
+                            'falseIcon' => '<span></span>',
+                            'attribute' => 'target',
+                            'label' => false,
+                            'value' => function($model) {
+                                return ($model->target > $model->hours) ? false : true;
+                            },
+                        ],
+                        [
+                            'attribute' => 'work_process',
+                            'contentOptions' => ['style' => 'white-space: nowrap;'],
+                        ],
+                        [
+                            'class' => 'kartik\grid\DataColumn',
+                            'attribute' => 'hours',
+                            'hAlign' => 'right',
+                            'format' => ['decimal', 2],
+                            'pageSummary' => true,
+                        ],
                     ],
-                ],
-            ]);
+                ]);
 
-        ?>
-    </div>
+            ?>
+        </div>
+    <?php else: ?>
+        <div class="rightside twentyfive-pct">
+            <?php
+            if(Yii::$app->user->can('manageTraining'))
+                echo Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;DPR Timesheets',
+                    ['/timesheet/index', 'member_id' => $id],
+                    ['class' => 'btn btn-default', 'target' => '_blank']);
+            ?>
+        </div>
     <?php endif; ?>
     <?php endif; ?>
 </div>

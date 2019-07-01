@@ -225,7 +225,7 @@ class ExcelGrid extends GridView
     {
         $total_row = $row + 3;
 
-        $colA =  self::columnName($this->summaryCols[0] - 1);
+        $colA =  self::columnName($this->summaryCols[0] - 2);
         $this->_objPHPExcelSheet->setCellValue($colA . $total_row, '*** TOTALS', true);
 
         foreach ($this->summaryCols as $col) {

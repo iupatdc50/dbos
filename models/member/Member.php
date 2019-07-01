@@ -75,6 +75,7 @@ use yii\db\Exception;
  * @property LastDuesReceipt $lastDuesReceipt
  * @property Note[] $notes
  * @property WorkProcess[] $processes
+ * @property WorkHoursSummary[] $workHoursSummary
  *
  */
 class Member extends ActiveRecord implements iNotableInterface
@@ -455,20 +456,23 @@ class Member extends ActiveRecord implements iNotableInterface
     }
 
     /**
+     * @param string $catg
      * @return array
      * @throws Exception
      */
-    public function getUnfiledDocs()
+    public function getUnfiledDocs($catg = DocumentType::CATG_MEMBER)
     {
     	$sql = "SELECT doc_type "
     			. "  FROM " . DocumentType::tableName()
-    			. "  WHERE doc_type NOT IN (SELECT doc_type FROM " . Document::tableName()
+    			. "  WHERE catg = :catg  "
+    			. "    AND doc_type NOT IN (SELECT doc_type FROM " . Document::tableName()
     			. "                            WHERE member_id = :member_id) "
     			. "  ORDER BY doc_type "
     	;
     	$cmd = Yii::$app->db->createCommand($sql);
     	$cmd->bindValues([
     			':member_id' => $this->member_id,
+                ':catg' => $catg,
     	]);
     	return $cmd->queryAll();
     }

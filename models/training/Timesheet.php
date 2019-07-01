@@ -5,6 +5,7 @@ namespace app\models\training;
 use app\components\behaviors\OpImageBehavior;
 use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
+use app\models\contractor\Contractor;
 use app\models\member\Member;
 use app\models\user\User;
 use Yii;
@@ -23,6 +24,7 @@ use yii\db\ActiveRecord;
  * @property integer $created_by
  *
  * @property Member $member
+ * @property Contractor $contractor
  * @property WorkHour[] $workHour
  * @property mixed $totalHours
  * @property User $createdBy
@@ -30,6 +32,7 @@ use yii\db\ActiveRecord;
  * @property string $total_hours [decimal(9,2)]
  * @property string $doc_id [varchar(20)]
  * @property string $remarks
+ * @property string $license_nbr [varchar(8)]
  *
  * @method uploadImage()
  *
@@ -67,15 +70,17 @@ class Timesheet extends ActiveRecord
                  DATE_FORMAT(CONCAT(SUBSTRING(T.acct_month, 1, 4), '-', SUBSTRING(T.acct_month, 5, 2), '-01'), '%b %Y') AS acct_month, " .
             $cols .
             "    T.total_hours AS total,
-                 SUM(WH.hours) AS computed,
+                 COALESCE(SUM(WH.hours), 0.00) AS computed,
                  T.doc_id,
                  T.remarks,
                  CONCAT('{$path}', T.doc_id) AS imageUrl,
                  U.username,
-                 T.created_at
+                 T.created_at,
+                 C.contractor
                FROM Timesheets AS T 
-                 JOIN WorkHours AS WH ON T.`id` = WH.timesheet_id
+                 LEFT OUTER JOIN WorkHours AS WH ON T.`id` = WH.timesheet_id
                  JOIN Users AS U ON T.created_by = U.`id`
+                 LEFT OUTER JOIN Contractors AS C ON C.license_nbr = T.license_nbr
                WHERE T.member_id = :member_id
                GROUP BY T.`id`, T.acct_month
             ORDER BY T.acct_month DESC
@@ -100,11 +105,13 @@ class Timesheet extends ActiveRecord
     {
         return [
             [['member_id', 'acct_month'], 'required'],
-            [['remarks'], 'safe'],
+            [['remarks', 'license_nbr'], 'safe'],
             [['created_at', 'created_by'], 'integer'],
             [['member_id'], 'string', 'max' => 11],
             [['acct_month'], 'string', 'max' => 6],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
+            [['license_nbr'], 'exist', 'skipOnError' => true, 'targetClass' => Contractor::className(), 'targetAttribute' => ['license_nbr' => 'license_nbr']],
+            [['license_nbr'], 'default', 'value' => null],
             [['doc_id'], 'string', 'max' => 20],
             [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
         ];
@@ -118,12 +125,13 @@ class Timesheet extends ActiveRecord
         return [
             'id' => 'ID',
             'member_id' => 'Member ID',
-            'acct_month' => 'Acct Month',
+            'acct_month' => 'Period',
             'created_at' => 'Created At',
             'created_by' => 'Created By',
             'doc_id' => 'Doc',
             'total_hours' => 'Total Hours',
             'remarks' => 'Remarks',
+            'license_nbr' => 'Contractor',
         ];
     }
 
@@ -139,6 +147,14 @@ class Timesheet extends ActiveRecord
     public function getMember()
     {
         return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getContractor()
+    {
+        return $this->hasOne(Contractor::className(), ['license_nbr' => 'license_nbr']);
     }
 
     /**

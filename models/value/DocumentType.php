@@ -2,7 +2,7 @@
 
 namespace app\models\value;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "DocumentTypes".
@@ -10,8 +10,12 @@ use Yii;
  * @property string $doc_type
  * @property string $catg
  */
-class DocumentType extends \yii\db\ActiveRecord
+class DocumentType extends ActiveRecord
 {
+
+    const CATG_MEMBER = 'Member';
+    const CATG_TRAINING = 'Training';
+
     /**
      * @inheritdoc
      */
