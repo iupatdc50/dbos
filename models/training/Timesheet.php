@@ -113,7 +113,7 @@ class Timesheet extends ActiveRecord
             [['license_nbr'], 'exist', 'skipOnError' => true, 'targetClass' => Contractor::className(), 'targetAttribute' => ['license_nbr' => 'license_nbr']],
             [['license_nbr'], 'default', 'value' => null],
             [['doc_id'], 'string', 'max' => 20],
-            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
+            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png, jpg'],
         ];
     }
 
