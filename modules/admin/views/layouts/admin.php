@@ -101,6 +101,19 @@ app\assets\ApplicationUiAssetBundle::register($this);
 								],
 							],
 						],
+                        [
+                            'label' => 'Training',
+                            'icon' => 'education',
+                            'items' => [
+                                ['label' => 'Work Processes', 'url'=>'#'],
+                                ['label' => 'Credentials', 'url'=>'#'],
+                                [
+                                        'label' => 'Respirator Brands',
+                                        'url'=>'/admin/respirator-brand',
+ 										'active' => (yii::$app->requestedRoute == 'admin/respirator-brand'),
+                               ],
+                            ],
+                        ],
 						[
 							'label' => 'Support Tables',
 							'icon' => 'wrench',
