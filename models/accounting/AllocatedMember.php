@@ -71,16 +71,22 @@ class AllocatedMember extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if (isset($changedAttributes['member_id'])) {
-            // Change payor on member receipt only, assume only one alloc member
-            if (!$insert) {
-                $receipt = $this->receipt;
-                if ($receipt instanceof ReceiptMember) {
-                    $receipt-> payor_nm = $this->member->fullName;
-                    $receipt->save();
-                }
-            }
+
+        $receipt = $this->receipt;
+        if ($receipt instanceof ReceiptMember) {  // Assume only one alloc member
+
+            // Change payor on member receipt only
+            if (isset($changedAttributes['member_id']) && (!$insert))
+                $receipt->payor_nm = $this->member->fullName;
+
+            // Change lob_cd when allocation was reassigned to a member belonging to a different trade
+            if ($receipt->lob_cd <> $this->member->currentStatus->lob_cd)
+                $receipt->lob_cd = $this->member->currentStatus->lob_cd;
+
+            if (!empty($receipt->dirtyAttributes))
+                $receipt->save();
         }
+
     }
 
     /**
