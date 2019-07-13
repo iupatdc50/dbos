@@ -1,9 +1,11 @@
 <?php
 
+use kartik\widgets\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
 use app\helpers\OptionHelper;
+use app\models\accounting\Receipt;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\accounting\ReceiptSearch */
@@ -49,10 +51,12 @@ $toggle_mine_only = !$mine_only;
 							'data-title' => 'Receipt',
 					]),
 		],
-    	'rowOptions' => function($model) {
+    	'rowOptions' => function(Receipt $model) {
     		$css = ['verticalAlign' => 'middle'];
     		if ($model->void == OptionHelper::TF_TRUE)
     			$css['class'] = 'text-muted';
+    		elseif ($model->isUpdating())
+                $css['class'] = 'warning';
     		
     		return $css;
     		},
@@ -60,6 +64,7 @@ $toggle_mine_only = !$mine_only;
     		[
     				'attribute' => 'id',
     				'label' => 'Nbr',
+                    'value' => function(Receipt $model) { return ($model->isUpdating()) ? $model->id . ' [** NOT POSTED **]' : $model->id; },
     		],
     		'lob_cd',
     		[
@@ -76,7 +81,7 @@ $toggle_mine_only = !$mine_only;
             	'filterType' => GridView::FILTER_SELECT2,
             	'filter' => array_merge(["" => ""], $payorPicklist),
             	'filterWidgetOptions' => [
-            			'size' => \kartik\widgets\Select2::SMALL,
+            			'size' => Select2::SMALL,
             			'hideSearch' => true,
             			'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
             	],
@@ -118,6 +123,7 @@ $toggle_mine_only = !$mine_only;
 					    				$url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model->id]);
 					    				return $url;
 					    			}
+					    			return null;
 				},
     			 
     			'contentOptions' => ['style' => 'white-space: nowrap;'],
