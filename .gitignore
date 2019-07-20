@@ -49,4 +49,6 @@ composer.lock
 /web/uploads/*
 /web/index-test.php
 /web/.htaccess
+/web/error_log
+
 
