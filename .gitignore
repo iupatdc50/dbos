@@ -48,3 +48,5 @@ composer.lock
 /web/assets/*
 /web/uploads/*
 /web/index-test.php
+/web/.htaccess
+
