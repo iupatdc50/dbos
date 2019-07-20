@@ -49,6 +49,7 @@ composer.lock
 /web/uploads/*
 /web/index-test.php
 /web/.htaccess
+
+# specific to GoDaddy VPS
 /web/error_log
-
-
+/web/*.ini
