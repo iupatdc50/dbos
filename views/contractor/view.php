@@ -106,8 +106,10 @@ Accordion::widget([
 	    ]);
 ?>
 	    <hr>
-	    
-	   	<div id="journal">
+
+        <?php if(Yii::$app->user->can('contractorJournal')):?>
+
+        <div id="journal">
 			<?php if ($model->noteCount >= 1): ?>
 		     	<p> <?= $model->noteCount > 1 ? $model->noteCount . ' Journal Notes' : 'One Journal Note'; ?></p>
 		     	<?= $this->render('../partials/_notes', ['notes' => $model->notes, 'controller' => 'contractor-note']); ?>
@@ -119,6 +121,8 @@ Accordion::widget([
             ?>
 		
 		</div>
+
+        <?php endif; ?>
    		
 	</div>
    	<div class="rightside thirtyfive-pct"> 

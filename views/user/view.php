@@ -1,5 +1,6 @@
 <?php
 
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\DetailView;
@@ -8,7 +9,8 @@ use app\models\user\User;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\user\User */
-/* @var $rolesModel \yii\data\ActiveDataProvider */
+/* @var $rolesModel ActiveDataProvider */
+/* @var $permissions array */
 
 $this->title = $model->last_nm . ', ' . $model->first_nm;
 $this->params['breadcrumbs'][] = ['label' => 'User Records', 'url' => ['index']];
@@ -16,6 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 ?>
+
 <div class="user-record-view forty-pct">
 
     <h1><?= Html::encode($this->title) ?></h1>
@@ -65,7 +68,13 @@ $this->params['breadcrumbs'][] = $this->title;
 					'type'=>GridView::TYPE_DEFAULT,
 					'heading'=>'<i class="glyphicon glyphicon-check"></i>&nbsp;Role Assignments',
 					'before' => false,
-					'after' => false,
+					'after' => Html::button('<i class="glyphicon glyphicon-lock"></i>&nbsp;Permissions',
+                        [
+                            'value' => Url::to(["role/permissions", 'user_id'  => $model->id]),
+                            'id' => 'permissionsButton',
+                            'class' => 'btn btn-default btn-modal btn-embedded',
+                            'data-title' => '#Permissions Matrix',
+                        ]),
 					'footer' => false,
 			],
 			'columns' => [
@@ -88,7 +97,7 @@ $this->params['breadcrumbs'][] = $this->title;
 							'class' => 	'kartik\grid\ActionColumn',
 							'template' => '{revoke}',
                             'buttons' => [
-                                'revoke' => function ($url, $model) {
+                                'revoke' => function ($url) {
                                     return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
                                         'title' => Yii::t('app', 'Revoke'),
                                         'data-confirm' => 'Are you sure you want to revoke this role?',
@@ -102,11 +111,13 @@ $this->params['breadcrumbs'][] = $this->title;
 											'class' => 'btn btn-default btn-modal btn-embedded',
 											'data-title' => 'Role',
 							]),
-                            'urlCreator' => function ($action, $model, $key, $index) {
+                            'urlCreator' => function ($action, $model) {
                                 if ($action === 'revoke') {
                                     $url ='/role/revoke?role=' .$model->item_name . '&user_id=' . $model->user_id;
                                     return $url;
                                 }
+
+                                return null;
                             }
 
 					],

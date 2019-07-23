@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\user\AssignmentForm;
+use Exception;
 use kartik\form\ActiveForm;
 use Yii;
 use yii\base\InvalidParamException;
@@ -52,7 +53,7 @@ class RoleController extends Controller
     /**
      * @param $user_id
      * @return array|string
-     * @throws \Exception
+     * @throws Exception
      */
 	public function actionAdd($user_id)
     {
@@ -96,11 +97,24 @@ class RoleController extends Controller
 
     }
 
+    public function actionPermissions($user_id)
+    {
+        $auth = Yii::$app->authManager;
+        $all = $auth->getPermissions();
+        $for_user = $auth->getPermissionsByUser($user_id);
+        $permissions = [];
+
+        foreach ($all as $key => $permission)
+            $permissions[$permission->description] = (array_key_exists($key, $for_user)) ? true : false;
+
+        return $this->renderAjax('permissions', ['permissions' => $permissions]);
+    }
+
     /**
      * @param Yii\rbac\ManagerInterface $auth
      * @param $role
      * @param $user_id
-     * @throws \Exception
+     * @throws Exception
      */
     protected function assignRole(yii\rbac\ManagerInterface $auth, $role, $user_id)
     {

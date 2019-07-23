@@ -98,6 +98,19 @@ div.flash-success
 	border-color:#3c763d;
 }
 
+/* ==================================    Permission matrix */
+
+div.perm {
+	width: 400px;
+	height: 600px;
+	overflow-y: scroll;
+	background-color: #ccc;
+	border: 10px solid #ddd;
+	margin:0 auto;
+}
+
+/* ==================================    Permission matrix */
+
 /* ==================================    Camera booth */
 
 div.booth {

@@ -239,8 +239,6 @@ try {
 ?>
 </td><td class="forty-pct datatop">
 
-<?php if(Yii::$app->user->can('updateDemo')):?>
-
 <div id="journal">
      <?php if ($model->noteCount >= 1): ?>
      	<p> <?= $model->noteCount > 1 ? $model->noteCount . ' Journal Notes' : 'One Journal Note'; ?></p>
@@ -251,7 +249,6 @@ try {
     $this->render('../partials/_noteform', ['model' => $noteModel]) ?>
 
 </div>
-<?php endif; ?>
 
 </td></tr></table>
 
