@@ -77,7 +77,8 @@ class RbacController extends Controller
 		// Contractor permissions
 		echo "Preparing contractor permissions";
         $browseContractor = $this->addPermission('browseContractor', 'Browse contractor records');
-        $contractorJournal = $this->addPermission('contractorJournal', 'Access contractor journal notes');
+        $browseCJournal = $this->addPermission('browseCJournal', 'Browse contractor journal notes');
+        $manageCJournal = $this->addPermission('manageCJournal', 'Create or delete contractor journal notes');
         $createContractor = $this->addPermission('createContractor', 'Create a contractor');
         $reportContractor = $this->addPermission('reportContractor', 'Create a contractor report');
         $updateContractor = $this->addPermission('updateContractor', 'Update a contractor');
@@ -89,9 +90,11 @@ class RbacController extends Controller
         $contractorAdmin = $this->addRole('contractorAdmin', 'Contractor Admin');
         $contractorEditor = $this->addRole('contractorEditor', 'Contractor Editor', [$contractorAdmin]);
         $contractorJournaler = $this->addRole('contractorJournaler', 'Contractor Journaler', [$contractorEditor]);
-        $contractorViewer = $this->addRole('contractorViewer', 'Contractor Viewer', [$contractorJournaler]);
+        $contractorJournalViewer = $this->addRole('contractorJournalViewer', 'Contractor Journal Viewer', [$contractorJournaler]);
+        $contractorViewer = $this->addRole('contractorViewer', 'Contractor Viewer', [$contractorJournalViewer]);
         $this->adopt($contractorViewer, [$browseContractor]);
-        $this->adopt($contractorJournaler, [$contractorJournal]);
+        $this->adopt($contractorJournalViewer, [$browseCJournal]);
+        $this->adopt($contractorJournaler, [$manageCJournal]);
         $this->adopt($contractorEditor, [$createContractor, $reportContractor, $updateContractor]);
         $this->adopt($contractorAdmin, [$deleteContractor]);
 		echo "...complete\n";
@@ -138,7 +141,7 @@ class RbacController extends Controller
 		// Training permissions
 		echo "Preparing training permissions";
 		$browseTraining = $this->addPermission('browseTraining', 'Browse training content');
-		$manageTraining = $this->addPermission('manageTraining', 'Manage training information');
+		$manageTraining = $this->addPermission('manageTraining', 'Create or update training information');
 		echo "...complete\n";
 
 		// Training roles
@@ -212,7 +215,7 @@ class RbacController extends Controller
 		//Business Rep role
 		echo "Preparing Business Rep role";
 		$bizMgr = $this->addRole('bizRep', 'Business Rep*');
-		$this->adopt($bizMgr, [$memberViewer, $contractorJournaler, $accountingViewer]);
+		$this->adopt($bizMgr, [$memberViewer, $contractorJournalViewer, $accountingViewer]);
 		echo "...complete\n";
 		
 		//Training role

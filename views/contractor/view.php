@@ -107,18 +107,20 @@ Accordion::widget([
 ?>
 	    <hr>
 
-        <?php if(Yii::$app->user->can('contractorJournal')):?>
+        <?php if(Yii::$app->user->can('browseCJournal')):?>
 
         <div id="journal">
 			<?php if ($model->noteCount >= 1): ?>
 		     	<p> <?= $model->noteCount > 1 ? $model->noteCount . ' Journal Notes' : 'One Journal Note'; ?></p>
 		     	<?= $this->render('../partials/_notes', ['notes' => $model->notes, 'controller' => 'contractor-note']); ?>
 		     <?php endif; ?>
-		
+
+            <?php if(Yii::$app->user->can('manageCJournal')):?>
 			<?=
                 /** @noinspection RequireParameterInspection */
                 $this->render('../partials/_noteform', ['model' => $noteModel])
             ?>
+            <?php endif; ?>
 		
 		</div>
 

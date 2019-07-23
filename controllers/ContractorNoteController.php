@@ -4,8 +4,9 @@ namespace app\controllers;
 
 use Yii;
 use app\models\contractor\Note;
-use yii\data\ActiveDataProvider;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -33,16 +34,23 @@ class ContractorNoteController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        if (Yii::$app->user->can('manageCJournal')) {
+            $model = $this->findModel($id);
         
-        if (isset($model->doc_id))
-        	$model->deleteImage();
-		$model->delete();
+            if (isset($model->doc_id))
+                $model->deleteImage();
+            $model->delete();
 
-        return $this->goBack();
+            return $this->goBack();
+        }
+
+        throw new ForbiddenHttpException("You are not allowed to perform this action");
     }
 
     /**

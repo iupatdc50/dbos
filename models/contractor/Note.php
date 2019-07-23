@@ -15,6 +15,7 @@ use app\models\base\BaseNote;
  * @property integer $created_by
  *
  * @property Contractor $contractor
+ * @method deleteImage()
  */
 class Note extends BaseNote
 {
