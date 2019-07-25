@@ -5,9 +5,13 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '1.0.6.610',
+		'version' => '1.0.6.620',
 		'basePath' => realpath ( __DIR__ . '/../' ),
-		'modules' => [ 
+        'aliases' => [
+            '@bower' => '@vendor/bower-asset',
+            '@npm'   => '@vendor/npm-asset',
+        ],
+		'modules' => [
 			    'datecontrol' => [
 			        'class' => 'kartik\datecontrol\Module',
 			 
