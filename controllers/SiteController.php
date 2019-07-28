@@ -6,12 +6,15 @@ use app\models\user\LoginForm;
 use app\models\user\User;
 use app\models\Announcement;
 use app\models\HomeEvent;
-use app\components\utilities\OpDate;
+use Exception;
 use Yii;
-use yii\data\ActiveDataProvider;
-use yii\web\Response;
-use app\components\utilities\app\components\utilities;
 use app\helpers\OptionHelper;
+use yii\db\StaleObjectException;
+use yii\web\NotFoundHttpException;
+use yii\web\Response;
+use yii2fullcalendar\models\Event;
+
+/** @noinspection PhpUnused */
 
 class SiteController extends RootController
 {
@@ -21,7 +24,7 @@ class SiteController extends RootController
 		$homeEvents = HomeEvent::find()->all();
 		$events = [];
 		foreach ($homeEvents as $homeEvent) {
-			$event = new \yii2fullcalendar\models\Event([
+			$event = new Event([
 					'id' => $homeEvent->id,
 					'title' => $homeEvent->title,
 					'allDay' => ($homeEvent->all_day == OptionHelper::TF_TRUE) ? true : false,
@@ -40,8 +43,9 @@ class SiteController extends RootController
 				'announcements' => $announcements, 
 				'bypass_doc' => true,
 		]);
-	} 
-	
+	}
+
+	/** @noinspection PhpUnused */
 	/**
 	 * Standard user login action
 	 * 
@@ -49,13 +53,13 @@ class SiteController extends RootController
 	 * stores current login time. Also forces a password reset if the current
 	 * password is User::RESET_USER_PW
 	 * 
-	 * @throws \Exception
+	 * @throws Exception
 	 * @return string
      */
 	public function actionLogin()
 	{
 		$this->layout = 'login';
-		if (!\Yii::$app->user->isGuest) {
+		if (!Yii::$app->user->isGuest) {
 			return $this->goHome();
 		}
 			
@@ -68,7 +72,7 @@ class SiteController extends RootController
 			$msg = "User `{$user->username}` successfully logged in on `{$user->last_login}`";
 			Yii::info($msg);
 			if (!$user->save(true, ['last_login']))
-				throw new \Exception('Problem with last_login update.  Messages: ' . print_r($user->errors, true));
+				throw new Exception('Problem with last_login update.  Messages: ' . print_r($user->errors, true));
 			if ($user->requiresReset())
 				return $this->redirect('/user/reset-pw');
 			return $this->goBack();
@@ -76,13 +80,20 @@ class SiteController extends RootController
 	
 		return $this->render('login', compact('model'));
 	}
-	
+
+    /** @noinspection PhpUnused */
 	public function actionLogout()
 	{
 		Yii::$app->user->logout();
 		return $this->goHome();
-	}	
-	
+	}
+
+    /**
+     * @param $id
+     * @return Response
+     * @throws StaleObjectException
+     * @throws NotFoundHttpException
+     */
 	public function actionDelete($id)
 	{
 		$model = Announcement::findOne($id);
@@ -91,17 +102,25 @@ class SiteController extends RootController
 		$model->delete();
 		return $this->goHome();
 	}
-	
+
+    /** @noinspection PhpUnused */
 	public function actionUnavailable()
 	{
 		return $this->render('unavailable');
 	}
-	
+
+    /** @noinspection PhpUnused */
 	public function actionTerms()
 	{
 		$this->layout = 'aux';
 		return $this->render('terms');
 	}
+
+    /** @noinspection PhpUnused */
+	public function actionMaintenance()
+    {
+        return $this->renderPartial('maintenance');
+    }
 	
 	protected function createAnnouncement()
 	{

@@ -1,7 +1,4 @@
 <?php
-/**
- * @var string $content
- */
 use yii\helpers\Html;
 
 ?>
@@ -20,7 +17,8 @@ use yii\helpers\Html;
 		</div>
 	
 		<hr>
-		<h2><span class="lbl-danger">System Temporarily Unavailable</span></h2>
+		<h2><span style="background-color: #f2dede">System Temporarily Unavailable</span></h2>
 		<p>Sorry!  DBOS is temporarily off-line for scheduled maintenance.  Please check back later.</p>
 		<p>Questions?  Please contact your site administrator or tech support.</p>  
 	</body>
+

@@ -3,25 +3,22 @@
 namespace app\controllers\base;
 
 use Yii;
-use yii\data\ActiveDataProvider;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 use app\components\utilities\OpDate;
 use app\models\user\User;
+use yii\web\Session;
 
 /**
  * Standard extension for models manipulated by subcontrollers
  */
 class RootController extends Controller
 {
-	
+
+    /* @var $session Session */
 	public $session;
 	public $user;
 	
-	/*
-	 * OpDate
-	 */
+	/* @var $today OpDate */
 	public $today;
 	
 	public function init()
@@ -30,16 +27,16 @@ class RootController extends Controller
 			$this->session = Yii::$app->session;
 		if (!isset($this->today))
 			$this->today = new OpDate;
-		if (!\Yii::$app->user->isGuest && !isset($this->session['user.last_login']))
+		if (!Yii::$app->user->isGuest && !isset($this->session['user.last_login']))
 			$this->setSessionInfo();
 	}
 	
-	public function actionView($id)
+	public function actionView(/** @noinspection PhpUnusedParameterInspection */ $id)
 	{
 		$this->storeReturnUrl();
 	}
 	
-	public function actionUpdate($id)
+	public function actionUpdate(/** @noinspection PhpUnusedParameterInspection */ $id)
 	{
 		$this->storeReturnUrl();
 	}
@@ -64,8 +61,9 @@ class RootController extends Controller
     
     protected function getUser()
     {
-    	if(!isset($this->user) && !\Yii::$app->user->isGuest)
-    		$this->user = User::findByUsername(Yii::$app->user->identity->username);
+    	if(!isset($this->user) && !Yii::$app->user->isGuest)
+            /** @noinspection PhpUndefinedFieldInspection */
+            $this->user = User::findByUsername(Yii::$app->user->identity->username);
     	return $this->user;
     }
 		

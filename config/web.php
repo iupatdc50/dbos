@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '1.0.6.620',
+		'version' => '1.0.6.715',
 		'basePath' => realpath ( __DIR__ . '/../' ),
         'aliases' => [
             '@bower' => '@vendor/bower-asset',
@@ -75,7 +75,7 @@ $config = [
 				'rules' => [
 						[
 								'allow' => true,
-								'actions' => ['login'],
+								'actions' => ['login', 'maintenance'],
 						],
 						[
 								'allow' => true,
@@ -87,7 +87,7 @@ $config = [
 				},
 		],		
 		
-		'catchAll' => file_exists(dirname(__DIR__) . '/.maintenance.on') && !(isset($_COOKIE['secret']) && $_COOKIE['secret'] == "dbosmaint") ? ['/maintenance/index'] : null,
+		'catchAll' => file_exists(dirname(__DIR__) . '/.maintenance.on') && !(isset($_COOKIE['secret']) && $_COOKIE['secret'] == "dbosmaint") ? ['/site/maintenance'] : null,
 ];
 
 if(YII_ENV_DEV) {
