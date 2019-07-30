@@ -2,11 +2,8 @@
 
 namespace app\controllers\base;
 
-use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
-use yii\helpers\Json;
-use Yii\web\Response;
 
 /**
  * Standard extension to process JSON calls
@@ -49,11 +46,8 @@ class SummaryController extends SubmodelController
 
 		$params = array_merge(['dataProvider' => $dataProvider, 'id' => $id], $this->viewParams);
 
-		$response = Yii::$app->getResponse();
-        $response->format = Response::FORMAT_JSON;
         /** @noinspection MissedViewInspection */
-        $response->data = $this->renderAjax('_summary', $params);
-        return $response;
+        return $this->asJson($this->renderAjax('_summary', $params));
 	}
 	
 }

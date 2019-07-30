@@ -2,13 +2,8 @@
 
 namespace app\controllers\basedoc;
 
-use app\controllers\basedoc\SubmodelController;
-use Yii;
 use yii\data\ActiveDataProvider;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\helpers\Json;
+use yii\db\ActiveQuery;
 
 /**
  * Standard extension to process JSON calls
@@ -30,6 +25,7 @@ class SummaryController extends SubmodelController
 	
 	public function actionSummaryJson($id)
 	{
+        /** @var ActiveQuery $query */
 		$query = call_user_func([$this->recordClass, 'find'])
 					->where([$this->relationAttribute => $id])
 					->orderBy($this->summOrder);
@@ -45,8 +41,9 @@ class SummaryController extends SubmodelController
 				'pagination' => ['pageSize' => $this->summPageSize],
 				'sort' => false,
 		]);
-		
-		echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
+
+        /** @noinspection MissedViewInspection */
+		return $this->asJson($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
 	}
 
 	
