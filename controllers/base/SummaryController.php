@@ -49,9 +49,11 @@ class SummaryController extends SubmodelController
 
 		$params = array_merge(['dataProvider' => $dataProvider, 'id' => $id], $this->viewParams);
 
-        Yii::$app->response->format = Response::FORMAT_JSON;
+		$response = Yii::$app->getResponse();
+        $response->format = Response::FORMAT_JSON;
         /** @noinspection MissedViewInspection */
-        echo Json::encode($this->renderAjax('_summary', $params));
+        $response->data = $this->renderAjax('_summary', $params);
+        return $response;
 	}
 	
 }
