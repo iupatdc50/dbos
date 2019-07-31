@@ -46,6 +46,7 @@ class MemberCompliance extends Model
      */
     private static function credentialSql($use_catg = true)
     {
+        /** @noinspection SqlCaseVsIf */
         $sql = <<<SQL
         
   SELECT 
@@ -64,13 +65,13 @@ class MemberCompliance extends Model
       Cr.show_on_id,
       Cr.show_on_cert,
       MS.schedule_dt
-    FROM dc50.MemberCredentials AS MC
-      LEFT OUTER JOIN dc50.MemberCredentials AS B ON B.member_id = MC.member_id
+    FROM MemberCredentials AS MC
+      LEFT OUTER JOIN MemberCredentials AS B ON B.member_id = MC.member_id
                                                    AND B.credential_id = MC.credential_id
                                                    AND B.complete_dt > MC.complete_dt
       JOIN Credentials AS Cr ON Cr.`id` = MC.credential_id
 
-      LEFT OUTER JOIN dc50.MemberScheduled AS MS ON MS.member_id = MC.member_id
+      LEFT OUTER JOIN MemberScheduled AS MS ON MS.member_id = MC.member_id
                                                   AND MS.credential_id = MC.credential_id
                                                   AND MS.schedule_dt > MC.complete_dt
       LEFT OUTER JOIN MemberRespirators AS MR ON MC.member_id = MR.member_id 
@@ -106,11 +107,11 @@ SQL;
       Cr.show_on_id,
       Cr.show_on_cert,
       MS.schedule_dt
-    FROM dc50.MemberScheduled AS MS
-      JOIN dc50.Credentials AS Cr ON Cr.`id` = MS.credential_id
+    FROM MemberScheduled AS MS
+      JOIN Credentials AS Cr ON Cr.`id` = MS.credential_id
     WHERE MS.member_id = :member_id 
       AND NOT EXISTS (
-          SELECT 1 FROM dc50.MemberCredentials 
+          SELECT 1 FROM MemberCredentials 
             WHERE member_id = MS.member_id AND credential_id = MS.credential_id 
     ) 
 

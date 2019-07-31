@@ -246,8 +246,8 @@ class MaintenanceController extends Controller
 	
 	private function insertStatusSql()
 	{
-		return " INSERT INTO dc50.MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) "
-			  ."   SELECT distinct member_id, effective_dt, lob_cd, member_status, reason "
+		return " INSERT INTO MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) "
+			  ."   SELECT DISTINCT member_id, effective_dt, lob_cd, member_status, reason "
 			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC"
 			  ."     WHERE NOT EXISTS "
               ."       (SELECT 1 FROM CurrentMemberStatuses "
@@ -259,10 +259,10 @@ class MaintenanceController extends Controller
 	
 	private function insertAssessSql()
 	{
-		return " INSERT INTO dc50.Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) "
+		return " INSERT INTO Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) "
 			  ."   SELECT distinct MSC.member_id, '" . FeeType::TYPE_REINST . "', MSC.effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 "
 			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC "
-              ."       JOIN  dc50.CurrentMemberStatuses AS CMS ON CMS.member_id = MSC.member_id "
+              ."       JOIN  CurrentMemberStatuses AS CMS ON CMS.member_id = MSC.member_id "
               ."                                         AND CMS.effective_dt = MSC.effective_dt; "
 		;
 		
@@ -275,7 +275,7 @@ class MaintenanceController extends Controller
 			  ."      (@row_number:=@row_number + 1) AS stat_nbr, "
 			  ."      MS.member_id, "
 			  ."      MS.effective_dt "
-			  ."    FROM dc50.MemberStatuses AS MS, (SELECT @row_number:=0) AS t "
+			  ."    FROM MemberStatuses AS MS, (SELECT @row_number:=0) AS t "
 			  ."    WHERE MS.end_dt IS NULL "
 			  ."      AND MS.member_id IN (SELECT DISTINCT member_id FROM " . self::STAGE_TABLE_NM . ") "
 			  ."  ORDER BY MS.member_id, MS.effective_dt;"
@@ -284,7 +284,7 @@ class MaintenanceController extends Controller
 	
 	private function updateStatusSql()
 	{
-		return "UPDATE dc50.MemberStatuses AS MS "
+		return "UPDATE MemberStatuses AS MS "
 			  ."  JOIN " . self::CLOSE_PREV_TABLE_NM . " AS B ON MS.member_id = B.member_id AND MS.effective_dt = B.effective_dt "
 			  ."    LEFT OUTER JOIN " . self::CLOSE_PREV_TABLE_NM . " AS N ON N.member_id = B.member_id AND N.stat_nbr = B.stat_nbr + 1 "
 			  ."  SET MS.end_dt = DATE_ADD(N.effective_dt, INTERVAL -1 DAY) "
@@ -327,7 +327,7 @@ SQL;
     private function cancelOldProjectsSql()
     {
         return <<<SQL
-    UPDATE dc50.Projects 
+    UPDATE Projects 
       SET project_status = 'X', close_dt = :dt
       WHERE project_id IN (SELECT project_id FROM $this->stageCxlProjTableNm)
       ;
@@ -338,7 +338,7 @@ SQL;
     private function cancelProjectNotesSql()
     {
         return <<<SQL
-    INSERT INTO dc50.ProjectNotes (project_id, note, created_at, created_by)
+    INSERT INTO ProjectNotes (project_id, note, created_at, created_by)
       SELECT project_id, CONCAT('[CANCELLED ', :dt, ']: Unawarded after ', :months, ' months'), UNIX_TIMESTAMP(), 1
         FROM $this->stageCxlProjTableNm
       ;
