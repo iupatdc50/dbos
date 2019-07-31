@@ -6,9 +6,11 @@ use app\controllers\base\SummaryController;
 use Yii;
 use app\models\member\Member;
 use app\models\member\Employment;
-use yii\web\Controller;
+use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
+use yii\web\Response;
+use yii\web\UploadedFile;
 
 /**
  * EmploymentController implements the CRUD actions for Employment model.
@@ -17,16 +19,17 @@ class EmploymentController extends SummaryController
 {
 	public $recordClass = 'app\models\member\Employment';
 	public $relationAttribute = 'member_id';
-	
-	/**
-	 * Overrides summary controller action to process image attachment
-	 * 
-	 * (non-PHPdoc)
-	 * @see \app\controllers\base\SubmodelController::actionCreate()
-	 */
+
+    /**
+     * Overrides summary controller action to process image attachment
+     *
+     * (non-PHPdoc)
+     * @param $relation_id
+     * @return string|Response
+     * @see \app\controllers\base\SubmodelController::actionCreate()
+     */
     public function actionCreate($relation_id)
     {
-    	/** @var ActiveRecord $model */
         $model = new Employment;
         
         // Loan has its own action
@@ -34,6 +37,7 @@ class EmploymentController extends SummaryController
         if ($model->load(Yii::$app->request->post())) {
 	        // Prepopulate referencing column
 	        $model->member_id = $relation_id;
+            /* @var $image UploadedFile */
         	$image = $model->uploadImage();
         	if	($model->save()) {
         		if ($image !== false) {
@@ -47,7 +51,12 @@ class EmploymentController extends SummaryController
         return $this->renderAjax('create', compact('model'));
 
     }
-	
+
+    /**
+     * @param int $id
+     * @return mixed|void
+     * @throws NotFoundHttpException
+     */
 	public function actionUpdate($id)
 	{
 		throw new NotFoundHttpException('Non-supported feature.  Cannot update employment this way.');
@@ -58,7 +67,7 @@ class EmploymentController extends SummaryController
 		$member = Member::findOne($id);
 		$employer = isset($member->employer) ? $member->employer->descrip : 'Unemployed';
 		$this->viewParams = ['employer' => $employer];
-		parent::actionSummaryJson($id);
+		return parent::actionSummaryJson($id);
 	}
 
 	public function actionEdit($member_id, $effective_dt)
@@ -69,6 +78,7 @@ class EmploymentController extends SummaryController
         $oldId = $model->doc_id;
         
         if ($model->load(Yii::$app->request->post())) {
+            /* @var $image UploadedFile */
         	$image = $model->uploadImage();
         	
         	if($image === false)
@@ -86,27 +96,23 @@ class EmploymentController extends SummaryController
         		
         return $this->render('edit', compact('model'));
 	}
-	
-	/**
-	 * Replaces the inherited controller actionDelete with a different signature
-	 * 
-	 * @param string $member_id
-	 * @param string $effective_dt
-	 * @throws NotFoundHttpException  If the model is not found
-	 * @return \yii\web\Response
-	 */
+
+    /**
+     * Replaces the inherited controller actionDelete with a different signature
+     *
+     * @param string $member_id
+     * @param string $effective_dt
+     * @return Response
+     * @throws StaleObjectException
+     * @throws NotFoundHttpException  If the model is not found
+     */
 	public function actionRemove($member_id, $effective_dt)
 	{
 		$model = $this->findByDate($member_id, $effective_dt);
 		if ($model !== null) {
 			
-			$removing_current = false;
-        	if ($model->end_dt == null) {
-        		$removing_current = true;
-        		$qualifier = $model->qualifier();
-        		$relation_id = $model->$qualifier;
-        	}
-			
+			$removing_current = ($model->end_dt == null) ? true : false;
+
         	$model->delete();
 
         	if ($removing_current)
@@ -144,19 +150,19 @@ class EmploymentController extends SummaryController
     	$termReasonOptions = Employment::getTermReasonOptions();
 		return $this->renderAjax('terminate', compact('model', 'termReasonOptions'));
 	}
-	
-	/**
-	 * List builder for employee pickllist.  Builds JSON encoded array:
-	 * ['results'] key provides progressive results. If a member_id is provided,
-	 * 			   then this key provides the member_id and member's full name
-	 *
-	 * @param string|array $search Criteria used.
-	 * @param string $license_nbr Contractor who employs these members
-	 * @param string $member_id Selected member's member_id
-	 */
+
+    /**
+     * List builder for employee pickllist.  Builds JSON encoded array:
+     * ['results'] key provides progressive results. If a member_id is provided,
+     *               then this key provides the member_id and member's full name
+     *
+     * @param string|array $search Criteria used.
+     * @param null $employer
+     * @param string $member_id Selected member's member_id
+     * @return Response
+     */
 	public function actionEmployeeList($search = null, $employer = null, $member_id = null)
 	{
-		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 		$out = ['results' => ['id' => '', 'text' => '']];
 		if (!is_null($search)) {
 			$condition = (is_null($employer)) ? $search : ['full_nm' => $search, 'employer' => $employer];
@@ -164,9 +170,9 @@ class EmploymentController extends SummaryController
 			$out['results'] = array_values($data);
 		}
 		elseif (!is_null($member_id) && ($member_id <> '0')) {
-			$out['results'] = ['member_id' => $member_id, 'text' => Member::findOne($member_id)->full_nm];
+			$out['results'] = ['member_id' => $member_id, 'text' => Member::findOne($member_id)->fullName];
 		}
-		return $out;
+		return $this->asJson($out);
 	}
 	
 	protected function findCurrent($id)

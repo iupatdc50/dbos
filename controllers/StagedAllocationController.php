@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use InvalidArgumentException;
 use Yii;
+use yii\db\StaleObjectException;
 use yii\helpers\Json;
 use yii\db\Exception;
 use app\controllers\base\SubmodelController;
@@ -17,6 +19,8 @@ use app\models\accounting\DuesAllocation;
 use app\models\accounting\StagedAllocation;
 use app\models\accounting\TradeFeeType;
 use app\modules\admin\models\FeeType;
+use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * StagedAllocationController implements the CRUD actions for accouting\StagedAllocation model.
@@ -67,7 +71,7 @@ class StagedAllocationController extends SubmodelController
 
     /**
      * @param $receipt_id
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws Exception
      * @throws Yii\base\InvalidConfigException
      */
@@ -118,18 +122,17 @@ class StagedAllocationController extends SubmodelController
 					if (strpos($fee_types, $row['fee_type']) === false)
 					    $out[] = ['id' => $row['fee_type'], 'name' => $row['descrip']];
 				}
-				echo Json::encode(['output' => $out, 'selected' => '']);
-				return;
+                return $this->asJson(['output' => $out, 'selected' => '']);
 			}
 		}
-		echo Json::encode(['output' => '', 'selected' => '']);
+        return $this->asJson(['output' => '', 'selected' => '']);
 	}
 
     /**
      * Edits Ajax updateable amount columns staged allocation grid
      *
      * @throws Exception
-     * @throws \yii\web\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
 	public function actionEditAlloc()
 	{
@@ -140,7 +143,7 @@ class StagedAllocationController extends SubmodelController
 			$attr = key(current($_POST['StagedAllocation']));
 			// Make column update safe in model
 			$model->fee_types = [$attr];
-			$out = Json::encode(['output'=>'', 'message'=>'']);
+			$out = (['output'=>'', 'message'=>'']);
 			// $posted is the posted data for StagedAllocation without any indexes
 			$posted = current($_POST['StagedAllocation']);
 			// $post is the converted array for single model validation
@@ -158,16 +161,15 @@ class StagedAllocationController extends SubmodelController
 				$output = Yii::$app->formatter->asDecimal($model->$attr, 2);
 				$out = Json::encode(['output' => $output, 'message' => $message]);
 			}
-			echo $out;
-			return;
+            return $this->asJson($out);
 		}
-		
+		return null;
 	}
 
     /**
      * @param int $id
-     * @return mixed|\yii\web\Response
-     * @throws \yii\db\StaleObjectException
+     * @return mixed|Response
+     * @throws StaleObjectException
      */
 	public function actionDelete($id)
 	{
@@ -190,7 +192,7 @@ class StagedAllocationController extends SubmodelController
 		   	if (deleteAllocs(BaseAllocation::findAll(['alloc_memb_id' => $id]))) {
 				$alloc_memb = AllocatedMember::findOne($id);
 				if ($alloc_memb->delete()) {
-					parent::actionDelete($id);
+					return parent::actionDelete($id);
 				} else {
 					Yii::$app->session->addFlash('error', 'Could not complete allocation remove.  Check log for details. Code `SAC020`');
 					Yii::error("*** SAC020 AllocatedMember delete error.  Allocation: " . print_r($alloc_memb, true));
@@ -211,7 +213,7 @@ class StagedAllocationController extends SubmodelController
 	{
 		$receipt = Receipt::findOne($id);
         if (!$receipt)
-        	throw new \InvalidArgumentException('Attemtping to access a non-existent receipt: ' . $id);
+        	throw new InvalidArgumentException('Attemtping to access a non-existent receipt: ' . $id);
         /* @var $receipt ReceiptMultiMember */
         $receipt->responsible = ResponsibleEmployer::findOne($id);
         if (!$receipt->responsible)
@@ -224,7 +226,7 @@ class StagedAllocationController extends SubmodelController
 	 * 
 	 * @param int $alloc_memb_id  	
 	 * @param string $fee_type		This can be obtained from the post's column key in the edit-alloc action 
-	 * @throws \yii\db\Exception
+	 * @throws Exception
 	 * @return BaseAllocation
 	 */
 	protected function getBaseAlloc($alloc_memb_id, $fee_type)

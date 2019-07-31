@@ -21,6 +21,7 @@ use kartik\widgets\FileInput;
     		'pluginOptions'=> [
     				'allowedFileExtensions'=>['pdf','png'],
     				'showUpload' => false,
+                    'dropZoneEnabled' => false,
     		],
     ]); ?>
     <?php endif; ?>

@@ -12,7 +12,8 @@ use app\models\accounting\RemittanceExcel;
 use app\models\member\Member;
 use app\models\accounting\AllocationBuilder;
 use yii\data\SqlDataProvider;
-use yii\helpers\Json;
+use yii\db\Exception;
+use yii\web\Response;
 
 class ReceiptContractorController extends MultiMemberController
 {
@@ -20,9 +21,9 @@ class ReceiptContractorController extends MultiMemberController
     /**
      * @param $lob_cd
      * @param null $id
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws \Exception
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
 	public function actionCreate($lob_cd, $id = null)
 	{
@@ -37,7 +38,7 @@ class ReceiptContractorController extends MultiMemberController
 			$model->payor_type = Receipt::PAYOR_CONTRACTOR;
 			if ($model->validate() && $model->responsible->validate()) {
 				
-				$transaction = \Yii::$app->db->beginTransaction();
+				$transaction = Yii::$app->db->beginTransaction();
 				try {
 					if ($model->save(false)) {
 						$model->responsible->receipt_id = $model->id;
@@ -49,7 +50,7 @@ class ReceiptContractorController extends MultiMemberController
 							if ($file == false) { // manual entry
                                 if ($model->populate) {
 
-                                    /* @var $member \app\models\member\Member */
+                                    /* @var $member Member */
                                     foreach ($model->responsible->employer->employees as $member) {
                                         if ($member->currentStatus->lob_cd == $lob_cd) {
                                             $builder = new AllocationBuilder();
@@ -124,52 +125,51 @@ class ReceiptContractorController extends MultiMemberController
 
     public function actionSummaryJson($id)
 	{
-    	if (!Yii::$app->user->can('browseReceipt')) {
-    		echo Json::encode($this->renderAjax('/partials/_deniedview'));
-    	} else {
-			$searchModel = new ReceiptContractorSearch();
-			$searchModel->license_nbr = $id;
-            /** @noinspection PhpUndefinedMethodInspection */
-            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+    	if (!Yii::$app->user->can('browseReceipt'))
+            return $this->asJson($this->renderAjax('/partials/_deniedview'));
+
+        $searchModel = new ReceiptContractorSearch();
+        $searchModel->license_nbr = $id;
+        /** @noinspection PhpUndefinedMethodInspection */
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 //			$dataProvider->pagination = ['pageSize' => 8];
-			echo Json::encode($this->renderAjax('_summary', [
-					'dataProvider' => $dataProvider,
-					'searchModel' => $searchModel, 
-			]));
-		}
+        return $this->asJson($this->renderAjax('_summary', [
+                'dataProvider' => $dataProvider,
+                'searchModel' => $searchModel,
+        ]));
+
 	}
 
     /**
      * @param $license_nbr
-     * @throws \yii\db\Exception
+     * @return Response
+     * @throws Exception
      */
 	public function actionSummFlattenedJson($license_nbr)
     {
-        if (!Yii::$app->user->can('browseReceipt')) {
-            echo Json::encode($this->renderAjax('/partials/_deniedview'));
-        } else {
+        if (!Yii::$app->user->can('browseReceipt'))
+            return $this->asJson($this->renderAjax('/partials/_deniedview'));
 
-            $typesSubmitted = ReceiptContractor::getFeeTypesSubmitted($license_nbr);
+        $typesSubmitted = ReceiptContractor::getFeeTypesSubmitted($license_nbr);
 
-            $count = Yii::$app->db->createCommand(
-                "SELECT COUNT(*) FROM ResponsibleEmployers AS E JOIN Receipts AS R ON E.receipt_id = R.`id` WHERE R.void = 'F' AND E.license_nbr = :license_nbr ",
-                [':license_nbr' => $license_nbr]
-            )->queryScalar();
+        $count = Yii::$app->db->createCommand(
+            "SELECT COUNT(*) FROM ResponsibleEmployers AS E JOIN Receipts AS R ON E.receipt_id = R.`id` WHERE R.void = 'F' AND E.license_nbr = :license_nbr ",
+            [':license_nbr' => $license_nbr]
+        )->queryScalar();
 
-            $sqlProvider = new SqlDataProvider([
-                'sql' => ReceiptContractor::getFlattenedReceiptsByContractorSql($typesSubmitted),
-                'params' => [':license_nbr' => $license_nbr],
-                'totalCount' => $count,
-                'pagination' => [
-                    'pageSize' => 10,
-                ],
-            ]);
+        $sqlProvider = new SqlDataProvider([
+            'sql' => ReceiptContractor::getFlattenedReceiptsByContractorSql($typesSubmitted),
+            'params' => [':license_nbr' => $license_nbr],
+            'totalCount' => $count,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
 
-            echo Json::encode($this->renderAjax('_summflattened', [
-                'sqlProvider' => $sqlProvider,
-                'typesSubmitted' => $typesSubmitted,
-            ]));
-        }
+        return $this->asJson($this->renderAjax('_summflattened', [
+            'sqlProvider' => $sqlProvider,
+            'typesSubmitted' => $typesSubmitted,
+        ]));
 
     }
 

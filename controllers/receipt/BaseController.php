@@ -21,7 +21,6 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
-use yii\helpers\Json;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
 use app\models\accounting\DuesAllocation;
@@ -99,6 +98,7 @@ class BaseController extends Controller
 
     /**
      * @param $id
+     * @return Response
      * @throws NotFoundHttpException
      */
     public function actionBalancesJson($id)
@@ -106,7 +106,7 @@ class BaseController extends Controller
         $model = $this->findModel($id);
         /** @noinspection PhpWrongStringConcatenationInspection */
         $running = $model->totalAllocation + $model->unallocated_amt + $model->helper_dues;
-        echo Json::encode([
+        return $this->asJson([
                 'balance' => number_format($model->outOfBalance, 2),
                 'running' => number_format($running, 2),
         ]);

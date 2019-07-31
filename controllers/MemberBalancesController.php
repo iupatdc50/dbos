@@ -18,58 +18,57 @@ use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\Controller;
-use yii\helpers\Json;
 use yii\web\Response;
 
 class MemberBalancesController extends Controller
 {
     /**
      * @param $id
+     * @return Response
      * @throws Exception
      */
 	public function actionSummaryJson($id)
 	{
-        if (!Yii::$app->user->can('browseReceipt')) {
-            echo Json::encode($this->renderAjax('/partials/_deniedview'));
-        } else {
+        if (!Yii::$app->user->can('browseReceipt'))
+            return $this->asJson($this->renderAjax('/partials/_deniedview'));
 
-            $member = Member::findOne($id);
+        $member = Member::findOne($id);
 
-            $messages = [];
-            if (!isset($member->currentStatus))
-                $messages[] = 'Cannot identify local union.  Check Status panel.';
-            if (!isset($member->currentClass))
-                $messages[] = 'Cannot identify rate class.  Check Class panel.';
-            if (empty($messages)) {
-                $standing = new Standing(['member' => $member]);
+        $messages = [];
+        if (!isset($member->currentStatus))
+            $messages[] = 'Cannot identify local union.  Check Status panel.';
+        if (!isset($member->currentClass))
+            $messages[] = 'Cannot identify rate class.  Check Class panel.';
+        if (empty($messages)) {
+            $standing = new Standing(['member' => $member]);
 
-                if ($member->currentStatus->member_status == Status::OUTOFSTATE)
-                    $dues_balance = number_format(0.00, 2);
-                else {
-                    $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
-                    $dues_balance = number_format($standing->getDuesBalance($rate_finder), 2);
-                }
-                $assessment_balance = number_format($standing->totalAssessmentBalance, 2);
-
-                $assessProvider = new ActiveDataProvider([
-                    'query' => $member->getAssessments(),
-                    'sort' => ['defaultOrder' => ['assessment_dt' => SORT_DESC]],
-                ]);
-
-                $apf = $member->currentApf;
-                if ($member->isInApplication() && (!isset($apf)))
-                    Yii::$app->session->setFlash('balance', 'Member is in application but has no current APF assessment.  Balance due may be incorrect.');
-
-                echo Json::encode($this->renderPartial('_balances', [
-                    'member' => $member,
-                    'dues_balance' => $dues_balance,
-                    'assessment_balance' => $assessment_balance,
-                    'assessProvider' => $assessProvider,
-                ]));
-            } else {
-                echo Json::encode(implode(PHP_EOL, $messages));
+            if ($member->currentStatus->member_status == Status::OUTOFSTATE)
+                $dues_balance = number_format(0.00, 2);
+            else {
+                $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
+                $dues_balance = number_format($standing->getDuesBalance($rate_finder), 2);
             }
+            $assessment_balance = number_format($standing->totalAssessmentBalance, 2);
+
+            $assessProvider = new ActiveDataProvider([
+                'query' => $member->getAssessments(),
+                'sort' => ['defaultOrder' => ['assessment_dt' => SORT_DESC]],
+            ]);
+
+            $apf = $member->currentApf;
+            if ($member->isInApplication() && (!isset($apf)))
+                Yii::$app->session->setFlash('balance', 'Member is in application but has no current APF assessment.  Balance due may be incorrect.');
+
+            return $this->asJson($this->renderPartial('_balances', [
+                'member' => $member,
+                'dues_balance' => $dues_balance,
+                'assessment_balance' => $assessment_balance,
+                'assessProvider' => $assessProvider,
+            ]));
+        } else {
+            return $this->asJson(implode(PHP_EOL, $messages));
         }
+
 	}
 	
 	public function actionDuesSummaryAjax($id)

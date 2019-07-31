@@ -68,7 +68,7 @@ class MemberClassController extends SummaryController
             'class' => $class,
             'hoursProvider' => $hoursProvider,
         ];
-        parent::actionSummaryJson($id);
+        return parent::actionSummaryJson($id);
     }
 
 	/**

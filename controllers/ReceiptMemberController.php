@@ -17,8 +17,9 @@ use app\models\accounting\AllocationBuilder;
 use app\models\member\Member;
 use app\models\accounting\CcOtherLocal;
 use yii\data\SqlDataProvider;
-use yii\helpers\Json;
+use yii\db\Exception;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 class ReceiptMemberController extends BaseController
 {
@@ -56,7 +57,7 @@ class ReceiptMemberController extends BaseController
      * @param null $id
      * @return string
      * @throws \Exception
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
 	public function actionCreate($lob_cd, $id = null)
 	{
@@ -74,7 +75,7 @@ class ReceiptMemberController extends BaseController
 			if (empty($model->payor_nm)) 
 				$model->payor_nm = Member::findOne($modelMember->member_id)->fullName;
 				
-			$transaction = \Yii::$app->db->beginTransaction();
+			$transaction = Yii::$app->db->beginTransaction();
 			try {
 				if ($model->save(false)) {
 					$modelMember->receipt_id = $model->id;
@@ -169,35 +170,34 @@ class ReceiptMemberController extends BaseController
 
     /**
      * @param $member_id
-     * @throws \yii\db\Exception
+     * @return Response
+     * @throws Exception
      */
 	public function actionSummFlattenedJson($member_id)
     {
-        if (!Yii::$app->user->can('browseReceipt')) {
-            echo Json::encode($this->renderAjax('/partials/_deniedview'));
-        } else {
+        if (!Yii::$app->user->can('browseReceipt'))
+            return $this->asJson($this->renderAjax('/partials/_deniedview'));
 
-            $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($member_id);
+        $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($member_id);
 
-            $count = Yii::$app->db->createCommand(
-                'SELECT COUNT(*) FROM AllocatedMembers WHERE member_id = :member_id',
-                [':member_id' => $member_id]
-            )->queryScalar();
+        $count = Yii::$app->db->createCommand(
+            'SELECT COUNT(*) FROM AllocatedMembers WHERE member_id = :member_id',
+            [':member_id' => $member_id]
+        )->queryScalar();
 
-            $sqlProvider = new SqlDataProvider([
-                'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted),
-                'params' => [':member_id' => $member_id],
-                'totalCount' => $count,
-                'pagination' => [
-                    'pageSize' => 10,
-                ],
-            ]);
+        $sqlProvider = new SqlDataProvider([
+            'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted),
+            'params' => [':member_id' => $member_id],
+            'totalCount' => $count,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
 
-            echo Json::encode($this->renderAjax('_summflattened', [
-                'sqlProvider' => $sqlProvider,
-                'typesSubmitted' => $typesSubmitted,
-            ]));
-        }
+        return $this->asJson($this->renderAjax('_summflattened', [
+            'sqlProvider' => $sqlProvider,
+            'typesSubmitted' => $typesSubmitted,
+        ]));
     }
 
 	protected function buildAllocProvider($id)

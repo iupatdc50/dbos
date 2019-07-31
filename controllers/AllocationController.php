@@ -3,21 +3,25 @@
 namespace app\controllers;
 
 use app\models\accounting\AllocatedMember;
+use Exception;
+use ReflectionClass;
 use Yii;
 use app\models\accounting\DuesAllocation;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\helpers\Json;
 use app\models\accounting\BaseAllocation;
 use app\modules\admin\models\FeeType;
+use yii\web\Response;
 
 class AllocationController extends Controller
 {
     /**
      * @param $alloc_memb_id
-     * @return string|\yii\web\Response
-     * @throws \Exception
+     * @return string|Response
+     * @throws Exception
      */
 	public function actionCreate($alloc_memb_id)
 	{
@@ -28,7 +32,7 @@ class AllocationController extends Controller
 			if ($model->save()) {
 				return $this->goBack();
 			}
-			throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+			throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
 		}
 
 		$receipt = AllocatedMember::findOne($alloc_memb_id)->receipt;
@@ -38,14 +42,14 @@ class AllocationController extends Controller
 
     /**
      * @throws NotFoundHttpException
-     * @throws \Exception
+     * @throws Exception
      */
 	public function actionEditAlloc()
 	{
 		if(Yii::$app->request->post('hasEditable')) {
 			$id = Yii::$app->request->post('editableKey');
 			$model = $this->findModel($id);
-			$class = (new \ReflectionClass(get_class($model)))->getShortName();
+			$class = (new ReflectionClass(get_class($model)))->getShortName();
 
 			// $posted is the posted data for StagedAllocation without any indexes
 			$posted = current($_POST[$class]);
@@ -67,15 +71,12 @@ class AllocationController extends Controller
 				if ($model->save()) {
 			
 					$output = Yii::$app->formatter->asDecimal($model->allocation_amt, 2);
-					$out = Json::encode(['output' => $output, 'message' => $message]);
-					
-					echo $out;
-					return;
+					return $this->asJson(['output' => $output, 'message' => $message]);
 				}
 			}
-			throw new \Exception ('Problem with post. Errors: ' . print_r($model->errors, true));
+			throw new Exception ('Problem with post. Errors: ' . print_r($model->errors, true));
 		}
-		
+		return null;
 	}
 	
 	public function actionSummaryAjax()
@@ -134,7 +135,7 @@ class AllocationController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      */
 	public function actionDelete($id)
 	{
@@ -147,14 +148,14 @@ class AllocationController extends Controller
      * Finds the ActiveRecord model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return \yii\db\ActiveRecord the loaded model
+     * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
 	protected function findModel($id)
 	{
 	    $model = BaseAllocation::find()->where(['id' => $id])->one();
 		if (!$model) {
-			throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+			throw new NotFoundHttpException('The requested page does not exist.');
 		}
 		return $model;
 	}

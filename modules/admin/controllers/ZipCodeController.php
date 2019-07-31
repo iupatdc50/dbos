@@ -5,6 +5,7 @@ namespace app\modules\admin\controllers;
 use Yii;
 use app\models\ZipCode;
 use app\models\ZipCodeSearch;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -45,6 +46,7 @@ class ZipCodeController extends Controller
      * Displays a single ZipCode model.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -55,7 +57,8 @@ class ZipCodeController extends Controller
 
     /**
      * Creates a new ZipCode model.
-     * 
+     *
+     * @param null $zip_cd
      * @return mixed
      */
     public function actionCreate($zip_cd = NULL)
@@ -79,6 +82,7 @@ class ZipCodeController extends Controller
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -93,11 +97,19 @@ class ZipCodeController extends Controller
         }
     }
 
+    public function actionGetCityLn($zip_cd)
+    {
+        $cityLn = (($model = ZipCode::findOne($zip_cd)) !== null) ? $model->getCityLn(false) : '';
+        return $this->asJson($cityLn);
+    }
+
     /**
      * Deletes an existing ZipCode model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {

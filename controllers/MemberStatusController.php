@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\controllers\base\SummaryController;
+use Exception;
 use Yii;
 use app\models\member\Status;
 use app\models\member\Employment;
@@ -16,6 +17,7 @@ use app\models\accounting\Assessment;
 use app\modules\admin\models\FeeType;
 use app\models\accounting\AdminFee;
 use app\components\utilities\OpDate;
+use yii\web\Response;
 
 /**
  * MemberStatusController implements the CRUD actions for Status model.
@@ -61,7 +63,7 @@ class MemberStatusController extends SummaryController
 
     /**
      * @param $relation_id
-     * @return array|mixed|string|\yii\web\Response
+     * @return array|mixed|string|Response
      * @throws NotFoundHttpException
      */
 	public function actionCreate($relation_id)
@@ -92,7 +94,7 @@ class MemberStatusController extends SummaryController
 						try {
 							$assessment->delete();
 							Yii::$app->session->addFlash('success', "Reinstatement fee assessment removed");
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							Yii::$app->session->addFlash('error', "Could not remove reinstatement fee assessment. Check if payments already made.");
 						}
 					}
@@ -121,6 +123,7 @@ class MemberStatusController extends SummaryController
 
     /**
      * @param $id
+     * @return Response
      * @throws NotFoundHttpException
      */
 	public function actionSummaryJson($id)
@@ -128,12 +131,12 @@ class MemberStatusController extends SummaryController
 		$this->setMember($id);
 		$status = isset($this->member->currentStatus) ? $this->member->currentStatus->member_status : Status::INACTIVE;
 		$this->viewParams = ['status' => $status];
-		parent::actionSummaryJson($id);
+		return parent::actionSummaryJson($id);
 	}
 
     /**
      * @param $member_id
-     * @return array|string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
 	public function actionReset($member_id) 
@@ -181,7 +184,7 @@ class MemberStatusController extends SummaryController
 
     /**
      * @param $member_id
-     * @return array|string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
 	public function actionForfeit($member_id) 
@@ -214,7 +217,7 @@ class MemberStatusController extends SummaryController
 
     /**
      * @param $member_id
-     * @return array|string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
 	public function actionSuspend($member_id) 
@@ -250,7 +253,7 @@ class MemberStatusController extends SummaryController
 
     /**
      * @param $member_id
-     * @return array|string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
 	public function actionClearIn($member_id) 
@@ -286,7 +289,7 @@ class MemberStatusController extends SummaryController
 
     /**
      * @param $member_id
-     * @return array|string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
 	public function actionDepIsc($member_id) 

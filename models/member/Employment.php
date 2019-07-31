@@ -2,15 +2,15 @@
 
 namespace app\models\member;
 
-use Yii;
+use app\components\behaviors\OpImageBehavior;
+use yii\base\InvalidCallException;
+use yii\db\ActiveQuery;
+use yii\db\Exception;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use app\models\base\BaseEndable;
 use app\models\contractor\Contractor;
-use app\models\member\Members;
-use app\models\member\Standing;
 use app\components\utilities\OpDate;
-use yii\base\InvalidCallException;
 
 /**
  * This is the model class for table "Employment".
@@ -27,6 +27,9 @@ use yii\base\InvalidCallException;
  * @property Member $member
  * @property Contractor $contractor
  * @property Contractor $duesPayor
+ *
+ * @method uploadImage()
+ *
  */
 class Employment extends BaseEndable
 {
@@ -75,22 +78,23 @@ class Employment extends BaseEndable
 				self::TERM_NOHOURS => 'No Hours',
 		];
 	}
-	
-	
-	
+
+
     /**
      * Returns a set of members for Select2 picklist. Full name
      * is returned as text (id, text are required columns for Select2)
-     * 
+     *
      * The MySQL view includes those loaned to the employer column
-     * 
+     *
      * @param string|array $search Criteria used for partial member list. If an array, then member
-     * 							   key will be a like search
+     *                               key will be a like search
+     * @return array
+     * @throws Exception
      */
     public static function listEmployees($search)
     {
     	if (!isset($search['employer']))
-    		throw InvalidCallException('This function requires an employer parameter');
+    		throw new InvalidCallException('This function requires an employer parameter');
     	/* @var Query $query */
     	$query = new Query;
     	$query->select('member_id as id, full_nm as text')
@@ -127,7 +131,7 @@ class Employment extends BaseEndable
 	public function behaviors()
 	{
 		return [
-				\app\components\behaviors\OpImageBehavior::className(),
+				OpImageBehavior::className(),
 		];
 	}
 
@@ -188,7 +192,7 @@ class Employment extends BaseEndable
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMember()
     {
@@ -196,7 +200,7 @@ class Employment extends BaseEndable
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getContractor()
     {
@@ -204,7 +208,7 @@ class Employment extends BaseEndable
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getDuesPayor()
     {

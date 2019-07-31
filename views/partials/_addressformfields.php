@@ -66,11 +66,12 @@ $script = <<< JS
 
 $('#address-zip_cd').change(function() {
 	var zip_cd = $(this).val();
-	$.get('/zip-code/get-city-ln', { zip_cd : zip_cd }, function(data) {
-		$('#city-ln').html($.parseJSON(data));
+	$.get('/admin/zip-code/get-city-ln', { zip_cd : zip_cd }, function(data) {
+		$('#city-ln').html(data);
 	});
 });
 
 JS;
 $this->registerJs($script);
 ?>
+

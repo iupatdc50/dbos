@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\models\accounting\GeneratedBill;
 use app\models\contractor\Email;
-use app\models\value\PhoneType;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\contractor\Contractor;
@@ -18,11 +17,14 @@ use app\models\member\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
 use app\models\accounting\StagedBill;
 use app\models\accounting\TradeFeeType;
+use yii\db\Exception;
+use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\helpers\Json;
 use app\helpers\OptionHelper;
+use yii\web\Response;
+use yii\web\UploadedFile;
 
 /**
  * ContractorController implements the CRUD actions for Contractor model.
@@ -135,23 +137,25 @@ class ContractorController extends RootController
     			'modelContractor' => $modelContractor,
     	]);
     }
-    
+
+    /**
+     * @return Response
+     * @throws NotFoundHttpException
+     */
     public function actionLobPicklist()
     {
     	if (isset($_POST['depdrop_parents'])) {
     		$parents = $_POST['depdrop_parents'];
     		if ($parents != null) {
-                /** @noinspection PhpUnhandledExceptionInspection */
                 $modelContractor = $this->findModel($parents[0]);
     			$out = $modelContractor->currentLobOptions;
     			$selected = '';
     			if (!empty($out) && count($out) > 0)
     				$selected = $out[0]['id'];
-    			echo Json::encode(['output'=>$out, 'selected'=> $selected]);
-    			return;
+                return $this->asJson(['output'=>$out, 'selected'=> $selected]);
     		}
     	}
-    	echo Json::encode(['output'=>'', 'selected'=>'']);
+        return $this->asJson(['output'=>'', 'selected'=>'']);
     					 
     }
 
@@ -222,7 +226,7 @@ class ContractorController extends RootController
      * If creation is successful, the browser will be redirected to the 'view' page.
      *
      * @return mixed
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionCreate()
     {
@@ -239,7 +243,7 @@ class ContractorController extends RootController
                 && $modelEmail->load(Yii::$app->request->post())) {
         				 
         	if ($model->validate() && $modelSig->validate() && $modelAddress->validate() && $modelPhone->validate() && $modelEmail->validate()) {
-        		$transaction = \Yii::$app->db->beginTransaction();
+        		$transaction = Yii::$app->db->beginTransaction();
         		try {
         			if ($model->save(false)) {
 
@@ -249,6 +253,7 @@ class ContractorController extends RootController
                         }
 
                         $modelSig->license_nbr = $model->license_nbr;
+                        /* @var $image UploadedFile */
         				$image = $modelSig->uploadImage();
         				$modelAddress->license_nbr = $model->license_nbr;
         				$modelPhone->license_nbr = $model->license_nbr;
@@ -320,7 +325,7 @@ class ContractorController extends RootController
      * @return mixed
      * @throws NotFoundHttpException
      * @throws \Exception
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -338,12 +343,11 @@ class ContractorController extends RootController
      * @param string|array $search Criteria used.
      * @param null $agreement_type
      * @param string $license_nbr Selected contractor's license number
-     * @return array
-     * @throws \yii\db\Exception
+     * @return Response
+     * @throws Exception
      */
     public function actionContractorList($search = null, $agreement_type = null, $license_nbr = null) 
     {
-    	\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
     	$out = ['results' => ['id' => '', 'text' => '']];
     	if (!is_null($search)) {
     		$condition = (is_null($agreement_type)) ? $search : ['contractor' => $search, 'agreement_type' => $agreement_type];
@@ -353,7 +357,7 @@ class ContractorController extends RootController
     	elseif (!is_null($license_nbr) && ($license_nbr <> '0')) {
     		$out['results'] = ['license_nbr' => $license_nbr, 'text' => Contractor::findOne($license_nbr)->contractor];
     	}
-    	return $out;    	
+    	return $this->asJson($out);
     }
 
     /**

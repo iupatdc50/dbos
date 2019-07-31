@@ -9,7 +9,6 @@ use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\helpers\Json;
 use app\models\member\Member;
 
 class BaseController extends Controller
@@ -43,7 +42,7 @@ class BaseController extends Controller
         ]);
 
         /** @noinspection MissedViewInspection */
-        echo Json::encode($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
+        return $this->asJson($this->renderAjax('_summary', ['dataProvider' => $dataProvider, 'id' => $id]));
 	}
 
     /**

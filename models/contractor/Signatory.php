@@ -2,9 +2,9 @@
 
 namespace app\models\contractor;
 
-use Yii;
 use app\models\value\Lob;
 use app\helpers\OptionHelper;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -71,7 +71,7 @@ class Signatory extends Agreement
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getLob()
     {

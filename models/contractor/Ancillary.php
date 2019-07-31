@@ -2,7 +2,7 @@
 
 namespace app\models\contractor;
 
-use Yii;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -46,7 +46,7 @@ class Ancillary extends Agreement
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAgreementType()
     {

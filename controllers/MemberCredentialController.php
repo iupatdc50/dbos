@@ -22,7 +22,6 @@ use yii\base\UserException;
 use yii\db\Exception;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
-use yii\helpers\Json;
 use yii\data\ActiveDataProvider;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
@@ -99,20 +98,19 @@ class MemberCredentialController extends Controller
             return $provider;
         }
 
-        if (!Yii::$app->user->can('browseTraining')) {
-            echo Json::encode($this->renderAjax('/partials/_deniedview'));
-        } else {
+        if (!Yii::$app->user->can('browseTraining'))
+            return $this->asJson($this->renderAjax('/partials/_deniedview'));
 
-            $member = Member::findOne($id);
+        $member = Member::findOne($id);
 
-            echo Json::encode($this->renderAjax('_credentials', [
-                'member' => $member,
-                'recurProvider' => getProvider($id, CredCategory::CATG_RECURRING),
-                'nonrecurProvider' => getProvider($id, CredCategory::CATG_NONRECUR),
-                'medtestsProvider' => getProvider($id, CredCategory::CATG_MEDTESTS),
-                'coreProvider' => getProvider($id, CredCategory::CATG_CORE),
-            ]));
-        }
+        return $this->asJson($this->renderAjax('_credentials', [
+            'member' => $member,
+            'recurProvider' => getProvider($id, CredCategory::CATG_RECURRING),
+            'nonrecurProvider' => getProvider($id, CredCategory::CATG_NONRECUR),
+            'medtestsProvider' => getProvider($id, CredCategory::CATG_MEDTESTS),
+            'coreProvider' => getProvider($id, CredCategory::CATG_CORE),
+        ]));
+
 	}
 
     /**
@@ -220,7 +218,7 @@ class MemberCredentialController extends Controller
                 Yii::$app->session->setFlash('success', "Credential entry deleted. Previous entry promoted");
             } catch  (Exception $e) {
                 Yii::$app->session->setFlash('error', "Problem with post.  See log for details. Code `MCC110`");
-                Yii:error("*** MCC110 Delete MemberCredential {$id} failed. Errors: " . print_r($e->errorInfo, true));
+                Yii::error("*** MCC110 Delete MemberCredential {$id} failed. Errors: " . print_r($e->errorInfo, true));
             }
             return $this->goBack();
         }

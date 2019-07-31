@@ -11,7 +11,6 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
-use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\Response;
 
@@ -69,13 +68,12 @@ class WorkHourController extends Controller
                 if ($model->save()) {
 
                     $output = isset($posted['wp_seq']) ? $model->workProcess->descrip : Yii::$app->formatter->asDecimal($model->hours, 2);
-                    $out = Json::encode(['output' => $output, 'message' => $message]);
-                    echo $out;
-                    return;
+                    return $this->asJson(['output' => $output, 'message' => $message]);
                 }
             }
             throw new Exception ('Problem with post. Errors: ' . print_r($model->errors, true));
         }
+        return null;
     }
 
     /**

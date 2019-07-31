@@ -2,10 +2,16 @@
 
 namespace app\models\contractor;
 
-use Yii;
+use app\components\behaviors\OpImageBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+
+/** @noinspection UndetectableTableInspection */
+/** @noinspection PropertiesInspection */
 
 /**
- * This is the model class for both agreements tables
+ * This is the model class for both agreements tables.  Property and table inspections disabled because each child
+ * class identifies a separate table
  *
  * @property integer $id
  * @property string $license_nbr
@@ -14,8 +20,10 @@ use Yii;
  * @property string $doc_id
  *
  * @property Contractor $contractor
+ *
+ * @method uploadImage()
  */
-class Agreement extends \yii\db\ActiveRecord
+class Agreement extends ActiveRecord
 {
 	protected $_validationRules = []; 
 	protected $_labels = [];
@@ -33,7 +41,7 @@ class Agreement extends \yii\db\ActiveRecord
 	public function behaviors()
 	{
 		return [
-				\app\components\behaviors\OpImageBehavior::className(),
+				OpImageBehavior::className(),
 		];
 	}
 
@@ -68,7 +76,7 @@ class Agreement extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getContractor()
     {
