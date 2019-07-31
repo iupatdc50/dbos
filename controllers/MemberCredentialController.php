@@ -139,6 +139,7 @@ class MemberCredentialController extends Controller
             $extension = 'xlsx';
             $template_path = implode(DIRECTORY_SEPARATOR, [Yii::$app->getRuntimePath(), 'templates', 'xlsx', $template_nm]);
 
+            ob_start();
             $objReader = PHPExcel_IOFactory::createReader('Excel2007');
             $objPHPExcel = $objReader->load($template_path);
 
@@ -196,6 +197,7 @@ class MemberCredentialController extends Controller
             header("Expires: 0");
 
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+            ob_end_clean();
             $objWriter->save('php://output');
 
             return $this->goBack();
