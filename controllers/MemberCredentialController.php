@@ -162,7 +162,6 @@ class MemberCredentialController extends Controller
             $extension = 'xlsx';
             $template_path = implode(DIRECTORY_SEPARATOR, [Yii::$app->getRuntimePath(), 'templates', 'xlsx', $template_nm]);
 
-            ob_start();
             $objReader = PHPExcel_IOFactory::createReader('Excel2007');
             $objPHPExcel = $objReader->load($template_path);
 
@@ -212,18 +211,22 @@ class MemberCredentialController extends Controller
                 }
             }
 
-            header("Cache-Control: no-cache");
-            header("Pragma: no-cache");
-            header("Content-Type: application/force-download");
-            header("Content-Type: application/{$extension}; charset=utf-8");
-            header("Content-Disposition: attachment; filename={$file_nm}.{$extension}");
-            header("Expires: 0");
-
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-            ob_end_clean();
-            $objWriter->save('php://output');
 
-            return $this->goBack();
+            $headers = Yii::$app->getResponse()->getHeaders();
+            $headers->set('Cache-Control', 'no-cache');
+            $headers->set('Pragma', 'no-cache');
+            $headers->set('Content-Type', 'application/force-download');
+            $headers->set('Content-Type', "application/{$extension};charset=utf-8");
+            $headers->set('Content-Disposition', "attachment;filename={$file_nm}.{$extension}");
+            $headers->set('Expires', '0');
+
+            ob_start();
+            $objWriter->save('php://output');
+            $content = ob_get_contents();
+            ob_end_clean();
+
+            return $content;
         }
 
         throw new ForbiddenHttpException("You are not allowed to perform this action ({$member_id})");
