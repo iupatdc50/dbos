@@ -106,6 +106,13 @@ $this->params['breadcrumbs'][] = $this->title;
 			            ],
 			        ]) ?>
 			    <?php endif; ?>
+                <?php if(Yii::$app->user->can('browseTraining')): ?>
+                    <?=  Html::a(
+                        '<i class="glyphicon glyphicon-certificate"></i>&nbsp;Compliance',
+                        ['/member-credential/compliance', 'id' => $model->member_id],
+                        ['class' => 'btn btn-default'])
+                    ?>
+                <?php endif; ?>
                 <?php if(Yii::$app->user->can('reportAccounting')): ?>
                     <?=  Html::a(
                         '<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
@@ -113,7 +120,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         ['class' => 'btn btn-default', 'target' => '_blank'])
                     ?>
                 <?php endif; ?>
-
 
             <?php endif; ?>
         </p></div>
@@ -174,8 +180,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     $historyUrl = Yii::$app->urlManager->createUrl(['receipt-member/summ-flattened-json', 'member_id' => $model->member_id]);
 
-    $complianceUrl = Yii::$app->urlManager->createUrl(['member-credential/summary-json', 'id' => $model->member_id]);
-    
     $employer = isset($model->employer) ? $model->employer->descrip : 'Unemployed';
 	$employerUrl = Yii::$app->urlManager->createUrl(['employment/summary-json', 'id' => $model->member_id]);
 
@@ -206,10 +210,6 @@ try {
             [
                 'header' => Html::tag('span', 'Receipt History'),
                 'content' => '<div data-url=' . $historyUrl . '>loading...</div>',
-            ],
-            [
-                'header' => Html::tag('span', 'Compliance'),
-                'content' => '<div data-url=' . $complianceUrl . '>loading...</div>',
             ],
             [
                 'header' => Html::tag('span', 'Employer: ') . $employer,

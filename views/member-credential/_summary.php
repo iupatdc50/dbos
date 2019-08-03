@@ -14,6 +14,16 @@ use kartik\grid\GridView;
 $controller = 'member-credential';
 
 $base_columns = [
+    [
+        'class'=>'kartik\grid\ExpandRowColumn',
+        'width'=>'50px',
+        'value'=>function () {
+            return GridView::ROW_COLLAPSED;
+        },
+        'detailUrl'=> Yii::$app->urlManager->createUrl(['member-credential/history-ajax']),
+        'headerOptions'=>['class'=>'kartik-sheet-style'],
+        'expandOneOnly'=>true,
+    ],
     'credential',
     [
         'attribute' => 'complete_dt',
@@ -102,7 +112,7 @@ $action_column = [
 
 /** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
-        'id' => 'credential-grid',
+        'id' => strtolower(substr($heading, 0,1)) . '-credential-grid',
         'dataProvider' => $dataProvider,
         'panel' => [
             'type' => GridView::TYPE_DEFAULT,

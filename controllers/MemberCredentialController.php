@@ -84,10 +84,14 @@ class MemberCredentialController extends Controller
 
     }
 
-	public function actionSummaryJson($id)
-	{
-
-	    function getProvider($member_id, $catg)
+    /**
+     * @param $id
+     * @return string
+     * @throws ForbiddenHttpException
+     */
+	public function actionCompliance($id)
+    {
+        function getProvider($member_id, $catg)
         {
             $query = MemberCompliance::findMemberComplianceByCatg($member_id, $catg);
             $provider = new ActiveDataProvider([
@@ -99,19 +103,38 @@ class MemberCredentialController extends Controller
         }
 
         if (!Yii::$app->user->can('browseTraining'))
-            return $this->asJson($this->renderAjax('/partials/_deniedview'));
+            throw new ForbiddenHttpException("You are not allowed to perform this action ({$id})");
+
+        Yii::$app->user->returnUrl = Yii::$app->request->url;
 
         $member = Member::findOne($id);
 
-        return $this->asJson($this->renderAjax('_credentials', [
+        return $this->render('compliance', [
             'member' => $member,
             'recurProvider' => getProvider($id, CredCategory::CATG_RECURRING),
             'nonrecurProvider' => getProvider($id, CredCategory::CATG_NONRECUR),
             'medtestsProvider' => getProvider($id, CredCategory::CATG_MEDTESTS),
             'coreProvider' => getProvider($id, CredCategory::CATG_CORE),
-        ]));
+        ]);
 
-	}
+    }
+
+    public function actionHistoryAjax()
+    {
+        $curr = MemberCredential::findOne($_POST['expandRowKey']);
+        $query = MemberCredential::find()->where(['and',
+            ['member_id' => $curr->member_id],
+            ['credential_id' => $curr->credential_id],
+            ['<>', 'id', $curr->id],
+        ])->orderBy(['complete_dt' => SORT_DESC]);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+        return $this->renderAjax('_history', [
+            'dataProvider' => $dataProvider,
+            'credential_id' => $curr->credential_id,
+        ]);
+    }
 
     /**
      * Build certificate spreadsheet from training credentials

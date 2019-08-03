@@ -18,3 +18,4 @@ class MemberDocumentController extends BaseController
 	}
 
 }
+
