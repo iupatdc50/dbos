@@ -25,8 +25,8 @@ $controller = 'member-class';
         // 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
         Pjax::begin(['id' => 'class-history', 'enablePushState' => false]);
 
-        try {
-            echo GridView::widget([
+        /** @noinspection PhpUnhandledExceptionInspection */
+        echo GridView::widget([
                 'id' => 'class-history',
                 'pjax' => false,
                 'dataProvider' => $dataProvider,
@@ -81,8 +81,6 @@ $controller = 'member-class';
                     ],
                 ],
             ]);
-        } catch (Exception $e) {
-        }
 
         Pjax::end();
         ?>
@@ -96,6 +94,7 @@ $controller = 'member-class';
             echo GridView::widget([
                     'id' => 'hours-summary',
                     'dataProvider' => $hoursProvider,
+                    'pjax' => false,
                     'panel' => [
                         'type'=>GridView::TYPE_DEFAULT,
                         'heading'=>'Hours',
