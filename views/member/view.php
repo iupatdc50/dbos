@@ -174,7 +174,8 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 
     $classUrl = Yii::$app->urlManager->createUrl(['member-class/summary-json', 'id' => $model->member_id]);
-    
+    $timesheetUrl = Yii::$app->urlManager->createUrl(['timesheet/summary-json', 'id' => $model->member_id]);
+
 //    $balance = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
     $balancesUrl = Yii::$app->urlManager->createUrl(['member-balances/summary-json', 'id' => $model->member_id]);
 
@@ -201,7 +202,7 @@ try {
             ],
             [
                 'header' => Html::tag('span', 'Class: ') . $class,
-                'content' => '<div data-url=' . $classUrl . '>loading...</div>',
+                'content' => '<div data-url=' . $classUrl . '>loading...</div><div class="fifty-pct" data-url=' . $timesheetUrl . '></div>',
             ],
             [
                 'header' => Html::tag('span', 'Balances'),
