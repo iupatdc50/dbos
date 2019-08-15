@@ -23,9 +23,7 @@ use yii\helpers\ArrayHelper;
  */
 class MemberCredential extends ActiveRecord
 {
-    /*
-     * Injected Member object, used for creating new entries
-     */
+    /* @var Member $member Injected Member object, used for creating new entries */
     public $member;
 
     public $catg;
@@ -126,10 +124,21 @@ class MemberCredential extends ActiveRecord
     /**
      * @param $catg
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCredentialOptions($catg)
     {
-        return ArrayHelper::map(Credential::find()->where(['catg' => $catg])->orderBy('display_seq')->all(), 'id', 'credential');
+        if (!isset($this->member))
+            throw new InvalidConfigException('Member object not injected');
+        $query = Credential::find()
+            ->where(['catg' => $catg])
+            ->andWhere(['or',
+                ['lob_cd' => $this->member->currentStatus->lob_cd],
+                ['lob_cd' => null],
+            ])
+            ->orderBy('display_seq')
+            ;
+        return ArrayHelper::map($query->all(), 'id', 'credential');
     }
 
     public function getScheduled()

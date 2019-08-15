@@ -2,6 +2,7 @@
 
 namespace app\models\training;
 
+use app\models\value\Lob;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -16,8 +17,10 @@ use yii\db\ActiveRecord;
  * @property integer $duration
  * @property string $show_on_cert
  * @property string $show_on_id
+ * @property string $lob_cd [varchar(4)]
  *
  * @property CredCategory $credCategory
+ * @property Lob $lob
  * @property MemberCredential[] $memberCredentials
  */
 class Credential extends ActiveRecord
@@ -45,6 +48,8 @@ class Credential extends ActiveRecord
             [['credential', 'card_descrip'], 'string', 'max' => 20],
             [['catg'], 'string', 'max' => 2],
             [['catg'], 'exist', 'skipOnError' => true, 'targetClass' => CredCategory::className(), 'targetAttribute' => ['catg' => 'catg']],
+            [['lob_cd'], 'string', 'max' => 4],
+            [['lob_cd'], 'exist', 'skipOnError' => true, 'targetClass' => Lob::className(), 'targetAttribute' => ['lob_cd' => 'lob_cd']],
         ];
     }
 
@@ -62,6 +67,7 @@ class Credential extends ActiveRecord
             'duration' => 'Duration',
             'show_on_cert' => 'Show On Cert',
             'show_on_id' => 'Show On ID',
+            'lob_cd' => 'Trade',
         ];
     }
 
@@ -71,6 +77,14 @@ class Credential extends ActiveRecord
     public function getCredCategory()
     {
         return $this->hasOne(CredCategory::className(), ['catg' => 'catg']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getLob()
+    {
+        return $this->hasOne(Lob::className(), ['lob_cd' => 'lob_cd']);
     }
 
     /**
