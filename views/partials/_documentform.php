@@ -29,7 +29,7 @@ use kartik\widgets\Select2;
     <?= $form->field($model, 'doc_file')->widget(FileInput::className(), [
 //    		'options' => ['accept' => 'application/pdf'],
     		'pluginOptions'=> [
-    				'allowedFileExtensions'=>['pdf','png', 'jpg'],
+    				'allowedFileExtensions'=>['pdf','png', 'jpg', 'jpeg'],
     				'showUpload' => false,
     		],
     ]); ?>

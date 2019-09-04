@@ -46,7 +46,7 @@ abstract class BaseDocument extends ActiveRecord
             [['doc_type', 'doc_id'], 'required'],
             [['doc_type'], 'exist', 'targetClass' => '\app\models\value\DocumentType'],
             [['doc_id'], 'string', 'max' => 20],
-        	[['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png, jpg'],
+        	[['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png, jpg, jpeg'],
         ];
     }
 

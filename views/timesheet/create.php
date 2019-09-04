@@ -81,7 +81,7 @@ $init_contractor = empty($modelTimesheet->license_nbr) ? 'Search for a contracto
     <?= $form->field($modelTimesheet, "doc_file")->widget(FileInput::className(), [
 //        'options' => ['accept' => 'application/pdf'],
         'pluginOptions'=> [
-            'allowedFileExtensions'=>['pdf','png', 'jpg'],
+            'allowedFileExtensions'=>['pdf','png', 'jpg', 'jpeg'],
             'showUpload' => false,
         ],
     ]); ?>

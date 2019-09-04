@@ -73,6 +73,8 @@ class OpImageBehavior extends Behavior
 		$doc_id = $this->doc_id;
 		$parts = explode(".", $image->name);
 		$ext = end($parts);
+        if ($ext =='jpeg')
+            $ext = 'jpg';
 		$this->owner->$doc_id = Yii::$app->security->generateRandomString(16).".{$ext}";
 	
 		return $image;
