@@ -83,6 +83,7 @@ $init_contractor = empty($modelTimesheet->license_nbr) ? 'Search for a contracto
         'pluginOptions'=> [
             'allowedFileExtensions'=>['pdf','png', 'jpg', 'jpeg'],
             'showUpload' => false,
+            'allowedPreviewTypes' => null,
         ],
     ]); ?>
 

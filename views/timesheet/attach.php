@@ -21,6 +21,7 @@ use kartik\widgets\FileInput;
 //        'options' => ['accept' => 'application/pdf'],
         'pluginOptions' => [
             'allowedFileExtensions' => ['pdf', 'png', 'jpg', 'jpeg'],
+            'allowedPreviewTypes' => null,
         ],
     ]);
 
