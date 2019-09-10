@@ -22,7 +22,6 @@ $this->title = 'Choose Receipt Type';
     		'type' => ActiveForm::TYPE_HORIZONTAL,
      		'id' => 'recptchoice-form', 
             'enableAjaxValidation' => true,
-            'validationUrl' => Url::toRoute('accounting/validation'),
     ]); ?>
     
     <?= $form->field($model, 'payor_type', ['options' => ['id' => 'payortype']])->radioList($payorOptions)->label('Select'); ?>
