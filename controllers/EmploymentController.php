@@ -7,6 +7,7 @@ use Yii;
 use app\models\member\Member;
 use app\models\member\Employment;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -65,10 +66,45 @@ class EmploymentController extends SummaryController
 	public function actionSummaryJson($id)
 	{
 		$member = Member::findOne($id);
-		$employer = isset($member->employer) ? $member->employer->descrip : 'Unemployed';
-		$this->viewParams = ['employer' => $employer];
+        $employer = 'Unemployed';
+        $curr_effective_dt = null;
+		if (isset($member->employer)) {
+		    $employer = $member->employer->descrip;
+		    $curr_effective_dt = $member->employer->effective_dt;
+        }
+		$this->viewParams = [
+		    'employer' => $employer,
+            'curr_effective_dt' => $curr_effective_dt,
+        ];
 		return parent::actionSummaryJson($id);
 	}
+
+    /**
+     * @param $member_id
+     * @param $effective_dt
+     * @return Response
+     * @throws NotFoundHttpException
+     */
+	public function actionResume($member_id, $effective_dt)
+    {
+        $model = $this->findByDate($member_id, $effective_dt);
+
+        if($model !== null) {
+            $model->end_dt = null;
+            $model->term_reason = null;
+
+            if ($model->save()) {
+                Yii::$app->session->addFlash('success', "Employment resumed");
+            } else {
+                Yii::$app->session->AddFlash('error', "Could not update {$this->getBasename()}. Check log for details. Code `EC010`");
+                Yii::error("*** EC010 Employment save error.  Messages: " . print_r($model->errors, true));
+            }
+
+            return $this->goBack();
+        }
+        throw new NotFoundHttpException('Unable to locate employment record.');
+
+    }
 
 	public function actionEdit($member_id, $effective_dt)
 	{
@@ -160,6 +196,7 @@ class EmploymentController extends SummaryController
      * @param null $employer
      * @param string $member_id Selected member's member_id
      * @return Response
+     * @throws Exception
      */
 	public function actionEmployeeList($search = null, $employer = null, $member_id = null)
 	{

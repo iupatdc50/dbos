@@ -22,6 +22,12 @@ use yii\db\ActiveRecord;
  * @property string $acct_month
  * @property integer $created_at
  * @property integer $created_by
+ * @property string $total_hours [decimal(9,2)]
+ * @property string $doc_id [varchar(20)]
+ * @property string $remarks
+ * @property string $license_nbr [varchar(8)]
+ * @property int $updated_at [int(11)]
+ * @property int $updated_by [int(11)]
  *
  * @property Member $member
  * @property Contractor $contractor
@@ -29,10 +35,8 @@ use yii\db\ActiveRecord;
  * @property mixed $totalHours
  * @property User $createdBy
  * @property string $enteredBy
- * @property string $total_hours [decimal(9,2)]
- * @property string $doc_id [varchar(20)]
- * @property string $remarks
- * @property string $license_nbr [varchar(8)]
+ * @property User $updatedBy
+ * @property string $modifiedBy
  *
  * @method uploadImage()
  *
@@ -72,14 +76,13 @@ class Timesheet extends ActiveRecord
             "    T.total_hours AS total,
                  COALESCE(SUM(WH.hours), 0.00) AS computed,
                  T.doc_id,
-                 T.remarks,
                  CONCAT('{$path}', T.doc_id) AS imageUrl,
-                 U.username,
-                 T.created_at,
+                 CASE WHEN UU.username IS NULL THEN UC.username ELSE UU.username END AS username,
                  C.contractor
                FROM Timesheets AS T 
                  LEFT OUTER JOIN WorkHours AS WH ON T.`id` = WH.timesheet_id
-                 JOIN Users AS U ON T.created_by = U.`id`
+                 JOIN Users AS UC ON T.created_by = UC.`id`
+                 LEFT OUTER JOIN Users AS UU ON T.updated_by = UU.`id`
                  LEFT OUTER JOIN Contractors AS C ON C.license_nbr = T.license_nbr
                WHERE T.member_id = :member_id
                GROUP BY T.`id`, T.acct_month
@@ -93,8 +96,8 @@ class Timesheet extends ActiveRecord
     {
         return [
             ['class' => OpImageBehavior::className()],
-            ['class' => TimestampBehavior::className(), 'updatedAtAttribute' => false],
-            ['class' => BlameableBehavior::className(), 'updatedByAttribute' => false],
+            ['class' => TimestampBehavior::className()],
+            ['class' => BlameableBehavior::className()],
         ];
     }
 
@@ -106,7 +109,7 @@ class Timesheet extends ActiveRecord
         return [
             [['member_id', 'acct_month'], 'required'],
             [['remarks', 'license_nbr'], 'safe'],
-            [['created_at', 'created_by'], 'integer'],
+            [['created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['member_id'], 'string', 'max' => 11],
             [['acct_month'], 'string', 'max' => 6],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
@@ -215,6 +218,19 @@ class Timesheet extends ActiveRecord
     public function getEnteredBy()
     {
         return $this->createdBy->username . ' on ' . date('m/d/Y h:i a', $this->created_at);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+    }
+
+    public function getModifiedBy()
+    {
+        return $this->updatedBy->username . ' on ' . date('m/d/Y h:i a', $this->updated_at);
     }
 
     /**

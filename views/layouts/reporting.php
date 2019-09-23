@@ -1,7 +1,8 @@
 <?php
 
-use yii\widgets\Breadcrumbs;
 use kartik\widgets\SideNav;
+
+/** @var string $content */
 
 ?>
 
@@ -155,21 +156,23 @@ use kartik\widgets\SideNav;
 										],
 								],
 						],
-						
-						
 						[
-							'label' => 'Reports',
-							'visible' => Yii::$app->user->can('reportAccounting'),
-							'items' => [
-							],
-						],
+						        'label' => 'Training',
+                                'visible' => Yii::$app->user->can('reportTraining'),
+                                'items' => [
+                                    [
+                                        'label' => 'Active Members List',
+                                        'url'=>'/report/active-members',
+                                    ],
+                                ],
+                        ],
 					],
 			]);
 			
 			?>
 		</div>
 		<div class="col-sm-9">
-			<?= $content; ?>
+            <?= $content; ?>
 		</div>
 	
 	

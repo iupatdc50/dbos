@@ -1,11 +1,13 @@
 <?php
 
+use yii\data\SqlDataProvider;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-use kartik\grid\GridView;
 
 /* @var $model app\models\member\Member */
-/* @var $sqlProvider \yii\data\SqlDataProvider */
+/* @var $sqlProvider SqlDataProvider */
+/* @var $receipts array */
+/* @var $totals array */
 /* @var $typesSubmitted array fee types submittted */
 
 ?>
@@ -87,80 +89,53 @@ DetailView::widget([
 
 </td></tr></table>
 
-<?php
-
-$baseColumns = [
-    [
-        'attribute' => 'id',
-        'label' => 'Nbr',
-    ],
-    [
-        'attribute' => 'received_dt',
-        'format' => ['date', 'php:n/j/Y'],
-        'label' => 'Received',
-    ],
-    'payor',
-];
-
-$feeColumns = [];
-foreach ($typesSubmitted as $typeSubm) {
-    $feeColumns[] = [
-        'attribute' => $typeSubm['fee_type'],
-        'header' => $typeSubm['fee_type'],
-        'class' => 'kartik\grid\DataColumn',
-        'hAlign' => 'right',
-        'vAlign' => 'middle',
-        'format' => ['decimal', 2],
-        'pageSummary' => true,
-    ];
-}
-
-$totalColumn = [[
-    'attribute' => 'total',
-    'class' => 'kartik\grid\DataColumn',
-    'hAlign' => 'right',
-    'vAlign' => 'middle',
-    'contentOptions' => ['class' => 'grid-rowtotal'],
-    'format' => ['decimal', 2],
-    'pageSummary' => true,
-]];
-
-?>
-
-
-<div class="page-break"></div>
+<p class="page-break"></p>
 
 <h4 class="sm-print">Receipt History</h4>
 
-    <?=
-    /** @noinspection PhpUnhandledExceptionInspection */
-    GridView::widget([
-        'id' => 'receipt-grid',
-        'dataProvider' => $sqlProvider,
-//        'resizableColumns' => false,
-        'striped' => false,
-        'options' => ['class' => 'sm-print'],
-        'formatter' => [
-            'class' => 'yii\i18n\Formatter',
-            'nullDisplay' => '',
-        ],
-        'panel' => [
-            'type' => GridView::TYPE_DEFAULT,
-            'heading' => 'Year: 2018',
-            'headingOptions' => ['class'=>'pr-panel-heading'],
-            'before' => false,
-            'after' => false,
-            'footer' => false,
+<table class="sm-table table-bordered hundred-pct">
 
-        ],
-        'columns' => array_merge($baseColumns, $feeColumns, $totalColumn),
-        'showPageSummary' => true,
-        'pageSummaryRowOptions' => ['class' => 'kv-page-summary default']
-    ]);
+    <thead>
+        <tr>
+            <th>Nbr</th>
+            <th>Received</th>
+            <th>Payor</th>
+            <?php foreach ($typesSubmitted as $typeSubm): ?>
+                <th class="right"><?= $typeSubm['fee_type']; ?></th>
+            <?php endforeach; ?>
+            <th class="right">Total</th>
+        </tr>
+    </thead>
 
+    <tbody>
+    <?php foreach($receipts as $receipt): ?>
+        <tr>
+            <td><?= $receipt['id'] ?></td>
+            <td><?= date('m/d/Y', strtotime($receipt['received_dt'])) ?></td>
+            <td><?= $receipt['payor'] ?></td>
 
-    ?>
+            <?php foreach ($typesSubmitted as $typeSubm): ?>
+                <td class="right"><?= $receipt[$typeSubm['fee_type']]; ?></td>
+            <?php endforeach; ?>
 
+            <th class="right"><?= $receipt['total'] ?></th>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td></td><td></td><th class="right">Totals</th>
+
+            <?php foreach ($typesSubmitted as $typeSubm): ?>
+                <th class="right"><?= $totals[$typeSubm['fee_type']]; ?></th>
+            <?php endforeach; ?>
+
+            <th class="right"><?= $totals['total'] ?></th>
+        </tr>
+    </tfoot>
+
+</table>
 
 
 <hr>

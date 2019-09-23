@@ -30,6 +30,16 @@ $this->params['breadcrumbs'][] = 'Timesheets';
 //            'id',
 //            'acctMonthText',
             [
+                'class'=>'kartik\grid\ExpandRowColumn',
+                'width'=>'50px',
+                'value'=>function () {
+                    return GridView::ROW_COLLAPSED;
+                },
+                'detailUrl'=> Yii::$app->urlManager->createUrl(['timesheet/audit-ajax']),
+                'headerOptions'=>['class'=>'kartik-sheet-style'],
+                'expandOneOnly'=>true,
+            ],
+            [
                 'attribute' => 'acct_month',
                 'label' => 'Period',
                 'contentOptions' => ['style' => 'white-space: nowrap;'],
@@ -76,15 +86,9 @@ $this->params['breadcrumbs'][] = 'Timesheets';
                 'attribute' => 'contractor',
                 'contentOptions' => ['style' => 'white-space: nowrap;'],
             ],
-            'remarks',
             [
                 'attribute' => 'username',
-                'label' => 'Recorder',
-            ],
-            [
-                'attribute' => 'created_at',
-                'format' => ['date', 'php:n/j/Y'],
-                'label' => 'Entry Date',
+                'label' => 'Edited by',
             ],
             [
                 'class' => 'yii\grid\ActionColumn',

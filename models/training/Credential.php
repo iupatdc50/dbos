@@ -27,6 +27,7 @@ class Credential extends ActiveRecord
 {
     const HAZ_LEAD = 25;
     const RESP_FIT = 28;
+    const DRUG = 36;
 
     /**
      * @inheritdoc

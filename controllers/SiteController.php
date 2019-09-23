@@ -69,8 +69,6 @@ class SiteController extends RootController
 			$this->setSessionInfo();
 			$user = $this->getUser();
 			$user->last_login = $this->today->getMySqlDate(false);
-			$msg = "User `{$user->username}` successfully logged in on `{$user->last_login}`";
-			Yii::info($msg);
 			if (!$user->save(true, ['last_login']))
 				throw new Exception('Problem with last_login update.  Messages: ' . print_r($user->errors, true));
 			if ($user->requiresReset())

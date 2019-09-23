@@ -54,8 +54,10 @@ class MemberCompliance extends Model
       MC.member_id, 
       MC.credential_id, 
       CASE WHEN MR.complete_dt IS NOT NULL 
-          THEN CONCAT(Cr.credential, ' (', MR.brand, ':', MR.resp_size, ':', MR.resp_type, ')') 
-          ELSE Cr.credential 
+             THEN CONCAT(Cr.credential, ' (', MR.brand, ':', MR.resp_size, ':', MR.resp_type, ')')
+           WHEN DT.complete_dt IS NOT NULL
+             THEN CONCAT(Cr.credential, ' (', DT.test_result, ')') 
+           ELSE Cr.credential 
       END AS credential, 
       Cr.card_descrip, 
       MC.complete_dt, 
@@ -64,7 +66,8 @@ class MemberCompliance extends Model
       Cr.display_seq, 
       Cr.show_on_id,
       Cr.show_on_cert,
-      MS.schedule_dt
+      MS.schedule_dt,
+      MC.doc_id
     FROM MemberCredentials AS MC
       LEFT OUTER JOIN MemberCredentials AS B ON B.member_id = MC.member_id
                                                    AND B.credential_id = MC.credential_id
@@ -77,6 +80,9 @@ class MemberCompliance extends Model
       LEFT OUTER JOIN MemberRespirators AS MR ON MC.member_id = MR.member_id 
                                                AND MC.credential_id = MR.credential_id 
                                                AND MC.complete_dt = MR.complete_dt                                            
+      LEFT OUTER JOIN DrugTestResults AS DT ON MC.member_id = DT.member_id 
+                                               AND MC.credential_id = DT.credential_id 
+                                               AND MC.complete_dt = DT.complete_dt                                            
     WHERE B.complete_dt IS NULL -- (B)igger date not found
       AND MC.member_id = :member_id
 
@@ -106,7 +112,8 @@ SQL;
       Cr.display_seq, 
       Cr.show_on_id,
       Cr.show_on_cert,
-      MS.schedule_dt
+      MS.schedule_dt,
+      NULL AS doc_id
     FROM MemberScheduled AS MS
       JOIN Credentials AS Cr ON Cr.`id` = MS.credential_id
     WHERE MS.member_id = :member_id 

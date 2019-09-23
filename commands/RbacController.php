@@ -141,6 +141,7 @@ class RbacController extends Controller
 		// Training permissions
 		echo "Preparing training permissions";
 		$browseTraining = $this->addPermission('browseTraining', 'Browse training content');
+        $reportTraining = $this->addPermission('reportTraining', 'Create training specific report');
 		$manageTraining = $this->addPermission('manageTraining', 'Create or update training information');
 		echo "...complete\n";
 
@@ -149,7 +150,7 @@ class RbacController extends Controller
 		$trainingEditor = $this->addRole('trainingEditor', 'Training Editor');
 		$trainingViewer = $this->addRole('trainingViewer', 'Training Viewer', [$trainingEditor]);
 		$this->adopt($trainingViewer, [$browseTraining]);
-		$this->adopt($trainingEditor, [$manageTraining]);
+		$this->adopt($trainingEditor, [$reportTraining, $manageTraining]);
 		echo "...complete\n";
 		
 		// Support permissions
@@ -169,6 +170,7 @@ class RbacController extends Controller
             $reportAccounting,
             $reportContractor,
             $reportMember,
+            $reportTraining,
         ]);
 		echo "...complete\n";
 		

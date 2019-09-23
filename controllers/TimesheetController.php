@@ -84,6 +84,12 @@ class TimesheetController extends Controller
         ]);
     }
 
+    public function actionAuditAjax()
+    {
+        $model = Timesheet::findOne($_POST['expandRowKey']);
+        return $this->renderAjax('_audit', ['model' => $model]);
+    }
+
     /**
      * @param $member_id
      * @return string|Response

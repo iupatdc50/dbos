@@ -8,6 +8,7 @@ use kartik\grid\GridView;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $heading string */
 /* @var $expires bool */
+/* @var $doc bool */
 /* @var $relation_id string */
 /* @var $catg string */
 
@@ -32,6 +33,18 @@ $base_columns = [
     ],
 ];
 
+$attach_column = $doc ? [[
+    'attribute' => 'showPdf',
+    'label' => 'Doc',
+    'hAlign' => 'center',
+    'format' => 'raw',
+    'value' => function($model) {
+        return (isset($model->doc_id)) ?
+            Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show document']),
+                $model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
+    },
+]] : [];
+
 $expires_column = $expires ? [[
     'attribute' => 'expire_dt',
     'format' => ['date'],
@@ -48,7 +61,7 @@ $action_column = [
     [
         'class' => ActionColumn::className(),
         'controller' => $controller,
-        'template' => '{unschedule} {delete}',
+        'template' => '{unschedule} {attach} {delete}',
 
         'buttons' => [
             'unschedule' => function ($url, $model) {
@@ -60,6 +73,19 @@ $action_column = [
                         'data-confirm' => 'Clear schedule for this item?',
                     ]);
                 return $eraser;
+            },
+            'attach' => function ($url, $model) use ($doc) {
+                $attach = null;
+                if ($doc)
+                    $attach = Html::button('<i class="glyphicon glyphicon-save-file"></i>',
+                        [
+                            'value' => $url,
+                            'id' => 'attachButton' . $model->id,
+                            'class' => 'btn btn-default btn-modal btn-detail btn-link',
+                            'title' => Yii::t('app','Attach document'),
+                            'data-title' => 'Attach',
+                        ]);
+                return $attach;
             },
             'delete' => function ($url, $model) {
                 $delete = null;
@@ -82,6 +108,9 @@ $action_column = [
                     'member_id' => $model->member_id,
                     'credential_id' => $model->credential_id
                 ]);
+                return $url;
+            } elseif($action === 'attach') {
+                $url = '/member-credential/attach?id=' . $model->id;
                 return $url;
             } elseif ($action === 'delete') {
                 $url = '/member-credential/delete?id=' . $model->id;
@@ -129,7 +158,7 @@ echo GridView::widget([
             }
             return null;
         },
-        'columns' => array_merge($base_columns, $expires_column, $scheduled_column, $action_column),
+        'columns' => array_merge($base_columns, $attach_column, $expires_column, $scheduled_column, $action_column),
 
     ]);
 

@@ -38,6 +38,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $recurProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Recurring',
+            'doc' => false,
             'expires' => true,
             'catg' => CredCategory::CATG_RECURRING,
         ]); ?>
@@ -49,6 +50,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $nonrecurProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Non-expiring',
+            'doc' => false,
             'expires' => false,
             'catg' => CredCategory::CATG_NONRECUR,
         ]); ?>
@@ -60,6 +62,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $medtestsProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Medical Tests',
+            'doc' => true,
             'expires' => true,
             'catg' => CredCategory::CATG_MEDTESTS,
         ]); ?>
@@ -71,6 +74,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $coreProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Apprenticeship School',
+            'doc' => false,
             'expires' => false,
             'catg' => CredCategory::CATG_CORE,
         ]); ?>

@@ -1,5 +1,6 @@
 <?php
 
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
@@ -8,8 +9,9 @@ use yii\widgets\Pjax;
 // Employment
 
 /* @var $this yii\web\View */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider ActiveDataProvider */
 /* @var $id string Relational ID around which data is summarized */
+/* @var $curr_effective_dt */
 ?>
 
 <div id="employment-history">
@@ -18,6 +20,7 @@ use yii\widgets\Pjax;
 // 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
 Pjax::begin(['id' => 'employment-history', 'enablePushState' => false]);
 
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
 		'id' => 'employment-history',
 		'dataProvider' => $dataProvider,
@@ -93,28 +96,44 @@ echo GridView::widget([
 						'class' => 'kartik\grid\ActionColumn',
 						'visible' => Yii::$app->user->can('updateMember'),
 						// Change the action template because the signatures are not by `id`
-						 'template' => '{edit} {remove}',
+						 'template' => '{resume} {edit} {remove}',
 						 'buttons' => [
-						 		'edit' => function ($url, $model) {
-					 				return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url, [
-					 					'title' => Yii::t('app', 'Update'),
-					 				]);
+						 		'resume' => function ($url, $model) use ($curr_effective_dt) {
+                                    $resume = null;
+                                    if (($model->effective_dt == $curr_effective_dt) && (isset($model->end_dt)))
+                                        $resume = Html::a('<span class="glyphicon glyphicon-refresh"></span>', $url, [
+                                            'title' => Yii::t('app', 'Resume'),
+                                            'data-confirm' => 'Are you sure you want to resume employment?',
+                                        ]);
+                                    return $resume;
+					        	},
+						 		'edit' => function ($url, $model) use ($curr_effective_dt) {
+                                    $edit = null;
+                                    if ($model->effective_dt == $curr_effective_dt)
+                                        $edit = Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url, [
+                                            'title' => Yii::t('app', 'Update'),
+                                        ]);
+                                    return $edit;
 						 		}, 
-						 		'remove' => function ($url, $model) {
+						 		'remove' => function ($url) {
 					        		return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
 					                	'title' => Yii::t('app', 'Remove'),
 					        			'data-confirm' => 'Are you sure you want to delete this item?',
 					        		]);
-						    }
+						        }
 						  ],
-						  'urlCreator' => function ($action, $model, $key, $index) {
-						    	if ($action == 'edit') {
+						  'urlCreator' => function ($action, $model) {
+						    	if ($action == 'resume') {
+                                    $url = '/employment/resume?member_id=' . $model->member_id . '&effective_dt=' . $model->effective_dt;
+                                    return $url;
+                                } elseif ($action == 'edit') {
 						    		$url ='/employment/edit?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
 						    		return $url;
 						    	} elseif ($action === 'remove') {
 						        	$url ='/employment/remove?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
 						        	return $url;
 						    	}
+						    	return null;
 						  }
 						  
 				],

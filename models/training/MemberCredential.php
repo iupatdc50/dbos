@@ -2,6 +2,7 @@
 
 namespace app\models\training;
 
+use app\components\behaviors\OpImageBehavior;
 use app\components\utilities\OpDate;
 use app\models\member\Member;
 use yii\base\InvalidConfigException;
@@ -18,8 +19,13 @@ use yii\helpers\ArrayHelper;
  * @property integer $credential_id
  * @property string $complete_dt
  * @property string $expire_dt
+ * @property string $doc_id [varchar(20)]
  *
  * @property Credential $credential
+ *
+ * @method uploadImage()
+ * @method deleteImage()
+ *
  */
 class MemberCredential extends ActiveRecord
 {
@@ -27,6 +33,11 @@ class MemberCredential extends ActiveRecord
     public $member;
 
     public $catg;
+
+    /**
+     * @var mixed	Stages document to be uploaded
+     */
+    public $doc_file;
 
     /**
      * @inheritdoc
@@ -40,7 +51,21 @@ class MemberCredential extends ActiveRecord
     {
         if ($row['credential_id'] == Credential::RESP_FIT)
             return new MemberCredRespFit();
+        elseif ($row['credential_id'] == Credential::DRUG)
+            return new MemberCredDrug();
         return new static;
+    }
+
+    /**
+     * Handles all the document attachment processing functions for the model
+     *
+     * @see \yii\base\Component::behaviors()
+     */
+    public function behaviors()
+    {
+        return [
+            OpImageBehavior::className(),
+        ];
     }
 
     /**
@@ -55,6 +80,8 @@ class MemberCredential extends ActiveRecord
             [['member_id'], 'string', 'max' => 11],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
             [['credential_id'], 'exist', 'skipOnError' => true, 'targetClass' => Credential::className(), 'targetAttribute' => ['credential_id' => 'id']],
+            [['doc_id'], 'string', 'max' => 20],
+            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png, jpg, jpeg'],
         ];
     }
 
@@ -69,6 +96,7 @@ class MemberCredential extends ActiveRecord
             'credential_id' => 'Credential',
             'complete_dt' => 'Completed',
             'expire_dt' => 'Expires',
+            'doc_id' => 'Doc',
         ];
     }
 
@@ -80,10 +108,11 @@ class MemberCredential extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (!(isset($this->member) && ($this->member instanceof Member)))
-                throw new InvalidConfigException('No member object injected');
-            if ($insert)
+            if ($insert) {
+                if (!(isset($this->member) && ($this->member instanceof Member)))
+                    throw new InvalidConfigException('No member object injected');
                 $this->member_id = $this->member->member_id;
+            }
             if ($this->isAttributeChanged('complete_dt') && isset($this->credential->duration)) {
                 $expire_dt = new OpDate();
                 $expire_dt->setFromMySql($this->complete_dt)->modify("+{$this->credential->duration} month");

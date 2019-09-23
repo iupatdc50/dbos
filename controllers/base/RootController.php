@@ -54,8 +54,6 @@ class RootController extends Controller
     	$session_start = $this->today->getMySqlDate(false);
     	$user = $this->getUser();
     	$this->session->set('user.last_login', $user->lastLoginDisplay);
-    	$msg = "User `{$user->username}` started session on `{$session_start}`";
-    	Yii::info($msg);
     	$this->session->set('user.session_start', $session_start);
     }
     

@@ -19,7 +19,6 @@ use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
 use app\models\training\Standing as ClassStanding;
 use app\models\member\MemberSearch;
-use yii\data\SqlDataProvider;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
@@ -430,20 +429,20 @@ class MemberController extends RootController
      */
     public function actionPrintPreview($id, $report_year = null)
     {
-        $year = is_null($report_year) ? $this->getToday()->getYear() - 1 : $report_year;
-
         $this->layout = 'noheadreport';
         $model = $this->findModel($id);
 
-        $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($id, $year);
+        $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($id, $report_year);
 
-        $sqlProvider = new SqlDataProvider([
-            'sql' => ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted, $year),
-            'params' => [':member_id' => $id],
-            'pagination' => false,
-        ]);
+        $sql = ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted, false, $report_year);
+        $command = Yii::$app->db->createCommand($sql)->bindValue(':member_id', $id);
+        $receipts = $command->queryAll();
 
-        return $this->render('/member/print-preview', compact('model', 'sqlProvider', 'typesSubmitted'));
+        $sql = ReceiptMember::getFlattenedReceiptsByMemberSql($typesSubmitted, true, $report_year);
+        $command = Yii::$app->db->createCommand($sql)->bindValue(':member_id', $id);
+        $totals = $command->queryOne();
+
+        return $this->render('/member/print-preview', compact('model', 'receipts', 'totals', 'typesSubmitted'));
     }
 
     /**

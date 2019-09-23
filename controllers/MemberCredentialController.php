@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\training\CredCategory;
 use app\models\training\Credential;
+use app\models\training\DrugTestResult;
 use app\models\training\MemberCredential;
 use app\models\training\MemberCompliance;
 use app\models\training\MemberCredRespFit;
@@ -19,12 +20,14 @@ use PHPExcel_Writer_Exception;
 use Yii;
 use app\models\member\Member;
 use yii\base\UserException;
+use yii\bootstrap\ActiveForm;
 use yii\db\Exception;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
+use yii\web\UploadedFile;
 
 class MemberCredentialController extends Controller
 {
@@ -44,7 +47,7 @@ class MemberCredentialController extends Controller
     /**
      * @param $member_id
      * @param $catg
-     * @return string|Response
+     * @return array|string|Response
      * @throws yii\db\Exception
      */
     public function actionCreate($member_id, $catg)
@@ -63,24 +66,77 @@ class MemberCredentialController extends Controller
             'resp_type' => MemberRespirator::HALF_FACE,
         ]);
 
+        $modelDrug = new DrugTestResult([
+            'test_result' => DrugTestResult::NEGATIVE,
+        ]);
+
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($model);
+        }
+
         if ($model->load(Yii::$app->request->post())) {
             // Because member ID is unchanged, it gets cleared on load
-            if ($model->validate()) {
-                if ($model->save()) {
-                    Yii::$app->session->addFlash('success', "{$model->credential->credential} entry created");
-                    if (($model->credential_id == Credential::RESP_FIT) && ($modelResp->load(Yii::$app->request->post()))) {
-                        $modelResp->member_id = $model->member_id;
-                        $modelResp->credential_id = $model->credential_id;
-                        $modelResp->complete_dt = $model->complete_dt;
-                        if (!$modelResp->validate() || !$modelResp->save())
-                            throw new Exception ('Problem with post.  Errors: ' . print_r($modelResp->errors, true));
-                    }
-                    return $this->goBack();
+            /* @var $image UploadedFile */
+            $image = $model->uploadImage();
+            if ($model->save()) {
+
+                if ($image !== false) {
+                    $path = $model->imagePath;
+                    $image->saveAs($path);
                 }
-                throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+
+                Yii::$app->session->addFlash('success', "{$model->credential->credential} entry created");
+
+                if (($model->credential_id == Credential::RESP_FIT) && ($modelResp->load(Yii::$app->request->post()))) {
+                    $modelResp->member_id = $model->member_id;
+                    $modelResp->credential_id = $model->credential_id;
+                    $modelResp->complete_dt = $model->complete_dt;
+                    if (!$modelResp->validate() || !$modelResp->save())
+                        throw new Exception ('Problem with post.  Errors: ' . print_r($modelResp->errors, true));
+
+                } elseif (($model->credential_id == Credential::DRUG) && ($modelDrug->load(Yii::$app->request->post()))) {
+                    $modelDrug->member_id = $model->member_id;
+                    $modelDrug->credential_id = $model->credential_id;
+                    $modelDrug->complete_dt = $model->complete_dt;
+                    if (!$modelDrug->validate() || !$modelDrug->save())
+                        throw new Exception ('Problem with post.  Errors: ' . print_r($modelDrug->errors, true));
+                }
+
+                return $this->goBack();
+            }
+            throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+        }
+        return $this->renderAjax('create', compact('model', 'modelResp', 'modelDrug'));
+
+    }
+
+    public function actionAttach($id)
+    {
+        $model = MemberCredential::findOne($id);
+        $oldPath = $model->imagePath;
+        $oldId = $model->doc_id;
+
+        if ($model->load(Yii::$app->request->post())) {
+            $image = $model->uploadImage();
+
+            if($image === false)
+                $model->doc_id = $oldId;
+
+            if	($model->save()) {
+                if ($image !== false) {
+                    if (file_exists($oldPath))
+                        unlink($oldPath);
+                    $path = $model->imagePath;
+                    /* @var $image UploadedFile */
+                    $image->saveAs($path);
+                }
+
+                Yii::$app->session->addFlash('success', "Document successfully uploaded");
+                return $this->goBack();
             }
         }
-        return $this->renderAjax('create', compact('model', 'modelResp'));
+        return $this->renderAjax('attach', ['model' => $model]);
 
     }
 
@@ -234,6 +290,8 @@ class MemberCredentialController extends Controller
     }
 
     /**
+     * Uses SQL DELETE to trigger promotion of previous entry
+     *
      * @param $id
      * @return Response
      * @throws ForbiddenHttpException
@@ -241,10 +299,13 @@ class MemberCredentialController extends Controller
     public function actionDelete($id)
     {
         if (Yii::$app->user->can('manageTraining')) {
+            $credential = MemberCredential::findOne($id);
             $command = Yii::$app->db->createCommand("DELETE FROM MemberCredentials WHERE `id` = :id;", [':id' => $id]);
             try {
                 $command->execute();
                 Yii::$app->session->setFlash('success', "Credential entry deleted. Previous entry promoted");
+                if(isset($credential->doc_id) && (!$credential->deleteImage()))
+                    Yii::$app->session->setFlash('error', "Could not delete document `{$credential->doc_id}`");
             } catch  (Exception $e) {
                 Yii::$app->session->setFlash('error', "Problem with post.  See log for details. Code `MCC110`");
                 Yii::error("*** MCC110 Delete MemberCredential {$id} failed. Errors: " . print_r($e->errorInfo, true));
