@@ -178,6 +178,7 @@ class MemberCredentialController extends Controller
     public function actionHistoryAjax()
     {
         $curr = MemberCredential::findOne($_POST['expandRowKey']);
+
         $query = MemberCredential::find()->where(['and',
             ['member_id' => $curr->member_id],
             ['credential_id' => $curr->credential_id],
@@ -186,9 +187,14 @@ class MemberCredentialController extends Controller
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+        $cred = Credential::findOne($curr->credential_id);
+        $show_attach = ($cred->catg == CredCategory::CATG_MEDTESTS);
+
         return $this->renderAjax('_history', [
             'dataProvider' => $dataProvider,
             'credential_id' => $curr->credential_id,
+            'show_attach' => $show_attach,
         ]);
     }
 

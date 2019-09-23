@@ -1,10 +1,12 @@
 <?php
 
 use kartik\grid\GridView;
+use yii\helpers\Html;
 use yii\widgets\Pjax;
 
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $credential_id string */
+/* @var $show_attach bool */
 
 ?>
 
@@ -29,6 +31,20 @@ use yii\widgets\Pjax;
         ],
         'columns' => [
             'complete_dt:date',
+            [
+                'attribute' => 'showPdf',
+                'visible' => $show_attach,
+                'class' => 'kartik\grid\DataColumn',
+                'label' => 'Doc',
+                'hAlign' => 'center',
+                'format' => 'raw',
+                'value' => function($model) {
+                    return (isset($model->doc_id)) ?
+                        Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show document']),
+                            $model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
+                },
+
+            ],
         ],
     ]);
 
