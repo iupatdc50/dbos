@@ -154,7 +154,7 @@ class User extends ActiveRecord
         	$this->setPassword($this->password_clear);
 
         if ($this->isNewRecord)
-            $this->auth_key = Yii::$app->security->generateRandomString($length = 255);
+            $this->auth_key = Yii::$app->security->generateRandomString($length = 32);
 
         return $return;
     }
