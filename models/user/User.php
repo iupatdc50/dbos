@@ -3,7 +3,8 @@
 namespace app\models\user;
 
 use Yii;
-use yii\db\Query;
+use yii\base\Exception;
+use yii\behaviors\TimestampBehavior;use yii\db\ActiveRecord;use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
@@ -34,7 +35,7 @@ use kartik\password\StrengthValidator;
  * @property string $inUseRoles
  * 
  */
-class User extends \yii\db\ActiveRecord
+class User extends ActiveRecord
 				 implements IdentityInterface
 {
 	const SCENARIO_CREATE = 'create';
@@ -89,7 +90,7 @@ class User extends \yii\db\ActiveRecord
 	public function behaviors()
 	{
 		return [
-				'timestamp' => \yii\behaviors\TimestampBehavior::className(),
+				'timestamp' => TimestampBehavior::className(),
 		];
 	}
 
@@ -143,7 +144,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * @param bool $insert
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function beforeSave($insert)
     {
@@ -153,14 +154,14 @@ class User extends \yii\db\ActiveRecord
         	$this->setPassword($this->password_clear);
 
         if ($this->isNewRecord)
-            $this->auth_key = Yii::$app->security->generateRandomKey($length = 255);
+            $this->auth_key = Yii::$app->security->generateRandomString($length = 255);
 
         return $return;
     }
 
     /**
      * @param $password
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function setPassword($password)
     {
@@ -171,7 +172,7 @@ class User extends \yii\db\ActiveRecord
      * Find by username column
      *
      * @param string $username
-     * @return \yii\db\static|NULL
+     * @return static|NULL
      */
     public static function findByUsername($username)
     {
@@ -298,6 +299,7 @@ class User extends \yii\db\ActiveRecord
         $not = ($staff_roles) ? '' : ' NOT ';
         // asterisk in the description indicates staff role
         $cond = " AND description {$not} LIKE '%*'";
+        /** @noinspection PhpParamsInspection */
         $excludes = "'" . implode("', '", $this->inUseRoles) . "'";
         $sql = "SELECT name, description FROM AuthItems WHERE type = 1 {$cond} AND name NOT IN ({$excludes});";
         return ArrayHelper::map(yii::$app->db->createCommand($sql)->queryAll(), 'name', 'description');
