@@ -30,7 +30,7 @@ use kartik\widgets\SideNav;
                                         [
                                                 'label' => 'Active Members List',
                                                 'url'=>'/report/active-members',
-                                                'active' => (yii::$app->requestedRoute == 'report/active-members'),
+//                                                'active' => (yii::$app->requestedRoute == 'report/active-members'),
                                         ],
 										[
 												'label' => 'PAC Reporting',
