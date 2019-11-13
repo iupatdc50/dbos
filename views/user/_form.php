@@ -23,7 +23,12 @@ use kartik\select2\Select2;
 
     <?= $form->field($model, 'email')->textInput(['maxlength' => 255]) ?>
 
-    <?= $form->field($model, 'role')->hiddenInput()->label(false) ?>
+    <?php
+        if($model->isNewRecord)
+            echo $form->field($model, 'role')->hiddenInput()->label(false);
+        else
+            echo $form->field($model, 'role')->textInput(['maxlength' => true]);
+    ?>
 
     <?= $form->field($model, 'status')->widget(Select2::className(), [
     		'data' => $model->statusOptions, 
