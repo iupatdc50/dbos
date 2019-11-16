@@ -258,7 +258,8 @@ class MemberCredentialController extends Controller
                                 $this->alertCell($sheet, $range);
                                 // Haz/lead includes other credentials in certificate
                                 if ($credential->credential_id == Credential::HAZ_LEAD)
-                                    foreach (['G14', 'G17', 'G20'] as $cell)
+                                    // G15 Lead Awareness, G18 Respiratory Protection, G21 Silica Awareness
+                                    foreach (['G15', 'G18', 'G21'] as $cell)
                                         $this->alertCell($sheet, $cell);
                             }
                         }
