@@ -1,5 +1,7 @@
 <?php
 
+use app\helpers\OptionHelper;
+use app\models\training\CredCategory;
 use yii\grid\ActionColumn;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -57,6 +59,10 @@ $scheduled_column = [[
     'label' => 'Scheduled',
 ]];
 
+$show_action = Yii::$app->user->can('manageTraining');
+if (!($show_action))
+    $show_action = ($catg == CredCategory::CATG_MEDTESTS) && Yii::$app->user->can('editLimitedCredentials');
+
 $action_column = [
     [
         'class' => ActionColumn::className(),
@@ -65,6 +71,8 @@ $action_column = [
 
         'buttons' => [
             'unschedule' => function ($url, $model) {
+                if (Yii::$app->user->can('editLimitedCredentials') && ($model->unrestricted == OptionHelper::TF_FALSE))
+                    return null;
                 $eraser = null;
                 if(isset($model->schedule_dt))
                     $eraser = Html::a('<span class="glyphicon glyphicon-erase"></span>', $url, [
@@ -75,6 +83,8 @@ $action_column = [
                 return $eraser;
             },
             'attach' => function ($url, $model) use ($doc) {
+                if (Yii::$app->user->can('editLimitedCredentials') && ($model->unrestricted == OptionHelper::TF_FALSE))
+                    return null;
                 $attach = null;
                 if ($doc)
                     $attach = Html::button('<i class="glyphicon glyphicon-save-file"></i>',
@@ -88,6 +98,8 @@ $action_column = [
                 return $attach;
             },
             'delete' => function ($url, $model) {
+                if (Yii::$app->user->can('editLimitedCredentials') && ($model->unrestricted == OptionHelper::TF_FALSE))
+                    return null;
                 $delete = null;
                 if (isset($model->complete_dt))
                     $delete =  Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
@@ -120,24 +132,23 @@ $action_column = [
         },
 
         'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
-            'value' => Url::to(["/{$controller}/create", 'member_id' => $relation_id, 'catg' => $catg]),
-            'id' => $catg . 'CreateButton',
-            'class' => 'btn btn-default btn-modal btn-embedded',
-            'title' => 'Add a completed credential',
-            'data-title' => 'Credential',
-        ])
-        . ' ' . Html::button('<i class="glyphicon glyphicon-time"></i>', [
+                'value' => Url::to(["/{$controller}/create", 'member_id' => $relation_id, 'catg' => $catg]),
+                'id' => $catg . 'CreateButton',
+                'class' => 'btn btn-default btn-modal btn-embedded',
+                'title' => 'Add a completed credential',
+                'data-title' => 'Credential',
+            ])
+            . ' ' . Html::button('<i class="glyphicon glyphicon-time"></i>', [
                 'value' => Url::to(["/member-scheduled/create", 'member_id' => $relation_id, 'catg' => $catg]),
                 'id' => $catg . 'SchedButton',
                 'class' => 'btn btn-default btn-modal btn-compliance',
                 'title' => 'Schedule a credential item',
                 'data-title' => 'Schedule',
             ]),
-        'visible' => Yii::$app->user->can('manageTraining'),
+        'visible' => $show_action,
 
     ],
 ];
-
 
 /** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([

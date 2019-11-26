@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property string $show_on_cert
  * @property string $show_on_id
  * @property string $lob_cd [varchar(4)]
+ * @property string $unrestricted [enum('T', 'F')]
  *
  * @property CredCategory $credCategory
  * @property Lob $lob
@@ -43,9 +44,9 @@ class Credential extends ActiveRecord
     public function rules()
     {
         return [
-            [['credential', 'display_seq', 'catg'], 'required'],
+            [['credential', 'display_seq', 'catg', 'unrestricted'], 'required'],
             [['display_seq', 'duration'], 'integer'],
-            [['show_on_cert', 'show_on_id'], 'string'],
+            [['show_on_cert', 'show_on_id', 'unrestricted'], 'string'],
             [['credential', 'card_descrip'], 'string', 'max' => 20],
             [['catg'], 'string', 'max' => 2],
             [['catg'], 'exist', 'skipOnError' => true, 'targetClass' => CredCategory::className(), 'targetAttribute' => ['catg' => 'catg']],

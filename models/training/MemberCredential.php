@@ -4,7 +4,9 @@ namespace app\models\training;
 
 use app\components\behaviors\OpImageBehavior;
 use app\components\utilities\OpDate;
+use app\helpers\OptionHelper;
 use app\models\member\Member;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -33,6 +35,7 @@ class MemberCredential extends ActiveRecord
     public $member;
 
     public $catg;
+    public $unrestricted;
 
     /**
      * @var mixed	Stages document to be uploaded
@@ -165,8 +168,11 @@ class MemberCredential extends ActiveRecord
                 ['lob_cd' => $this->member->currentStatus->lob_cd],
                 ['lob_cd' => null],
             ])
-            ->orderBy('display_seq')
+
             ;
+        if (Yii::$app->user->can('editLimitedCredentials'))
+            $query->andWhere(['unrestricted' => OptionHelper::TF_TRUE]);
+        $query->orderBy('display_seq');
         return ArrayHelper::map($query->all(), 'id', 'credential');
     }
 

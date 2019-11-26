@@ -34,7 +34,7 @@ class MemberScheduledController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['create', 'clear'],
-                        'roles' => ['trainingEditor'],
+                        'roles' => ['trainingEditor', 'trainingEditorLimited'],
                     ],
                 ],
             ],

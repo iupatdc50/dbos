@@ -66,6 +66,7 @@ class MemberCompliance extends Model
       Cr.display_seq, 
       Cr.show_on_id,
       Cr.show_on_cert,
+      Cr.unrestricted,
       MS.schedule_dt,
       MC.doc_id
     FROM MemberCredentials AS MC
@@ -112,6 +113,7 @@ SQL;
       Cr.display_seq, 
       Cr.show_on_id,
       Cr.show_on_cert,
+      Cr.unrestricted,
       MS.schedule_dt,
       NULL AS doc_id
     FROM MemberScheduled AS MS

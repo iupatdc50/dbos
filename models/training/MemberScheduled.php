@@ -2,7 +2,9 @@
 
 namespace app\models\training;
 
+use app\helpers\OptionHelper;
 use app\models\member\Member;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -89,10 +91,26 @@ class MemberScheduled extends ActiveRecord
     /**
      * @param $catg
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCredentialOptions($catg)
     {
-        return ArrayHelper::map(Credential::find()->where(['catg' => $catg])->orderBy('display_seq')->all(), 'id', 'credential');
+//        return ArrayHelper::map(Credential::find()->where(['catg' => $catg])->orderBy('display_seq')->all(), 'id', 'credential');
+        if (!isset($this->member))
+            throw new InvalidConfigException('Member object not injected');
+        $query = Credential::find()
+            ->where(['catg' => $catg])
+            ->andWhere(['or',
+                ['lob_cd' => $this->member->currentStatus->lob_cd],
+                ['lob_cd' => null],
+            ])
+
+        ;
+        if (Yii::$app->user->can('editLimitedCredentials'))
+            $query->andWhere(['unrestricted' => OptionHelper::TF_TRUE]);
+        $query->orderBy('display_seq');
+        return ArrayHelper::map($query->all(), 'id', 'credential');
+
     }
 
 }

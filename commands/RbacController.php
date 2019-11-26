@@ -141,15 +141,19 @@ class RbacController extends Controller
 		// Training permissions
 		echo "Preparing training permissions";
 		$browseTraining = $this->addPermission('browseTraining', 'Browse training content');
+		// Special permission for Admin Staff
+        $editLimitedCredentials = $this->addPermission('editLimitedCredentials', 'Edit limited credential');
         $reportTraining = $this->addPermission('reportTraining', 'Create training specific report');
 		$manageTraining = $this->addPermission('manageTraining', 'Create or update training information');
 		echo "...complete\n";
 
 		// Training roles
 		echo "Preparing training roles";
-		$trainingEditor = $this->addRole('trainingEditor', 'Training Editor');
-		$trainingViewer = $this->addRole('trainingViewer', 'Training Viewer', [$trainingEditor]);
-		$this->adopt($trainingViewer, [$browseTraining]);
+        $trainingEditor = $this->addRole('trainingEditor', 'Training Editor');
+        $trainingEditorLimited = $this->addRole('trainingEditorLimited', 'Training Editor (limited)');
+		$trainingViewer = $this->addRole('trainingViewer', 'Training Viewer', [$trainingEditor, $trainingEditorLimited]);
+        $this->adopt($trainingViewer, [$browseTraining]);
+        $this->adopt($trainingEditorLimited, [$editLimitedCredentials]);
 		$this->adopt($trainingEditor, [$reportTraining, $manageTraining]);
 		echo "...complete\n";
 		
@@ -205,7 +209,7 @@ class RbacController extends Controller
 		// Front Desk role
 		echo "Preparing Front Desk role";
 		$frontDesk = $this->addRole('frontDesk', 'Front Desk Staff*');
-		$this->adopt($frontDesk, [$memberEditor, $contractorEditor, $accountingEditor, $trainingViewer]);
+		$this->adopt($frontDesk, [$memberEditor, $contractorEditor, $accountingEditor, $trainingEditorLimited]);
 		echo "...complete\n";
 		
 		// Office Manager role

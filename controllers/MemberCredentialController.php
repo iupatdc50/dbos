@@ -48,7 +48,7 @@ class MemberCredentialController extends Controller
      * @param $member_id
      * @param $catg
      * @return array|string|Response
-     * @throws yii\db\Exception
+     * @throws Exception
      */
     public function actionCreate($member_id, $catg)
     {
