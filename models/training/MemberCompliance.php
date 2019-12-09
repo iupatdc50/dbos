@@ -46,7 +46,6 @@ class MemberCompliance extends Model
      */
     private static function credentialSql($use_catg = true)
     {
-        /** @noinspection SqlCaseVsIf */
         $sql = <<<SQL
         
   SELECT 

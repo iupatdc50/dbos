@@ -1,5 +1,6 @@
 <?php
 
+use app\models\member\ClassCode;
 use app\models\training\CredCategory;
 use yii\helpers\Html;
 use yii\web\View;
@@ -24,10 +25,16 @@ $this->params['breadcrumbs'][] = 'Compliance';
     <?php
     if (Yii::$app->user->can('manageTraining'))
         echo Html::a(
-            '<i class="glyphicon glyphicon-export"></i>&nbsp;Excel Certificate',
-            ['certificate', 'member_id' => $member->member_id],
+            '<i class="glyphicon glyphicon-export"></i>&nbsp;Certificate',
+            ['/report/certificate', 'member_id' => $member->member_id],
             ['class' => 'btn btn-default']
         );
+        if (in_array($member->currentClass->member_class, [ClassCode::CLASS_APPRENTICE, ClassCode::CLASS_HANDLER]))
+            echo Html::a(
+                '<i class="glyphicon glyphicon-export"></i>&nbsp;Transfer Form',
+                ['/report/transfer-form', 'member_id' => $member->member_id],
+                ['class' => 'btn btn-default']
+            );
     ?>
     <hr>
 

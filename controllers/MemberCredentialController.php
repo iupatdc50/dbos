@@ -7,19 +7,10 @@ use app\models\training\Credential;
 use app\models\training\DrugTestResult;
 use app\models\training\MemberCredential;
 use app\models\training\MemberCompliance;
-use app\models\training\MemberCredRespFit;
 use app\models\training\MemberRespirator;
 use InvalidArgumentException;
-use PHPExcel_Exception;
-use PHPExcel_IOFactory;
-use PHPExcel_Reader_Exception;
-use PHPExcel_Shared_Date;
-use PHPExcel_Style_Color;
-use PHPExcel_Worksheet;
-use PHPExcel_Writer_Exception;
 use Yii;
 use app\models\member\Member;
-use yii\base\UserException;
 use yii\bootstrap\ActiveForm;
 use yii\db\Exception;
 use yii\filters\VerbFilter;
@@ -150,12 +141,11 @@ class MemberCredentialController extends Controller
         function getProvider($member_id, $catg)
         {
             $query = MemberCompliance::findMemberComplianceByCatg($member_id, $catg);
-            $provider = new ActiveDataProvider([
+            return new ActiveDataProvider([
                 'query' => $query,
                 'sort' => ['defaultOrder' => ['display_seq' => SORT_ASC]],
                 'pagination' => false,
             ]);
-            return $provider;
         }
 
         if (!Yii::$app->user->can('browseTraining'))
@@ -199,104 +189,6 @@ class MemberCredentialController extends Controller
     }
 
     /**
-     * Build certificate spreadsheet from training credentials
-     *
-     * Template `TRAINING CERTIFICATION.xltx` has named ranges based on credential_id.  Conditional formatting of
-     * expired credentials has to handled here.
-     *
-     * @param $member_id
-     * @return string
-     * @throws PHPExcel_Reader_Exception
-     * @throws PHPExcel_Writer_Exception
-     * @throws PHPExcel_Exception
-     * @throws ForbiddenHttpException
-     * @throws UserException
-     */
-	public function actionCertificate($member_id)
-    {
-        if (Yii::$app->user->can('manageTraining')) {
-            $member = Member::findOne($member_id);
-            $query = MemberCompliance::findMemberCompliance($member_id, 'show_on_cert');
-            $credentials = $query->where(['show_on_cert' => 'T'])->all();
-
-            $template_nm = 'TRAINING CERTIFICATION.xltx';
-            $file_nm = 'Cert_' . substr($member->report_id, -4);
-            $extension = 'xlsx';
-            $template_path = implode(DIRECTORY_SEPARATOR, [Yii::$app->getRuntimePath(), 'templates', 'xlsx', $template_nm]);
-
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
-            $objPHPExcel = $objReader->load($template_path);
-
-            $sheet = $objPHPExcel->getActiveSheet();
-            $sheet->getCell($objPHPExcel->getNamedRange('full_nm')->getRange())->setValue($member->fullName);
-            $sheet->getCell($objPHPExcel->getNamedRange('trade')->getRange())->setValue($member->currentStatus->lob->short_descrip);
-
-            foreach ($credentials as $credential) {
-                /* @var $credential MemberCredential */
-                $named = $objPHPExcel->getNamedRange('complete_dt' . $credential->credential_id);
-                if (isset($named)) {
-                    $complete_dt = PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->complete_dt));
-                    $range = $named->getRange();
-                    $sheet->getCell($range)->setValue(isset($credential->complete_dt) ? $complete_dt : '');
-                    if ($credential instanceof MemberCredRespFit) {
-                        /* @var $credential MemberCredRespFit */
-                        $resp = $credential->memberRespirator;
-                        if (isset($resp->complete_dt)) {
-                            $range = $objPHPExcel->getNamedRange('brand')->getRange();
-                            $sheet->getCell($range)->setValue($resp->brand);
-                            $range = $objPHPExcel->getNamedRange('size')->getRange();
-                            $sheet->getCell($range)->setValue("{$resp->resp_size} ({$resp->resp_type})");
-                        }
-                    }
-                    $named = $objPHPExcel->getNamedRange('expire_dt' . $credential->credential_id);
-                    if (isset($named) && (($range = $named->getRange()) != null)) {
-                        if (isset($credential->expire_dt)) {
-                            $expire_timestamp = strtotime($credential->expire_dt);
-                            $expire_dt = ($expire_timestamp > time()) ? PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->expire_dt)) : 'Expired';
-                            $sheet->getCell($range)->setValue($expire_dt);
-                            if ($expire_dt == 'Expired') {
-                                $this->alertCell($sheet, $range);
-                                // Haz/lead includes other credentials in certificate
-                                if ($credential->credential_id == Credential::HAZ_LEAD)
-                                    // G15 Lead Awareness, G18 Respiratory Protection, G21 Silica Awareness
-                                    foreach (['G15', 'G18', 'G21'] as $cell)
-                                        $this->alertCell($sheet, $cell);
-                            }
-                        }
-                    }
-                    if (isset($credential->schedule_dt)) {
-                        $schedule_dt = PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->schedule_dt));
-                        $range = $objPHPExcel->getNamedRange('schedule_dt' . $credential->credential_id)->getRange();
-                        $sheet->getCell($range)->setValue($schedule_dt);
-                    }
-                } else {
-                    Yii::error("*** MCC100 `{$credential->credential_id}` has no corresponding range on template. Credential: " . print_r($credential, true));
-                    throw new UserException("Problem exporting certificate.  See log for details.  Code `MCC100`");
-                }
-            }
-
-            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-
-            $headers = Yii::$app->getResponse()->getHeaders();
-            $headers->set('Cache-Control', 'no-cache');
-            $headers->set('Pragma', 'no-cache');
-            $headers->set('Content-Type', 'application/force-download');
-            $headers->set('Content-Type', "application/{$extension};charset=utf-8");
-            $headers->set('Content-Disposition', "attachment;filename={$file_nm}.{$extension}");
-            $headers->set('Expires', '0');
-
-            ob_start();
-            $objWriter->save('php://output');
-            $content = ob_get_contents();
-            ob_end_clean();
-
-            return $content;
-        }
-
-        throw new ForbiddenHttpException("You are not allowed to perform this action ({$member_id})");
-    }
-
-    /**
      * Uses SQL DELETE to trigger promotion of previous entry
      *
      * @param $id
@@ -321,17 +213,6 @@ class MemberCredentialController extends Controller
         }
         throw new ForbiddenHttpException("You are not allowed to perform this action ({$id})");
 
-    }
-
-    /**
-     * @param PHPExcel_Worksheet $sheet
-     * @param $range
-     * @throws PHPExcel_Exception
-     */
-    private function alertCell(PHPExcel_Worksheet $sheet, $range)
-    {
-        $sheet->getStyle($range)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
-        $sheet->getStyle($range)->getFont()->setBold(true);
     }
 
 }

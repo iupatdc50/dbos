@@ -2,15 +2,16 @@
 
 namespace app\models\report;
 
-use Yii;
 use app\components\utilities\OpDate;
 
 class DateSettingsForm extends BaseSettingsForm
 {
 	CONST RANGE_SEPARATOR = ' thru ';
-	
+
 	public $date_range;
+    /* @var OpDate $begin_dt */
 	public $begin_dt;
+    /* @var OpDate $end_dt */
 	public $end_dt;
 		
 	public function rules()

@@ -23,7 +23,8 @@ use kartik\widgets\Select2;
 ?>
 
 <div class="qsearch pull-right">
-	<?= Select2::widget([
+	<?= /** @noinspection PhpUnhandledExceptionInspection */
+    Select2::widget([
 		'name' => 'quicksearch',
 		'size' => Select2::SMALL,
 		'options' => [

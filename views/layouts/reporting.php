@@ -164,6 +164,11 @@ use kartik\widgets\SideNav;
                                         'label' => 'Active Members List',
                                         'url'=>'/report/active-members',
                                     ],
+                                    [
+                                        'label' => 'Training History',
+                                        'url'=>'/report/training-history',
+                                        'active' => (yii::$app->requestedRoute == 'report/training-history'),
+                                    ],
                                 ],
                         ],
 					],
