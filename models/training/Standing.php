@@ -38,11 +38,12 @@ class Standing extends Model
      */
     public function wageShouldBe()
     {
+        /** @noinspection SqlCaseVsIf */
         $sql = <<<SQL
   SELECT 
       H.total_hours,
       CMC.wage_percent,
-      AP. wage_pct AS should_be
+      CASE WHEN CMC.member_class = 'M' THEN MP.wage_pct ELSE AP.wage_pct END AS should_be
     FROM (SELECT TS.member_id, SUM(TS.total_hours) AS total_hours
             FROM Timesheets AS TS
             GROUP BY TS.member_id) AS H
@@ -50,6 +51,8 @@ class Standing extends Model
       JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = H.member_id
       JOIN ApprenticePercentages AS AP ON AP.lob_cd = CMS.lob_cd
                                         AND H.total_hours BETWEEN AP.min_hours AND AP.max_hours
+      JOIN MHPercentages AS MP ON MP.lob_cd = CMS.lob_cd
+                                AND H.total_hours BETWEEN MP.min_hours AND MP.max_hours
     WHERE H.member_id = :member_id
 ;
 SQL;

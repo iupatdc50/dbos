@@ -130,7 +130,6 @@ class MemberCredential extends ActiveRecord
     /**
      * @param bool $insert
      * @param array $changedAttributes
-     * @return bool
      * @throws StaleObjectException
      */
     public function afterSave($insert, $changedAttributes)
@@ -140,9 +139,8 @@ class MemberCredential extends ActiveRecord
             /* @var MemberScheduled $period */
             foreach ($periods as $period)
                 $period->delete();
-            return parent::afterSave($insert, $changedAttributes);
         }
-        return false;
+        parent::afterSave($insert, $changedAttributes);
     }
 
     /**
