@@ -49,10 +49,10 @@ class Standing extends Model
             GROUP BY TS.member_id) AS H
       JOIN CurrentMemberClasses AS CMC ON CMC.member_id = H.member_id
       JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = H.member_id
-      JOIN ApprenticePercentages AS AP ON AP.lob_cd = CMS.lob_cd
-                                        AND H.total_hours BETWEEN AP.min_hours AND AP.max_hours
-      JOIN MHPercentages AS MP ON MP.lob_cd = CMS.lob_cd
-                                AND H.total_hours BETWEEN MP.min_hours AND MP.max_hours
+      LEFT OUTER JOIN ApprenticePercentages AS AP ON AP.lob_cd = CMS.lob_cd
+                                                   AND H.total_hours BETWEEN AP.min_hours AND AP.max_hours
+      LEFT OUTER JOIN MHPercentages AS MP ON MP.lob_cd = CMS.lob_cd
+                                           AND H.total_hours BETWEEN MP.min_hours AND MP.max_hours
     WHERE H.member_id = :member_id
 ;
 SQL;
