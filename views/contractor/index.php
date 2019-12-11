@@ -1,5 +1,6 @@
 <?php
 
+use kartik\widgets\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
@@ -13,7 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="contractor-index">
 
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
 		'panel'=>[
@@ -28,6 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
         					if($model->is_active == 'F') {
         						return ['class' => 'text-muted'];
         					}
+        					return null;
     					},
         'columns' => [
         	[
@@ -36,6 +39,8 @@ $this->params['breadcrumbs'][] = $this->title;
             	'template' => '{export}',
             	'buttons' => [
         			'export' => function ($url, $model) {
+                                    if (!isset($url))
+                                        return null;
             						return Html::button('<i  class="glyphicon glyphicon-export"></i>',
             								[
             										'value' => Url::to(['/contractor/create-remit', 'id' => $model->license_nbr]),
@@ -58,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
             	'filterType' => GridView::FILTER_SELECT2,
             	'filter' => array_merge(["" => ""], $searchModel->statusOptions),
             	'filterWidgetOptions' => [
-            			'size' => \kartik\widgets\Select2::SMALL,
+            			'size' => Select2::SMALL,
             			'hideSearch' => true,
             			'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
             	],
@@ -96,11 +101,13 @@ $this->params['breadcrumbs'][] = $this->title;
 			        					}
 			    					},
             ],
+            /*
             [
             	'class' => 'yii\grid\ActionColumn',
             	'contentOptions' => ['style' => 'white-space: nowrap;'],
             	'visible' => Yii::$app->user->can('updateContractor'),
             ],
+            */
         ],
     ]); ?>
 

@@ -169,6 +169,11 @@ use kartik\widgets\SideNav;
                                         'url'=>'/report/training-history',
                                         'active' => (yii::$app->requestedRoute == 'report/training-history'),
                                     ],
+                                    [
+                                        'label' => 'Expired Certification Classes',
+                                        'url'=>'/report/expired-classes',
+                                        'active' => (yii::$app->requestedRoute == 'report/expired-classes'),
+                                    ],
                                 ],
                         ],
 					],

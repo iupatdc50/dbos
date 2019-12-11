@@ -411,7 +411,16 @@ class ReportController extends Controller
         throw new ForbiddenHttpException("You are not allowed to perform this action ({$member_id})");
 }
 
-/**
+    public function actionExpiredClasses()
+    {
+        return $this->render('reportico', [
+            'folder' => 'memberrpts',
+            'report_nm' => 'expiredcreds',
+        ]);
+
+    }
+
+    /**
      * @param PHPExcel_Worksheet $sheet
      * @param $range
      * @throws PHPExcel_Exception

@@ -1,5 +1,6 @@
 <?php
 
+use kartik\widgets\Select2;
 use yii\helpers\Html;
 use kartik\grid\GridView;
 use app\helpers\CriteriaHelper;
@@ -56,7 +57,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'filterType' => GridView::FILTER_SELECT2,
                     'filter' => array_merge([CriteriaHelper::TOKEN_NOTSET => "(not set)"], $statusPicklist),
                     'filterWidgetOptions' => [
-                            'size' => \kartik\widgets\Select2::SMALL,
+                            'size' => Select2::SMALL,
                             'hideSearch' => true,
                             'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
                     ],
@@ -119,10 +120,29 @@ $this->params['breadcrumbs'][] = $this->title;
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
             [
+                    'attribute' => 'expiredCount',
+                    'label' => 'Expired Classes',
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        $count = $model->expiredCount;
+                        return ($count == 0) ? 0 : Html::a(Html::encode($count), '/member-credential/compliance?id=' . $model->member_id);
+                    },
+                    'contentOptions' => function($model) {
+                        if($model->expiredCount == 0) {
+                            return ['class' => 'right zero'];
+                        } else {
+                            return ['class' => 'right'];
+                        }
+                    },
+                'visible' => Yii::$app->user->can('browseTraining'),
+            ],
+            /*
+            [
                     'class' => 'yii\grid\ActionColumn',
                     'contentOptions' => ['style' => 'white-space: nowrap;'],
                     'visible' => Yii::$app->user->can('updateMember'),
             ],
+            */
         ],
     ]); ?>
 

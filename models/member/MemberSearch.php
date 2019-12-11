@@ -2,11 +2,9 @@
 
 namespace app\models\member;
 
-use Yii;
+use app\models\training\CurrentMemberCredential;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\member\Member;
-use app\models\member\Specialty;
 use app\helpers\CriteriaHelper;
 
 /**
@@ -21,6 +19,7 @@ class MemberSearch extends Member
 	public $fullName;
 	public $specialties;
 	public $employer;
+	public $expiredCount;
 	
 	/**
      * @inheritdoc
@@ -32,7 +31,7 @@ class MemberSearch extends Member
             		'suffix', 'birth_dt', 'gender', 
             		'shirt_size', 'local_pac', 'hq_pac', 'remarks', 
             		'lob_cd', 'status', 'class', 'specialties', 'employer', 'dues_paid_thru_dt',
-            		
+            		'expiredCount',
             ], 'safe'],
 //        	[['dues_paid_thru_dt'], 'date', 'format' => 'php:m/d/Y', 'message' => 'Invalid date'],
         		
@@ -58,6 +57,11 @@ class MemberSearch extends Member
     public function search($params)
     {
         $query = Member::find();
+        $cred_subquery = CurrentMemberCredential::find()
+            ->select('member_id, COUNT(*) AS expired_count')
+            ->where('expire_dt < "' . date('Y-m-d') . '"')
+            ->groupBy('member_id')
+        ;
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -84,10 +88,14 @@ class MemberSearch extends Member
         }
         
         $query->joinWith(['currentStatus', 'currentClass', 'specialties', 'employer.duesPayor']);
+        $query->leftJoin(['CredCounts' => $cred_subquery], 'CredCounts.member_id = Members.member_id');
 
        	$criteria = CriteriaHelper::parseMixed('dues_paid_thru_dt', $this->dues_paid_thru_dt, true);
        	$query->andFilterWhere($criteria);
-        
+        $criteria = CriteriaHelper::parseMixed('expired_count', $this->expiredCount);
+        $query->andFilterWhere($criteria);
+
+
         $query->andFilterWhere(['lob_cd' => $this->lob_cd])
         	->andFilterWhere(['member_class' => $this->class])
         	->andFilterWhere(['like', 'report_id', $this->report_id])
@@ -109,7 +117,7 @@ class MemberSearch extends Member
         	$query->andWhere(['member_status' => null]);
         else 
         	$query->andFilterWhere(['member_status' => $this->status]);
-        
+
         return $dataProvider;
     }
 }

@@ -76,6 +76,7 @@ use yii\db\Exception;
  * @property Note[] $notes
  * @property WorkProcess[] $processes
  * @property WorkHoursSummary[] $workHoursSummary
+ * @property integer $expiredCount
  *
  */
 class Member extends ActiveRecord implements iNotableInterface
@@ -543,8 +544,7 @@ class Member extends ActiveRecord implements iNotableInterface
     	if ($status->reason == Status::REASON_NEW)
     		$status->member_status = ($this->exempt_apf == Member::CHECKED) ? Status::ACTIVE : Status::IN_APPL;
 
-        $result = $status->save();
-    	return $result;
+        return $status->save();
     }
 
     public function backOutStatus($alloc_id)
@@ -628,7 +628,18 @@ class Member extends ActiveRecord implements iNotableInterface
             $query->onCondition(['catg' => $catg]);
         return $query;
     }
-    
+
+    /**
+     * Serves as a getter for CurrentMemberCredentials::expiredCount
+     */
+    public function getExpiredCount()
+    {
+        return $this->hasMany(CurrentMemberCredential::className(), ['member_id' => 'member_id'])
+            ->andOnCondition(['<', 'expire_dt', $this->getToday()->getMySqlDate()])
+            ->count()
+            ;
+    }
+
     /**
      * @return ActiveQuery
      */
