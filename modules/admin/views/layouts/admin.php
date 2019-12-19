@@ -6,7 +6,6 @@ use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
-use app\helpers\MenuHelper;
 use kartik\widgets\SideNav;
 
 
@@ -41,7 +40,8 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	            $menuItems = [
 	                ['label' => 'Return to Main Site', 'url' => ['/site/index']],
 	            ];
-	            echo Nav::widget([
+                /** @noinspection PhpUnhandledExceptionInspection */
+                echo Nav::widget([
 	                'options' => ['class' => 'navbar-nav navbar-right'],
 	                'items' => $menuItems,
 	            ]);
@@ -53,7 +53,8 @@ app\assets\ApplicationUiAssetBundle::register($this);
 			<?php
 			
 			$type = SideNav::TYPE_DEFAULT;
-			echo SideNav::widget([
+            /** @noinspection PhpUnhandledExceptionInspection */
+            echo SideNav::widget([
 				'type' => $type,
 				'heading' => 'Operations',
 				'items' => [
@@ -120,6 +121,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
 							'items' => [
 								['label' => 'Address Types', 'url'=>'#'],
 								['label' => 'Agreement Types', 'url'=>'#'],
+                                [
+                                    'label' => 'Document Types',
+                                    'url' => '/admin/document-type',
+                                    'active' => (yii::$app->requestedRoute == 'admin/document-type'),
+                                ],
 								['label' => 'Phone Types', 'url'=>'#'],
 								['label' => 'Shirt Sizes', 'url'=>'#'],
 								[
@@ -161,7 +167,8 @@ app\assets\ApplicationUiAssetBundle::register($this);
 			</div>
 			
 			<div class="col-sm-9">
-		        <?= Breadcrumbs::widget([
+		        <?= /** @noinspection PhpUnhandledExceptionInspection */
+                Breadcrumbs::widget([
 		            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 		        ]) ?>
 				<?= $content; ?>

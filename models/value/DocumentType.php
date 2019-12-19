@@ -42,8 +42,13 @@ class DocumentType extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'doc_type' => 'Doc Type',
-            'catg' => 'Catg',
+            'doc_type' => 'Document Type',
+            'catg' => 'Category',
         ];
+    }
+
+    public function getCatgOptions()
+    {
+        return [self::CATG_MEMBER => self::CATG_MEMBER, self::CATG_TRAINING => self::CATG_TRAINING];
     }
 }
