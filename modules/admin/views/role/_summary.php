@@ -1,9 +1,11 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
 use kartik\grid\GridView;
+use yii\data\ActiveDataProvider;
 
+/* @var $dataProvider ActiveDataProvider */
+
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
 		'dataProvider' => $dataProvider,
 		'columns' => [
@@ -16,4 +18,3 @@ echo GridView::widget([
 		
 ]);
 
-?>

@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ?>
 
-<div class="user-record-view forty-pct">
+<div class="user-record-view sixty-pct">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 $model, $key, $index, $column) {
 										return GridView::ROW_COLLAPSED;
 									 },
-							'detailUrl'=> Yii::$app->urlManager->createUrl(['role/summary-ajax']),
+							'detailUrl'=> Yii::$app->urlManager->createUrl(['admin/role/summary-ajax']),
 							'headerOptions'=>['class'=>'kartik-sheet-style'],
     						'expandOneOnly'=>true,
 					],
@@ -113,8 +113,7 @@ $this->params['breadcrumbs'][] = $this->title;
 							]),
                             'urlCreator' => function ($action, $model) {
                                 if ($action === 'revoke') {
-                                    $url ='/role/revoke?role=' .$model->item_name . '&user_id=' . $model->user_id;
-                                    return $url;
+                                    return '../role/revoke?role=' .$model->item_name . '&user_id=' . $model->user_id;
                                 }
 
                                 return null;

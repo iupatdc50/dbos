@@ -103,7 +103,8 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	                	],
 	                ];
 	            }
-	            echo Nav::widget([
+            /** @noinspection PhpUnhandledExceptionInspection */
+            echo Nav::widget([
 	                'options' => ['class' => 'navbar-nav navbar-right'],
 	            	'items' => $menuItems,
 	            ]);
@@ -113,7 +114,8 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	        
 	        
 			<div class="container ninety-pct">
-	        <?= Breadcrumbs::widget([
+	        <?= /** @noinspection PhpUnhandledExceptionInspection */
+            Breadcrumbs::widget([
 	            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 	        ]) ?>
 

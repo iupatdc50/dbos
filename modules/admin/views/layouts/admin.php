@@ -67,7 +67,12 @@ app\assets\ApplicationUiAssetBundle::register($this);
 							'label' => 'Security',
 							'icon' => 'lock',
 							'items' => [
-									['label' => 'User Accounts', 'icon' => 'user'],
+									[
+									        'label' => 'User Accounts',
+                                            'url'=>'/admin/user',
+                                            'icon' => 'user',
+                                            'active' => (yii::$app->requestedRoute == 'admin/user'),
+                                    ],
 									['label' => 'Roles (RBAC)', 'icon' => 'tasks'],
 							],
 						],

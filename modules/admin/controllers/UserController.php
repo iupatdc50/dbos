@@ -1,16 +1,19 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\admin\controllers;
 
 use Yii;
 use app\models\user\User;
 use app\models\user\UserSearch;
 use yii\data\ActiveDataProvider;
+use yii\db\Exception;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -134,7 +137,7 @@ class UserController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -144,7 +147,7 @@ class UserController extends Controller
     }
 
     /**
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws \yii\base\Exception
      */
     public function actionResetPw()
@@ -165,7 +168,7 @@ class UserController extends Controller
 
     /**
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
      * @throws \yii\base\Exception
      */
@@ -187,11 +190,11 @@ class UserController extends Controller
      * @param null $role
      * @param string $id Selected user's `id`
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function actionUserList($search = null, $role = null, $id = null)
     {
-    	\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    	Yii::$app->response->format = Response::FORMAT_JSON;
     	$out = ['results' => ['id' => '', 'text' => '']];
     	if (!is_null($search)) {
     		$condition = (is_null($role)) ? $search : ['full_nm' => $search, 'role' => $role];

@@ -19,7 +19,8 @@ $other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
  		'filterRowOptions'=>['class'=>'filter-row'],
@@ -40,6 +41,7 @@ $other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
 
     	'columns' => [
             [
+                    'class' => 'kartik\grid\DataColumn',
             		'attribute' => 'id',
             		'width' => '70px',
     		],
@@ -47,7 +49,7 @@ $other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
             	'attribute' => 'username',
 				'format' => 'raw',
 				'value' => function($model) {
-					return Html::a(Html::encode($model->username), '/user/view?id=' . $model->id);
+					return Html::a(Html::encode($model->username), '/admin/user/view?id=' . $model->id);
 				},
             ],
             
@@ -78,11 +80,14 @@ $other = '<span class="glyphicon glyphicon-nothing text-danger"></span>';
             */
             // 'created_at',
             // 'updated_at',
-            'last_login',
-
+            [
+                    'attribute' => 'last_login',
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+            ],
             [
             		'class' => 'yii\grid\ActionColumn',
-            		'visible' => Yii::$app->user->can('updateUser'),
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+                    'visible' => Yii::$app->user->can('updateUser'),
 			],
         ],
     ]); ?>
