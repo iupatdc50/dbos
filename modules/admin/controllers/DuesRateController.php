@@ -2,10 +2,12 @@
 
 namespace app\modules\admin\controllers;
 
+use Throwable;
 use Yii;
 use app\models\accounting\DuesRate;
 use app\models\accounting\DuesRateSearch;
 use app\models\value\Lob;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -65,7 +67,8 @@ class DuesRateController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionDelete($id)
     {

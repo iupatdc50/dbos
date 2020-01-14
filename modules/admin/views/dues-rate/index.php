@@ -1,5 +1,6 @@
 <?php
 
+use kartik\widgets\Select2;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use kartik\grid\GridView;
@@ -41,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
         		'filterType' => GridView::FILTER_SELECT2,
         		'filter' => $lobPicklist,
         		'filterWidgetOptions' => [
-        						'size' => \kartik\widgets\Select2::SMALL,
+        						'size' => Select2::SMALL,
         						'hideSearch' => true,
         						'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
         		],
@@ -54,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filterType' => GridView::FILTER_SELECT2,
                 'filter' => array_merge(["" => ""], $searchModel->rateClassOptions),
                 'filterWidgetOptions' => [
-                    'size' => \kartik\widgets\Select2::SMALL,
+                    'size' => Select2::SMALL,
                     'hideSearch' => true,
                     'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
                 ],

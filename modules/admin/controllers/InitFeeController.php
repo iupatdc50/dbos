@@ -2,9 +2,11 @@
 
 namespace app\modules\admin\controllers;
 
+use Throwable;
 use Yii;
 use app\models\accounting\InitFee;
 use yii\data\ActiveDataProvider;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -33,23 +35,15 @@ class InitFeeController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => InitFee::find(),
+            'query' => InitFee::find()->orderBy([
+                'lob_cd' => SORT_ASC,
+                'member_class' => SORT_ASC,
+                'effective_dt' => SORT_DESC,
+            ])
         ]);
         
         return $this->render('index', [
             'dataProvider' => $dataProvider,
-        ]);
-    }
-
-    /**
-     * Displays a single InitFee model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
         ]);
     }
 
@@ -62,32 +56,9 @@ class InitFeeController extends Controller
     {
         $model = new InitFee();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Updates an existing InitFee model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
+        if ($model->load(Yii::$app->request->post()) && $model->save())
+            return $this->redirect(['index']);
+        return $this->renderAjax('create', ['model' => $model]);
     }
 
     /**
@@ -95,10 +66,25 @@ class InitFeeController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        $removing_current = false;
+        $id = [];
+        if ($model->end_dt == null) {
+            $removing_current = true;
+            $id = ['lob_cd' => $model->lob_cd, 'member_class' => $model->member_class];
+        }
+
+        $model->delete();
+
+        if ($removing_current)
+            InitFee::openLatest($id);
 
         return $this->redirect(['index']);
     }
@@ -112,10 +98,8 @@ class InitFeeController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = InitFee::findOne($id)) !== null) {
+        if (($model = InitFee::findOne($id)) !== null)
             return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

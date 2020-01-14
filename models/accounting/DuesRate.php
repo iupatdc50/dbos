@@ -5,6 +5,7 @@ namespace app\models\accounting;
 use app\models\base\BaseEndable;
 use app\models\value\Lob;
 use app\models\value\RateClass;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
 
@@ -67,7 +68,7 @@ class DuesRate extends BaseEndable
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getLobCd()
     {
@@ -80,7 +81,7 @@ class DuesRate extends BaseEndable
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getRateClass()
     {

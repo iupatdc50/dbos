@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -22,12 +22,14 @@ $this->title = 'Create Dues Rate';
         ]); ?>
 
         <?= $form->field($model, 'lob_cd')->widget(Select2::className(), [
-            'data' => $model->lobOptions,
+            'data' => $model->getLobOptions(),
+            'size' => Select2::SMALL,
             'options' => ['placeholder' => 'Select trade...'],
         ]) ?>
 
         <?= $form->field($model, 'rate_class')->widget(Select2::className(), [
-            'data' => $model->rateClassOptions,
+            'data' => $model->getRateClassOptions(),
+            'size' => Select2::SMALL,
             'options' => ['placeholder' => 'Select rate class...'],
         ]) ?>
 

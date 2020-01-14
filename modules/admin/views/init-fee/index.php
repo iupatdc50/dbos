@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use kartik\grid\GridView;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -11,7 +12,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="init-fee-index">
 
-    <?= GridView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    GridView::widget([
         'dataProvider' => $dataProvider,
 		'panel'=>[
 	        'type'=>GridView::TYPE_WARNING,
@@ -19,7 +21,12 @@ $this->params['breadcrumbs'][] = $this->title;
 		    'after' => false,
 		],
 		'toolbar' => [
-			'content' => Html::a('Create Init Fee', ['create'], ['class' => 'btn btn-success']),
+            'content' => Html::button('Create Init Fee', [
+                'class' => 'btn btn-success btn-modal',
+                'value' => Url::to(["create"]),
+                'id' => 'initFeeCreateButton',
+                'data-title' => 'Init Fee',
+            ]),
 		],
     	'columns' => [
 
@@ -43,3 +50,5 @@ $this->params['breadcrumbs'][] = $this->title;
     ]); ?>
 
 </div>
+<?= $this->render('../partials/_modal') ?>
+
