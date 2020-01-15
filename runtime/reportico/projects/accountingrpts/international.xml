@@ -57,7 +57,8 @@ SELECT
       CASE WHEN SD.effective_dt IS NOT NULL THEN 'Dropped ' ELSE '' END, 
       CASE WHEN SF.effective_dt IS NOT NULL THEN 'Forfeit ' ELSE '' END, 
       CASE WHEN SR.effective_dt IS NOT NULL THEN 'Reinstated ' ELSE '' END 
-    ) AS descrip
+    ) AS descrip,
+    DR.rate
   FROM Members AS Me 
 	LEFT OUTER JOIN Members AS MeA ON MeA.member_id = Me.member_id
 	                                AND MeA.application_dt BETWEEN '{$start_dt}' AND {$end_dt}
@@ -81,12 +82,17 @@ SELECT
 	LEFT OUTER JOIN MemberStatuses AS SR ON SR.member_id = Me.member_id
 										  AND SR.reason LIKE '%reinsta%'
 	                                    AND SR.effective_dt BETWEEN '{$start_dt}' AND {$end_dt}
+  LEFT OUTER JOIN DuesRates AS DR ON DR.lob_cd = {$lob_cd}
+                                   AND DR.rate_class = 'R'
+                                   AND DR.effective_dt &lt;= {$end_dt}
+	                                 AND COALESCE(DR.end_dt, '{$start_dt}') &gt;= '{$start_dt}'
+
   WHERE EXISTS (SELECT 1 FROM MemberStatuses
                   WHERE member_id = Me.member_id
                    AND effective_dt &lt;= {$end_dt}
                   AND COALESCE(end_dt, '{$start_dt}') &gt;= '{$start_dt}'
                    AND lob_cd = {$lob_cd})
-  GROUP BY ME.member_id
+  GROUP BY Me.member_id
   HAVING LENGTH(descrip) &gt; 0
 ;
 &quot;;
@@ -109,8 +115,8 @@ UPDATE StageIntl AS SI
 &quot;;
 
 $sql5 = &quot;
-INSERT INTO StageIntl (member_id, member_name, report_id, received_dt, descrip)
-  SELECT member_id, member_name, report_id, effective_dt, descrip
+INSERT INTO StageIntl (member_id, rate, member_name, report_id, received_dt, descrip)
+  SELECT member_id, rate, member_name, report_id, effective_dt, descrip
     FROM StageDescrips
     WHERE member_id NOT IN (SELECT member_id FROM StageMembs)
 ;
