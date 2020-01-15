@@ -18,6 +18,11 @@ class DefaultController extends Controller
             return $this->render('index');
         throw new ForbiddenHttpException("You are not allowed to view this page ");
     }
+
+    public function actionUnavailable()
+    {
+        return $this->render('unavailable');
+    }
     
     public function actionInfo()
     {

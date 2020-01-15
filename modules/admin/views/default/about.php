@@ -8,7 +8,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="site-about">
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p><span class="label label-warning">Version </span><span class="label label-primary"><?= Yii::$app->version; ?> (Beta 1)</span> Committed to GitHub repository</p>
+    <p><span class="label label-warning">Version </span><span class="label label-primary"><?= Yii::$app->version; ?> </span> Committed to GitHub repository</p>
     
     
 	    <div class="panel panel-warning">

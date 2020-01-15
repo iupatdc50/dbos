@@ -73,7 +73,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
                                             'icon' => 'user',
                                             'active' => (yii::$app->requestedRoute == 'admin/user'),
                                     ],
-									['label' => 'Roles (RBAC)', 'icon' => 'tasks'],
+									[
+									        'label' => 'Roles (RBAC)',
+                                            'icon' => 'tasks',
+                                            'url'=>'/admin/default/unavailable',
+                                    ],
 							],
 						],
 						[
@@ -111,8 +115,14 @@ app\assets\ApplicationUiAssetBundle::register($this);
                             'label' => 'Training',
                             'icon' => 'education',
                             'items' => [
-                                ['label' => 'Work Processes', 'url'=>'#'],
-                                ['label' => 'Credentials', 'url'=>'#'],
+                                [
+                                        'label' => 'Work Processes',
+                                        'url'=>'/admin/default/unavailable',
+                                ],
+                                [
+                                        'label' => 'Credentials',
+                                        'url'=>'/admin/default/unavailable',
+                                ],
                                 [
                                         'label' => 'Respirator Brands',
                                         'url'=>'/admin/respirator-brand',
@@ -124,15 +134,27 @@ app\assets\ApplicationUiAssetBundle::register($this);
 							'label' => 'Support Tables',
 							'icon' => 'wrench',
 							'items' => [
-								['label' => 'Address Types', 'url'=>'#'],
-								['label' => 'Agreement Types', 'url'=>'#'],
+								[
+								        'label' => 'Address Types',
+                                        'url'=>'/admin/default/unavailable',
+                                ],
+								[
+								        'label' => 'Agreement Types',
+                                        'url'=>'/admin/default/unavailable',
+                                ],
                                 [
                                     'label' => 'Document Types',
                                     'url' => '/admin/document-type',
                                     'active' => (yii::$app->requestedRoute == 'admin/document-type'),
                                 ],
-								['label' => 'Phone Types', 'url'=>'#'],
-								['label' => 'Shirt Sizes', 'url'=>'#'],
+								[
+								        'label' => 'Phone Types',
+                                        'url'=>'/admin/default/unavailable',
+                                ],
+								[
+								        'label' => 'Shirt Sizes',
+                                        'url'=>'/admin/default/unavailable',
+                                ],
 								[
 										'label' => 'Trade Specialties', 
 										'url' => '/admin/trade-specialty',
@@ -155,7 +177,13 @@ app\assets\ApplicationUiAssetBundle::register($this);
 										'url'=>'/admin/default/about',
 										'active' => (yii::$app->requestedRoute == 'admin/default/about'),
 								],
-								['label' => 'Contact', 'icon'=>'phone', 'url'=>'#'],
+/*
+								[
+								        'label' => 'Contact',
+                                        'icon'=>'phone',
+                                    'url'=>'#'
+                                ],
+*/
 								[
 										'label' => 'Environment', 
 										'icon' => 'cog', 
