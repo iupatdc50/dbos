@@ -3,33 +3,41 @@
 namespace app\commands;
 
 use app\models\project\jtp\Project;
+use app\models\user\User;
 use Yii;
 use yii\console\Controller;
-use yii\base\InvalidParamException;
 use app\components\utilities\OpDate;
 use app\models\member\Member;
 use app\models\member\Status;
 use app\models\accounting\AdminFee;
 use app\modules\admin\models\FeeType;
+use yii\db\Command;
+use yii\db\Connection;
+use yii\db\Exception;
 
 class MaintenanceController extends Controller
 {
-	CONST STAGE_TABLE_NM = 'StagedStatusCandidates';
+    // Prefix for user specific receipt processing
+    CONST PFX = 'StagedAllocations';
+
+	CONST STAGE_TABLE_NM = 'StageStatusCandidates';
 	CONST CLOSE_PREV_TABLE_NM = 'StageClosePrevious';
 	CONST STAGE_CXL_PROJ_TABLE_NM = 'StageCancelProjects';
 	
 	CONST IX_CUTOFF = 'cutoff';
 	CONST IX_EFFECTIVE = 'effective';
 
-	/** @var \yii\db\Connection */
+	/** @var Connection */
 	public $db;
-    /** @var \yii\db\Command */
+    /** @var Command */
 	public $drop_stage_cmd;
-    /** @var \yii\db\Command */
+    /** @var Command */
 	public $drop_close_prev_cmd;
-    /** @var \yii\db\Command */
+    /** @var Command */
 	public $drop_cxl_projects_cmd;
 
+	private $stageTableNm;
+	private $closePrevTableNm;
 	private $stageCxlProjTableNm;
 		
 	public function init()
@@ -39,13 +47,16 @@ class MaintenanceController extends Controller
 		$this->drop_close_prev_cmd = $this->db->createCommand('DROP TABLE IF EXISTS ' . self::STAGE_TABLE_NM);
         $this->drop_cxl_projects_cmd = $this->db->createCommand('DROP TABLE IF EXISTS ' . self::STAGE_CXL_PROJ_TABLE_NM);
 
+        $this->stageTableNm = self::STAGE_TABLE_NM;
+        $this->closePrevTableNm = self::CLOSE_PREV_TABLE_NM;
         $this->stageCxlProjTableNm = self::STAGE_CXL_PROJ_TABLE_NM;
 
 	}
 
     /**
      * @param null $today
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @noinspection DuplicatedCode
      */
 	public function actionSuspend($today = null)
 	{
@@ -81,7 +92,7 @@ class MaintenanceController extends Controller
 			   
 			$this->cleanupTemps(); 
 			Yii::info('Monthly suspend run completed');
-		} catch (yii\db\Exception $e) {
+		} catch (Exception $e) {
 			Yii::error('*** MC020 Problem with a suspend DB action. Messages: ' . print_r($e->getMessage(), true));
 		}
 					
@@ -89,7 +100,8 @@ class MaintenanceController extends Controller
 
     /**
      * @param null $today
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @noinspection DuplicatedCode
      */
 	public function actionDrop($today = null)
 	{
@@ -122,7 +134,7 @@ class MaintenanceController extends Controller
 		
 			$this->cleanupTemps();
 			Yii::info('Monthly drop run completed');
-		} /** @noinspection PhpRedundantCatchClauseInspection */ catch (yii\db\Exception $e) {
+		} catch (Exception $e) {
 			Yii::error('*** MC020 Problem with a drop DB action. Messages: ' . print_r($e->getMessage(), true));
 		}
 			
@@ -131,7 +143,7 @@ class MaintenanceController extends Controller
 
     /**
      * @param null $today
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
 	public function actionCancelJtp($today = null)
     {
@@ -167,13 +179,31 @@ class MaintenanceController extends Controller
             Yii::info("JTP projects notes generated: {$count}");
             $this->drop_cxl_projects_cmd->execute();
 
-        } /** @noinspection PhpRedundantCatchClauseInspection */ catch (yii\db\Exception $e) {
+        }  catch (Exception $e) {
             Yii::error('*** MC030 Problem with a cancel project DB action. Messages: ' . print_r($e->getMessage(), true));
         }
     }
 
+    public function actionCleanup()
+    {
+        Yii::info('Starting StageAllocations removal');
+        /* @var User $user */
+        $user = User::find()->orderBy(['id' => SORT_DESC])->limit(1)->one();
+        $hits = 0;
+        for ($x = 1; $x <= $user->id; $x++) {
+            try {
+                $table_nm = self::PFX . $x;
+                $hits += $this->db->createCommand("SHOW TABLES LIKE '{$table_nm}'")->execute();
+                $this->db->createCommand('DROP TABLE IF EXISTS ' . $table_nm)->execute();
+            } catch (Exception $e) {
+                Yii::error("*** MC040 Problem with drop {$table_nm} DB action. Messages: " . print_r($e->getMessage(), true));
+            }
+        }
+        Yii::info("StagedAllocation tables dropped: {$hits}");
+    }
+
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
 	private function cleanupTemps()
 	{
@@ -204,92 +234,110 @@ class MaintenanceController extends Controller
 		$reason = 'Dues over ' . $months . ' months delinquent';
 		if ($new_status == Status::INACTIVE)
 			$reason = 'Member dropped. ' . $reason; 
-		return "  CREATE TEMPORARY TABLE " . self::STAGE_TABLE_NM . " AS "
-			  ."    SELECT "
-			  ."        Me.member_id, "
-			  ."        DATE_ADD(dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL {$months} MONTH - INTERVAL 1 DAY AS effective_dt,  "
-			  ."        MS.lob_cd, "
-			  ."        '{$new_status}' AS member_status, "
-			  ."        '{$reason}' AS reason   "
-			  ."      FROM Members AS Me "
-			  ."        JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id "
-			  ."                                   AND MS.member_status = '{$status}' "
-			  ."                                   AND MS.end_dt IS NULL "
-/*
-		      ."  		LEFT OUTER JOIN Employment AS Em ON Em.member_id = Me.member_id "
-		      ."                                    	  AND Em.end_dt IS NULL "
-		      ."    	  LEFT OUTER JOIN Contractors AS Co ON Co.license_nbr = Em.dues_payor "
-			  ."      WHERE dues_paid_thru_dt <= :cutoff_dt AND COALESCE(Co.deducts_dues, 'F') = 'F' "
-*/
-              ."      WHERE dues_paid_thru_dt <= :cutoff_dt "
-			  ."        AND lob_cd <> '1941'"
-			  .";"
-		;
+		return <<<SQL
+              CREATE TEMPORARY TABLE $this->stageTableNm AS 
+			      SELECT 
+			          Me.member_id, 
+			          DATE_ADD(dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL $months MONTH - INTERVAL 1 DAY AS effective_dt,  
+			          MS.lob_cd, 
+			          '$new_status' AS member_status, 
+			          '$reason' AS reason   
+			        FROM Members AS Me 
+			          JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id 
+			                                     AND MS.member_status = '$status' 
+			                                     AND MS.end_dt IS NULL 
+                    WHERE dues_paid_thru_dt <= :cutoff_dt 
+			          AND lob_cd <> '1941'
+			  ;
+SQL;
+
 	}
 
 	private function problemMemberSql($months)
     {
-        return
-         "   SELECT "
-        ."        SSC.member_id, "
-        ."        Me.last_nm, Me.first_nm, Me.middle_inits, Me.suffix, "
-        ."        SSC.effective_dt AS action_dt, "
-        ."        CMS.effective_dt AS latest_entry "
-        ."      FROM " . self::STAGE_TABLE_NM   . " AS SSC "
-        ."        JOIN Members AS Me ON Me.member_id = SSC.member_id "
-        ."          JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = Me.member_id "
-        ."                                             AND DATE_ADD(Me.dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL {$months} MONTH - INTERVAL 1 DAY <= CMS.effective_dt "
-        ."                  ; "
-        ;
+        return <<<SQL
+    # noinspection SqlResolve
+    SELECT 
+        SSC.member_id, 
+        Me.last_nm, Me.first_nm, Me.middle_inits, Me.suffix, 
+        SSC.effective_dt AS action_dt, 
+        CMS.effective_dt AS latest_entry 
+      FROM  $this->stageTableNm  AS SSC 
+        JOIN Members AS Me ON Me.member_id = SSC.member_id 
+          JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = Me.member_id 
+                                             AND DATE_ADD(Me.dues_paid_thru_dt, INTERVAL 1 DAY) + INTERVAL $months MONTH - INTERVAL 1 DAY <= CMS.effective_dt 
+;
+SQL;
+
+
 
     }
 	
 	private function insertStatusSql()
 	{
-		return " INSERT INTO MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) "
-			  ."   SELECT DISTINCT member_id, effective_dt, lob_cd, member_status, reason "
-			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC"
-			  ."     WHERE NOT EXISTS "
-              ."       (SELECT 1 FROM CurrentMemberStatuses "
-              ."          WHERE member_id = MSC.member_id "
-              ."            AND MSC.effective_dt <= effective_dt); "
-		;
-		
+       return <<<SQL
+    # noinspection SqlResolve
+    INSERT INTO MemberStatuses (member_id, effective_dt, lob_cd, member_status, reason) 
+      SELECT DISTINCT member_id, effective_dt, lob_cd, member_status, reason 
+        FROM $this->stageTableNm AS MSC
+        WHERE NOT EXISTS 
+             (SELECT 1 FROM CurrentMemberStatuses 
+                WHERE member_id = MSC.member_id 
+                  AND MSC.effective_dt <= effective_dt)
+    ;
+SQL;
+
 	}
 	
 	private function insertAssessSql()
 	{
-		return " INSERT INTO Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) "
-			  ."   SELECT distinct MSC.member_id, '" . FeeType::TYPE_REINST . "', MSC.effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 "
-			  ."     FROM " . self::STAGE_TABLE_NM . " AS MSC "
-              ."       JOIN  CurrentMemberStatuses AS CMS ON CMS.member_id = MSC.member_id "
-              ."                                         AND CMS.effective_dt = MSC.effective_dt; "
-		;
+	    $type = FeeType::TYPE_REINST;
+		return <<<SQL
+    # noinspection SqlResolve
+    INSERT INTO Assessments (member_id, fee_type, assessment_dt, assessment_amt, purpose, created_at, created_by, months) 
+         SELECT distinct MSC.member_id, '$type', MSC.effective_dt, :assess_amt, 'Suspended on this date', :run_stamp, 1, 0 
+           FROM $this->stageTableNm AS MSC 
+             JOIN  CurrentMemberStatuses AS CMS ON CMS.member_id = MSC.member_id 
+                                                 AND CMS.effective_dt = MSC.effective_dt
+    ; 
+
+SQL;
+
+
 		
 	}
 	
 	private function stagePrevCloseSql()
 	{
-		return "CREATE TABLE " . self::CLOSE_PREV_TABLE_NM . " AS " 
-			  ."  SELECT "
-			  ."      (@row_number:=@row_number + 1) AS stat_nbr, "
-			  ."      MS.member_id, "
-			  ."      MS.effective_dt "
-			  ."    FROM MemberStatuses AS MS, (SELECT @row_number:=0) AS t "
-			  ."    WHERE MS.end_dt IS NULL "
-			  ."      AND MS.member_id IN (SELECT DISTINCT member_id FROM " . self::STAGE_TABLE_NM . ") "
-			  ."  ORDER BY MS.member_id, MS.effective_dt;"
-		;	
+		return <<<SQL
+    CREATE TABLE $this->closePrevTableNm AS 
+        SELECT 
+            (@row_number:=@row_number + 1) AS stat_nbr, 
+            MS.member_id, 
+            MS.effective_dt 
+          FROM MemberStatuses AS MS, (SELECT @row_number:=0) AS t 
+          WHERE MS.end_dt IS NULL 
+            AND MS.member_id IN (SELECT DISTINCT member_id FROM $this->stageTableNm) 
+        ORDER BY MS.member_id, MS.effective_dt
+    ;
+
+SQL;
+
 	}
 	
 	private function updateStatusSql()
 	{
-		return "UPDATE MemberStatuses AS MS "
-			  ."  JOIN " . self::CLOSE_PREV_TABLE_NM . " AS B ON MS.member_id = B.member_id AND MS.effective_dt = B.effective_dt "
-			  ."    LEFT OUTER JOIN " . self::CLOSE_PREV_TABLE_NM . " AS N ON N.member_id = B.member_id AND N.stat_nbr = B.stat_nbr + 1 "
-			  ."  SET MS.end_dt = DATE_ADD(N.effective_dt, INTERVAL -1 DAY) "
-		      ."  WHERE N.effective_dt IS NOT NULL; "
-		;
+		return <<<SQL
+    # noinspection SqlResolve
+    UPDATE MemberStatuses AS MS 
+	  JOIN $this->closePrevTableNm AS B ON MS.member_id = B.member_id AND MS.effective_dt = B.effective_dt 
+	    LEFT OUTER JOIN $this->closePrevTableNm AS N ON N.member_id = B.member_id AND N.stat_nbr = B.stat_nbr + 1 
+	  SET MS.end_dt = DATE_ADD(N.effective_dt, INTERVAL -1 DAY) 
+	  WHERE N.effective_dt IS NOT NULL
+    ; 
+
+SQL;
+
 	}
 
 	private function closeEmploymentSql() {
@@ -301,8 +349,8 @@ class MaintenanceController extends Controller
       SET Em.end_dt = CMS.effective_dt, term_reason = 'M'
       WHERE Em.end_dt IS NULL
     ;
-SQL
-        ;
+SQL;
+
     }
 
     private function stageCancelProjectSql()
@@ -330,7 +378,7 @@ SQL;
     UPDATE Projects 
       SET project_status = 'X', close_dt = :dt
       WHERE project_id IN (SELECT project_id FROM $this->stageCxlProjTableNm)
-      ;
+    ;
 SQL;
 
     }
@@ -338,10 +386,11 @@ SQL;
     private function cancelProjectNotesSql()
     {
         return <<<SQL
+    # noinspection SqlResolve
     INSERT INTO ProjectNotes (project_id, note, created_at, created_by)
       SELECT project_id, CONCAT('[CANCELLED ', :dt, ']: Unawarded after ', :months, ' months'), UNIX_TIMESTAMP(), 1
         FROM $this->stageCxlProjTableNm
-      ;
+    ;
 SQL;
 
     }
