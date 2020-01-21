@@ -51,7 +51,7 @@ use kartik\widgets\SideNav;
 																'active' => (yii::$app->requestedRoute == 'report/pac-export'),
 														],
                                                         [
-                                                                'label' => 'Painters/Tapers Contributions',
+                                                                'label' => 'Painters/FL/Tapers Contributions',
                                                                 'url'=>'/report/pac-contributions',
                                                                 'active' => (yii::$app->requestedRoute == 'report/pac-contributions'),
                                                         ],
