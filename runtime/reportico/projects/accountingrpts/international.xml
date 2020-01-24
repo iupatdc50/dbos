@@ -47,7 +47,7 @@ SELECT
     Me.member_id,
     CONCAT(Me.last_nm, COALESCE(CONCAT(', ', Me.suffix), ''), ', ', LEFT(Me.first_nm, 1)) AS member_name, 
     Me.report_id,
-    COALESCE(SR.effective_dt, SF.effective_dt, SD.effective_dt, SCD.effective_dt, SS.effective_dt, MeI.init_dt, MeA.application_dt) AS effective_dt,
+    COALESCE(SR.effective_dt, SF.effective_dt, SD.effective_dt, SCD.effective_dt, SCG.effective_dt, SS.effective_dt, MeI.init_dt, MeA.application_dt) AS effective_dt,
     CONCAT(
       CASE WHEN MeA.application_dt IS NOT NULL THEN 'OnAppl ' ELSE '' END, 
       CASE WHEN MeI.init_dt IS NOT NULL THEN 'Initiated ' ELSE '' END,
