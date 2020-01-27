@@ -3,10 +3,14 @@
 namespace app\controllers;
 
 use app\controllers\base\SummaryController;
+use app\helpers\OptionHelper;
+use app\models\member\ClassCode;
+use app\models\training\Timesheet;
+use app\models\value\Lob;
 use Yii;
 use app\models\member\MemberClass;
 use app\models\member\Member;
-use yii\data\ActiveDataProvider;
+use yii\db\Exception;
 use yii\web\NotFoundHttpException;
 use yii\bootstrap\ActiveForm;
 use yii\web\Response;
@@ -29,7 +33,8 @@ class MemberClassController extends SummaryController
      * @param $relation_id      Member ID
      * @return array|string|Response
      * @throws NotFoundHttpException
-     *@see \app\controllers\base\SubmodelController::actionCreate()
+     * @throws Exception
+     * @see \app\controllers\base\SubmodelController::actionCreate()
      */
     public function actionCreate($relation_id)
     {
@@ -43,13 +48,23 @@ class MemberClassController extends SummaryController
 		}
 		
     	if ($model->load(Yii::$app->request->post())) {
+
+    	    $was_handler = false;
+    	    if (strncmp($model->class_id, ClassCode::CLASS_APPRENTICE, 1) == 0)
+                if (isset($this->member->currentClass) && $this->member->currentClass->member_class == ClassCode::CLASS_HANDLER)
+                    $was_handler = true;
+
             $image = $model->uploadImage();
         	if ($this->addClass($model)) {
         	    if ($image !== false) {
-        	        $path = $model->imagePath;
+        	        $path = $model->getImagePath();
                     $image->saveAs($path);
                 }
             }
+
+        	// Assumes that material handler only applies to floorlayers
+        	if ($was_handler)
+                Timesheet::archiveByTrade($model->member_id, Lob::TRADE_FL, OptionHelper::TF_TRUE);
         	
         	return $this->goBack();
         } 

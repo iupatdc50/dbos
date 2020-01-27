@@ -235,6 +235,7 @@ class MaintenanceController extends Controller
 		if ($new_status == Status::INACTIVE)
 			$reason = 'Member dropped. ' . $reason; 
 		return <<<SQL
+              # noinspection SqlResolve
               CREATE TEMPORARY TABLE $this->stageTableNm AS 
 			      SELECT 
 			          Me.member_id, 
@@ -310,6 +311,7 @@ SQL;
 	private function stagePrevCloseSql()
 	{
 		return <<<SQL
+    # noinspection SqlResolve
     CREATE TABLE $this->closePrevTableNm AS 
         SELECT 
             (@row_number:=@row_number + 1) AS stat_nbr, 
@@ -343,6 +345,7 @@ SQL;
 	private function closeEmploymentSql() {
 
         return <<<SQL
+    # noinspection SqlResolve
     UPDATE Employment AS Em
       JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = Em.member_id
                                          AND CMS.member_status = 'I'
@@ -356,6 +359,7 @@ SQL;
     private function stageCancelProjectSql()
     {
         return <<<SQL
+    # noinspection SqlResolve
     CREATE TEMPORARY TABLE $this->stageCxlProjTableNm AS 
         SELECT Pr.project_id 
           FROM Projects AS Pr
@@ -375,6 +379,7 @@ SQL;
     private function cancelOldProjectsSql()
     {
         return <<<SQL
+     # noinspection SqlResolve
     UPDATE Projects 
       SET project_status = 'X', close_dt = :dt
       WHERE project_id IN (SELECT project_id FROM $this->stageCxlProjTableNm)

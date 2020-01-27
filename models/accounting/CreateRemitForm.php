@@ -2,7 +2,6 @@
 namespace app\models\accounting;
 
 use yii\base\Model;
-use Yii;
 
 class CreateRemitForm extends Model
 {

@@ -144,17 +144,21 @@ class RbacController extends Controller
 		// Special permission for Admin Staff
         $editLimitedCredentials = $this->addPermission('editLimitedCredentials', 'Edit limited credential');
         $reportTraining = $this->addPermission('reportTraining', 'Create training specific report');
-		$manageTraining = $this->addPermission('manageTraining', 'Create or update training information');
+        $manageTraining = $this->addPermission('manageTraining', 'Create or update training information');
+        $archiveTimesheets = $this->addPermission('archiveTimesheets', 'Archive DPR timesheets');
 		echo "...complete\n";
 
 		// Training roles
 		echo "Preparing training roles";
-        $trainingEditor = $this->addRole('trainingEditor', 'Training Editor');
+		$trainingAdmin = $this->addRole('trainingAdmin', 'Training Admin');
+        $trainingEditor = $this->addRole('trainingEditor', 'Training Editor', [$trainingAdmin]);
         $trainingEditorLimited = $this->addRole('trainingEditorLimited', 'Training Editor (limited)');
 		$trainingViewer = $this->addRole('trainingViewer', 'Training Viewer', [$trainingEditor, $trainingEditorLimited]);
         $this->adopt($trainingViewer, [$browseTraining]);
         $this->adopt($trainingEditorLimited, [$editLimitedCredentials]);
-		$this->adopt($trainingEditor, [$reportTraining, $manageTraining]);
+        $this->adopt($trainingEditor, [$reportTraining, $manageTraining]);
+        $this->adopt($trainingAdmin, [$archiveTimesheets]);
+
 		echo "...complete\n";
 		
 		// Support permissions
@@ -215,7 +219,7 @@ class RbacController extends Controller
 		// Office Manager role
 		echo "Preparing Office Manager role";
 		$officeMgr = $this->addRole('officeMgr', 'Office Manager*');
-		$this->adopt($officeMgr, [$accountAdmin, $memberAdmin, $contractorAdmin, $accountingAdmin, $trainingEditor, $projectAdmin]);
+		$this->adopt($officeMgr, [$accountAdmin, $memberAdmin, $contractorAdmin, $accountingAdmin, $trainingAdmin, $projectAdmin, $supportEditor]);
 		echo "...complete\n";
 		
 		//Business Rep role
@@ -229,11 +233,17 @@ class RbacController extends Controller
 		$training = $this->addRole('training', 'Training Staff*');
 		$this->adopt($training, [$memberDemoEditor, $contractorViewer, $trainingEditor]);
 		echo "...complete\n";
-		
-		// System Admin role
+
+        //Training Director role
+        echo "Preparing Training Director role";
+        $training = $this->addRole('trainingDir', 'Training Director*');
+        $this->adopt($training, [$memberDemoEditor, $contractorViewer, $trainingAdmin]);
+        echo "...complete\n";
+
+        // System Admin role
 		echo "Preparing System Admin role";
 		$sysAdmin = $this->addRole('sysAdmin', 'System Administrator*');
-		$this->adopt($sysAdmin, [$memberAdmin, $contractorAdmin, $accountingAdmin, $projectAdmin, $trainingEditor, $accountAdmin]);
+		$this->adopt($sysAdmin, [$memberAdmin, $contractorAdmin, $accountingAdmin, $projectAdmin, $trainingAdmin, $accountAdmin, $supportEditor]);
 		echo "...complete\n";
 		
 		echo "\n=====> Done! Permission tree created\n\n";
@@ -241,7 +251,7 @@ class RbacController extends Controller
         echo "****************************************************************\n";
         echo "***                                                          ***\n";
         echo "*** NOTE:  Remember to assign users to staff roles           ***\n";
-        echo "***        Command file ./rbac_assign                        ***\n";
+        echo "***        Command file ./rbac_assign.sh                        ***\n";
         echo "***                                                          ***\n";
         echo "****************************************************************\n\n";
 
@@ -258,6 +268,7 @@ class RbacController extends Controller
      */
 	public function actionAssign($role, $username)
 	{
+	    /* @var User $user */
 		$user = $this->findUser($username);
 	
 		$auth = Yii::$app->authManager;
@@ -279,6 +290,7 @@ class RbacController extends Controller
      */
 	public function actionRevoke($role, $username)
 	{
+        /* @var User $user */
 		$user = $this->findUser($username);
 	
 		$auth = Yii::$app->authManager;
@@ -299,6 +311,7 @@ class RbacController extends Controller
      */
 	public function actionRevokeAll($username)
 	{
+        /* @var User $user */
 		$user = $this->findUser($username);
 	
 		$auth = Yii::$app->authManager;	
@@ -309,6 +322,7 @@ class RbacController extends Controller
 	
 	public function actionTest($username, $rule, $params = [])
 	{
+        /* @var User $user */
 		$user = $this->findUser($username);
 		$auth = Yii::$app->authManager;	
 		$access = $auth->checkAccess($user->id, $rule, $params) ? 'has' : 'does not have';

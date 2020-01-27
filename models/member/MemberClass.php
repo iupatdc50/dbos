@@ -21,9 +21,11 @@ use yii\web\UploadedFile;
  * @property integer $wage_percent
  * @property string $doc_id
  *
- * @property MemberClass $mClass
+ * @property ClassCode $mClass
  * @property RateClass $rClass
+ *
  * @method UploadedFile uploadImage()
+ * @method getImagePath()
  */
 class MemberClass extends BaseEndable
 {
@@ -128,7 +130,8 @@ class MemberClass extends BaseEndable
     public function resolveClasses()
     {
     	if (isset($this->class_id)) {
-	    	$combo_class = $this->comboClassDescrip;
+    	    /* @var ComboClassDescription $combo_class */
+	    	$combo_class = $this->getComboClassDescrip()->one();
 	    	$this->member_class = $combo_class->member_class;
 	    	$this->rate_class = $combo_class->rate_class;
     	}
@@ -157,7 +160,7 @@ class MemberClass extends BaseEndable
     {
         return $this->hasOne(RateClass::className(), ['rate_class' => 'rate_class']);
     }
-    
+
     public function getComboClassDescrip()
     {
     	return $this->hasOne(ComboClassDescription::className(), ['class_id' => 'class_id']);

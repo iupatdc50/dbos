@@ -13,6 +13,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 
 /**
  * This is the model class for table "Timesheets".
@@ -39,6 +40,7 @@ use yii\db\ActiveRecord;
  * @property string $modifiedBy
  *
  * @method uploadImage()
+ * @method getImagePath()
  *
  */
 class Timesheet extends ActiveRecord
@@ -67,13 +69,15 @@ class Timesheet extends ActiveRecord
         foreach ($processes as $process)
             $cols .= "MAX(CASE WHEN WH.wp_seq = " . $process['seq'] . " THEN WH.hours ELSE NULL END) AS `" . $process['descrip'] . "`, ";
 
-        $sql =
+        return <<<SQL
+            # noinspection SqlResolveForFile
+            # noinspection SqlCaseVsIf
 
-            "SELECT
+            SELECT
                  T.`id`,
-                 DATE_FORMAT(CONCAT(SUBSTRING(T.acct_month, 1, 4), '-', SUBSTRING(T.acct_month, 5, 2), '-01'), '%b %Y') AS acct_month, " .
-            $cols .
-            "    T.total_hours AS total,
+                 DATE_FORMAT(CONCAT(SUBSTRING(T.acct_month, 1, 4), '-', SUBSTRING(T.acct_month, 5, 2), '-01'), '%b %Y') AS acct_month, 
+                $cols 
+                 T.total_hours AS total,
                  COALESCE(SUM(WH.hours), 0.00) AS computed,
                  T.doc_id,
                  CONCAT('{$path}', T.doc_id) AS imageUrl,
@@ -87,9 +91,43 @@ class Timesheet extends ActiveRecord
                WHERE T.member_id = :member_id
                GROUP BY T.`id`, T.acct_month
             ORDER BY T.acct_month DESC
-            ";
+            ;
 
-        return $sql;
+SQL;
+
+    }
+
+    /**
+     * @param $member_id
+     * @param $lob_cd
+     * @param string $is_mh
+     * @return int
+     * @throws Exception
+     */
+    public static function archiveByTrade($member_id, $lob_cd, $is_mh = 'F')
+    {
+        $db = Yii::$app->db;
+        return $db->createCommand("CALL ArchiveTimesheets (:a_member_id, :a_lob_cd, :mhandler)", [
+            'a_member_id' => $member_id,
+            'a_lob_cd' => $lob_cd,
+            ':mhandler' => $is_mh,
+        ])->execute();
+    }
+
+    /**
+     * @param $member_id
+     * @param $lob_cd
+     * @return int
+     * @throws Exception
+     */
+    public static function restoreByTrade($member_id, $lob_cd)
+    {
+        $db = Yii::$app->db;
+        return $db->createCommand("CALL RestoreTimesheets (:a_member_id, :a_lob_cd)", [
+            'a_member_id' => $member_id,
+            'a_lob_cd' => $lob_cd,
+        ])->execute();
+
     }
 
     public function behaviors()

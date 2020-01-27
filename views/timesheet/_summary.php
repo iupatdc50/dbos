@@ -4,6 +4,7 @@ use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use kartik\grid\GridView;
 use app\models\member\ClassCode;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $hoursProvider ActiveDataProvider */
@@ -29,9 +30,25 @@ if (($class == ClassCode::CLASS_APPRENTICE) || ($class == ClassCode::CLASS_HANDL
         ],
         'toolbar' => [
             'content' =>
-              Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;DPR Timesheets',
-                ["/{$controller}/index", 'member_id' => $id],
-                ['class' => 'btn btn-default'])
+                Html::a('<i class="glyphicon glyphicon-calendar"></i>&nbsp;DPR Timesheets',
+                    ["/{$controller}/index", 'member_id' => $id],
+                    ['class' => 'btn btn-default']) . '' .
+                Html::button('<i class="glyphicon glyphicon-hdd"></i>',
+                    ['value' => Url::to([$controller . '/archive', 'member_id'  => $id]),
+                        'id' => 'archiveButton',
+                        'class' => 'btn btn-default btn-modal',
+                        'data-title' => 'Archive',
+                        'title' => 'Archive current timesheets',
+                        'disabled' => !(Yii::$app->user->can('archiveTimesheets')),
+                    ]) . '' .
+                Html::button('<i class="glyphicon glyphicon-share-alt"></i>',
+                    ['value' => Url::to([$controller . '/restore', 'member_id'  => $id]),
+                        'id' => 'archiveButton',
+                        'class' => 'btn btn-default btn-modal',
+                        'data-title' => 'Archive',
+                        'title' => 'Restore trade timesheets from archive',
+                        'disabled' => !(Yii::$app->user->can('archiveTimesheets')),
+                    ])
         ],
         'summary' => '',
         'showPageSummary' => true,

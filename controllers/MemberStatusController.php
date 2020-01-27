@@ -3,7 +3,11 @@
 namespace app\controllers;
 
 use app\controllers\base\SummaryController;
+use app\helpers\OptionHelper;
+use app\models\member\ClassCode;
+use app\models\training\Timesheet;
 use Exception;
+use Throwable;
 use Yii;
 use app\models\member\Status;
 use app\models\member\Employment;
@@ -65,6 +69,7 @@ class MemberStatusController extends SummaryController
      * @param $relation_id
      * @return array|mixed|string|Response
      * @throws NotFoundHttpException
+     * @throws Throwable
      */
 	public function actionCreate($relation_id)
 	{
@@ -103,7 +108,7 @@ class MemberStatusController extends SummaryController
 
 				if ($model->member_status == Status::INACTIVE) {
                     /** @var Employment $employer */
-				    $employer = $this->member->employerActive;
+				    $employer = $this->member->getEmployerActive();
 				    if (isset($employer)) {
 				        $employer->end_dt = $model->effective_dt;
 				        $employer->term_reason = Employment::TERM_MEMBER;
@@ -255,6 +260,7 @@ class MemberStatusController extends SummaryController
      * @param $member_id
      * @return array|string|Response
      * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
      */
 	public function actionClearIn($member_id) 
 	{	
@@ -269,6 +275,7 @@ class MemberStatusController extends SummaryController
 		}
 		
 		if ($model->load(Yii::$app->request->post())) {
+		    $curr = $model->lob_cd;
 			$prev = (($model->other_local > 0) ? $model->other_local : 'Unspecified');
 			$model->reason = Status::REASON_CCD . $prev;
 
@@ -276,8 +283,17 @@ class MemberStatusController extends SummaryController
                 if (!empty($model->paid_thru_dt)) {
                     $this->saveMember($this->adjustPaidThru($model->paid_thru_dt));
                 }
+                if (isset($this->member->currentClass) && $this->member->currentClass->member_class == ClassCode::CLASS_APPRENTICE)
+                    if (array_key_exists($prev, $model->getLobOptions()))
+                    {
+                        Timesheet::archiveByTrade($member_id, $prev, OptionHelper::TF_FALSE);
+                        if (Timesheet::restoreByTrade($member_id, $curr) > 0) {
+                            $msg = "DPR timesheets found and restored for trade `{$curr}`";
+                            Yii::$app->session->addFlash('success', $msg);
+                        }
+                    }
             }
-			
+
 			return $this->goBack();
 
 		}

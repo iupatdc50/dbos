@@ -2,12 +2,16 @@
 
 namespace app\controllers;
 
+use app\models\member\ClassCode;
 use app\models\member\Member;
+use app\models\training\ArchiveTimesheetForm;
 use app\models\training\Timesheet;
 use app\models\training\WorkHour;
 
+use Throwable;
 use Yii;
 use yii\base\DynamicModel;
+use yii\bootstrap\ActiveForm;
 use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
 use yii\db\Exception;
@@ -56,6 +60,7 @@ class TimesheetController extends Controller
 
         $member = $this->getMember($member_id);
 
+        /** @noinspection SqlResolve */
         $count = Yii::$app->db->createCommand(
             "SELECT COUNT(*) FROM Timesheets WHERE member_id = :member_id;",
             [':member_id' => $member_id])->queryScalar();
@@ -111,7 +116,7 @@ class TimesheetController extends Controller
             $image = $modelTimesheet->uploadImage();
             if ($modelTimesheet->save()) {
                 if ($image !== false) {
-                    $path = $modelTimesheet->imagePath;
+                    $path = $modelTimesheet->getImagePath();
                     /** @noinspection PhpUndefinedMethodInspection */
                     $image->saveAs($path);
                 }
@@ -179,7 +184,7 @@ class TimesheetController extends Controller
     public function actionAttach($id)
     {
         $model = $this->findModel($id);
-        $oldPath = $model->imagePath;
+        $oldPath = $model->getImagePath();
         $oldId = $model->doc_id;
 
         if ($model->load(Yii::$app->request->post())) {
@@ -192,7 +197,7 @@ class TimesheetController extends Controller
                 if ($image !== false) {
                     if (file_exists($oldPath))
                         unlink($oldPath);
-                    $path = $model->imagePath;
+                    $path = $model->getImagePath();
                     /* @var $image UploadedFile */
                     $image->saveAs($path);
                 }
@@ -232,12 +237,97 @@ class TimesheetController extends Controller
      * @return mixed
      * @throws NotFoundHttpException
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
 
         return $this->goBack();
+    }
+
+    /**
+     * @param $member_id
+     * @return array|string
+     * @throws NotFoundHttpException
+     * @throws Exception
+     */
+    public function actionArchive($member_id)
+    {
+        $member = $this->getMember($member_id);
+        $archiveForm = new ArchiveTimesheetForm();
+
+        if (Yii::$app->request->isAjax && $archiveForm->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($archiveForm);
+        }
+
+        if ($archiveForm->load(Yii::$app->request->post())) {
+
+            $is_mh = ($archiveForm->is_mh == 1) ? "T" : "F";
+            if (Timesheet::archiveByTrade($archiveForm->member_id, $archiveForm->lob_cd, $is_mh) > 0) {
+                $msg = "Successfully archived DPR timesheets for trade `{$archiveForm->lob_cd}`";
+                Yii::$app->session->addFlash('success', $msg);
+            } else {
+                $msg = "Nothing to archive for trade `{$archiveForm->lob_cd}`";
+                Yii::$app->session->addFlash('notice', $msg);
+            }
+
+            return $this->goBack();
+        }
+
+        $archiveForm->member_id = $member_id;
+        $archiveForm->member_nm = $member->fullName;
+        if (isset($member->currentStatus)) {
+            $archiveForm->lob_cd = $member->currentStatus->lob_cd;
+            $archiveForm->lob_descrip = $member->currentStatus->lob->short_descrip;
+        }
+        $archiveForm->is_mh = (isset($member->currentClass) && ($member->currentClass->member_class) == ClassCode::CLASS_HANDLER) ? 1 : 0;
+
+        return $this->renderAjax('archive', [
+            'archiveForm' => $archiveForm,
+        ]);
+    }
+
+    /**
+     * @param $member_id
+     * @return array|string
+     * @throws NotFoundHttpException
+     * @throws Exception
+     */
+    public function actionRestore($member_id)
+    {
+        $member = $this->getMember($member_id);
+        $archiveForm = new ArchiveTimesheetForm();
+
+        if (Yii::$app->request->isAjax && $archiveForm->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($archiveForm);
+        }
+
+        if ($archiveForm->load(Yii::$app->request->post())) {
+
+            if (Timesheet::restoreByTrade($archiveForm->member_id, $archiveForm->lob_cd) > 0) {
+                $msg = "Successfully restored DPR timesheets for trade `{$archiveForm->lob_cd}`";
+                Yii::$app->session->addFlash('success', $msg);
+            } else {
+                $msg = "Nothing to restore for trade `{$archiveForm->lob_cd}`";
+                Yii::$app->session->addFlash('notice', $msg);
+            }
+
+            return $this->goBack();
+        }
+
+        $archiveForm->member_id = $member_id;
+        $archiveForm->member_nm = $member->fullName;
+        if (isset($member->currentStatus)) {
+            $archiveForm->lob_cd = $member->currentStatus->lob_cd;
+            $archiveForm->lob_descrip = $member->currentStatus->lob->short_descrip;
+        }
+
+        return $this->renderAjax('restore', [
+            'archiveForm' => $archiveForm,
+        ]);
     }
 
     /**

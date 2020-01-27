@@ -2,7 +2,8 @@
 
 namespace app\models\value;
 
-use Yii;
+
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "Lobs".
@@ -14,8 +15,10 @@ use Yii;
  * @property integer $region
  * @property string $short_descrip
  */
-class Lob extends \yii\db\ActiveRecord
+class Lob extends ActiveRecord
 {
+    CONST TRADE_FL = '1926';
+
     /**
      * @inheritdoc
      */
