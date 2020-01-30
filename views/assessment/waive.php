@@ -6,13 +6,12 @@ use yii\web\JsExpression;
 use kartik\form\ActiveForm;
 use kartik\widgets\Select2;
 use kartik\datecontrol\DateControl;
-use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\WaiveAssessmentForm */
 
 // The controller action that will render the list
-$url = Url::to(['/user/user-list']);
+$url = Url::to(['/admin/user/user-list']);
 
 ?>
 
@@ -27,11 +26,13 @@ $url = Url::to(['/user/user-list']);
 
     <div class="sixty-pcnt">
     
-    <?= $form->field($model, 'action_dt')->widget(DateControl::className(), [
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    $form->field($model, 'action_dt')->widget(DateControl::className(), [
 			'type' => DateControl::FORMAT_DATE,
 	])   ?>
 	
-	<?= $form->field($model, 'authority')->label('Authorized by')->widget(Select2::classname(), [
+	<?= /** @noinspection PhpUnhandledExceptionInspection */
+    $form->field($model, 'authority')->label('Authorized by')->widget(Select2::classname(), [
 		'size' => Select2::SMALL,
 		'pluginOptions' => [
 			'allowClear' => true,
@@ -47,7 +48,8 @@ $url = Url::to(['/user/user-list']);
 		],
 	]) ?>
        
-    <?= $form->field($model, 'note')->textArea(['rows' => 3]) ?>
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    $form->field($model, 'note')->textArea(['rows' => 3]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Submit', ['class' => 'btn btn-success']) ?>
