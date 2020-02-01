@@ -14,8 +14,6 @@ use yii\web\UploadedFile;
  *
  * @property integer $id
  * @property string $member_id
- * @property string $effective_dt
- * @property string $end_dt
  * @property string $member_class
  * @property string $rate_class
  * @property integer $wage_percent

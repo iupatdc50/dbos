@@ -16,8 +16,6 @@ use yii\helpers\ArrayHelper;
  * @property integer $id
  * @property string $lob_cd
  * @property string $member_class
- * @property string $effective_dt
- * @property string $end_dt
  * @property string $fee
  * @property integer $dues_months
  * @property string $included

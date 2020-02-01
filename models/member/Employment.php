@@ -16,8 +16,6 @@ use app\components\utilities\OpDate;
  * This is the model class for table "Employment".
  *
  * @property string $member_id
- * @property string $effective_dt
- * @property string $end_dt
  * @property string $employer
  * @property string $dues_payor
  * @property string $is_loaned
@@ -221,7 +219,7 @@ class Employment extends BaseEndable
     		$employer = ($this->is_loaned == 'T') ? $this->duesPayor->contractor . ' [On Loan]' : $this->contractor->contractor;
     	} else {
     		$dt_obj = (new OpDate)->setFromMySql($this->end_dt);
-    		$employer = "Unemployed ({$dt_obj->getDisplayDate(true, '/')} {$this->termReasonText})";
+    		$employer = "Unemployed ({$dt_obj->getDisplayDate(true, '/')} {$this->getTermReasonText()})";
     	}
     	return $employer;
     }

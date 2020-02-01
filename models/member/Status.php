@@ -2,6 +2,7 @@
 
 namespace app\models\member;
 
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use app\models\value\Lob;
 use app\models\base\BaseEndable;
@@ -13,8 +14,6 @@ use app\components\validators\AtLeastValidator;
  *
  * @property integer $id
  * @property string $member_id
- * @property string $effective_dt
- * @property string $end_dt
  * @property string $lob_cd
  * @property string $member_status
  * @property string $reason
@@ -113,7 +112,7 @@ class Status extends BaseEndable
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getLob()
     {
@@ -126,7 +125,7 @@ class Status extends BaseEndable
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getStatus()
     {
