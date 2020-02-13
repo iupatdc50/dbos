@@ -78,6 +78,7 @@ class Timesheet extends ActiveRecord
                  DATE_FORMAT(CONCAT(SUBSTRING(T.acct_month, 1, 4), '-', SUBSTRING(T.acct_month, 5, 2), '-01'), '%b %Y') AS acct_month, 
                 $cols 
                  T.total_hours AS total,
+                 CDH.cumulative,
                  COALESCE(SUM(WH.hours), 0.00) AS computed,
                  T.doc_id,
                  CONCAT('{$path}', T.doc_id) AS imageUrl,
@@ -85,6 +86,8 @@ class Timesheet extends ActiveRecord
                  C.contractor
                FROM Timesheets AS T 
                  LEFT OUTER JOIN WorkHours AS WH ON T.`id` = WH.timesheet_id
+                 LEFT OUTER JOIN CumulativeDprHours AS CDH ON T.member_id = CDH.member_id
+                                                            AND T.acct_month = CDH.acct_month
                  JOIN Users AS UC ON T.created_by = UC.`id`
                  LEFT OUTER JOIN Users AS UU ON T.updated_by = UU.`id`
                  LEFT OUTER JOIN Contractors AS C ON C.license_nbr = T.license_nbr

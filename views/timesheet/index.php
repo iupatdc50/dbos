@@ -72,6 +72,16 @@ $this->params['breadcrumbs'][] = 'Timesheets';
                 'contentOptions' => ['class' => 'grid-rowtotal'],
             ],
             [
+                'attribute' => 'cumulative',
+                'class' => 'kartik\grid\DataColumn',
+                'footer' => null,
+                'hAlign' => 'right',
+                'format' => ['decimal', 2],
+                'label' => 'Running',
+                'headerOptions' => ['class' => 'vertical-colhead grid-cumhead'],
+                'contentOptions' => ['class' => 'grid-cumtotal'],
+            ],
+            [
                 'attribute' => 'showPdf',
                 'label' => 'Doc',
                 'hAlign' => 'center',
