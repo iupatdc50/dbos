@@ -7,6 +7,7 @@ use app\models\user\User;
 use app\models\Announcement;
 use app\models\HomeEvent;
 use Exception;
+use Throwable;
 use Yii;
 use app\helpers\OptionHelper;
 use yii\db\StaleObjectException;
@@ -23,6 +24,7 @@ class SiteController extends RootController
 
 		$homeEvents = HomeEvent::find()->all();
 		$events = [];
+		/* @var $homeEvent HomeEvent */
 		foreach ($homeEvents as $homeEvent) {
 			$event = new Event([
 					'id' => $homeEvent->id,
@@ -72,7 +74,7 @@ class SiteController extends RootController
 			if (!$user->save(true, ['last_login']))
 				throw new Exception('Problem with last_login update.  Messages: ' . print_r($user->errors, true));
 			if ($user->requiresReset())
-				return $this->redirect('/user/reset-pw');
+				return $this->redirect('/admin/user/reset-pw');
 			return $this->goBack();
 		}
 	
@@ -91,6 +93,7 @@ class SiteController extends RootController
      * @return Response
      * @throws StaleObjectException
      * @throws NotFoundHttpException
+     * @throws Throwable
      */
 	public function actionDelete($id)
 	{

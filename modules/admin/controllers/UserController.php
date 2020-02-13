@@ -2,6 +2,7 @@
 
 namespace app\modules\admin\controllers;
 
+use Throwable;
 use Yii;
 use app\models\user\User;
 use app\models\user\UserSearch;
@@ -138,6 +139,7 @@ class UserController extends Controller
      * @return mixed
      * @throws NotFoundHttpException
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionDelete($id)
     {
@@ -152,7 +154,7 @@ class UserController extends Controller
      */
     public function actionResetPw()
     {
-		$this->layout = 'login';
+		$this->layout = 'nomenu';
 		/* @var $model User */
     	$model = Yii::$app->user->identity;
 
