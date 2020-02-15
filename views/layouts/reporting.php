@@ -83,6 +83,27 @@ use kartik\widgets\SideNav;
 												'label' => 'Mailing Labels',
 												'url'=>'/site/unavailable',
 										],
+                                        [
+                                                'label' => 'Hours Summary',
+                                                'items' => [
+                                                    [
+                                                        'label' => '1791: Painters',
+                                                        'url' => ['report/hours-summary', 'lob_cd' => '1791'],
+                                                    ],
+                                                    [
+                                                        'label' => '1889: Glaziers',
+                                                        'url' => ['report/hours-summary', 'lob_cd' => '1889'],
+                                                    ],
+                                                    [
+                                                        'label' => '1926: Floorlayers',
+                                                        'url' => ['report/hours-summary', 'lob_cd' => '1926'],
+                                                    ],
+                                                    [
+                                                        'label' => '1944: Tapers',
+                                                        'url' => ['report/hours-summary', 'lob_cd' => '1944'],
+                                                    ],
+                                                ],
+                                        ],
 										
 								],
 						],

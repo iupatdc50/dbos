@@ -172,7 +172,15 @@ class ReportController extends Controller
 		]);
 	}
 
-	public function actionReceiptsJournal($trade = '')
+    public function actionHoursSummary($lob_cd)
+    {
+        return $this->render('reportico', [
+            'folder' => 'contractorrpts',
+            'report_nm' => 'hourssum' . $lob_cd,
+        ]);
+    }
+
+    public function actionReceiptsJournal($trade = '')
 	{
 		return $this->render('reportico', [
 				'folder' => 'accountingrpts',
