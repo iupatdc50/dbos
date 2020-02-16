@@ -76,6 +76,7 @@ class Timesheet extends ActiveRecord
             SELECT
                  T.`id`,
                  DATE_FORMAT(CONCAT(SUBSTRING(T.acct_month, 1, 4), '-', SUBSTRING(T.acct_month, 5, 2), '-01'), '%b %Y') AS acct_month, 
+                 T.created_at,
                 $cols 
                  T.total_hours AS total,
                  CDH.cumulative,
@@ -88,11 +89,12 @@ class Timesheet extends ActiveRecord
                  LEFT OUTER JOIN WorkHours AS WH ON T.`id` = WH.timesheet_id
                  LEFT OUTER JOIN CumulativeDprHours AS CDH ON T.member_id = CDH.member_id
                                                             AND T.acct_month = CDH.acct_month
+                                                            AND T.created_at = CDH.created_at
                  JOIN Users AS UC ON T.created_by = UC.`id`
                  LEFT OUTER JOIN Users AS UU ON T.updated_by = UU.`id`
                  LEFT OUTER JOIN Contractors AS C ON C.license_nbr = T.license_nbr
                WHERE T.member_id = :member_id
-               GROUP BY T.`id`, T.acct_month
+               GROUP BY T.`id`, T.acct_month, T.created_at
             ORDER BY T.acct_month DESC
             ;
 
