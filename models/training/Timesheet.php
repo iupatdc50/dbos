@@ -95,7 +95,7 @@ class Timesheet extends ActiveRecord
                  LEFT OUTER JOIN Contractors AS C ON C.license_nbr = T.license_nbr
                WHERE T.member_id = :member_id
                GROUP BY T.`id`, T.acct_month, T.created_at
-            ORDER BY T.acct_month. T.created_at DESC
+            ORDER BY T.acct_month DESC, T.created_at DESC
             ;
 
 SQL;
