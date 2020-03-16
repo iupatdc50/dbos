@@ -3,6 +3,8 @@
 namespace app\models\rbac;
 
 use app\models\user\User;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "AuthAssignments".
@@ -13,7 +15,7 @@ use app\models\user\User;
  *
  * @property AuthItem $itemName
  */
-class AuthAssignment extends \yii\db\ActiveRecord
+class AuthAssignment extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -49,7 +51,7 @@ class AuthAssignment extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getItemName()
     {

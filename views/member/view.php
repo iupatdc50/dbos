@@ -20,15 +20,19 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="member-view">
 
 <table class="hundred-pct">
-<tr><td class="text-center pad-six">
-    <h4><?= Html::encode($this->title) ?></h4>
+<tr class="datatop"><td class="text-center pad-six">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h4 class="panel-title"><?= Html::encode($this->title) ?></h4></div>
+                    <div class="panel-body">
+
 	<p><?= Html::img($model->imageUrl, ['class' => 'img-thumbnail', 'width'=>'150', 'height'=>'200']) ?></p>
     <p>
        	<?php if(Yii::$app->user->can('updateDemo')): ?>
     	<?= Html::button('<i class="glyphicon glyphicon-camera"></i>&nbsp;Update Photo',
 						['value' => Url::to(['photo', 'id'  => $model->member_id]),
 						'id' => 'photoButton',
-						'class' => 'btn btn-default btn-modal btn-embedded',
+						'class' => 'btn btn-default btn-modal',
 						'data-title' => 'Photo',
 						'disabled' => !(Yii::$app->user->can('updateDemo')),
 					]) 
@@ -41,10 +45,9 @@ $this->params['breadcrumbs'][] = $this->title;
     	]]) ?>
     	<?php endif; ?>
     </p>
-    <br />
-    <?php
-    try {
-        echo DetailView::widget([
+                        <hr>
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    DetailView::widget([
             'model' => $model,
             //			'mode'=>DetailView::MODE_VIEW,
             'options' => ['class' => 'table table-striped table-bordered detail-view op-dv-table-sm text-left'],
@@ -76,23 +79,38 @@ $this->params['breadcrumbs'][] = $this->title;
                     'label' => 'Balance Due',
                     'value' =>
                         Html::encode($balance)
-                        . Html::button('Create Receipt', [
-                            'class' => 'btn btn-default btn-modal btn-embedded pull-right',
-                            'id' => 'receiptCreateButton',
-                            'value' => Url::to(['receipt-member/create', 'lob_cd' => $model->currentStatus->lob_cd, 'id'  => $model->member_id]),
-                            'data-title' => 'Receipt',
-                            'disabled' => !(Yii::$app->user->can('createReceipt')),
-                        ])
                     ,
                     'format' => 'raw',
                     'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
                     'visible' => Yii::$app->user->can('browseMemberExt'),
                 ],
             ],
-        ]);
-    } catch (Exception $e) {
-    } ?>
-    </td><td class="seventyfive-pct">
+        ]); ?>
+                        <div>
+                            <?php if(Yii::$app->user->can('createReceipt')) :?>
+                            <?=
+                            Html::button('<i class="glyphicon glyphicon-usd"></i> Cash or Check', [
+                                'class' => 'btn btn-default btn-modal',
+                                'id' => 'receiptCreateButton',
+                                'value' => Url::to(['receipt-member/create', 'lob_cd' => $model->currentStatus->lob_cd, 'id'  => $model->member_id]),
+                                'data-title' => 'Receipt',
+                                'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
+                                'title' => 'Create receipt (cash or check)',
+                            ]) ?>
+                            <?= Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
+                                'class' => 'btn btn-default btn-modal',
+                                'id' => 'creditCardButton',
+                                'value' => Url::to(['receipt-member/credit-card', 'id'  => $model->member_id]),
+                                'data-title' => 'Credit Card',
+                                'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
+                                'title' => 'Accept credit card payment',
+                            ])
+                            ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+    </td><td class="seventyfive-pct pad-six">
 		<?= $this->render('../partials/_quicksearch', ['className' => 'member']); ?>
         <div><p>
         	<?php if(Yii::$app->user->can('updateDemo')): ?>
@@ -160,7 +178,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php 
 
-    $status = isset($model->currentStatus) ? $model->currentStatus->status->descrip : 'Inactive';
+    $status = 'Inactive';
+    if(isset($model->currentStatus)) {
+        $status = $model->currentStatus->status->descrip;
+        if ($model->enrolledOnline)
+            $status .= Html::tag('span', " Enrolled for Online Pay", ['class' => 'accord-notice pull-right']);
+    }
     $statusUrl = Yii::$app->urlManager->createUrl(['member-status/summary-json', 'id' => $model->member_id]); 
 
     $class = 'Unknown';
@@ -168,7 +191,7 @@ $this->params['breadcrumbs'][] = $this->title;
         $class = $model->currentClass->mClassDescrip;
         if (($model->currentClass->wage_percent < 100) && (!empty($wage_percent))) {
             if ($wage_percent['should_be'] > $wage_percent['current'])
-                $class .= Html::tag('span', " Qualifies for step increase", ['class' => 'negative']);
+                $class .= Html::tag('span', " Qualifies for step increase", ['class' => 'accord-alert pull-right']);
         }
 
     }

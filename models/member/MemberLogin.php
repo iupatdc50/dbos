@@ -1,13 +1,11 @@
 <?php
 
-namespace app\models\user;
+namespace app\models\member;
 
 use Yii;
 use yii\base\Exception;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\db\Query;
-use yii\helpers\ArrayHelper;
 use yii\base\NotSupportedException;
 use yii\web\IdentityInterface;
 use app\components\utilities\OpDate;
@@ -18,35 +16,31 @@ use kartik\password\StrengthValidator;
  * This is the model class for table "Users".
  *
  * @property integer $id
+ * @property string $member_id
  * @property string $username
  * @property string $auth_key
  * @property string $password_hash
  * @property string $password_reset_token
  * @property string $email
- * @property integer $role
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
  *
- * @property AuthAssignment[] $assignments
  * @property string $last_nm [varchar(30)]
  * @property string $first_nm [varchar(30)]
  * @property string $last_login [datetime]
  *
  * @property string $fullName
- * @property string $inUseRoles
- * 
+ *
  */
-class User extends ActiveRecord
+class MemberLogin extends ActiveRecord
 				 implements IdentityInterface
 {
 	const SCENARIO_CREATE = 'create';
 	const SCENARIO_CHANGE_PW = 'changepw';
 	const STATUS_ACTIVE = 10;
 	const STATUS_INACTIVE = 0;
-	const ROLE_AUTH_THRESHOLD = 30;
-	const RESET_USER_PW = 'DC50-temp';
-	const USER_PORTAL = 34;
+	const RESET_MEMBER_PW = 'DC50-memb';
 	
 	public $password_clear = null;
 	public $password_current;
@@ -58,38 +52,9 @@ class User extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'Users';
+        return 'MemberLogins';
     }
 
-    /**
-     * Returns a set of users for Select2 picklist. Full name
-     * is returned as text (id, text are required columns for Select2)
-     *
-     * @param string|array $search Criteria used for partial user list. If an array, then user
-     *                               key will be a like search
-     * @return array
-     * @throws \yii\db\Exception
-     */
-    public static function listAll($search)
-    {
-    	/* @var Query $query */
-    	$query = new Query;
-    	$query->select("id, full_nm as text")
-	    	->from('UserPickList')
-	    	->limit(10)
-	    	->distinct();
-        if (ArrayHelper::isAssociative($search)) {
-    		if (isset($search['full_nm'])) {
-    			$query->where(['like', 'full_nm', $search['full_nm']]);
-    			unset($search['full_nm']);
-    		}
-    		$query->andWhere($search);
-    	} elseif (!is_null($search))
-    		$query->where(['like', 'full_nm', $search]);
-    	$command = $query->createCommand();
-    	return $command->queryAll();
-    }
-    
 	public function behaviors()
 	{
 		return [
@@ -104,11 +69,13 @@ class User extends ActiveRecord
     {
         return [
         	[['password_clear'], 'required', 'on' => self::SCENARIO_CREATE],
-        	[['username', 'email'], 'required'],
-        	[['role', 'status'], 'integer'],
-            [['username', 'password_clear', 'email', 'last_nm', 'first_nm'], 'string', 'max' => 255],
-            [['username'], 'unique'],
-        	[['email'], 'email'],
+        	[['member_id', 'username', 'email'], 'required'],
+            [['password_clear', 'email', 'last_nm', 'first_nm'], 'string', 'max' => 255],
+            [['member_id'], 'unique', 'message' => 'Member ID is already registered'],
+            [['member_id'], 'exist', 'targetClass' => Member::className()],
+            [['username'], 'unique', 'message' => 'Username is already registered'],
+            [['email'], 'email'],
+            [['email'], 'unique', 'message' => 'Email is already registered'],
         	[['auth_key'], 'string', 'max' => 32],
 
         	[['password_current', 'password_new', 'password_confirm'], 'required', 'on' => self::SCENARIO_CHANGE_PW],
@@ -126,12 +93,12 @@ class User extends ActiveRecord
     {
         return [
             'id' => 'ID',
+            'member_id' => 'Member ID',
             'username' => 'Username',
             'auth_key' => 'Auth Key',
             'password_clear' => 'Password',
             'password_reset_token' => 'Password Reset Token',
             'email' => 'Email',
-            'role' => 'Role',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -172,14 +139,25 @@ class User extends ActiveRecord
     }
     
     /**
+     * Find by member_id column
+     *
+     * @param string $member_id
+     * @return static|NULL
+     */
+    public static function findByMemberId($member_id)
+    {
+    	return self::findOne(['member_id' => $member_id]);
+    }
+
+    /**
      * Find by username column
      *
-     * @param string $username
-     * @return static|NULL
+     * @param $username
+     * @return MemberLogin|null
      */
     public static function findByUsername($username)
     {
-    	return self::findOne(['username' => $username]);
+        return self::findOne(['username' => $username]);
     }
     
     /**
@@ -206,7 +184,7 @@ class User extends ActiveRecord
      */
     public function requiresReset()
     {
-    	return $this->validatePassword(self::RESET_USER_PW);
+    	return $this->validatePassword(self::RESET_MEMBER_PW);
     }
     
     public function getLastLoginDisplay()
@@ -248,7 +226,7 @@ class User extends ActiveRecord
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-    	throw new NotSupportedException('You can only login by username/password pair for now.');
+    	throw new NotSupportedException('You can only login by Member ID/password pair for now.');
     }
     
     public function getStatusOptions()
@@ -274,40 +252,5 @@ class User extends ActiveRecord
     {
     	return $this->last_nm . ', ' . $this->first_nm;
     }
-    
-    public function getCanAuthorize()
-    {
-    	return $this->role >= self::ROLE_AUTH_THRESHOLD;
-    }
 
-    public function getInUseRoles()
-    {
-        $assignments = $this->assignments;
-        $descendants = [];
-        foreach ($assignments as $assignment) {
-            $descendants[] = $assignment->item_name;
-            /** @noinspection PhpUndefinedFieldInspection */
-            $descendants = array_merge($descendants, $assignment->itemName->descendants);
-        }
-        return  $descendants;
-
-    }
-
-    /**
-     * @param bool $staff_roles
-     * @return array
-     * @throws \yii\db\Exception
-     */
-    public function getRoleOptions($staff_roles = true)
-    {
-        $not = ($staff_roles) ? '' : ' NOT ';
-        // asterisk in the description indicates staff role
-        $cond = " AND description {$not} LIKE '%*'";
-        /** @noinspection PhpParamsInspection */
-        $excludes = "'" . implode("', '", $this->inUseRoles) . "'";
-        /** @noinspection SqlResolve */
-        $sql = "SELECT name, description FROM AuthItems WHERE type = 1 {$cond} AND name NOT IN ({$excludes});";
-        return ArrayHelper::map(yii::$app->db->createCommand($sql)->queryAll(), 'name', 'description');
-
-    }
 }

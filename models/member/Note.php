@@ -2,8 +2,8 @@
 
 namespace app\models\member;
 
-use Yii;
 use app\models\base\BaseNote;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "MemberNotes".
@@ -50,7 +50,7 @@ class Note extends BaseNote
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMember()
     {

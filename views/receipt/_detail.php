@@ -1,12 +1,14 @@
 <?php
 
+use app\models\user\User;
 use yii\helpers\Html;
+use yii\web\View;
 use yii\widgets\DetailView;
 use app\helpers\OptionHelper;
 // use kartik\detail\DetailView;
 
 /* @var $modelReceipt app\models\accounting\Receipt */
-/* @var $this \yii\web\View */
+/* @var $this View */
 
 ?>
 
@@ -34,10 +36,11 @@ use app\helpers\OptionHelper;
         	'unallocated_amt',
         	'remarks:ntext',
         ];
+	$created_by_nm = $modelReceipt->createdBy->id == User::USER_PORTAL ? 'Member (Online)' : $modelReceipt->createdBy->username;
 	$blameable_attributes = [
         [
             'attribute' => 'created_by',
-            'value' => $modelReceipt->createdBy->username . ' on ' . date('m/d/Y h:i a', $modelReceipt->created_at),
+            'value' =>  $created_by_nm . ' on ' . date('m/d/Y h:i a', $modelReceipt->created_at),
         ],
         [
             'attribute' => 'updated_by',

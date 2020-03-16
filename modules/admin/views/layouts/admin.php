@@ -73,6 +73,12 @@ app\assets\ApplicationUiAssetBundle::register($this);
                                             'icon' => 'user',
                                             'active' => (yii::$app->requestedRoute == 'admin/user'),
                                     ],
+                                    [
+                                        'label' => 'Member Login Accounts',
+                                        'url'=>'/admin/member-login',
+                                        'icon' => 'globe',
+                                        'active' => (yii::$app->requestedRoute == 'admin/member-login'),
+                                    ],
 									[
 									        'label' => 'Roles (RBAC)',
                                             'icon' => 'tasks',
@@ -208,14 +214,14 @@ app\assets\ApplicationUiAssetBundle::register($this);
 			</div>
 			
 			</div>
-			<footer class="footer clearfix">
-			    <div class="container">
-       				<p class="pull-left">&copy; <?= date('Y') ?> 
-       				   <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
-       				</p>
- 			    </div>
-			</footer>
 		</div>
+        <footer class="footer">
+            <div class="container">
+                <p class="pull-left">&copy; <?= date('Y') ?>
+                    <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
+                </p>
+            </div>
+        </footer>
 	<?php $this->endBody()?>
 	</body>
 	</html>

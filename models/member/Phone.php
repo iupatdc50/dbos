@@ -2,8 +2,8 @@
 
 namespace app\models\member;
 
-use Yii;
 use app\models\base\BasePhone;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "MemberPhones".
@@ -11,6 +11,7 @@ use app\models\base\BasePhone;
  * @property string $member_id
  *
  * @property Member $member
+ * @property PhoneDefault $isDefault
  */
 class Phone extends BasePhone
 {
@@ -52,7 +53,7 @@ class Phone extends BasePhone
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAggregate()
     {
@@ -60,7 +61,7 @@ class Phone extends BasePhone
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getIsDefault()
     {

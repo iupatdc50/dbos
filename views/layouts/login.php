@@ -23,18 +23,18 @@ app\assets\ApplicationUiAssetBundle::register($this);
 				<div id="logo-nothome" class="logo"></div>
 				<div id="title-nothome" class="title"><?= Yii::$app->name ?></div>	
 			</div>
-		<hr>
+		    <hr>
 			<div class="container">
  				<?= $content; ?>
 			</div>
-			<footer class="footer clearfix">
-			    <div class="container">
-       				<p class="pull-left">&copy; <?= date('Y') ?> 
-       				   <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
-       				</p>
- 			    </div>
-			</footer>
 		</div>
+        <footer class="footer clearfix">
+            <div class="container">
+                <p class="pull-left">&copy; <?= date('Y') ?>
+                    <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved.
+                </p>
+            </div>
+        </footer>
 	<?php $this->endBody()?>
 	</body>
 	</html>

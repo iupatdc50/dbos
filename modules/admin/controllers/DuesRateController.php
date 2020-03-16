@@ -7,11 +7,13 @@ use Yii;
 use app\models\accounting\DuesRate;
 use app\models\accounting\DuesRateSearch;
 use app\models\value\Lob;
+use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\web\Response;
 
 /**
  * DuesRateController implements the CRUD actions for DuesRate model.
@@ -85,6 +87,23 @@ class DuesRateController extends Controller
 
         if ($removing_current)
             DuesRate::openLatest($id);
+
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Repopulates the calendar table used in the member portal to determine
+     * dues balance owed
+     *
+     * @param int $years Number of years past the last effective date to populate
+     *                   calendar
+     * @return Response
+     * @throws Exception
+     */
+    public function actionRefreshCalendar($years = 5)
+    {
+        $db = Yii::$app->db;
+        $db->createCommand("CALL PopulateFeeCalendar (:years)", [':years' => $years])->execute();
 
         return $this->redirect(['index']);
     }

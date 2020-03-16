@@ -70,6 +70,10 @@ use yii\db\Exception;
  * @property MemberClass $currentClass
  * @property Classification $classification
  * @property CurrentEmployment $employer
+ * @property DuesBalance $duesBalance
+ * @property FeeBalance[] $feeBalances
+ * @property integer $ccgBalanceCount
+ * @property AllBalance $allBalance
  * @property DuesAllocation[] $duesAllocations
  * @property ApfAssessment $currentApf
  * @property LastDuesReceipt $lastDuesReceipt
@@ -77,6 +81,12 @@ use yii\db\Exception;
  * @property WorkProcess[] $processes
  * @property WorkHoursSummary[] $workHoursSummary
  * @property integer $expiredCount
+ * @property integer $noteCount
+ * @property string $imagePath
+ * @property string $imageUrl
+ * @property string $genderText
+ * @property OpDate $today
+ * @property MemberLogin $enrolledOnline
  *
  */
 class Member extends ActiveRecord implements iNotableInterface
@@ -163,6 +173,8 @@ class Member extends ActiveRecord implements iNotableInterface
      *                                  key will be a like search
      * @return array
      * @throws Exception
+     * @todo Consider remiving this function
+     * @noinspection DuplicatedCode
      */
     public static function listAll($search)
     {
@@ -192,6 +204,7 @@ class Member extends ActiveRecord implements iNotableInterface
      *                                  key will be a like search
      * @return array
      * @throws Exception
+     * @noinspection DuplicatedCode
      */
     public static function listSsnAll($search)
     {
@@ -355,6 +368,7 @@ class Member extends ActiveRecord implements iNotableInterface
     /**
      * @param bool $insert
      * @param array $changedAttributes
+     * @throws Exception
      */
     public function afterSave($insert, $changedAttributes)
     {
@@ -562,6 +576,11 @@ class Member extends ActiveRecord implements iNotableInterface
     {
     	return $this->hasOne(Employment::className(), ['member_id' => 'member_id'])
     		->where('end_dt IS NULL');
+    }
+
+    public function getEnrolledOnline()
+    {
+        return $this->hasOne(MemberLogin::className(), ['member_id' => 'member_id']);
     }
     
     /**
@@ -862,7 +881,36 @@ class Member extends ActiveRecord implements iNotableInterface
     	$dt->modify('-1 day');
     	return $dt;
     }
-    
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getDuesBalance()
+    {
+        return $this->hasOne(DuesBalance::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getFeeBalances()
+    {
+        return $this->hasMany(FeeBalance::className(), ['member_id' => 'member_id']);
+    }
+
+    public function getCcgBalanceCount()
+    {
+        return $this->hasMany(FeeBalance::className(), ['member_id' => 'member_id'])
+            ->andOnCondition(['fee_type' => FeeType::TYPE_CC])
+            ->count()
+        ;
+    }
+
+    public function getAllBalance()
+    {
+        return $this->hasOne(AllBalance::className(), ['member_id' => 'member_id']);
+    }
+
     /**
      * A active member is "in application" if his initiation date is null for a new member,
      * or less than the application date if he has been assessed a new APF after reinstatement
@@ -930,6 +978,7 @@ class Member extends ActiveRecord implements iNotableInterface
      * Builds an APF assessment record for the member
      *
      * @return boolean
+     * @throws Exception
      */
     public function createApfAssessment()
     {   	
@@ -1018,7 +1067,7 @@ class Member extends ActiveRecord implements iNotableInterface
     	$cutoff->setToMonthEnd();
     	return (OpDate::dateDiff($this->getDuesPaidThruDtObject(), $cutoff) > 0);
     }
-    
+
     public function getGenderText()
     {
     	return OptionHelper::getGenderText($this->gender);

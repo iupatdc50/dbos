@@ -18,7 +18,8 @@ app\assets\ApplicationUiAssetBundle::register($this);
 		<meta charset="<?= Yii::$app->charset ?>" />
 		<title><?= Html::encode($this->title) ?></title>
     	<?php $this->head()?>
-    	<?= Html::csrfMetaTags()?>
+        <script src="https://js.stripe.com/v3/"></script>
+        <?= Html::csrfMetaTags()?>
 	</head>
 	<body>
 	<?php $this->beginBody()?>
@@ -97,7 +98,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	                			],
 	                			[
 			                			'label' => 'Reset Password',
-			                			'url' => ['/user/reset-pw'],
+			                			'url' => ['/admin/user/reset-pw'],
 	                			],
 	                			
 	                	],
@@ -127,17 +128,17 @@ app\assets\ApplicationUiAssetBundle::register($this);
 	        
 	        <?= $content; ?>
 			</div>
-			<footer class="footer clearfix">
-			    <div class="container ninety-pct">
-       				<p class="pull-left">&copy; <?= date('Y') ?> 
-                        <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved. <span class="text-muted">[<?= Yii::$app->version; ?>]</span>
-       				</p>
-       				<?php if (!Yii::$app->user->isGuest): ?>
-	        			<p class="pull-right">Session started: <?= Yii::$app->session->get('user.session_start'); ?></p>
-    				<?php endif; ?>	
- 			    </div>
-			</footer>
 		</div>
+    <footer class="footer">
+        <div class="container">
+            <p class="pull-left">&copy; <?= date('Y') ?>
+                <a href="http://www.dc50.org">IUPAT District Council 50</a>. All rights reserved. <span class="text-muted">[<?= Yii::$app->version; ?>]</span>
+            </p>
+            <?php if (!Yii::$app->user->isGuest): ?>
+                <p class="pull-right">Session started: <?= Yii::$app->session->get('user.session_start'); ?></p>
+            <?php endif; ?>
+        </div>
+    </footer>
 	<?php $this->endBody()?>
 	</body>
 	</html>

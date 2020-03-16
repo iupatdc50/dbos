@@ -2,8 +2,12 @@
 
 namespace app\models\base;
 
-use Yii;
+use app\components\behaviors\OpImageBehavior;
 use app\models\user\User;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the base model class for all note tables.
@@ -15,8 +19,9 @@ use app\models\user\User;
  * @property integer $created_by
  *
  * @property User $author
+ * @property string $imagePath
  */
-class BaseNote extends \yii\db\ActiveRecord
+class BaseNote extends ActiveRecord
 {
 	protected $_validationRules = []; 
 	protected $_labels = [];
@@ -29,9 +34,9 @@ class BaseNote extends \yii\db\ActiveRecord
 	public function behaviors()
 	{
 		return [
-				['class' => \yii\behaviors\TimestampBehavior::className(), 'updatedAtAttribute' => false],
-				['class' => \yii\behaviors\BlameableBehavior::className(), 'updatedByAttribute' => false],
-				\app\components\behaviors\OpImageBehavior::className(),
+				['class' => TimestampBehavior::className(), 'updatedAtAttribute' => false],
+				['class' => BlameableBehavior::className(), 'updatedByAttribute' => false],
+				OpImageBehavior::className(),
 		];
 	}
 
@@ -64,7 +69,7 @@ class BaseNote extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAuthor()
     {

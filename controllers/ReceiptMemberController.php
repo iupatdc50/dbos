@@ -2,9 +2,16 @@
 
 namespace app\controllers;
 
-use app\models\accounting\DuesRateFinder;
-use app\models\member\Standing;
-use app\models\member\Status;
+use app\models\accounting\Transaction;
+use Stripe\Charge;
+use Stripe\Customer;
+use Stripe\Exception\ApiConnectionException;
+use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\AuthenticationException;
+use Stripe\Exception\CardException;
+use Stripe\Exception\InvalidRequestException;
+use Stripe\Exception\RateLimitException;
+use Stripe\Stripe;
 use Yii;
 use yii\data\ActiveDataProvider;
 use app\controllers\receipt\BaseController;
@@ -18,11 +25,21 @@ use app\models\member\Member;
 use app\models\accounting\CcOtherLocal;
 use yii\data\SqlDataProvider;
 use yii\db\Exception;
+use yii\filters\Cors;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class ReceiptMemberController extends BaseController
 {
+    public function behaviors()
+    {
+        return [
+            'corsFilter' => [
+                'class' => Cors::className(),
+            ],
+        ];
+    }
+
     /**
      * Displays a single Receipt model.
      * @param integer $id
@@ -51,13 +68,125 @@ class ReceiptMemberController extends BaseController
     	return $this->render('view', compact('model', 'allocProvider'));
     }
 
+    public function actionCreditCard($id)
+    {
+        $member = Member::findOne($id);
+
+        $total_due = $member->allBalance->total_due;
+        if($total_due < 0.00)
+            $total_due = 0.00;
+
+        $payment_data = [
+            'member_id' => $member->member_id,
+            'lob_cd' => $member->currentStatus->lob_cd,
+            'currency' => 'usd',
+            'charge' => Yii::$app->formatter->asDecimal($total_due, 2),
+            'email' => isset($member->emails[0]) ? $member->emails[0]->email : null,
+            'has_ccg' => $member->ccgBalanceCount > 0 ? true : false,
+        ];
+
+        return $this->renderAjax('creditcard', ['payment_data' => $payment_data]);
+    }
+
+    /**
+     * @return Response
+     * @throws Exception
+     * @noinspection PhpRedundantCatchClauseInspection
+     *
+     * @todo Sanitize post()
+     */
+    public function actionPayment()
+    {
+        $post = Yii::$app->request->post();
+
+        $member = Member::findOne($post['member_id']);
+
+        if (!isset($post['stripe_token'])) {
+            Yii::error("*** RMC020 Member `{$member->member_id}` {$member->fullName} did not return CC verification token");
+            Yii::$app->session->addFlash('error', 'Unable to process credit card [Code: RMC020]');
+            return $this->goBack();
+        }
+
+        Stripe::setApiKey(Yii::$app->params['stripe'][$member->currentStatus->lob_cd]['secret_key']);
+
+        $tracking = Transaction::getTracking();
+
+        $msg = null;
+        $db_trans = Yii::$app->db->beginTransaction();
+        try {
+            if (!isset($member->stripe_id)) {
+                $customer = Customer::create([
+                    'email' => $post['email'],
+                    'name' => $post['cardholder_nm'],
+                    'source' => Yii::$app->request->post()['stripe_token'],
+                ]);
+                $member->stripe_id = $customer->id;
+                $member->save();
+            } else
+                $customer = Customer::update($member->stripe_id, [
+                    'source' => Yii::$app->request->post()['stripe_token'],
+                ]);
+
+            $charge = Charge::create([
+                'amount' => $post['charge'] * 100,
+                'currency' => $post['currency'],
+                'description' => 'DC50 in-office payment',
+                'receipt_email' => $post['email'],
+                'customer' => $customer->id,
+                'metadata' => ['tracking' => $tracking, 'trade' => $member->currentStatus->lob_cd],
+            ]);
+
+            if (($receipt_id = ReceiptMember::makeUnposted($post, $customer, $charge)) != false) {
+                $transaction = new Transaction([
+                    'transaction_id' => $charge->id,
+                    'customer_id' => $customer->id,
+                    'tracking_nbr' => $tracking,
+                    'receipt_id' => $receipt_id,
+                    'member_id' => $member->member_id,
+                    'currency' => $charge->currency,
+                    'charge' => $post['charge'],
+                    'created_at' => $charge->created,
+                    'stripe_status' => $charge->status,
+                    'dbos_status' => $charge->status == Transaction::STRIPE_SUCCEEDED ? Transaction::DBOS_INPROGRESS : $charge->status,
+                ]);
+                $transaction->save();
+                $db_trans->commit();
+                return $this->redirect(['itemize', 'id' => $receipt_id]);
+            }
+
+            $db_trans->rollBack();
+
+        } catch (CardException $e) {
+            $msg = 'Payment unsuccessful: ' . $e->getError()->message;
+        } catch (RateLimitException $e) {
+            $msg = 'You made too many requests made too quickly.  Please try again later.';
+        } catch (InvalidRequestException $e) {
+            Yii::error('Tracking: ' . $tracking . ' Error: ' . print_r($e->getError()));
+            $msg = 'Internal error: ' . $e->getError()->code;
+        } catch (AuthenticationException $e) {
+            Yii::error('Tracking: ' . $tracking . ' Error: ' . print_r($e->getError()));
+            $msg = 'Internal error: ' . $e->getError()->code;
+        } catch (ApiConnectionException $e) {
+            $msg = 'Connectivity problems or network interruption.  Please try again later.';
+        } catch (ApiErrorException $e) {
+            Yii::error('Tracking: ' . $tracking . ' Error: ' . print_r($e->getError()));
+            $msg = 'Internal error: ' . $e->getError()->code;
+        } catch (\yii\base\Exception $e) {
+            Yii::error('Tracking: ' . $tracking . ' Error: ' . print_r($e->getMessage()));
+            $msg = 'Internal error: ' . $e->getMessage();
+        }
+        Yii::$app->session->addFlash('error', $msg);
+        $db_trans->rollBack();
+        return $this->goBack();
+    }
+
+
     /**
      *
      * @param $lob_cd
      * @param null $id
      * @return string
      * @throws \Exception
-     * @throws Exception
      */
 	public function actionCreate($lob_cd, $id = null)
 	{
@@ -85,14 +214,8 @@ class ReceiptMemberController extends BaseController
 					$result = $builder->prepareAllocs($modelMember, $model->fee_types);
 					if ($result != true)
 						throw new \Exception('Uncaught validation errors: ' . $result);
-					if ($model->other_local > 0) {
-						$modelNextLocal = new CcOtherLocal([
-								'alloc_memb_id' => $modelMember->id,
-								'other_local' => $model->other_local,
-						]);
-						if (!$modelNextLocal->save())
-							throw new \Exception("Error when trying to stage Receiving Local `{$modelNextLocal->errors}`");
-					}
+					if ($model->other_local > 0)
+					    $modelMember->addOtherLocal(new CcOtherLocal(['other_local' => $model->other_local]));
 					$transaction->commit();
 					return $this->redirect(['itemize', 'id' => $model->id]); 
 				}
@@ -107,15 +230,7 @@ class ReceiptMemberController extends BaseController
 
 		if (!isset($model->received_amt) && isset($modelMember->member_id)) {
 		    $member = $modelMember->member;
-            if (isset($member->currentStatus) && isset($member->currentClass)) {
-                $standing = new Standing(['member' => $member]);
-                $balance = $standing->totalAssessmentBalance - $member->overage;
-                if ($member->currentStatus->member_status != Status::OUTOFSTATE) {
-                    $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
-                    $balance += $standing->getDuesBalance($rate_finder);
-                }
-                $model->received_amt = number_format($balance, 2);
-            }
+            $model->received_amt = number_format($member->allBalance->total_due - $member->overage, 2);
         }
 
 		if (Yii::$app->request->isAjax)
@@ -180,6 +295,7 @@ class ReceiptMemberController extends BaseController
 
         $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($member_id);
 
+        /** @noinspection SqlResolve */
         $count = Yii::$app->db->createCommand(
             'SELECT COUNT(*) FROM AllocatedMembers WHERE member_id = :member_id',
             [':member_id' => $member_id]

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\accounting\ReceiptMember;
+use Throwable;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\member\Member;
@@ -15,8 +16,6 @@ use app\models\member\StatusCode;
 use app\models\member\MemberClass;
 use app\models\member\Note;
 use app\models\member\Document;
-use app\models\accounting\DuesRateFinder;
-use app\models\member\Standing;
 use app\models\training\Standing as ClassStanding;
 use app\models\member\MemberSearch;
 use yii\db\Exception;
@@ -111,13 +110,7 @@ class MemberController extends RootController
 
     	$balance = 'Pending';
     	if (isset($model->currentStatus) && isset($model->currentClass)) {
-            $standing = new Standing(['member' => $model]);
-            $balance = $standing->totalAssessmentBalance - $model->overage;
-    	    if ($model->currentStatus->member_status != Status::OUTOFSTATE) {
-                $rate_finder = new DuesRateFinder($model->currentStatus->lob_cd, $model->currentClass->rate_class);
-                $balance += $standing->getDuesBalance($rate_finder);
-            }
-            $balance = number_format($balance, 2);
+    	    $balance = Yii::$app->formatter->asDecimal(($model->currentStatus->member_status == Status::OUTOFSTATE) ? 0.00 : $model->allBalance->total_due, 2);
     	}
     	$params['balance'] = $balance;
 
@@ -155,7 +148,6 @@ class MemberController extends RootController
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      * @throws \yii\base\Exception
-     * @throws Exception
      */
     public function actionCreate()
     {
@@ -245,7 +237,6 @@ class MemberController extends RootController
 
     /**
      * @return array|string|Response
-     * @throws Exception
      */
     public function actionCreateStub()
     {
@@ -392,6 +383,7 @@ class MemberController extends RootController
      * @throws NotFoundHttpException
      * @throws \Exception
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionDelete($id)
     {

@@ -7,6 +7,7 @@ use app\models\accounting\StatusManagerAssessment;
 use app\models\accounting\StatusManagerDues;
 use app\models\accounting\UndoAllocation;
 use Exception;
+use Throwable;
 use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
@@ -32,6 +33,8 @@ use yii\web\Response;
 
 /**
  * BaseController implements the CRUD actions for Receipt model.
+ *
+ * @property OpDate $today
  */
 class BaseController extends Controller
 {
@@ -142,6 +145,7 @@ class BaseController extends Controller
      * @throws NotFoundHttpException
      * @throws InvalidConfigException
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionPost($id)
     {
@@ -188,6 +192,7 @@ class BaseController extends Controller
         if (isset($session['prebuild']))
             unset($session['prebuild']);
 
+        $model->closeInProgressTrans();
     	$session->setFlash('success', "Receipt successfully posted");
     	return $this->redirect(['view', 'id' => $model->id]);
     	
@@ -264,6 +269,7 @@ class BaseController extends Controller
      * @return mixed
      * @throws Exception
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionVoid($id)
     {
@@ -280,7 +286,6 @@ class BaseController extends Controller
         $model->received_amt = 0.00;
         $model->unallocated_amt = 0.00;
         $model->helper_dues = null;
-        /** @noinspection PhpUndefinedFieldInspection */
         $model->remarks = 'Voided by: ' . Yii::$app->user->identity->username;
         $model->void = OptionHelper::TF_TRUE;
         
@@ -305,6 +310,7 @@ class BaseController extends Controller
      * @return Response
      * @throws Exception
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionCancelCreate($id)
     {
@@ -313,7 +319,7 @@ class BaseController extends Controller
     	
     	foreach($model->members as $alloc_memb)
             // Calls removeAllocations() manually to merge errors with base action
-            $this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());;
+            $this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());
     	
     	if (!$model->delete())
     		$this->_dbErrors = array_merge($this->_dbErrors, $model->errors);
@@ -378,8 +384,10 @@ class BaseController extends Controller
      */
     public function findModel($id)
     {
-        if (($model = Receipt::findOne($id)) == null)
+        if (($model = Receipt::findOne($id)) == null) {
+            Yii::error("*** BC050: Could not find receipt `{$id}`");
             throw new NotFoundHttpException('The requested page does not exist.');
+        }
         return $model;
     }
 
@@ -399,6 +407,7 @@ class BaseController extends Controller
      * @return boolean Returns false if a database record deletion is unsuccessful
      * @throws Exception
      * @throws StaleObjectException
+     * @throws Throwable
      */
     protected function retainAlloc(BaseAllocation $alloc)
     {
@@ -423,7 +432,6 @@ class BaseController extends Controller
     {
         if (($status = Status::findOne(['member_id' => $member->member_id, 'effective_dt' => $date])) !== null) 
             return $status;
-    	;
     	return new Status(['effective_dt' => $date]);
     }
 

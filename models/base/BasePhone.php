@@ -3,6 +3,8 @@
 namespace app\models\base;
 
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use app\components\validators\PhoneValidator;
 use app\helpers\PhoneHelper;
@@ -19,8 +21,9 @@ use app\models\value\PhoneType;
  * @property string $phone_type
  *
  * @property PhoneType $phoneType
+ * @property string $phoneText
  */
-abstract class BasePhone extends \yii\db\ActiveRecord
+abstract class BasePhone extends ActiveRecord
                          implements iDefaultableInterface
 {
 	protected $_validationRules = []; 
@@ -87,7 +90,7 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     {
     	parent::afterSave($insert, $changedAttributes);
         if ($this->set_as_default) {
-    		$default = $this->aggregate->phoneDefault;
+    		$default = $this->getAggregate()->phoneDefault;
     		if (!isset($default))
     			$default = $this->createDefaultObj();
     		if (!$this->makeDefault($default)) {
@@ -96,12 +99,17 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     		}	
     	}
     }
-    
+
+    /**
+     * @param $default
+     * @return mixed
+     */
     public function makeDefault($default)
     {
     	$default->{$this->relationAttribute} = $this->{$this->relationAttribute};
     	$default->phone_id = $this->id;
-    	return $default->save();
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $default->save();
     }
 
     public function getTypeOptions()
@@ -110,7 +118,7 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPhoneType()
     {
@@ -121,4 +129,7 @@ abstract class BasePhone extends \yii\db\ActiveRecord
     {
     	return $this->phoneType->descrip . ': ' . $this->phone . (isset($this->ext) ? 'x' . $this->ext : '');
     }
+
+    public abstract function getIsDefault();
+    public abstract function getAggregate();
 }

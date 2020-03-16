@@ -34,6 +34,7 @@ codeception.yml
 composer.json
 composer.lock
 .maintenance.*
+/config/stripe.php
 /config/db.php
 /config/db-test.php
 /config/host-env.*

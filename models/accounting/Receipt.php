@@ -39,11 +39,18 @@ use app\components\utilities\OpDate;
  * @property int $updated_by [int(11)]
  * @property int $updated_at [int(11)]
  *
+ * @property array $methodOptions
+ * @property string $filePath
  * @property AllocatedMember[] $members
  * @property ReceiptFeeType[] $feeTypes
  * @property ReceiptAllocSumm[] $allocSumms
+ * @property AssessmentAllocation[] $assessmentAllocations
+ * @property DuesAllocation[] $duesAllocations
  * @property User $createdBy
  * @property User $updatedBy
+ * @property string $totalAllocation [decimal(7,2)]
+ * @property string $outOfBalance [decimal(7,2)]
+ * @property OpDate $today
  */
 class Receipt extends ActiveRecord
 {
@@ -217,7 +224,15 @@ class Receipt extends ActiveRecord
 		}
 		return false;
 	}
-	
+
+    /**
+     * Closes outstanding in progress credit card transaction
+     */
+    public function closeInProgressTrans()
+    {
+        // stub
+    }
+
     /**
      * @return ActiveQuery
      */
@@ -371,8 +386,7 @@ class Receipt extends ActiveRecord
         /** @noinspection PhpWrongStringConcatenationInspection */
         $alloc = $this->totalAllocation + $this->unallocated_amt + $this->helper_dues;
         // Can't use standard substract on FP numbers
-        $balance = bcsub($this->received_amt, $alloc, 2);
-        return $balance;
+        return bcsub($this->received_amt, $alloc, 2);
     }
     
     public function getAssessmentAllocations()

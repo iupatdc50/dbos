@@ -5,7 +5,6 @@ namespace app\models\accounting;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\accounting\Receipt;
 use app\helpers\CriteriaHelper;
 
 /**
@@ -42,7 +41,7 @@ class ReceiptSearch extends Receipt
      * Creates data provider instance with search query applied
      *
      * @param array $params
-     *
+     * @param $mine_only
      * @return ActiveDataProvider
      */
     public function search($params, $mine_only)

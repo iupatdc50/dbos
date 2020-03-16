@@ -2,8 +2,13 @@
 
 namespace app\models\accounting;
 
+use BadMethodCallException;
+use Throwable;
 use Yii;
 use app\models\member\Member;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 
 /**
  * This is the model class for table "AllocatedMembers".
@@ -17,7 +22,7 @@ use app\models\member\Member;
  * @property BaseAllocation[] $allocations
  * @property CcOtherLocal $otherLocal
  */
-class AllocatedMember extends \yii\db\ActiveRecord
+class AllocatedMember extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -52,7 +57,8 @@ class AllocatedMember extends \yii\db\ActiveRecord
 
     /**
      * @return bool
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
     public function beforeDelete()
     {
@@ -90,7 +96,7 @@ class AllocatedMember extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getReceipt()
     {
@@ -98,7 +104,7 @@ class AllocatedMember extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMember()
     {
@@ -106,7 +112,7 @@ class AllocatedMember extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAllocations()
     {
@@ -122,11 +128,24 @@ class AllocatedMember extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getOtherLocal()
     {
     	return $this->hasOne(CcOtherLocal::className(), ['alloc_memb_id' => 'id']);
+    }
+
+    public function addOtherLocal(CcOtherLocal $otherLocal)
+    {
+        if (!($otherLocal instanceof CcOtherLocal))
+            throw new BadMethodCallException('Not an instance of CcOtherLocal');
+        $otherLocal->alloc_memb_id = $this->id;
+        if (!($result = $otherLocal->save())) {
+            Yii::error('*** AM030 Problem saving receiving local: ' . print_r($otherLocal->errors, true));
+            Yii::$app->session->addFlash('error', 'Could not save receiving local, Code: AM030');
+            return false;
+        }
+        return true;
     }
     
     public function getTotalAllocation()
@@ -146,7 +165,8 @@ class AllocatedMember extends \yii\db\ActiveRecord
      * Line by line removal ensures that Allocation event triggers are fired
      *
      * @return array    If unsuccessful, array of errors
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
     public function removeAllocations()
     {

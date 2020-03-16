@@ -2,6 +2,9 @@
 
 namespace app\models\accounting;
 
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+
 /**
  * This is the model class for table "DuesAllocPickList".
  *
@@ -13,8 +16,9 @@ namespace app\models\accounting;
  * @property integer $id
  * @property string $descrip
  * @property string $overage [decimal(9,2)]
+ * @property DuesAllocation $allocation
  */
-class DuesAllocPickList extends \yii\db\ActiveRecord
+class DuesAllocPickList extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -61,7 +65,7 @@ class DuesAllocPickList extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAllocation()
     {

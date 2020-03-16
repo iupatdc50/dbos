@@ -1,14 +1,13 @@
 <?php
 
 use app\models\member\Member;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $member Member */
-/* @var $dues_balance number */
-/* @var $assessment_balance number */
-/* @var $assessProvider \yii\data\ActiveDataProvider */
+/* @var $assessProvider ActiveDataProvider */
 
 ?>
 
@@ -34,12 +33,14 @@ use yii\helpers\Url;
 	<table class="fifty-pct table table-striped table-bordered detail-view"><tbody>
 		<tr>
 			<th class="sixty-pct right">Dues Balance</th>
-			<td class="right"><?= $dues_balance ?></td>
-	   </tr>
+			<td class="right"><?= number_format($member->duesBalance->balance_amt, 2) ?></td>
+	    </tr>
+        <?php foreach ($member->feeBalances AS $balance): ?>
 		<tr>
-			<th class="right">Assessment Balance</th>
-			<td class="right"><?= $assessment_balance ?></td>
+			<th class="right"><?= $balance->feeType->descrip ?></th>
+			<td class="right"><?= number_format($balance->balance_amt, 2); ?></td>
 	   </tr>
+        <?php endforeach; ?>
 	   <?php if($member->overage != 0.00): ?>
 		<tr>
 			<th class="right">Overage</th>
@@ -48,7 +49,7 @@ use yii\helpers\Url;
 	   <?php endif; ?>
 	   <tr class="total-border">
 			<th class="right">Total Due</th>
-			<td class="right<?= $dues_balance + $assessment_balance > 0 ? ' td-danger' : ''; ?>"><?= number_format($dues_balance + $assessment_balance - $member->overage, 2) ?></td>
+			<td class="right<?= $member->allBalance->total_due > 0 ? ' td-danger' : ''; ?>"><?= number_format($member->allBalance->total_due - $member->overage, 2) ?></td>
 	   </tr>
 	   
 	</tbody></table>

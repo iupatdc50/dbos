@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '1.1.9.215',
+		'version' => '1.2.1.210',
 		'basePath' => realpath ( __DIR__ . '/../' ),
         'aliases' => [
             '@bower' => '@vendor/bower-asset',
@@ -68,6 +68,7 @@ $config = [
 				'docDir' => DIRECTORY_SEPARATOR . 'saa' . DIRECTORY_SEPARATOR,
 				'uploadDir' => DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR,
 				'tempDir' => DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR,
+                'stripe' => require (__DIR__ . '/stripe.php'),
 		],
 
 		'as beforeRequest' => [

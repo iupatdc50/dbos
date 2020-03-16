@@ -2,7 +2,8 @@
 
 namespace app\models\member;
 
-use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "MemberPhonesDefault".
@@ -13,7 +14,7 @@ use Yii;
  * @property Member $member
  * @property Phone $phone
  */
-class PhoneDefault extends \yii\db\ActiveRecord
+class PhoneDefault extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -49,7 +50,7 @@ class PhoneDefault extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMember()
     {
@@ -57,7 +58,7 @@ class PhoneDefault extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPhone()
     {

@@ -25,6 +25,18 @@
 	.no-rept {display: none;}
 }
 
+html,
+body {
+	height: 100%;
+}
+
+.wrap {
+	min-height: 100%;
+	height: auto;
+	margin: 0 auto -60px;
+	padding: 0 0 60px;
+}
+
 div.title {
   font-size: 		2.0em;
   color:		#333333;
@@ -221,6 +233,7 @@ h4.sm-print {
 	font-weight: bold;
 }
 
+/*
 footer {
 	bottom: 0;
 	padding-top: 1em;
@@ -228,9 +241,13 @@ footer {
 	height: 3em;
 }
 
+ */
+
 .footer {
-	background: #ddd;
-	
+	height: 60px;
+	background-color: #f5f5f5;
+	border-top: 1px solid #ddd;
+	padding-top: 20px;
 }
 
 h1, .h1 {
@@ -303,6 +320,16 @@ table .total-border {
 
 .negative {
 	color:#8a1f11;
+}
+
+.accord-notice {
+	color: #3c763d;
+	padding-right: 1em;
+}
+
+.accord-alert {
+	color:#8a1f11;
+	padding-right: 1em;
 }
 
 .btn {
@@ -546,4 +573,7 @@ a span.loaned {
 	font-size: 12pt;
 }
 
+.field-room {
+	margin-bottom:1em;
+}
 

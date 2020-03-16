@@ -12,6 +12,7 @@ class ApplicationUiAssetBundle extends AssetBundle
 	public $js = [
 			'js/main.js',
             'js/accounting.js',
+            'js/payment.js',
 	];
 	public $depends = [
 			'yii\web\YiiAsset',

@@ -120,8 +120,7 @@ $toggle_mine_only = !$mine_only;
     			                        $action, $model, $key, $index) {
 					    			if ($action === 'view') {
 					    				$route = '/receipt-' . $model->urlQual;
-					    				$url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model->id]);
-					    				return $url;
+					    				return Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model->id]);
 					    			}
 					    			return null;
 				},

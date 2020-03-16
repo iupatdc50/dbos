@@ -7,7 +7,7 @@ use app\models\accounting\DuesAllocPickList;
 use app\models\accounting\StatusManagerDues;
 use app\models\member\OverageHistory;
 use app\models\member\RepairDuesForm;
-use app\models\member\Status;
+use Throwable;
 use Yii;
 use app\models\member\Member;
 use app\models\accounting\DuesRateFinder;
@@ -25,7 +25,6 @@ class MemberBalancesController extends Controller
     /**
      * @param $id
      * @return Response
-     * @throws Exception
      */
 	public function actionSummaryJson($id)
 	{
@@ -40,15 +39,6 @@ class MemberBalancesController extends Controller
         if (!isset($member->currentClass))
             $messages[] = 'Cannot identify rate class.  Check Class panel.';
         if (empty($messages)) {
-            $standing = new Standing(['member' => $member]);
-
-            if ($member->currentStatus->member_status == Status::OUTOFSTATE)
-                $dues_balance = number_format(0.00, 2);
-            else {
-                $rate_finder = new DuesRateFinder($member->currentStatus->lob_cd, $member->currentClass->rate_class);
-                $dues_balance = number_format($standing->getDuesBalance($rate_finder), 2);
-            }
-            $assessment_balance = number_format($standing->totalAssessmentBalance, 2);
 
             $assessProvider = new ActiveDataProvider([
                 'query' => $member->getAssessments(),
@@ -61,8 +51,6 @@ class MemberBalancesController extends Controller
 
             return $this->asJson($this->renderPartial('_balances', [
                 'member' => $member,
-                'dues_balance' => $dues_balance,
-                'assessment_balance' => $assessment_balance,
                 'assessProvider' => $assessProvider,
             ]));
         } else {
@@ -90,6 +78,7 @@ class MemberBalancesController extends Controller
      * @return array|string|Response
      * @throws InvalidConfigException
      * @throws Exception
+     * @throws Throwable
      */
     public function actionRepairDues($id)
     {
@@ -123,6 +112,7 @@ class MemberBalancesController extends Controller
             $errors = [];
             $receipt_id = null;
             foreach ($faulties as $faulty) {
+                /* @var $faulty DuesAllocPickList */
                 $alloc = $faulty->allocation;
                 $alloc->duesRateFinder = new DuesRateFinder(
                     $member->currentStatus->lob_cd,
@@ -206,6 +196,7 @@ class MemberBalancesController extends Controller
      *
      * @param Member $member
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function resetOverageHistory(Member $member)
     {

@@ -6,6 +6,10 @@ use app\models\member\Status;
 use app\models\member\Member;
 use app\models\member\Standing;
 use app\modules\admin\models\FeeType;
+use Throwable;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 
 /** @noinspection PropertiesInspection */
 
@@ -19,10 +23,11 @@ use app\modules\admin\models\FeeType;
  * @property number $allocation_amt
  *
  * @property AllocatedMember $allocatedMember
+ * @property UndoAllocation $undoAllocation
  * @property Member $member
  * @property FeeType $feeType
  */
-class BaseAllocation extends \yii\db\ActiveRecord
+class BaseAllocation extends ActiveRecord
 {
 	protected $_validationRules = [];
 	protected $_labels = [];
@@ -83,7 +88,8 @@ class BaseAllocation extends \yii\db\ActiveRecord
 
     /**
      * @return bool
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
     public function beforeDelete()
     {
@@ -96,7 +102,8 @@ class BaseAllocation extends \yii\db\ActiveRecord
 
     /**
      * @return bool
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
     public function backOutMemberStatus()
     {
@@ -116,7 +123,7 @@ class BaseAllocation extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAllocatedMember()
     {
@@ -124,7 +131,7 @@ class BaseAllocation extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMember()
     {
@@ -134,7 +141,7 @@ class BaseAllocation extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFeeType()
     {
@@ -157,7 +164,7 @@ class BaseAllocation extends \yii\db\ActiveRecord
     /**
      * Looks up Member Status entry that was produced by this allocation
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMemberStatus()
     {
