@@ -89,7 +89,8 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div>
                             <?php if(Yii::$app->user->can('createReceipt')) :?>
                             <?=
-                            Html::button('<i class="glyphicon glyphicon-usd"></i> Cash or Check', [
+//                            Html::button('<i class="glyphicon glyphicon-usd"></i> Cash or Check', [
+                            Html::button('<i class="glyphicon glyphicon-usd"></i> Create Receipt', [
                                 'class' => 'btn btn-default btn-modal',
                                 'id' => 'receiptCreateButton',
                                 'value' => Url::to(['receipt-member/create', 'lob_cd' => $model->currentStatus->lob_cd, 'id'  => $model->member_id]),
@@ -97,13 +98,15 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
                                 'title' => 'Create receipt (cash or check)',
                             ]) ?>
-                            <?= Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
+                            <?= // Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
+                            Html::button('<i class="glyphicon glyphicon-credit-card"></i> Future', [
                                 'class' => 'btn btn-default btn-modal',
                                 'id' => 'creditCardButton',
                                 'value' => Url::to(['receipt-member/credit-card', 'id'  => $model->member_id]),
                                 'data-title' => 'Credit Card',
-                                'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
-                                'title' => 'Accept credit card payment',
+//                              'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
+                                'disabled' => true,
+//                                'title' => 'Accept credit card payment',
                             ])
                             ?>
                             <?php endif; ?>
