@@ -36,6 +36,8 @@ function configStripe(pubkey) {
                 // Inform the customer that there was an error.
                 var errorElement = document.getElementById('card-errors');
                 errorElement.textContent = result.error.message;
+                btn.enabled = true;
+                btn.innerText = 'Submit Payment';
             } else {
                 // Send the token to your server.
                 stripeTokenHandler(result.token);

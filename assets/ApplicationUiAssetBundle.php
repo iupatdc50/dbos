@@ -13,6 +13,7 @@ class ApplicationUiAssetBundle extends AssetBundle
 			'js/main.js',
             'js/accounting.js',
             'js/payment.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js',
 	];
 	public $depends = [
 			'yii\web\YiiAsset',

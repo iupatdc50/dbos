@@ -25,20 +25,11 @@ use app\models\member\Member;
 use app\models\accounting\CcOtherLocal;
 use yii\data\SqlDataProvider;
 use yii\db\Exception;
-use yii\filters\Cors;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class ReceiptMemberController extends BaseController
 {
-    public function behaviors()
-    {
-        return [
-            'corsFilter' => [
-                'class' => Cors::className(),
-            ],
-        ];
-    }
 
     /**
      * Displays a single Receipt model.

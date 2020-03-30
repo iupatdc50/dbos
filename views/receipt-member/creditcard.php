@@ -10,32 +10,36 @@ use yii\helpers\Url;
 
 <div class="payment-form">
 
-    <form id="payment-form" action="<?= Url::to('/receipt-member/payment') ?>" method="post">
+    <form id="payment-form" action="<?= Url::to('/receipt-member/payment') ?>" method="post" novalidate>
         <div class="row">
             <div class="col-xs-2">
                 <label for="currency">Currency</label>
-                <input id="currency" name="currency" class="form-control field-room" value="<?= $payment_data['currency'] ?>" readonly>
+                <input id="currency" name="currency" class="form-control" value="<?= $payment_data['currency'] ?>" readonly>
             </div>
-            <div class="col-xs-10">
-                <label for="charge">Charge</label>
-                <input id="charge" name="charge" class="form-control field-room" value="<?= number_format($payment_data['charge'], 2) ?>">
+            <div class="col-xs-10 form-group">
+                <label class="control-label" for="charge">Charge</label>
+                <input id="charge" name="charge" class="form-control required number" type="number" value="<?= number_format($payment_data['charge'], 2) ?>">
             </div>
         </div>
-        <div>
-            <label for="email">Receipt Email</label>
-            <input id="email" name="email" value="<?= $payment_data['email'] ?>" class="form-control field-room" placeholder="Receipt email">
+        <br />
+        <div class="form-group">
+            <label class="control-label" for="email">Receipt Email</label>
+            <input id="email" name="email" type="email" value="<?= $payment_data['email'] ?>" class="form-control required email" placeholder="Receipt email">
         </div>
         <?php if ($payment_data['has_ccg'] == true): ?>
-            <div>
+            <br />
+            <div class="form-group">
                 <label for="other_local">Receiving Local</label>
-                <input id="other_local" name="other_local" class="form-control field-room">
+                <input id="other_local" name="other_local" class="form-control field-room digits">
             </div>
         <?php endif; ?>
         <hr>
-        <div>
+        <div class="form-group">
             <!--suppress HtmlFormInputWithoutLabel -->
-            <input id="cardholder_nm" name="cardholder_nm" class="form-control field-room" placeholder="Name on card" required>
+            <input id="cardholder_nm" name="cardholder_nm" class="form-control required" placeholder="Name on card" required>
+            <p class="help-block help-block-error"></p>
         </div>
+        <br />
 
         <input type="hidden" name="member_id" value="<?= $payment_data['member_id'] ?>">
         <input type="hidden" name="lob_cd" value="<?= $payment_data['lob_cd'] ?>">
@@ -64,7 +68,19 @@ $pubkey = Yii::$app->params['stripe'][$payment_data['lob_cd']]['publishable_key'
 
 $script = <<< JS
 
-configStripe('$pubkey');
+$(document).ready(function() {
+    configStripe('$pubkey');
+    $("#payment-form").validate({
+        errorClass: "help-block",
+        errorElement: "p",
+        highlight: function ( element ) {
+            $( element ).parents( ".form-group" ).addClass( "has-error" ).removeClass( "has-success" );
+        },
+        unhighlight: function (element) {
+            $( element ).parents( ".form-group" ).addClass( "has-success" ).removeClass( "has-error" );
+        }
+    });
+});
 
 
 JS;
