@@ -66,7 +66,8 @@ class ExcelGrid extends GridView
 		$this->initPHPExcelWriter('Excel2007');
 		$this->generateHeader();
 		$row = $this->generateBody();
-		$this->generateTotals($row);
+		if (!is_null($this->summaryCols))
+		    $this->generateTotals($row);
 		$writer = $this->_objPHPExcelWriter;
 		$this->setHttpHeaders();
 		ob_end_clean();
@@ -197,11 +198,12 @@ class ExcelGrid extends GridView
 				continue;
 			} else {
                 /* @var $column DataColumn */
-				$format = $column->format;
+//				$format = $column->format;
 				try {
 				    if ($column->content === null) {
-				        $content = $column->getDataCellValue($model, $key, $index);
-				        $value = $this->formatter->format($content, $format);
+                        $value = $column->getDataCellValue($model, $key, $index);
+//                      $content = $column->getDataCellValue($model, $key, $index);
+//				        $value = $this->formatter->format($content, $format);
                     } else {
 				        $content = $column->content;
                         $value = call_user_func($content, $model, $key, $index, $column);

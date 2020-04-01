@@ -135,6 +135,11 @@ use kartik\widgets\SideNav;
 																'url' => '/report/international',
 																'active' => (yii::$app->requestedRoute == 'report/international'),
 														],
+                                                        [
+                                                                'label' => 'Universal File',
+                                                                'url' => '/report/universal',
+                                                                'active' => (yii::$app->requestedRoute == 'report/universal'),
+                                                        ],
 														[
 																'label' => 'Payment Method Summary',
 																'url' => '/report/payment-method',
@@ -205,7 +210,7 @@ use kartik\widgets\SideNav;
 		<div class="col-sm-9">
             <?= $content; ?>
 		</div>
-	
+    </div>
 	
 
 

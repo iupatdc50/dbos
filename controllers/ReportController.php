@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\accounting\UniversalFile;
 use app\models\member\ClassCode;
 use app\models\member\Member;
 use app\models\report\CredentialForm;
+use app\models\report\UniversalFileForm;
 use app\models\training\Credential;
 use app\models\training\CurrentMemberCredential;
 use app\models\training\MemberCompliance;
@@ -14,6 +16,7 @@ use app\models\training\Standing;
 use Exception;
 use Yii;
 use yii\base\UserException;
+use yii\data\ActiveDataProvider;
 use \yii\web\Controller;
 use app\models\report\ExportCsvForm;
 use app\models\member\PacExport;
@@ -203,6 +206,20 @@ class ReportController extends Controller
 				'report_nm' => 'international',
 		]);
 	}
+
+	public function actionUniversal()
+    {
+        $model = new UniversalFileForm();
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $query = UniversalFile::find()->where(['acct_month' => $model->acct_month])->orderBy(['N' => SORT_ASC, 'O' => SORT_ASC, 'M' => SORT_ASC]);
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false,
+            ]);
+            return $this->renderPartial('universal-template', ['dataProvider' => $dataProvider]);
+        }
+        return $this->render('universal-criteria', ['model' => $model]);
+    }
 	
 	public function actionPaymentMethod()
 	{
