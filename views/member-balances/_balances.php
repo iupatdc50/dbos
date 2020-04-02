@@ -49,7 +49,7 @@ use yii\helpers\Url;
 	   <?php endif; ?>
 	   <tr class="total-border">
 			<th class="right">Total Due</th>
-			<td class="right<?= $member->allBalance->total_due > 0 ? ' td-danger' : ''; ?>"><?= number_format($member->allBalance->total_due - $member->overage, 2) ?></td>
+			<td class="right<?= $member->allBalance->total_due > 0 ? ' td-danger' : ''; ?>"><?= number_format($member->allBalance->total_due, 2) ?></td>
 	   </tr>
 	   
 	</tbody></table>

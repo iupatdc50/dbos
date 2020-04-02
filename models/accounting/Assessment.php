@@ -3,6 +3,10 @@
 namespace app\models\accounting;
 
 use app\modules\admin\models\FeeType;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use app\models\member\Member;
 use app\models\user\User;
@@ -23,8 +27,10 @@ use app\models\user\User;
  * @property FeeType $feeType
  * @property User $createdBy
  * @property string $months [decimal(7,2)]
+ * @property string $totalAllocated [decimal(7,2)]
+ * @property string $balance [decimal(7,2)]
  */
-class Assessment extends \yii\db\ActiveRecord
+class Assessment extends ActiveRecord
 {
 
 	protected $_validationRules = [];
@@ -41,8 +47,8 @@ class Assessment extends \yii\db\ActiveRecord
 	public function behaviors()
 	{
 		return [
-				['class' => \yii\behaviors\TimestampBehavior::className(), 'updatedAtAttribute' => false],
-				['class' => \yii\behaviors\BlameableBehavior::className(), 'updatedByAttribute' => false],
+				['class' => TimestampBehavior::className(), 'updatedAtAttribute' => false],
+				['class' => BlameableBehavior::className(), 'updatedByAttribute' => false],
 		];
 	}
 
@@ -87,7 +93,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getTotalAllocated()
     {
@@ -95,7 +101,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAllocatedPayments()
     {
@@ -109,7 +115,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getMember()
     {
@@ -117,7 +123,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFeeType()
     {
@@ -130,7 +136,7 @@ class Assessment extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCreatedBy()
     {

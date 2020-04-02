@@ -3,9 +3,11 @@
 namespace app\models\accounting;
 
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\base\Model;
 use app\models\member\Standing;
 use app\modules\admin\models\FeeType;
+use yii\db\Exception;
 
 class AllocationBuilder extends Model
 {
@@ -20,8 +22,8 @@ class AllocationBuilder extends Model
      * @param AllocatedMember $memb Member to which the allocations will apply
      * @param array $fee_types Allocation fee types to be generated
      * @return string|boolean
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      */
 	public function prepareAllocs(AllocatedMember $memb, $fee_types = [])
 	{
@@ -34,7 +36,7 @@ class AllocationBuilder extends Model
 								isset($memb->member->currentClass) ? $memb->member->currentClass->rate_class : 'R'
 						),
 				]);
-				$alloc->allocation_amt = $alloc->estimateOwed();
+				$alloc->allocation_amt = $alloc->estimateOwed() - $memb->member->overage;
 			} else {
 				$alloc = new AssessmentAllocation([
 						'alloc_memb_id' => $memb->id,

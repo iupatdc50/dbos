@@ -79,10 +79,12 @@ class ReceiptMember extends Receipt
      */
     public function closeInProgressTrans()
     {
-        $transaction = $this->transaction;
-        if ($transaction->dbos_status == Transaction::DBOS_INPROGRESS) {
-            $transaction->dbos_status = Transaction::DBOS_COMPLETED;
-            $transaction->save();
+        if (isset($this->transaction)) {
+            $transaction = $this->transaction;
+            if ($transaction->dbos_status == Transaction::DBOS_INPROGRESS) {
+                $transaction->dbos_status = Transaction::DBOS_COMPLETED;
+                $transaction->save();
+            }
         }
     }
 

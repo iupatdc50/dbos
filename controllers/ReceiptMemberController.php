@@ -221,7 +221,7 @@ class ReceiptMemberController extends BaseController
 
 		if (!isset($model->received_amt) && isset($modelMember->member_id)) {
 		    $member = $modelMember->member;
-            $model->received_amt = number_format($member->allBalance->total_due - $member->overage, 2);
+            $model->received_amt = number_format($member->allBalance->total_due, 2);
         }
 
 		if (Yii::$app->request->isAjax)
