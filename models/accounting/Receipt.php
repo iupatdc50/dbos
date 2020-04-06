@@ -60,6 +60,7 @@ class Receipt extends ActiveRecord
 	CONST METHOD_CASH = '1';
 	CONST METHOD_CHECK = '2';
 	CONST METHOD_CREDIT = '3';
+	CONST METHOD_WAIVER = '4';
 
 	CONST PAYOR_CONTRACTOR = 'C';
 	CONST PAYOR_MEMBER = 'M';
@@ -111,6 +112,7 @@ class Receipt extends ActiveRecord
     			self::METHOD_CASH,
     			self::METHOD_CHECK,
     			self::METHOD_CREDIT,
+                self::METHOD_WAIVER,
     	];
     }
     
@@ -278,6 +280,7 @@ class Receipt extends ActiveRecord
     			self::METHOD_CASH => 'Cash',
     			self::METHOD_CHECK => 'Check',
     			self::METHOD_CREDIT => 'Credit',
+                self::METHOD_WAIVER => 'Waiver',
     	];
     }
     

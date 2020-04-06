@@ -165,6 +165,7 @@ class ReceiptMember extends Receipt
                 if ($allocs_ok) {
                     // Put the receipt in unposted mode
                     try {
+                        $receipt->makeUndo($receipt);
                         $transaction->commit();
                         return $receipt->id;
                     } catch (Exception $e) {
