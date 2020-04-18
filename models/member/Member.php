@@ -3,6 +3,7 @@
 namespace app\models\member;
 
 use app\models\accounting\DuesAllocation;
+use app\models\base\iDemographicInterface;
 use app\models\base\iIdInterface;
 use app\models\training\WorkHoursSummary;
 use app\models\training\WorkProcess;
@@ -60,7 +61,9 @@ use yii\db\Exception;
  *
  * @property string $fullName
  * @property Phone[] $phones
+ * @property PhoneDefault $phoneDefault
  * @property Address[] $addresses
+ * @property AddressDefault $addressDefault
  * @property Address $mailingAddress
  * @property Email[] $emails
  * @property Specialty[] $specialties
@@ -89,7 +92,7 @@ use yii\db\Exception;
  * @property MemberLogin $enrolledOnline
  *
  */
-class Member extends ActiveRecord implements iNotableInterface
+class Member extends ActiveRecord implements iNotableInterface, iDemographicInterface
 {
 	CONST UNCHECKED = 0;
 	CONST CHECKED = 1;
@@ -178,7 +181,6 @@ class Member extends ActiveRecord implements iNotableInterface
      */
     public static function listAll($search)
     {
-    	/* @var Query $query */
     	$query = new Query;
     	$query->select('member_id as id, full_nm as text')
     		->from('MemberPickList')
@@ -208,7 +210,6 @@ class Member extends ActiveRecord implements iNotableInterface
      */
     public static function listSsnAll($search)
     {
-        /* @var Query $query */
         $query = new Query;
         $query->select('member_id as id, full_nm as text')
             ->from('MemberSsnPickList')
@@ -498,7 +499,7 @@ class Member extends ActiveRecord implements iNotableInterface
     public function getSize()
     {
     	return $this->hasOne(Size::className(), ['size_cd' => 'shirt_size']);
-    } 
+    }
 
     /**
      * @return ActiveQuery

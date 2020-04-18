@@ -16,6 +16,8 @@ use yii\db\ActiveRecord;
  */
 class PhoneDefault extends ActiveRecord
 {
+    public $relationAttribute = 'member_id';
+
     /**
      * @inheritdoc
      */
@@ -29,11 +31,12 @@ class PhoneDefault extends ActiveRecord
      */
     public function rules()
     {
-        return [
-            [['member_id', 'phone_id'], 'required'],
-            [['phone_id'], 'integer'],
+        return  [
+            ['member_id', 'required'],
             [['member_id'], 'string', 'max' => 11],
             [['member_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['member_id' => 'member_id']],
+            ['phone_id', 'required'],
+            ['phone_id', 'integer'],
             [['phone_id'], 'exist', 'skipOnError' => true, 'targetClass' => Phone::className(), 'targetAttribute' => ['phone_id' => 'id']],
         ];
     }
@@ -60,8 +63,26 @@ class PhoneDefault extends ActiveRecord
     /**
      * @return ActiveQuery
      */
+    public function getAggregate()
+    {
+        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getIsDefault()
+    {
+        return $this->hasOne(PhoneDefault::className(), ['phone_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getPhone()
     {
         return $this->hasOne(Phone::className(), ['id' => 'phone_id']);
     }
+
+
 }

@@ -77,7 +77,8 @@ abstract class BasePhone extends ActiveRecord
    public function beforeDelete()
     {
     	if (parent::beforeDelete()) {
-	    	if ($this->isDefault) {
+            /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+            if ($this->isDefault) {
 	    		Yii::$app->session->addFlash('error', 'Cannot delete default phone');
 	    		return false;
 	    	}
@@ -90,7 +91,8 @@ abstract class BasePhone extends ActiveRecord
     {
     	parent::afterSave($insert, $changedAttributes);
         if ($this->set_as_default) {
-    		$default = $this->getAggregate()->phoneDefault;
+            /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+            $default = $this->aggregate->phoneDefault;
     		if (!isset($default))
     			$default = $this->createDefaultObj();
     		if (!$this->makeDefault($default)) {
@@ -100,15 +102,10 @@ abstract class BasePhone extends ActiveRecord
     	}
     }
 
-    /**
-     * @param $default
-     * @return mixed
-     */
     public function makeDefault($default)
     {
     	$default->{$this->relationAttribute} = $this->{$this->relationAttribute};
     	$default->phone_id = $this->id;
-        /** @noinspection PhpUndefinedMethodInspection */
         return $default->save();
     }
 
