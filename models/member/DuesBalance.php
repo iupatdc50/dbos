@@ -2,6 +2,7 @@
 
 namespace app\models\member;
 
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -9,6 +10,8 @@ use yii\db\ActiveRecord;
  *
  * @property string $member_id
  * @property float|null $balance_amt
+ *
+ * @property Member $member
  */
 class DuesBalance extends ActiveRecord
 {
@@ -35,4 +38,13 @@ class DuesBalance extends ActiveRecord
             'balance_amt' => 'Dues Balance',
         ];
     }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getMember()
+    {
+        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+    }
+
 }

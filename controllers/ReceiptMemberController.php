@@ -73,7 +73,7 @@ class ReceiptMemberController extends BaseController
             'currency' => 'usd',
             'charge' => Yii::$app->formatter->asDecimal($total_due, 2),
             'email' => isset($member->emails[0]) ? $member->emails[0]->email : null,
-            'has_ccg' => $member->ccgBalanceCount > 0 ? true : false,
+            'has_ccg' => $member->ccgBalanceCount > 0,
         ];
 
         return $this->renderAjax('creditcard', ['payment_data' => $payment_data]);
@@ -142,7 +142,8 @@ class ReceiptMemberController extends BaseController
                 ]);
                 $transaction->save();
                 $db_trans->commit();
-                return $this->redirect(['itemize', 'id' => $receipt_id]);
+                // Forces user to manually post
+                return $this->redirect(['update', 'id' => $receipt_id]);
             }
 
             $db_trans->rollBack();

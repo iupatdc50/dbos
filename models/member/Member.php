@@ -58,6 +58,7 @@ use yii\db\Exception;
  * @property string $drug_test_dt
  * @property number $overage
  * @property string $card_id [varchar(20)]
+ * @property string $nick_nm [varchar(30)]
  *
  * @property string $fullName
  * @property Phone[] $phones
@@ -88,6 +89,7 @@ use yii\db\Exception;
  * @property string $imagePath
  * @property string $imageUrl
  * @property string $genderText
+ * @property array $sizeOptions
  * @property OpDate $today
  * @property MemberLogin $enrolledOnline
  *
@@ -259,7 +261,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	[['shirt_size'], 'exist', 'targetClass' => Size::className(), 'targetAttribute' => 'size_cd'],
             [['photo_id'], 'string', 'max' => 20],
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
-        	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id'], 'default'],
+        	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id', 'nick_nm'], 'default'],
             ['overage', 'default', 'value' => 0.00],
         	[['ssnumber', 'imse_id', 'ncfs_id'], 'unique'],
             [['exempt_apf', 'wage_percent'], 'safe'],
@@ -303,6 +305,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	'drug_test_dt' => 'Last Drug Test',
         	'exempt_apf' => 'Exempt APF?',
         	'overage' => 'Overage',
+            'nick_nm' => 'Nick Name'
         ];
     }
     
@@ -510,7 +513,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     		->from(Status::tableName() . ' St')
     		->where('St.end_dt IS NULL');
     }
-    
+
     /**
      * Query for a grant in-svc status that would forgive qualifying dues during that period
      * Status must effective after member's current dues paid thru date
@@ -737,7 +740,8 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     {
     	$full_nm = $this->last_nm . ', ' . $this->first_nm . 
     	       (isset($this->middle_inits) ? ' ' . $this->middle_inits : '') .
-    	       (isset($this->suffix) ? ', ' .$this->suffix : '')
+    	       (isset($this->suffix) ? ', ' .$this->suffix : '') .
+               (isset($this->nick_nm) ? ' `' . $this->nick_nm . '`' : '')
     	;
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == Status::STUB))
     		$full_nm .= ' [Stub]';

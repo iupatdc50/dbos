@@ -124,7 +124,6 @@ class ReceiptMember extends Receipt
             'updated_at' => $charge->created,
         ]);
 
-        $transaction = Yii::$app->db->beginTransaction();
         if ($receipt->save()) {
             $alloc_memb = new AllocatedMember([
                 'receipt_id' => $receipt->id,
@@ -165,8 +164,7 @@ class ReceiptMember extends Receipt
                 if ($allocs_ok) {
                     // Put the receipt in unposted mode
                     try {
-                        $receipt->makeUndo($receipt);
-                        $transaction->commit();
+                        $receipt->makeUndo($receipt->id);
                         return $receipt->id;
                     } catch (Exception $e) {
                         Yii::error('*** RM010: Unable to stage receipt. Error(s) ' . print_r ($e->errorInfo, true));
@@ -178,7 +176,6 @@ class ReceiptMember extends Receipt
             Yii::error('*** RM020: Unable to stage receipt. Error(s) ' . print_r ($receipt->errors, true));
             Yii::$app->session->addFlash('error', 'Problem with post. Please contact support.  Error: `RM020`');
         }
-        $transaction->rollBack();
         return false;
     }
 

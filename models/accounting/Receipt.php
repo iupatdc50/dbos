@@ -318,7 +318,7 @@ class Receipt extends ActiveRecord
     		throw new yii\base\InvalidConfigException('Unknown remittable filter field');
         if(!isset($this->lob_cd))
             throw new yii\base\InvalidConfigException('Missing LOB field');
-    	return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $this->lob_cd, $this->_remit_filter => 'T'])->orderBy('seq')->all(), 'fee_type', 'descrip');
+        return ArrayHelper::map(TradeFeeType::find()->where(['lob_cd' => $this->lob_cd, $this->_remit_filter => 'T'])->orderBy('seq')->all(), 'fee_type', 'descrip');
     }
 
     /**
@@ -485,7 +485,7 @@ class Receipt extends ActiveRecord
      * already existing hold copy.  If there are any member status records that are connected to the
      * receipt's allocation, these are backed up, also.
      *
-     * @param $undo_id receipt id
+     * @param $undo_id int receipt id
      * @throws \yii\db\Exception
      */
     public function makeUndo($undo_id)
@@ -498,7 +498,7 @@ class Receipt extends ActiveRecord
      * Calls a stored to procedure to restore the original receipt that was in the process of updating.
      * It also restores any status records connnected to the receipt.
      *
-     * @param $undo_id receipt id
+     * @param $undo_id int receipt id
      * @throws \yii\db\Exception
      */
     public function cancelUpdate($undo_id)

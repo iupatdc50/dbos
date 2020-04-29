@@ -1,6 +1,14 @@
 <?php
+/** @noinspection PhpIncludeInspection */
+
+use yii\log\EmailTarget;
+use yii\log\Logger;
+
 return [
-		
+                'cache' => [
+                    'class' => 'yii\caching\MemCache',
+                    'useMemcached' => true,
+                ],
 				'db' => require(__DIR__ . (YII_ENV_TEST ? '/db-test.php' : '/db.php')),
 				'urlManager' => [
 						'enablePrettyUrl' => true,
@@ -33,8 +41,8 @@ return [
 										'levels' => YII_DEBUG ? ['trace', 'info', 'warning', 'error'] : ['warning', 'error'],
 								],
 								'problems' => [
-										'class' => \yii\log\EmailTarget::className(),
-										'levels' => \yii\log\Logger::LEVEL_ERROR,
+										'class' => EmailTarget::className(),
+										'levels' => Logger::LEVEL_ERROR,
 										'message' => [
 												'to' => 'support@dc50.org'
 										]

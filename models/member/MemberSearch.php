@@ -102,7 +102,8 @@ class MemberSearch extends Member
         	->andFilterWhere([
         			'or', 
         			['like', 'last_nm', $this->fullName], 
-        			['like', 'first_nm', $this->fullName], 
+        			['like', 'first_nm', $this->fullName],
+        			['like', 'nick_nm', $this->fullName],
         			[Member::tableName() . '.member_id' => $this->fullName],
         	])
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])

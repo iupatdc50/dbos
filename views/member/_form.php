@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Member data entry form partial
@@ -6,8 +6,8 @@
  * On create, a single address and single phone may be entered.
  */
 
+use yii\db\ActiveQuery;
 use yii\helpers\Html;
-use yii\helpers\ArrayHelper;
 use kartik\form\ActiveForm;
 use kartik\datecontrol\DateControl;
 use kartik\widgets\FileInput;
@@ -17,13 +17,13 @@ use app\helpers\OptionHelper;
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
 /* @var $modelAddress app\models\member\Address */
-/* @var $modelsAddress \yii\db\ActiveQuery */
+/* @var $modelsAddress ActiveQuery */
 /* @var $modelPhone app\models\member\Phone */
-/* @var $modelsPhone \yii\db\ActiveQuery */
-/* @var $modelEmail \yii\db\ActiveQuery */
-/* @var $modelsEmail \yii\db\ActiveQuery */
-/* @var $modelStatus \yii\db\ActiveQuery */
-/* @var $modelsSpecialty \yii\db\ActiveQuery */
+/* @var $modelsPhone ActiveQuery */
+/* @var $modelEmail ActiveQuery */
+/* @var $modelsEmail ActiveQuery */
+/* @var $modelStatus ActiveQuery */
+/* @var $modelsSpecialty ActiveQuery */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -64,8 +64,10 @@ use app\helpers\OptionHelper;
 
     <?= $form->field($model, 'suffix')->textInput(['maxlength' => 7]) ?>
 
+    <?= $form->field($model, 'nick_nm')->textInput(['maxlength' => 30]) ?>
+
     <?= $form->field($model, 'birth_dt')->widget(DateControl::className(), [
-    		'type' => DateControl::FORMAT_DATE,
+        'type' => DateControl::FORMAT_DATE,
     ])  ?>
 
     <?= $form->field($model, 'gender')->widget(Select2::className(), [
@@ -166,7 +168,7 @@ function toggle(pac) {
 	} else {
 		$('#ncfslbl').hide();
 		$('#ncfsid').hide();
-	};
+	}
 }
 
 JS;

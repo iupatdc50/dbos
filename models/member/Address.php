@@ -2,16 +2,16 @@
 
 namespace app\models\member;
 
-use Yii;
 use app\models\base\BaseAddress;
 use app\helpers\OptionHelper;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "MemberAddresses".
  *
  * @property string $member_id
  *
- * @property Member $member
+ * @property Member $aggregate
  */
 
 class Address extends BaseAddress
@@ -57,7 +57,7 @@ class Address extends BaseAddress
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAggregate()
     {
@@ -73,7 +73,7 @@ class Address extends BaseAddress
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getIsDefault()
     {

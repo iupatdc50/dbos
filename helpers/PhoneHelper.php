@@ -2,8 +2,6 @@
 
 namespace app\helpers;
 
-use Yii;
-
 class PhoneHelper
 {
 	const LOCAL_AREA_CODE = '808-';
@@ -23,7 +21,7 @@ class PhoneHelper
 				return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1-$2-$3", $sanitized);
 				break;
 			case 11:
-				return preg_replace("/([0-9]{1})([0-9]{3})([0-9]{3})([0-9]{4})/", "$2-$3-$4", $sanitized);
+				return preg_replace("/([0-9])([0-9]{3})([0-9]{3})([0-9]{4})/", "$2-$3-$4", $sanitized);
 				break;
 			default:
 				return $phone;
