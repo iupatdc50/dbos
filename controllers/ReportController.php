@@ -219,7 +219,15 @@ class ReportController extends Controller
     {
         $model = new UniversalFileForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $query = UniversalFile::find()->where(['acct_month' => $model->acct_month])->orderBy(['N' => SORT_ASC, 'O' => SORT_ASC, 'M' => SORT_ASC]);
+            $query = UniversalFile::find()->where(['acct_month' => $model->acct_month])
+                                          ->orderBy([
+                                              'C' => SORT_ASC,
+                                              'received_dt' => SORT_ASC,
+                                              'B' => SORT_ASC,
+                                              'hd' => SORT_ASC,
+                                              'N' => SORT_ASC,
+                                              'O' => SORT_ASC,
+                                          ]);
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
                 'pagination' => false,
