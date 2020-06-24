@@ -59,6 +59,12 @@ class ReceiptMemberController extends BaseController
     	return $this->render('view', compact('model', 'allocProvider'));
     }
 
+    /**
+     * Stages credit card payment dialog
+     *
+     * @param $id string Member ID
+     * @return string
+     */
     public function actionCreditCard($id)
     {
         $member = Member::findOne($id);
@@ -71,8 +77,9 @@ class ReceiptMemberController extends BaseController
             'member_id' => $member->member_id,
             'lob_cd' => $member->currentStatus->lob_cd,
             'currency' => 'usd',
-            'charge' => Yii::$app->formatter->asDecimal($total_due, 2),
+            'charge' => $total_due,
             'email' => isset($member->emails[0]) ? $member->emails[0]->email : null,
+            'cardholder_nm' => $member->first_nm . ' ' . $member->last_nm,
             'has_ccg' => $member->ccgBalanceCount > 0,
         ];
 
@@ -80,6 +87,8 @@ class ReceiptMemberController extends BaseController
     }
 
     /**
+     * Processes credit card payment and builds an unposted receipt
+     *
      * @return Response
      * @throws Exception
      * @noinspection PhpRedundantCatchClauseInspection
@@ -127,7 +136,8 @@ class ReceiptMemberController extends BaseController
                 'metadata' => ['tracking' => $tracking, 'trade' => $member->currentStatus->lob_cd],
             ]);
 
-            if (($receipt_id = ReceiptMember::makeUnposted($post, $customer, $charge)) != false) {
+            $receipt = new ReceiptMember();
+            if (($receipt_id = $receipt->makeUnposted($post, $customer, $charge)) != false) {
                 $transaction = new Transaction([
                     'transaction_id' => $charge->id,
                     'customer_id' => $customer->id,
@@ -218,8 +228,6 @@ class ReceiptMemberController extends BaseController
 			}
 		} 
 		
-		$this->initCreate($model);
-
 		if (!isset($model->received_amt) && isset($modelMember->member_id)) {
 		    $member = $modelMember->member;
             $model->received_amt = number_format($member->allBalance->total_due, 2);

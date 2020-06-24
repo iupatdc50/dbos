@@ -48,6 +48,7 @@ use app\components\utilities\OpDate;
  * @property DuesAllocation[] $duesAllocations
  * @property User $createdBy
  * @property User $updatedBy
+ * @property UndoReceipt $undoReceipt
  * @property string $totalAllocation [decimal(7,2)]
  * @property string $outOfBalance [decimal(7,2)]
  * @property OpDate $today
@@ -204,6 +205,19 @@ class Receipt extends ActiveRecord
         return array_merge($this->_labels, $common_labels);
     }
 
+    public function init()
+    {
+        if ($this->scenario == self::SCENARIO_CREATE) {
+            if (!isset($this->received_dt)) {
+                $today = $this->today;
+                $this->received_dt = $today->getMySqlDate();
+                if (!isset($this->acct_month))
+                    $this->acct_month = $today->getYearMonth();
+            }
+
+        }
+    }
+
     public function validateReceivedDt($attribute, /** @noinspection PhpUnusedParameterInspection */
                                        $params)
     {
@@ -226,14 +240,6 @@ class Receipt extends ActiveRecord
 		}
 		return false;
 	}
-
-    /**
-     * Closes outstanding in progress credit card transaction
-     */
-    public function closeInProgressTrans()
-    {
-        // stub
-    }
 
     /**
      * @return ActiveQuery
@@ -399,6 +405,14 @@ class Receipt extends ActiveRecord
     		->via('allocatedMembers')
     	;
     }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUndoReceipt()
+    {
+        return $this->hasOne(UndoReceipt::className(), ['id' => 'id']);
+    }
     
     /**
      * Fetch spreadsheet file name with complete path (FQDN)
@@ -508,19 +522,21 @@ class Receipt extends ActiveRecord
     }
 
     /**
-     * @param $id
      * @throws \yii\db\Exception
      */
-    public function cleanup($id)
+    public function cleanup()
     {
-        $db = Yii::$app->db;
-        $db->createCommand("CALL RemoveUndoReceipt (:undo_id)", [':undo_id' => $id])->execute();
+        if ($this->isUpdating()) {
+            $db = Yii::$app->db;
+            $db->createCommand("CALL RemoveUndoReceipt (:undo_id)", [':undo_id' => $this->id])->execute();
+        }
     }
 
     public function isUpdating()
     {
-        $result = UndoReceipt::findOne($this->id);
-        return (!is_null($result));
+        return isset($this->undoReceipt);
+//        $result = UndoReceipt::findOne($this->id);
+//        return (!is_null($result));
     }
 
     public function dependenciesUpdated()

@@ -210,6 +210,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
                 Breadcrumbs::widget([
 		            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 		        ]) ?>
+                <?php
+                foreach (Yii::$app->session->getAllFlashes() as $key => $messages) {
+                    $message = (is_array($messages)) ? implode(', ', $messages) : $messages;
+                    echo '<div class="flash-' . $key . '">' . $message . '</div>';
+                } ?>
 				<?= $content; ?>
 			</div>
 			

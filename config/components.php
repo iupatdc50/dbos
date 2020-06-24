@@ -22,11 +22,12 @@ return [
 						'dateFormat' => 'php:m/d/Y',
 						'datetimeFormat' => 'php: M d, Y h:i a',
 				],
-				'mail' => [
+				'mailer' => [
 						'class' => yii\swiftmailer\Mailer::className(),
+                        'useFileTransport' => false,
 						'messageConfig' => [
 								'charset' => 'UTF-8',
-								'from' => 'dbosadmin@objectpac.com',
+								'from' => 'no-reply@dc50.org',
 						],
 						'transport' => [
 								'class' => 'Swift_MailTransport',

@@ -2,6 +2,8 @@
 
 namespace app\models\member;
 
+use http\Exception\BadMethodCallException;
+use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use app\models\value\Lob;
@@ -141,5 +143,32 @@ class Status extends BaseEndable
     {
     	return ArrayHelper::map(StatusCode::find()->orderBy('member_status_cd')->all(), 'member_status_cd', 'descrip');
     }
-    
+
+    /**
+     * Generate member status for reinstate.  If successful, APF dates on member record are
+     * moved forward. Assumes that effective_dt is set.
+     *
+     * @param Member $member
+     * @param bool $reset_init  Makes init_dt, application_dt current
+     * @return bool
+     */
+    public function makeReinstate (Member $member, $reset_init = true)
+    {
+        if (!isset($this->effective_dt)) {
+            Yii::error('*** MST010 Missing effective date');
+            throw new BadMethodCallException('Missing effective_dt');
+        }
+        $this->member_status = self::ACTIVE;
+        $this->reason = self::REASON_REINST;
+        if ($member->addStatus($this)) {
+            if ($reset_init) {
+                $member->init_dt = $this->effective_dt;
+                $member->application_dt = $this->effective_dt;
+                $member->save();
+            }
+        }
+        return true;
+
+    }
+
 }

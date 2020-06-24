@@ -9,6 +9,7 @@ use app\models\training\WorkHoursSummary;
 use app\models\training\WorkProcess;
 use app\models\ZipCode;
 use BadMethodCallException;
+use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -70,10 +71,12 @@ use yii\db\Exception;
  * @property Specialty[] $specialties
  * @property Status[] $statuses
  * @property Status $currentStatus
+ * @property MemberReinstateStaged $reinstateStaged
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
  * @property Classification $classification
  * @property CurrentEmployment $employer
+ * @property Employment $employerActive
  * @property DuesBalance $duesBalance
  * @property FeeBalance[] $feeBalances
  * @property integer $ccgBalanceCount
@@ -515,6 +518,40 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     }
 
     /**
+     * @param MemberReinstateStaged $stage
+     */
+    public function addReinstateStaged(MemberReinstateStaged $stage)
+    {
+        $stage->member_id = $this->member_id;
+        $stage->save();
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getReinstateStaged()
+    {
+        return $this->hasOne(MemberReinstateStaged::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function removeReinstateStaged()
+    {
+        if (isset($this->reinstateStaged)) {
+            try {
+                $this->reinstateStaged->delete();
+            } catch (Throwable $e) {
+                Yii::error("*** ME020 Reinstate stage for member `{$this->member_id}` {$this->fullName} could not be deleted.  Error(s): " . print_r($this->reinstateStaged->errors, true));
+                Yii::$app->session->addFlash('error', 'Unable to complete transaction [Code: ME020]');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Query for a grant in-svc status that would forgive qualifying dues during that period
      * Status must effective after member's current dues paid thru date
      * 
@@ -554,6 +591,8 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	if (!($status instanceof Status))
     		throw new BadMethodCallException('Not an instance of MemberStatus');
     	$status->member_id = $this->member_id;
+    	if (!isset($status->effective_dt))
+    	    $status->effective_dt = $this->getToday()->getMySqlDate();
     	if (!isset($status->lob_cd)) {
     		if (!isset($this->currentStatus))
     			throw new BadMethodCallException('No local can be determined for new Status');
@@ -869,17 +908,18 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	$birth_dt = new OpDate();
     	return $birth_dt->setFromMySql($this->birth_dt)->diff($this->today)->format('%y');
     }
-    
+
     /**
-     * Starting dues paid thru date is based on the application date.  When on or 
-     * prior to the 20th, the starting paid thru is the end of the previous month.
+     * Starting dues paid thru date is based on the application date, but can be overridden by current
+     * date.  When on or prior to the 20th, the starting paid thru is the end of the previous month.
      * Otherwise it is the end of the current month.
-     *  
+     *
+     * @param bool $use_current   If true, use today's date instead of application date
      * @return OpDate
      */
-    public function getDuesStartDt()
+    public function getDuesStartDt($use_current = false)
     {
-    	$dt = clone $this->getApplicationDtObject();
+    	$dt = $use_current ? $this->getToday() : clone $this->getApplicationDtObject();
     	if ($dt->getDay() > self::CUTOFF_DAY)
     		$dt->modify('+1 month');
     	$dt->setDate($dt->getYear(), $dt->getMonth(), 1);
@@ -939,7 +979,9 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     				$result = true;
     			}
     			*/
-    		}
+    		} elseif (isset($this->reinstateStaged))
+                $result = ($this->reinstateStaged->reinstate_type == ReinstateForm::TYPE_APF) || ($this->reinstateStaged->reinstate_type == ReinstateForm::TYPE_WAIVE);
+
     	}
     	return $result;
     }
@@ -958,14 +1000,20 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     {
     	return $this->hasMany(Assessment::classname(), ['member_id' => 'member_id']);	
     }
-    
-    public function addAssessment(Assessment $class, /** @noinspection PhpUnusedParameterInspection */
-                                  $config = [])
+
+    /**
+     * @param Assessment $class
+     * @return bool
+     * @throws \yii\base\Exception
+     */
+    public function addAssessment(Assessment $class)
     {
     	if (!($class instanceof Assessment))
     		throw new BadMethodCallException('Not an instance of Assessment');
     	$class->member_id = $this->member_id;
-    	return $class->save(); 
+    	if ($class->validate())
+    	    return $class->save();
+    	throw new \yii\base\Exception('Invalid Assessment.  Errors: ' . print_r($class->errors, true));
     }
     
     /**
@@ -991,6 +1039,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	$init = InitFee::findOne([
     			'lob_cd' => $this->currentStatus->lob_cd,
     			'member_class' => $this->currentClass->member_class,
+                'end_dt' => null,
     	]);
     	if (!is_null($init)) {
 	    	$amount = $init->getAssessmentAmount($this->getRateFinder());
@@ -1061,6 +1110,8 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      */
     public function estimateDuesOwed($apf_only = false)
     {
+        if (isset($this->reinstateStaged))
+            return $this->reinstateStaged->dues_owed_amt;
         $standing = $this->getStanding($apf_only);
         return $standing->getDuesBalance($this->getRateFinder());
     }

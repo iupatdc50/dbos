@@ -3,9 +3,7 @@
 namespace app\models\accounting;
 
 use yii\base\Model;
-use app\models\accounting\Assessment;
 use app\models\user\User;
-use Yii;
 
 class WaiveAssessmentForm extends Model
 {

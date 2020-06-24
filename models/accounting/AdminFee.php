@@ -2,7 +2,9 @@
 
 namespace app\models\accounting;
 
-use Yii;
+use app\modules\admin\models\FeeType;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "AdminFees".
@@ -12,9 +14,9 @@ use Yii;
  * @property string $end_dt
  * @property string $fee
  *
- * @property FeeTypes $feeType
+ * @property FeeType $feeType
  */
-class AdminFee extends \yii\db\ActiveRecord
+class AdminFee extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -23,27 +25,22 @@ class AdminFee extends \yii\db\ActiveRecord
     {
         return 'AdminFees';
     }
-    
-	/**
-	 * Return any preset admin fee that matches the fee type
-	 * 
-	 * @param string $fee_type
-	 * @param string $date  MySQL format 
-	 */
+
+    /**
+     * Return any preset admin fee that matches the fee type
+     *
+     * @param string $fee_type
+     * @param string $date MySQL format
+     * @return false|string|null
+     */
     public static function getFee($fee_type, $date)
     {
-    	$sql = "SELECT fee FROM " . self::tableName() .
-    	"  WHERE fee_type = :fee_type
-    				AND effective_dt <= :date
-    				AND (end_dt IS NULL OR end_dt >= :date)
-    			;";
-    	$db = yii::$app->db;
-    	$cmd = $db->createCommand($sql)
-    	->bindValues([
-    			':fee_type' => $fee_type,
-    			':date' => $date,
-    	]);
-    	return $cmd->queryScalar();
+        return self::find()->select('fee')
+                           ->where(['fee_type' => $fee_type])
+                           ->andWhere(['<=', 'effective_dt', $date])
+                           ->andWhere(['or', ['end_dt' => null], ['>=', 'end_dt', $date]])
+                           ->scalar()
+        ;
     }
 
     /**
@@ -56,7 +53,7 @@ class AdminFee extends \yii\db\ActiveRecord
             [['effective_dt', 'end_dt'], 'safe'],
             [['fee'], 'number'],
             [['fee_type'], 'string', 'max' => 2],
-            [['fee_type'], 'exist', 'skipOnError' => true, 'targetClass' => FeeTypes::className(), 'targetAttribute' => ['fee_type' => 'fee_type']],
+            [['fee_type'], 'exist', 'skipOnError' => true, 'targetClass' => FeeType::className(), 'targetAttribute' => ['fee_type' => 'fee_type']],
         ];
     }
 
@@ -74,10 +71,10 @@ class AdminFee extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFeeType()
     {
-        return $this->hasOne(FeeTypes::className(), ['fee_type' => 'fee_type']);
+        return $this->hasOne(FeeType::className(), ['fee_type' => 'fee_type']);
     }
 }

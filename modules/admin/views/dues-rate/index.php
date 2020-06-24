@@ -9,10 +9,16 @@ use kartik\grid\GridView;
 /* @var $searchModel app\models\accounting\DuesRateSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $lobPicklist array */
+/* @var $token bool|false|string */
 
 $this->title = 'Dues Rates';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+
+<?php if($token): ?>
+    <div class="flash-error"><div class="pull-right"><?= Html::a('Refresh Fee Calendar Now', ["/admin/fee-calendar/refresh"], ['class' => 'btn btn-danger btn-embedded']) ?></div><div><?= $token ?></div></div>
+<?php endif; ?>
+
 <div class="dues-rate-index">
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>

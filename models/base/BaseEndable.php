@@ -72,7 +72,6 @@ class BaseEndable extends ActiveRecord
      */
 	protected function closePrevious()
 	{
-		/* @var $end_dt OpDate */
         $end_dt = (new OpDate())->setFromMySql($this->effective_dt)->sub(new DateInterval('P1D'));
         $condition = $this->buildQualClause();
 		$condition .= " AND end_dt IS NULL AND effective_dt < '{$this->effective_dt}'";

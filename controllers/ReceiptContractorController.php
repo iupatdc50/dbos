@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use Throwable;
 use Yii;
 use app\controllers\receipt\MultiMemberController;
 use app\models\accounting\Receipt;
@@ -23,7 +24,7 @@ class ReceiptContractorController extends MultiMemberController
      * @param null $id
      * @return string|Response
      * @throws \Exception
-     * @throws Exception
+     * @throws Throwable
      */
 	public function actionCreate($lob_cd, $id = null)
 	{
@@ -50,7 +51,6 @@ class ReceiptContractorController extends MultiMemberController
 							if ($file == false) { // manual entry
                                 if ($model->populate) {
 
-                                    /* @var $member Member */
                                     foreach ($model->responsible->employer->employees as $member) {
                                         if ($member->currentStatus->lob_cd == $lob_cd) {
                                             $builder = new AllocationBuilder();
@@ -115,8 +115,6 @@ class ReceiptContractorController extends MultiMemberController
 					
 		}
 		
-		$this->initCreate($model);
-		
 		return $this->render('create', [
 				'model' => $model,
 		]);
@@ -152,6 +150,7 @@ class ReceiptContractorController extends MultiMemberController
 
         $typesSubmitted = ReceiptContractor::getFeeTypesSubmitted($license_nbr);
 
+        /** @noinspection SqlResolve */
         $count = Yii::$app->db->createCommand(
             "SELECT COUNT(*) FROM ResponsibleEmployers AS E JOIN Receipts AS R ON E.receipt_id = R.`id` WHERE R.void = 'F' AND E.license_nbr = :license_nbr ",
             [':license_nbr' => $license_nbr]

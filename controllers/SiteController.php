@@ -19,6 +19,17 @@ use yii2fullcalendar\models\Event;
 
 class SiteController extends RootController
 {
+
+    /*
+    public function actions() {
+        return [
+            'captcha' => [
+                'class' => 'yii\captcha\CaptchaAction',
+//                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+        ];
+    }
+    */
 	
 	public function actionIndex() {
 
@@ -29,7 +40,7 @@ class SiteController extends RootController
 			$event = new Event([
 					'id' => $homeEvent->id,
 					'title' => $homeEvent->title,
-					'allDay' => ($homeEvent->all_day == OptionHelper::TF_TRUE) ? true : false,
+					'allDay' => ($homeEvent->all_day == OptionHelper::TF_TRUE),
 					'start' => $homeEvent->start_dt,
 					'end' => $homeEvent->end_dt,
 					'editable' => true,

@@ -18,7 +18,7 @@ use yii\helpers\Url;
             </div>
             <div class="col-xs-10 form-group">
                 <label class="control-label" for="charge">Charge</label>
-                <input id="charge" name="charge" class="form-control required number" type="number" value="<?= number_format($payment_data['charge'], 2) ?>">
+                <input id="charge" name="charge" class="form-control required number" type="number" value="<?= $payment_data['charge'] ?>">
             </div>
         </div>
         <br />
@@ -35,8 +35,8 @@ use yii\helpers\Url;
         <?php endif; ?>
         <hr>
         <div class="form-group">
-            <!--suppress HtmlFormInputWithoutLabel -->
-            <input id="cardholder_nm" name="cardholder_nm" class="form-control required" placeholder="Name on card" required>
+            <label class="control-label" for="cardholder_nm">Cardholder Name</label>
+            <input id="cardholder_nm" name="cardholder_nm" value="<?= $payment_data['cardholder_nm'] ?>" class="form-control required" placeholder="Name on card" required>
             <p class="help-block help-block-error"></p>
         </div>
         <br />

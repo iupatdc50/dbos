@@ -1,5 +1,7 @@
 <?php
 
+use yii\data\ActiveDataProvider;
+use yii\grid\ActionColumn;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
@@ -7,7 +9,10 @@ use app\models\member\Status;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider ActiveDataProvider */
+/* @var $id string member ID */
+/* @var $status string */
+/* @var $is_prepped bool */
 
 $controller = 'member-status';
 ?>
@@ -18,6 +23,7 @@ $controller = 'member-status';
 // 'id' of Pjax::begin and embedded GridView::widget must match or pagination does not work
 Pjax::begin(['id' => 'status-history', 'enablePushState' => false]);
 
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
 		'id' => 'status-history',
 		'dataProvider' => $dataProvider,
@@ -55,6 +61,14 @@ echo GridView::widget([
             		'data-title' => 'Suspend',	
             		'disabled' => ($status != Status::ACTIVE),
             	])
+                . Html::button('Reinstate',
+                    ['value' => Url::to(["/member-status/reinstate", 'member_id'  => $id]),
+                        'id' => 'reinstButton',
+                        'class' => 'btn btn-default btn-modal',
+                        'data-title' => 'Reinstate',
+                        'title' => 'Prepare reinstatement assessments',
+                        'disabled' => ($status != Status::INACTIVE || $is_prepped),
+                    ])
     			. Html::button('CCD',
             		['value' => Url::to(["/member-status/clear-in", 'member_id'  => $id]), 
             		'id' => 'ccButton',
@@ -115,7 +129,7 @@ echo GridView::widget([
 						
 				],
 				[
-						'class' => \yii\grid\ActionColumn::className(),
+						'class' => ActionColumn::className(),
 						'controller' => $controller,
 						'template' => '{update} {delete}',
 						'header' => Html::button('<i class="glyphicon glyphicon-plus"></i>&nbsp;Add', [
@@ -123,6 +137,7 @@ echo GridView::widget([
 								'id' => 'classCreateButton',
 								'class' => 'btn btn-default btn-modal btn-embedded',
 								'data-title' => 'Member Status',
+                                'disabled' => ($status == Status::INACTIVE),
 						]),
 						'visible' => Yii::$app->user->can('updateMember'),
 				],

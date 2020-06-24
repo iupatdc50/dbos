@@ -9,7 +9,7 @@ Private system to manage back office operations at DC50.
 <li>Contractors and employment management</li>
 <li>Accounting</li>
 <li>Special project tracking</li>
-<li>Training (currently disabled)</li>
+<li>Training</li>
 <li>Reporting</li>
 </ul>
 
@@ -33,8 +33,6 @@ User identity resets on occasion.
 
 _Navigation_
 <ul>
-<li>Safari browser does not properly render certain accordions (multipage and show all toggle).</li>
-<li>Database caching not yet implemented.</li>
 <li>Some breadcrumbs in sub-window updates are incorrect.</li>
 <li>Agreements accordion closes after a panel content update.</li>
 </ul>

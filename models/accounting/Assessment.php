@@ -2,7 +2,10 @@
 
 namespace app\models\accounting;
 
+use app\models\member\ReinstateForm;
 use app\modules\admin\models\FeeType;
+use http\Exception\BadMethodCallException;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -44,7 +47,16 @@ class Assessment extends ActiveRecord
         return 'Assessments';
     }
 
-	public function behaviors()
+    public static function instantiate($row)
+    {
+        if ($row['fee_type'] == FeeType::TYPE_INIT)
+            return new ApfAssessment();
+        else if ($row['fee_type'] == FeeType::TYPE_REINST)
+            return new ReinstateAssessment();
+        return new self;
+    }
+
+    public function behaviors()
 	{
 		return [
 				['class' => TimestampBehavior::className(), 'updatedAtAttribute' => false],
@@ -142,7 +154,23 @@ class Assessment extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
-    
-    
+
+    /**
+     * Generate assessment based on ReinstateForm.  Assumes that assessment_dt is set.
+     *
+     * @param ReinstateForm $model
+     * @param Member $member
+     * @return bool
+     * @noinspection PhpUnusedParameterInspection
+     */
+    public function makeFromReinstate(ReinstateForm $model, Member $member)
+    {
+        if (!isset($this->assessment_dt)) {
+            Yii::error('*** AS010 Missing assessment date');
+            throw new BadMethodCallException('Missing assessment_dt');
+        }
+        return true;
+        // stub
+    }
     
 }

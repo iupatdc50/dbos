@@ -2,17 +2,14 @@
 
 namespace app\controllers\receipt;
 
-use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\StatusManagerAssessment;
 use app\models\accounting\StatusManagerDues;
-use app\models\accounting\UndoAllocation;
 use Exception;
 use Throwable;
 use Yii;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
 use app\models\member\Member;
-use app\models\member\Status;
 use app\models\member\Standing;
 use app\models\member\OverageHistory;
 use yii\base\InvalidConfigException;
@@ -24,7 +21,6 @@ use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
-use app\models\accounting\DuesAllocation;
 use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
 use yii\web\NotFoundHttpException;
@@ -158,8 +154,7 @@ class BaseController extends Controller
     	$this->_dbErrors = [];
     	 
         $allocs = $model->assessmentAllocations;
-    	/* @var $alloc AssessmentAllocation */
-    	foreach ($allocs as $alloc) {
+        foreach ($allocs as $alloc) {
     		if ($this->retainAlloc($alloc)) {
                 $manager = new StatusManagerAssessment();
                 $this->_dbErrors = array_merge($this->_dbErrors, $manager->applyAssessment($alloc));
@@ -167,8 +162,7 @@ class BaseController extends Controller
     	}   
     	
     	$allocs = $model->duesAllocations;
-    	/* @var $alloc DuesAllocation */
-    	foreach ($allocs as $alloc) {
+        foreach ($allocs as $alloc) {
     		if ($this->retainAlloc($alloc)) {
 	    		$manager = $this->prepareManager($alloc);
 	    		$this->_dbErrors = array_merge($this->_dbErrors, $manager->applyDues($alloc));
@@ -192,7 +186,7 @@ class BaseController extends Controller
         if (isset($session['prebuild']))
             unset($session['prebuild']);
 
-        $model->closeInProgressTrans();
+        $model->cleanup();
     	$session->setFlash('success', "Receipt successfully posted");
     	return $this->redirect(['view', 'id' => $model->id]);
     	
@@ -219,9 +213,7 @@ class BaseController extends Controller
                     $this->_dbErrors = [];
 
                     $allocs = $modelReceipt->assessmentAllocations;
-                    /* @var $alloc AssessmentAllocation */
                     foreach ($allocs as $alloc) {
-                        /* @var $undo UndoAllocation */
                         $undo = $alloc->undoAllocation;
                         // If a new allocation or amount changed or if assessment ID was reset to null (alloc was reassigned)
                         if ((!isset($undo)) ||
@@ -233,7 +225,6 @@ class BaseController extends Controller
                     }
 
                     $allocs = $modelReceipt->duesAllocations;
-                    /* @var $alloc DuesAllocation */
                     foreach ($allocs as $alloc) {
                         if ($alloc->months == null) {
                             $manager = $this->prepareManager($alloc);
@@ -242,7 +233,7 @@ class BaseController extends Controller
                     }
 
                     if (empty($this->_dbErrors)) {
-                        $modelReceipt->cleanup($id);
+                        $modelReceipt->cleanup();
                         Yii::$app->session->setFlash('success', "Receipt successfully updated");
                         return $this->redirect(['view', 'id' => $modelReceipt->id]);
                     }
@@ -422,20 +413,6 @@ class BaseController extends Controller
     }
     
     /**
-     * Look for existing status to overlay to avoid date conflicts
-     * 
-     * @param Member $member
-     * @param string $date
-     * @return Status
-     */
-    protected function prepareStatus(Member $member, $date)
-    {
-        if (($status = Status::findOne(['member_id' => $member->member_id, 'effective_dt' => $date])) !== null) 
-            return $status;
-    	return new Status(['effective_dt' => $date]);
-    }
-
-    /**
      * Look for existing overage history to overlay
      *
      * @param Member $member
@@ -460,15 +437,6 @@ class BaseController extends Controller
     protected function getToday()
     {
     	return new OpDate();
-    }
-    
-    protected function initCreate($model)
-    {
-    	if (!isset($model->received_dt)) {
-    		$model->received_dt = $this->today->getMySqlDate();
-    		if (!isset($model->acct_month))
-    			$model->acct_month = $this->today->getYearMonth();
-    	}
     }
 
     /**

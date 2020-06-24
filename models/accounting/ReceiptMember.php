@@ -15,6 +15,7 @@ use yii\db\Exception;
  * @package app\models\accounting
  *
  * @property Transaction $transaction
+ * @property Member $payingMember
  */
 class ReceiptMember extends Receipt
 {
@@ -65,20 +66,12 @@ class ReceiptMember extends Receipt
     /**
      * This override updates any outstanding in progress on-line transaction
      *
-     * @param $id
      * @throws Exception
      */
-    public function cleanup($id)
+    public function cleanup()
     {
-        parent::cleanup($id);
-        $this->closeInProgressTrans();
-    }
-
-    /**
-     * Closes outstanding in progress credit card transaction
-     */
-    public function closeInProgressTrans()
-    {
+        parent::cleanup();
+        // Check for outstanding in-progress credit card transaction
         if (isset($this->transaction)) {
             $transaction = $this->transaction;
             if ($transaction->dbos_status == Transaction::DBOS_INPROGRESS) {
@@ -86,6 +79,8 @@ class ReceiptMember extends Receipt
                 $transaction->save();
             }
         }
+        // Determine if the completed process is part of a reinstatement cycle
+        $this->payingMember->removeReinstateStaged();
     }
 
     /**
@@ -105,34 +100,32 @@ class ReceiptMember extends Receipt
      * @param Charge $charge
      * @return bool|int     Receipt ID if successful, false if not
      */
-    public static function makeUnposted(array $payment_data, Customer $customer, Charge $charge)
+    public function makeUnposted(array $payment_data, Customer $customer, Charge $charge)
     {
         $member = Member::findOne($payment_data['member_id']);
+
+        $this->payor_nm = $customer->name;
+        $this->payment_method = self::METHOD_CREDIT;
+        $this->payor_type = self::PAYOR_MEMBER;
+        $this->received_dt = date("Y-m-d", $charge->created);
+        $this->received_amt = $payment_data['charge'];
+        $this->created_at = $charge->created;
+        $this->remarks = 'Online dues payment';
         /** @noinspection PhpUndefinedFieldInspection */
+        $this->tracking_nbr = $charge->metadata->tracking;
+        $this->lob_cd = $member->currentStatus->lob_cd;
+        $this->acct_month = date("Ym", $charge->created);
+        $this->updated_at = $charge->created;
 
-        $receipt = new Receipt([
-            'payor_nm' => $customer->name,
-            'payment_method' => self::METHOD_CREDIT,
-            'payor_type' => self::PAYOR_MEMBER,
-            'received_dt' => date("Y-m-d", $charge->created),
-            'received_amt' => $payment_data['charge'],
-            'created_at' => $charge->created,
-            'remarks' => 'Online dues payment',
-            'tracking_nbr' => $charge->metadata->tracking,
-            'lob_cd' => $member->currentStatus->lob_cd,
-            'acct_month' => date("Ym", $charge->created),
-            'updated_at' => $charge->created,
-        ]);
-
-        if ($receipt->save()) {
+        if ($this->save()) {
             $alloc_memb = new AllocatedMember([
-                'receipt_id' => $receipt->id,
+                'receipt_id' => $this->id,
                 'member_id' => $member->member_id,
             ]);
 
             $allocs_ok = true;
             if ($alloc_memb->save()) {
-                $balance = $receipt->received_amt;
+                $balance = $this->received_amt;
                 foreach ($member->feeBalances as $fee) {
                     $alloc = new AssessmentAllocation([
                         'alloc_memb_id' => $alloc_memb->id,
@@ -164,8 +157,8 @@ class ReceiptMember extends Receipt
                 if ($allocs_ok) {
                     // Put the receipt in unposted mode
                     try {
-                        $receipt->makeUndo($receipt->id);
-                        return $receipt->id;
+                        $this->makeUndo($this->id);
+                        return $this->id;
                     } catch (Exception $e) {
                         Yii::error('*** RM010: Unable to stage receipt. Error(s) ' . print_r ($e->errorInfo, true));
                         Yii::$app->session->addFlash('error', 'Problem with post. Please contact support.  Error: `RM010`');
@@ -173,7 +166,7 @@ class ReceiptMember extends Receipt
                 }
             }
         } else {
-            Yii::error('*** RM020: Unable to stage receipt. Error(s) ' . print_r ($receipt->errors, true));
+            Yii::error('*** RM020: Unable to stage receipt. Error(s) ' . print_r ($this->errors, true));
             Yii::$app->session->addFlash('error', 'Problem with post. Please contact support.  Error: `RM020`');
         }
         return false;

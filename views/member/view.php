@@ -16,6 +16,7 @@ use app\models\member\Status;
 $this->title = $model->fullName;
 $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+$status = $model->currentStatus;
 ?>
 <div class="member-view">
 
@@ -54,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'attributes' => [
                 [
                     'label' => 'Trade',
-                    'value' => Html::encode(isset($model->currentStatus) ? $model->currentStatus->lob->short_descrip : 'No Trade'),
+                    'value' => Html::encode(isset($status) ? $status->lob->short_descrip : 'No Trade'),
                 ],
                 [
                     'attribute' => 'dues_paid_thru_dt',
@@ -73,7 +74,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         : date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
                     'format' => 'raw',
                     'contentOptions' => $model->isPastGracePeriodNotDropped() ? ['class' => 'danger'] : ($model->isDelinquentNotSuspended() ? ['class' => 'warning'] : ['class' => 'default']),
-                    'visible' => (Yii::$app->user->can('browseMemberExt') && isset($model->currentStatus) && ($model->currentStatus->member_status != Status::OUTOFSTATE)),
+                    'visible' => (Yii::$app->user->can('browseMemberExt') && isset($status) && ($status->member_status != Status::OUTOFSTATE)),
                 ],
                 [
                     'label' => 'Balance Due',
@@ -82,29 +83,32 @@ $this->params['breadcrumbs'][] = $this->title;
                     ,
                     'format' => 'raw',
                     'contentOptions' => ($balance > 0.00) ? ['class' => 'danger'] : ['class' => 'default'],
-                    'visible' => Yii::$app->user->can('browseMemberExt'),
+                    'visible' => Yii::$app->user->can('browseMemberExt') && ($status->member_status != Status::INACTIVE),
                 ],
             ],
         ]); ?>
+                        <?php if(isset($model->reinstateStaged)): ?>
+                            <div class="flash-notice">Reinstatement preparation complete</div>
+                        <?php endif; ?>
                         <div>
-                            <?php if(Yii::$app->user->can('createReceipt')) :?>
+                            <?php if(Yii::$app->user->can('createReceipt') && ($status->member_status != Status::INACTIVE || isset($model->reinstateStaged))) :?>
                             <?=
 //                            Html::button('<i class="glyphicon glyphicon-usd"></i> Cash or Check', [
                             Html::button('<i class="glyphicon glyphicon-usd"></i> Create Receipt', [
                                 'class' => 'btn btn-default btn-modal',
                                 'id' => 'receiptCreateButton',
-                                'value' => Url::to(['receipt-member/create', 'lob_cd' => $model->currentStatus->lob_cd, 'id'  => $model->member_id]),
+                                'value' => Url::to(['receipt-member/create', 'lob_cd' => $status->lob_cd, 'id'  => $model->member_id]),
                                 'data-title' => 'Receipt',
-                                'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
+                                'disabled' => !(isset($status) && isset($model->currentClass)),
                                 'title' => 'Create receipt (cash or check)',
                             ]) ?>
-                            <?= // Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
+                            <?= //  Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
                             Html::button('<i class="glyphicon glyphicon-credit-card"></i> Future', [
                                 'class' => 'btn btn-default btn-modal',
                                 'id' => 'creditCardButton',
                                 'value' => Url::to(['receipt-member/credit-card', 'id'  => $model->member_id]),
                                 'data-title' => 'Credit Card',
-//                              'disabled' => !(isset($model->currentStatus) && isset($model->currentClass)),
+//                                'disabled' => !(isset($status) && isset($model->currentClass)),
                                 'disabled' => true,
 //                                'title' => 'Accept credit card payment',
                             ])
@@ -181,11 +185,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php 
 
-    $status = 'Inactive';
-    if(isset($model->currentStatus)) {
-        $status = $model->currentStatus->status->descrip;
+    $status_txt = 'Inactive';
+    if(isset($status)) {
+        $status_txt = $status->status->descrip;
         if ($model->enrolledOnline)
-            $status .= Html::tag('span', " Enrolled for Online Pay", ['class' => 'accord-notice pull-right']);
+            $status_txt .= Html::tag('span', " Enrolled for Online Pay", ['class' => 'accord-notice pull-right']);
     }
     $statusUrl = Yii::$app->urlManager->createUrl(['member-status/summary-json', 'id' => $model->member_id]); 
 
@@ -223,7 +227,7 @@ try {
     echo Accordion::widget([
         'items' => [
             [
-                'header' => Html::tag('span', 'Status: ') . $status,
+                'header' => Html::tag('span', 'Status: ') . $status_txt,
                 'content' => '<div data-url=' . $statusUrl . '>loading...</div>',
             ],
             [

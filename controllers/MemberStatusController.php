@@ -4,7 +4,12 @@ namespace app\controllers;
 
 use app\controllers\base\SummaryController;
 use app\helpers\OptionHelper;
+use app\models\accounting\ApfAssessment;
+use app\models\accounting\ReinstateAssessment;
 use app\models\member\ClassCode;
+use app\models\member\MemberReinstateStaged;
+use app\models\member\Note;
+use app\models\member\ReinstateForm;
 use app\models\training\Timesheet;
 use Exception;
 use Throwable;
@@ -68,13 +73,11 @@ class MemberStatusController extends SummaryController
     /**
      * @param $relation_id
      * @return array|mixed|string|Response
-     * @throws NotFoundHttpException
-     * @throws Throwable
+     * @throws NotFoundHttpException|Throwable
      */
 	public function actionCreate($relation_id)
 	{
-		/** @var Status $model */
-		$model = new Status();
+        $model = new Status();
 		$this->setMember($relation_id);
 		
 		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -107,8 +110,7 @@ class MemberStatusController extends SummaryController
 				}
 
 				if ($model->member_status == Status::INACTIVE) {
-                    /** @var Employment $employer */
-				    $employer = $this->member->getEmployerActive();
+				    $employer = $this->member->employerActive;
 				    if (isset($employer)) {
 				        $employer->end_dt = $model->effective_dt;
 				        $employer->term_reason = Employment::TERM_MEMBER;
@@ -135,7 +137,8 @@ class MemberStatusController extends SummaryController
 	{
 		$this->setMember($id);
 		$status = isset($this->member->currentStatus) ? $this->member->currentStatus->member_status : Status::INACTIVE;
-		$this->viewParams = ['status' => $status];
+		$is_prepped = isset($this->member->inactiveStaged);
+		$this->viewParams = ['status' => $status, 'is_prepped' => $is_prepped];
 		return parent::actionSummaryJson($id);
 	}
 
@@ -148,9 +151,8 @@ class MemberStatusController extends SummaryController
 	{
 		if (!Yii::$app->user->can('resetPT'))
 			return $this->renderAjax('/partials/_deniedaction');
-		
-		/** @var Status $model */
-		$model = new Status(['scenario' => Status::SCENARIO_RESET]);
+
+        $model = new Status(['scenario' => Status::SCENARIO_RESET]);
 		$this->setMember($member_id);
 		
 		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -194,9 +196,8 @@ class MemberStatusController extends SummaryController
      */
 	public function actionForfeit($member_id) 
 	{
-	
-		/** @var Status $model */
-		$model = new Status();
+
+        $model = new Status();
 		$this->setMember($member_id);
 		
 		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -223,13 +224,12 @@ class MemberStatusController extends SummaryController
     /**
      * @param $member_id
      * @return array|string|Response
-     * @throws NotFoundHttpException
+     * @throws NotFoundHttpException|\yii\base\Exception
      */
 	public function actionSuspend($member_id) 
 	{
-	
-		/** @var Status $model */
-		$model = new Status();
+
+        $model = new Status();
 		$this->setMember($member_id);
 		
 		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -247,7 +247,7 @@ class MemberStatusController extends SummaryController
 			}
 			
 			return $this->goBack();
-			
+
 		}
 		$this->initCreate($model);
 		$model->member_status = Status::SUSPENDED;
@@ -260,12 +260,68 @@ class MemberStatusController extends SummaryController
      * @param $member_id
      * @return array|string|Response
      * @throws NotFoundHttpException
+     * @throws \yii\base\Exception
+     */
+	public function actionReinstate($member_id)
+    {
+        $this->setMember($member_id);
+        $model = new ReinstateForm(['member' => $this->member]);
+
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($model);
+        }
+
+        if ($model->load(Yii::$app->request->post())) {
+            $stage = new MemberReinstateStaged(['reinstate_type' => $model->type]);
+            $stage->dues_owed_amt = 0.00;
+            $today = $model->getToday()->getMySqlDate();
+            if ($model->type == ReinstateForm::TYPE_APF) {
+                $assessModel = new ApfAssessment(['assessment_dt' => $today]);
+                $assessModel->makeFromReinstate($model, $this->member);
+            } elseif ($model->type == ReinstateForm::TYPE_BACKDUES) {
+                // Assume dues and reinstate fee are always checked
+                $stage->dues_owed_amt = $model->getFee(ReinstateForm::FEE_DUES)['amt'];
+                $assessModel = new ReinstateAssessment(['assessment_dt' => $today]);
+                $assessModel->makeFromReinstate($model, $this->member);
+                // By policy, immediately suspens when this option is selected
+                $this->member->addStatus(new Status([
+                    'member_status' => Status::SUSPENDED,
+                    'reason' => Status::REASON_REINST,
+                ]));
+            }
+
+            if (isset($model->authority) && ($model->authority != '')) {
+                $note_qty = 'Selected';
+                if ($model->type == ReinstateForm::TYPE_WAIVE) {
+                    $note_qty = 'All';
+                    $status = new Status(['effective_dt' => $today]);
+                    $status->makeReinstate($this->member);
+                }
+                $note_txt = "[{$note_qty} reinstatement fees WAIVED by {$model->getAuthUser()->username}]";
+                $note = new Note(['note' => $note_txt]);
+                $this->member->addNote($note);
+            }
+
+            if ($model->type != ReinstateForm::TYPE_WAIVE)
+                $this->member->addReinstateStaged($stage);
+
+            return $this->goBack();
+        }
+
+        $model->assessments_b = [ReinstateForm::FEE_DUES, ReinstateForm::FEE_REINST];
+        return $this->renderAjax('reinstate', ['model' => $model]);
+    }
+
+    /**
+     * @param $member_id
+     * @return array|string|Response
+     * @throws NotFoundHttpException
      * @throws \yii\db\Exception
      */
 	public function actionClearIn($member_id) 
-	{	
-		/** @var Status $model */
-		$model = new Status(['scenario' => Status::SCENARIO_CCD]);
+	{
+        $model = new Status(['scenario' => Status::SCENARIO_CCD]);
 		$this->setMember($member_id); 
 		
 		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -309,9 +365,8 @@ class MemberStatusController extends SummaryController
      * @throws NotFoundHttpException
      */
 	public function actionDepIsc($member_id) 
-	{	
-		/** @var Status $model */
-		$model = new Status();
+	{
+        $model = new Status();
 		$this->setMember($member_id); 
 		
 		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -354,7 +409,12 @@ class MemberStatusController extends SummaryController
 		if (!isset($model->lob_cd) && ($this->member->currentStatus != null))
 			$model->lob_cd = $this->member->currentStatus->lob_cd;
 	}
-	
+
+    /**
+     * @param Status $model
+     * @return bool
+     * @throws \yii\base\Exception
+     */
 	protected function assessReinstFee(Status $model)
 	{
 		$action = ($model->member_status == Status::SUSPENDED) ? 'Suspended' : 'Dropped'; 

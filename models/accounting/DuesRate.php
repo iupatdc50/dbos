@@ -2,6 +2,7 @@
 
 namespace app\models\accounting;
 
+use app\helpers\TokenHelper;
 use app\models\base\BaseEndable;
 use app\models\value\Lob;
 use app\models\value\RateClass;
@@ -65,6 +66,18 @@ class DuesRate extends BaseEndable
         ];
     }
 
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        TokenHelper::setToken(FeeCalendar::TOKEN_REFRESH, FeeCalendar::TOKEN_REFRESH_DATA);
+    }
+
+    public function afterDelete()
+    {
+        parent::afterDelete();
+        TokenHelper::setToken(FeeCalendar::TOKEN_REFRESH, FeeCalendar::TOKEN_REFRESH_DATA);
+    }
+
     /**
      * @return ActiveQuery
      */
@@ -90,6 +103,5 @@ class DuesRate extends BaseEndable
     {
         return ArrayHelper::map(RateClass::find()->orderBy('descrip')->all(), 'rate_class', 'descrip');
     }
-
 
 }

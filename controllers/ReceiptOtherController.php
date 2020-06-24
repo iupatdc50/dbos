@@ -3,12 +3,14 @@
 namespace app\controllers;
 
 
+use Exception;
 use Yii;
 use app\models\accounting\ResponsibleEmployer;
 use app\controllers\receipt\MultiMemberController;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptOther;
 use app\models\contractor\Contractor;
+use yii\web\Response;
 
 class ReceiptOtherController extends MultiMemberController
 {
@@ -16,8 +18,8 @@ class ReceiptOtherController extends MultiMemberController
     /**
      * @param $lob_cd
      * @param string $id
-     * @return string|\yii\web\Response
-     * @throws \Exception
+     * @return string|Response
+     * @throws Exception
      */
     public function actionCreate($lob_cd, $id = Contractor::CONTRACTOR_OTHER_PAYOR)
     {
@@ -46,8 +48,6 @@ class ReceiptOtherController extends MultiMemberController
             Yii::$app->session->addFlash('error', 'Problem saving receipt. Check log for details. Code `ROC010`');
 
         }
-
-        $this->initCreate($model);
 
         return $this->render('create', [
             'model' => $model,

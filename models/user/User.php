@@ -52,6 +52,7 @@ class User extends ActiveRecord
 	public $password_current;
 	public $password_new;
 	public $password_confirm;
+	public $verify_cd;
 	
     /**
      * @inheritdoc
@@ -72,8 +73,7 @@ class User extends ActiveRecord
      */
     public static function listAll($search)
     {
-    	/* @var Query $query */
-    	$query = new Query;
+        $query = new Query;
     	$query->select("id, full_nm as text")
 	    	->from('UserPickList')
 	    	->limit(10)
@@ -115,6 +115,7 @@ class User extends ActiveRecord
         	[['password_current'], 'validateCurrentPassword'],
         	[['password_new'], StrengthValidator::className(), 'preset' => 'normal', 'userAttribute' => 'username'],
         	[['password_confirm'], 'compare', 'compareAttribute' => 'password_new', 'message' => 'Passwords do not match'],
+//            ['verify_cd', 'captcha'],
         		
         ];
     }
@@ -140,7 +141,8 @@ class User extends ActiveRecord
 
         	'password_current' => 'Current Password', 
         	'password_new' => 'New Password', 
-            'password_confirm' => 'Confirm New Password', 
+            'password_confirm' => 'Confirm New Password',
+//            'verify_cd' => null,
         ];
     }
 

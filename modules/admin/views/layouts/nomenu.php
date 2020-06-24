@@ -27,6 +27,7 @@ app\assets\ApplicationUiAssetBundle::register($this);
 			<div class="container">
  				<?= $content; ?>
 			</div>
+        </div>
 			<footer class="footer clearfix">
 			    <div class="container">
        				<p class="pull-left">&copy; <?= date('Y') ?> 
@@ -34,7 +35,6 @@ app\assets\ApplicationUiAssetBundle::register($this);
        				</p>
  			    </div>
 			</footer>
-		</div>
 	<?php $this->endBody()?>
 	</body>
 	</html>
