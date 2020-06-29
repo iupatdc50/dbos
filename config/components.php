@@ -30,7 +30,12 @@ return [
 								'from' => 'no-reply@dc50.org',
 						],
 						'transport' => [
-								'class' => 'Swift_MailTransport',
+								'class' => 'Swift_SmtpTransport',
+                                'host' => 'smtp.gmail.com',
+                                'port' => 587,
+                                'encryption' => 'tls',
+                                'username' => 'dc50.dbos@gmail.com',
+                                'password' => '2020-Plate-06',
 						],
 				],
 				'log' => [

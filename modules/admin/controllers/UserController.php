@@ -2,6 +2,8 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\Email;
+use app\models\user\RequestPwResetForm;
 use Throwable;
 use Yii;
 use app\models\user\User;
@@ -149,6 +151,38 @@ class UserController extends Controller
     }
 
     /**
+     * @return string
+     * @throws Exception
+     */
+    public function actionRequestPwReset()
+    {
+        $this->layout = 'nomenu';
+
+        $model = new RequestPwResetForm();
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $user = User::findByEmail($model->email);
+            $pw = $user->initiateReset();
+            if ($pw) {
+                $user->save();
+
+                $body = "You recently requested a password request for your account in DBOS.  Your temporary password is: {$pw}";
+                $email = new Email([
+                    'name' => 'DC50 Support',
+                    'email' => 'noreply@dc50.org',
+                    'subject' => 'DBOS password reset request',
+                    'body' => $body
+                ]);
+                if($email->sendMail($user->email))
+                    return $this->render('pw-sent', ['email' => $model->email]);
+
+                throw new Exception('Problem sending temporary password. [Code: UC010]');
+            }
+        }
+
+        return $this->render('request-pw-reset', compact('model'));
+    }
+
+    /**
      * @return string|Response
      * @throws \yii\base\Exception
      */
@@ -161,6 +195,7 @@ class UserController extends Controller
 	    $model->scenario = User::SCENARIO_CHANGE_PW;
 	    if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 	    	$model->setPassword($model->password_new);
+	    	$model->removePasswordResetToken();
 	    	$model->save(false);
 	    	Yii::$app->session->addFlash('success', "Successfully changed password.  Please logout and back in.");
 	    	return $this->goBack();

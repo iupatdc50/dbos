@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-		'version' => '1.4.1.150',
+		'version' => '1.4.5.250',
 		'basePath' => realpath ( __DIR__ . '/../' ),
         'aliases' => [
             '@bower' => '@vendor/bower-asset',
@@ -69,6 +69,9 @@ $config = [
 				'uploadDir' => DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR,
 				'tempDir' => DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR,
                 'tokenDir' => __DIR__ . '/../runtime/tokens' . DIRECTORY_SEPARATOR,
+                'adminEmail' => 'dc50.dbos@gmail.com',
+                'senderEmail' => 'noreply@dc50.org',
+                'senderName' => 'DC50 Admin',
                 'stripe' => require (__DIR__ . '/stripe.php'),
 		],
 
@@ -77,7 +80,7 @@ $config = [
 				'rules' => [
 						[
 								'allow' => true,
-								'actions' => ['login', 'maintenance'],
+								'actions' => ['login', 'maintenance', 'request-pw-reset'],
 						],
 						[
 								'allow' => true,

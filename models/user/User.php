@@ -183,7 +183,18 @@ class User extends ActiveRecord
     {
     	return self::findOne(['username' => $username]);
     }
-    
+
+    /**
+     * Find by email column
+     *
+     * @param string $email
+     * @return User|null
+     */
+    public static function findByEmail($email)
+    {
+        return self::findOne(['email' => $email]);
+    }
+
     /**
      * Validates password against stored hash
      *
@@ -200,6 +211,23 @@ class User extends ActiveRecord
     	if (!$this->validatePassword($this->password_current))
     		$this->addError('password_current', 'Current password is incorrect');
     }
+
+    /**
+     * Sets random password and reset token
+     */
+    public function initiateReset()
+    {
+        try {
+            $temp_password = Yii::$app->security->generateRandomString($length = 8);
+            $this->setPassword($temp_password);
+            $this->generatePasswordResetToken();
+        } catch (Exception $e) {
+            Yii::$app->session->addFlash('error', 'Problem with reset. Contact support.  Code `US010`');
+            Yii::error("*** US010 Password reset error(s).  Errors: " . print_r($e->getMessage(), true));
+            return false;
+        }
+        return $temp_password;
+    }
     
     /**
      * Tests whether the current user password is the standard temporary one
@@ -208,6 +236,11 @@ class User extends ActiveRecord
      */
     public function requiresReset()
     {
+        if (isset($this->password_reset_token)) {
+            $parts = explode('_', $this->password_reset_token);
+            $timestamp = (int) end($parts);
+            return ($timestamp < time());
+        }
     	return $this->validatePassword(self::RESET_USER_PW);
     }
     
@@ -243,6 +276,22 @@ class User extends ActiveRecord
     }
 
     /**
+     * Generates new password reset token
+     * @throws Exception
+     */
+    public function generatePasswordResetToken()
+    {
+        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    /**
+     * Removes password reset token
+     */
+    public function removePasswordResetToken()
+    {
+        $this->password_reset_token = null;
+    }
+    /**
      * @param mixed $token
      * @param null $type
      * @return void|IdentityInterface
@@ -252,7 +301,7 @@ class User extends ActiveRecord
     {
     	throw new NotSupportedException('You can only login by username/password pair for now.');
     }
-    
+
     public function getStatusOptions()
     {
     	return [

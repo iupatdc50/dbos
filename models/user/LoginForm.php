@@ -45,17 +45,19 @@ class LoginForm extends Model
 		return $this->_user;
 	}
 
+    /**
+     * @return bool  Returns true if login successful
+     */
 	public function login()
 	{
 		if (!$this->validate())
 			return false;
 
-		$logged_in = Yii::$app->user->login(
+		return Yii::$app->user->login(
 				$this->getUser(),
 				$this->rememberMe ? 3600 * 24 * 30 : 0
 		);
 								
-		return $logged_in;
 	}
 
 }
