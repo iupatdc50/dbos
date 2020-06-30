@@ -1,6 +1,7 @@
 <?php
 namespace app\models\user;
 
+use himiklab\yii2\recaptcha\ReCaptchaValidator2;
 use yii\base\Model;
 use Yii;
 
@@ -9,6 +10,7 @@ class LoginForm extends Model
 	public $username;
 	public $password;
 	public $rememberMe;
+	public $reCaptcha;
 
 	/** @var User */
 	private $_user;
@@ -18,7 +20,8 @@ class LoginForm extends Model
 		return [
 				[['username', 'password'], 'required'],
 				['rememberMe', 'boolean'],
-				['password', 'validatePassword']
+				['password', 'validatePassword'],
+                [['reCaptcha'], ReCaptchaValidator2::className(), 'uncheckedMessage' => 'Please confirm that you are not a bot.'],
 		];
 	}
 

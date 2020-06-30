@@ -1,4 +1,6 @@
 <?php
+
+use himiklab\yii2\recaptcha\ReCaptcha2;
 use yii\helpers\Html;
 // use yii\widgets\ActiveForm;
 use yii\bootstrap\ActiveForm;
@@ -12,6 +14,8 @@ $form = ActiveForm::begin(['id' => 'login-form']);
 echo $form->field($model, 'username');
 echo $form->field($model, 'password')->passwordInput();
 echo $form->field($model, 'rememberMe')->checkbox();
+/** @noinspection PhpUnhandledExceptionInspection */
+echo $form->field($model, 'reCaptcha')->widget(ReCaptcha2::className())->label(false);
 echo Html::submitButton(
 		'Login',
 		['class' => 'btn btn-primary', 'name' => 'login-button']

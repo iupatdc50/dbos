@@ -38,6 +38,7 @@ return [
                                 'password' => '2020-Plate-06',
 						],
 				],
+                'reCaptcha' => require(__DIR__ . '/recaptcha.php'),
 				'log' => [
 						'traceLevel' => YII_DEBUG ? 3 : 0,
 						'targets' => [

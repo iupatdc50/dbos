@@ -60,7 +60,6 @@ class RootController extends Controller
     protected function getUser()
     {
     	if(!isset($this->user) && !Yii::$app->user->isGuest)
-            /** @noinspection PhpUndefinedFieldInspection */
             $this->user = User::findByUsername(Yii::$app->user->identity->username);
     	return $this->user;
     }

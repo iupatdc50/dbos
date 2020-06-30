@@ -174,25 +174,25 @@ class User extends ActiveRecord
     }
     
     /**
-     * Find by username column
+     * Find active user by username column
      *
      * @param string $username
      * @return static|NULL
      */
     public static function findByUsername($username)
     {
-    	return self::findOne(['username' => $username]);
+    	return self::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
-     * Find by email column
+     * Find active user by email column
      *
      * @param string $email
      * @return User|null
      */
     public static function findByEmail($email)
     {
-        return self::findOne(['email' => $email]);
+        return self::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
