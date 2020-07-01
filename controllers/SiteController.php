@@ -84,8 +84,11 @@ class SiteController extends RootController
 			$user->last_login = $this->today->getMySqlDate(false);
 			if (!$user->save(true, ['last_login']))
 				throw new Exception('Problem with last_login update.  Messages: ' . print_r($user->errors, true));
-			if ($user->requiresReset())
-				return $this->redirect('/admin/user/reset-pw');
+			if ($user->requiresReset()) {
+			    $user->expirePasswordResetToken();
+                return $this->redirect('/admin/user/reset-pw');
+            }
+
 			return $this->goBack();
 		}
 	

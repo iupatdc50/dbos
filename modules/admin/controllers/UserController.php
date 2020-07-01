@@ -165,7 +165,7 @@ class UserController extends Controller
             if ($pw) {
                 $user->save();
 
-                $body = "You recently requested a password request for your account in DBOS.  Your temporary password is: {$pw}";
+                $body = "You recently requested a password reset for your account in DBOS.  This response is valid for one day only.  Your temporary password is: {$pw}";
                 $email = new Email([
                     'name' => 'DC50 Support',
                     'email' => 'noreply@dc50.org',

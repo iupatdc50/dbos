@@ -33,6 +33,8 @@ class LoginForm extends Model
 		$user = $this->getUser();
 		if (!($user && $user->validatePassword($this->$attribute)))
 			$this->addError('password', 'Incorrect username or password.');
+        elseif ($user && $user->resetTokenExpired())
+            $this->addError('password', 'Reset token expired.');
 	}
 
 	/**

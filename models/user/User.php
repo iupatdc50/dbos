@@ -47,6 +47,7 @@ class User extends ActiveRecord
 	const ROLE_AUTH_THRESHOLD = 30;
 	const RESET_USER_PW = 'DC50-temp';
 	const USER_PORTAL = 34;
+	const TOKEN_EXPIRE_PERIOD = 86400; // 1 day
 	
 	public $password_clear = null;
 	public $password_current;
@@ -230,18 +231,31 @@ class User extends ActiveRecord
     }
     
     /**
-     * Tests whether the current user password is the standard temporary one
+     * Tests whether a reset token exists or the current user password is the standard temporary one
      *  
      * @return boolean
      */
     public function requiresReset()
     {
+        if (isset($this->password_reset_token))
+            return true;
+        else
+            return $this->validatePassword(self::RESET_USER_PW);
+    }
+
+    /**
+     * Tests whether reset token is older than expire period
+     *
+     * @return bool
+     */
+    public function resetTokenExpired()
+    {
         if (isset($this->password_reset_token)) {
             $parts = explode('_', $this->password_reset_token);
             $timestamp = (int) end($parts);
-            return ($timestamp < time());
+            return ($timestamp + self::TOKEN_EXPIRE_PERIOD < time());
         }
-    	return $this->validatePassword(self::RESET_USER_PW);
+        return false;
     }
     
     public function getLastLoginDisplay()
@@ -291,6 +305,21 @@ class User extends ActiveRecord
     {
         $this->password_reset_token = null;
     }
+
+    /**
+     * Subtracts expire period from the password reset token timestamp and pushes it as the new end
+     * timestamp of the token
+     */
+    public function expirePasswordResetToken()
+    {
+        if (isset($this->password_reset_token)) {
+            $parts = explode('_', $this->password_reset_token);
+            $parts[] = (int) end($parts) - self::TOKEN_EXPIRE_PERIOD;
+            $this->password_reset_token = implode('_', $parts);
+            $this->save();
+        }
+    }
+
     /**
      * @param mixed $token
      * @param null $type
