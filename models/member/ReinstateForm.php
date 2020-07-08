@@ -4,6 +4,7 @@
 namespace app\models\member;
 
 use app\components\utilities\OpDate;
+use app\helpers\OptionHelper;
 use app\models\accounting\AdminFee;
 use app\models\accounting\DuesRateFinder;
 use app\models\accounting\FeeCalendar;
@@ -102,7 +103,7 @@ class ReinstateForm extends Model
         // Replace this code with DuesRateFinder (see todo)
         $init = InitFee::findOne(['lob_cd' => $lob_cd, 'member_class' => $member_class, 'end_dt' => null]);
         $amt = $init->fee;
-        if ($init->included == true)
+        if ($init->included == OptionHelper::TF_TRUE)
             $amt -= FeeCalendar::getTrueDuesBalance($lob_cd, $rate_class, $member->dues_paid_thru_dt, $init->dues_months);
         $this->_fees[self::FEE_APF] = [
             'amt' => $amt,
