@@ -231,7 +231,10 @@ class MaintenanceController extends Controller
 
 	private function stageStatusSql($months, $status, $new_status)
 	{
+	    // Reinstated with backdues option
 	    $reason_reinst = Status::REASON_REINST;
+	    $susp_reinst = Status::SUSPENDED;
+
 		$reason = 'Dues over ' . $months . ' months delinquent';
 		if ($new_status == Status::INACTIVE)
 			$reason = 'Member dropped. ' . $reason; 
@@ -247,7 +250,7 @@ class MaintenanceController extends Controller
 			        FROM Members AS Me 
 			          JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id 
 			                                     AND MS.member_status = '$status' 
-			                                     AND (MS.reason IS NULL OR MS.reason <> '$reason_reinst')
+			                                     AND (MS.reason IS NULL OR MS.member_status <> '$susp_reinst' OR (MS.member_status = '$susp_reinst' AND MS.reason <> '$reason_reinst'))
 			                                     AND MS.end_dt IS NULL 
                     WHERE dues_paid_thru_dt <= :cutoff_dt 
 			          AND lob_cd <> '1941'
