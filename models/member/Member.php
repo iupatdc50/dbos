@@ -871,7 +871,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         // generate a unique file name for storage
         $parts = explode(".", $image->name);
         $ext = end($parts);
-        if ($ext =='jpeg')
+        if (strtolower($ext) =='jpeg')
             $ext = 'jpg';
         $this->photo_id = Yii::$app->security->generateRandomString(16).".{$ext}";
  
