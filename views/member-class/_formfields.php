@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 use kartik\widgets\Select2;
 use kartik\widgets\FileInput;
@@ -35,14 +35,14 @@ $(function() {
 })
 
 $('#mclass').change(function() {
-	var classid = $(this).val();
+	const classid = $(this).val();
 	if(classid == 'AR' || classid == 'MR') {
 		$('#wagepctlbl').show();
 		$('#wagepct').show();
 	} else {
 		$('#wagepctlbl').hide();
 		$('#wagepct').hide();
-	};
+	}
 });
 
 JS;

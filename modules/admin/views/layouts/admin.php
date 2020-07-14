@@ -110,11 +110,16 @@ app\assets\ApplicationUiAssetBundle::register($this);
 									'url'=> '/admin/init-fee', 
 									'active' => (yii::$app->requestedRoute == 'admin/init-fee')
 								],
-								[
-									'label' => 'Dues Rates', 
-									'url'=> '/admin/dues-rate', 
-									'active' => (yii::$app->requestedRoute == 'admin/dues-rate')
-								],
+                                [
+                                    'label' => 'Dues Rates',
+                                    'url'=> '/admin/dues-rate',
+                                    'active' => (yii::$app->requestedRoute == 'admin/dues-rate')
+                                ],
+                                [
+                                    'label' => 'Contribution Rates',
+                                    'url'=> '/admin/contribution',
+                                    'active' => (yii::$app->requestedRoute == 'admin/contribution')
+                                ],
 							],
 						],
                         [

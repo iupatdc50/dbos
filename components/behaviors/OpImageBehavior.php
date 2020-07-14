@@ -87,7 +87,7 @@ class OpImageBehavior extends Behavior
 	 */
 	public function deleteImage()
 	{
-		$file = $this->imagePath;
+		$file = $this->getImagePath();
 	
 		// check if file exists on server
 		if (empty($file) || !file_exists($file)) {

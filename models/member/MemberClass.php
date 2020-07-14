@@ -21,6 +21,7 @@ use yii\web\UploadedFile;
  *
  * @property ClassCode $mClass
  * @property RateClass $rClass
+ * @property array $classOptions
  *
  * @method UploadedFile uploadImage()
  * @method getImagePath()

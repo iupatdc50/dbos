@@ -1,7 +1,6 @@
 <?php
 use yii\helpers\Html;
 
-/* @var $this yii\web\View */
 $this->title = 'About DBOS';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -20,8 +19,6 @@ $this->params['breadcrumbs'][] = $this->title;
 		        </ul>
 		        <h5 class="text-warning">Navigation</h5>
 		        <ul>
-		        	<li>Safari browser does not properly render certain accordions (multipage and show all toggle).</li>
-		        	<li>Database caching not yet implemented.</li>
 	  	        	<li>Some breadcrumbs in sub-window updates are incorrect.</li>
 		        	<li>Agreements accordion closes after a panel content update.</li>
 		        </ul>

@@ -30,7 +30,7 @@ class MemberClassController extends SummaryController
      * Had to override because of the pass by value of $model.  Clean
      * this up.
      *
-     * @param $relation_id      Member ID
+     * @param string $relation_id      Member ID
      * @return array|string|Response
      * @throws NotFoundHttpException
      * @throws Exception

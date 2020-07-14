@@ -2,8 +2,8 @@
 
 namespace app\modules\admin\models;
 
-use Yii;
 use app\helpers\OptionHelper;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "FeeTypes".
@@ -17,13 +17,20 @@ use app\helpers\OptionHelper;
  * @property string $contribution [enum('T', 'F')]
  * @property int $seq [int(11)]
  */
-class FeeType extends \yii\db\ActiveRecord
+class FeeType extends ActiveRecord
 {
 	CONST TYPE_DUES = 'DU';
 	CONST TYPE_REINST = 'RN';
 	CONST TYPE_CC = 'CC';
 	CONST TYPE_HOURS = 'HR';
 	CONST TYPE_INIT = 'IN';
+
+	CONST TYPE_IUPAT = 'IU';
+	CONST TYPE_JTP = 'JT';
+	CONST TYPE_PAC = 'PA';
+	CONST TYPE_WAGEPCT = 'PC';
+	CONST TYPE_LMCI = 'LM';
+	CONST TYPE_MHWAGEPCT = 'PM';
 
     /**
      * @inheritdoc
@@ -39,6 +46,18 @@ class FeeType extends \yii\db\ActiveRecord
             self::TYPE_REINST,
             self::TYPE_CC,
             self::TYPE_INIT,
+        ];
+    }
+
+    public static function contributionTypes()
+    {
+        return [
+            self::TYPE_IUPAT,
+            self::TYPE_JTP,
+            self::TYPE_PAC,
+            self::TYPE_WAGEPCT,
+            self::TYPE_LMCI,
+            self::TYPE_MHWAGEPCT,
         ];
     }
 

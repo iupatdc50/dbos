@@ -62,6 +62,14 @@ class ReportController extends Controller
         ]);
     }
 
+    public function actionUnemployedMembers()
+    {
+        return $this->render('reportico', [
+            'folder' => 'memberrpts',
+            'report_nm' => 'unemployedmembers',
+        ]);
+    }
+
     public function actionPacSummary()
 	{
 		return $this->render('reportico', [
