@@ -1,14 +1,12 @@
 <?php
 
-namespace app\models\member;
+namespace app\models\employment;
 
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\member\Employment;
 
 /**
- * EmploymentSearch represents the model behind the search form about `app\models\member\Employment`.
+ * EmploymentSearch represents the model behind the search form about `app\models\employment\Employment`.
  */
 class EmploymentSearch extends Employment
 {

@@ -2,7 +2,12 @@
 
 namespace app\models\contractor;
 
+use BadMethodCallException;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\db\Exception;
 use yii\db\Query;
 use app\models\base\iNotableInterface;
 use app\models\member\Member;
@@ -22,6 +27,8 @@ use yii\web\UploadedFile;
  * @property string $url
  * @property string deducts_dues
  * @property string $is_active
+ *
+ * @property array $statusOptions
  * @property UnionContractor $currentSignatory
  * @property Address[] $addresses
  * @property Phone[] $phones
@@ -31,7 +38,7 @@ use yii\web\UploadedFile;
  * @property Member[] $employees
  * @property Note[] $notes
  */
-class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
+class Contractor extends ActiveRecord  implements iNotableInterface
 {
 	CONST STATUS_ACTIVE = 'T';
 	CONST STATUS_INACTIVE = 'F';
@@ -53,11 +60,10 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
      * @param string|array $search Criteria used for partial contractor list. If an array, then contractor
      *                               key will be a like search
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public static function listAll($search)
     {
-    	/* @var Query $query */
     	$query = new Query;
     	$query->select('license_nbr as id, contractor as text')
     		->from('ContractorPickList')
@@ -111,7 +117,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAddresses()
     {
@@ -119,7 +125,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAddressDefault()
     {
@@ -127,7 +133,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPhones()
     {
@@ -135,7 +141,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPhoneDefault()
     {
@@ -143,7 +149,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getEmails()
     {
@@ -157,7 +163,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getSignatories()
     {
@@ -165,7 +171,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCurrentSignatory()
     {
@@ -195,7 +201,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getRegistrations()
     {
@@ -231,6 +237,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
 
     /**
      * Serves as a getter for ContractorSearch::employeeCount
+     * @throws InvalidConfigException
      */
     public function getEmployeeCount()
     {
@@ -239,7 +246,11 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
     			->count()
     	; 
     }
-    
+
+    /**
+     * @return ActiveQuery
+     * @throws InvalidConfigException
+     */
     public function getEmployees()
     {
     	return $this->hasMany(Member::className(), ['member_id' => 'member_id'])
@@ -287,13 +298,13 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
    	 * Adds a journal note to this contractor
    	 *
    	 * @param Note $note
-   	 * @throws \BadMethodCallException
+   	 * @throws BadMethodCallException
    	 * @return boolean
    	 */
    	public function addNote($note)
    	{
    		if (!($note instanceof Note))
-   			throw new \BadMethodCallException('Not an instance of ContractorNote');
+   			throw new BadMethodCallException('Not an instance of ContractorNote');
    		$note->license_nbr = $this->license_nbr;
         /** @noinspection PhpUndefinedMethodInspection */
         $image = $note->uploadImage();
@@ -309,7 +320,7 @@ class Contractor extends \yii\db\ActiveRecord  implements iNotableInterface
    	}
    	
    	/**
-   	 * @return \yii\db\ActiveQuery
+   	 * @return ActiveQuery
    	 */
    	public function getNotes()
    	{

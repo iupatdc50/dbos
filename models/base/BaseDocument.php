@@ -11,6 +11,8 @@ use yii\web\UploadedFile;
 /**
  * Class BaseDocument
  * @package app\models\base
+ *
+ * @property string $imagePath
  * @method UploadedFile uploadImage()
  * @method boolean deleteImage()
  */
@@ -19,12 +21,12 @@ abstract class BaseDocument extends ActiveRecord
 	 // Injected Member object, used for creating new entries
 	/* @var Member $member */
 	public $member;
-	
+
 	/**
 	 * @var mixed	Stages document to be uploaded
 	 */
 	public $doc_file;
-	
+
 	/**
 	 * Handles all the document attachment processing functions for the model
 	 * 

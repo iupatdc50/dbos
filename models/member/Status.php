@@ -2,7 +2,8 @@
 
 namespace app\models\member;
 
-use http\Exception\BadMethodCallException;
+use app\components\behaviors\OpImageBehavior;
+use BadMethodCallException;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
@@ -10,6 +11,7 @@ use app\models\value\Lob;
 use app\models\base\BaseEndable;
 use app\models\accounting\BaseAllocation;
 use app\components\validators\AtLeastValidator;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "MemberStatuses".
@@ -20,10 +22,18 @@ use app\components\validators\AtLeastValidator;
  * @property string $member_status
  * @property string $reason
  * @property integer $alloc_id
+ * @property string $doc_id
  *
+ * @property Member $member
  * @property Lob $lob
+ * @property array $lobOptions
  * @property StatusCode $status
+ * @property array $statusOptions
  * @property BaseAllocation $allocation
+ *
+ * @method UploadedFile uploadImage()
+ * @method getImagePath()
+ * @method deleteImage()
  */
 class Status extends BaseEndable
 {
@@ -55,8 +65,17 @@ class Status extends BaseEndable
 	public $other_local;
 	public $paid_thru_dt;
 	public $init_dt;
-	
-	/**
+
+    /**
+     * @var mixed	Stages document to be uploaded
+     */
+    public $doc_file;
+
+    // Holds the temporary state between events
+    private $_image;
+    private $_hold_path;
+
+    /**
      * @inheritdoc
      */
     public static function tableName()
@@ -67,6 +86,18 @@ class Status extends BaseEndable
     public static function qualifier()
     {
     	return 'member_id';
+    }
+
+    /**
+     * Handles all the document attachment processing functions for the model
+     *
+     * @see \yii\base\Component::behaviors()
+     */
+    public function behaviors()
+    {
+        return [
+            OpImageBehavior::className(),
+        ];
     }
 
     /**
@@ -82,7 +113,9 @@ class Status extends BaseEndable
         	[['member_status'], 'exist', 'targetClass' => '\app\models\member\StatusCode', 'targetAttribute' => 'member_status_cd'],
         	[['lob_cd'], 'exist', 'targetClass' => '\app\models\value\Lob'],
             ['effective_dt', 'unique', 'targetAttribute' => ['member_id', 'effective_dt'], 'message' => 'The Effective Date has already been taken.'],
-        		
+            [['doc_id'], 'string', 'max' => 20],
+            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
+
         	[['other_local'], 'required', 'on' => self::SCENARIO_CCD],
         	['init_dt', AtLeastValidator::className(), 'in' => ['paid_thru_dt', 'init_dt'], 'on' => self::SCENARIO_RESET],
         	['alloc_id', 'exist', 'targetClass' => '\app\models\accounting\BaseAllocation', 'targetAttribute' => 'id'],
@@ -107,10 +140,54 @@ class Status extends BaseEndable
         	'init_dt' => 'New Initiation',
         ];
     }
-        
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            $hold_id = null;
+            if (!$insert) {
+                $this->_hold_path = $this->getImagePath();
+                $hold_id = $this->doc_id;
+            }
+
+            $this->_image = $this->uploadImage();
+
+            if ($this->_image === false)
+                $this->doc_id = $hold_id;
+
+            return true;
+        }
+        return false;
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if ($this->_image !== false && (($this->_hold_path === null) || unlink($this->_hold_path)))
+            $this->_image->saveAs($this->getImagePath());
+    }
+
+    public function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            $this->deleteImage();
+            return true;
+        }
+        return false;
+    }
+
     public function getIsActive()
     {
     	return $this->member_status == self::ACTIVE;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getMember()
+    {
+        return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
     }
 
     /**

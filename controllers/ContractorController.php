@@ -12,8 +12,8 @@ use app\models\contractor\Phone;
 use app\models\contractor\ContractorSearch;
 use app\models\contractor\Signatory;
 use app\models\contractor\Note;
-use app\models\member\Employment;
-use app\models\member\EmploymentSearch;
+use app\models\employment\Employment;
+use app\models\employment\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
 use app\models\accounting\StagedBill;
 use app\models\accounting\TradeFeeType;
@@ -112,6 +112,7 @@ class ContractorController extends RootController
     		
     		$invalid = '';
     		foreach ($employees as $employee) {
+    		    /* @var Employment $employee */
 	    		$member = $employee->member;
 	    		if ($member->isInApplication() && (!isset($employee->member->currentApf)))
 	    				$invalid .= '<li>' .$member->report_id . ': ' . $member->fullName . '</li>';

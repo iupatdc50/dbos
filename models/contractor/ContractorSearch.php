@@ -2,11 +2,9 @@
 
 namespace app\models\contractor;
 
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\contractor\Contractor;
-use app\models\member\Employment;
+use app\models\employment\Employment;
 use app\helpers\CriteriaHelper;
 
 /**

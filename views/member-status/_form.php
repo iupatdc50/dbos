@@ -1,5 +1,6 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
+use kartik\widgets\FileInput;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use kartik\datecontrol\DateControl;
@@ -59,7 +60,15 @@ use app\models\member\Status;
     <?php else: ?>
     	<?= $form->field($model, 'reason')->textarea(['rows' => 6]) ?>
 	<?php endif; ?>
-	
+
+    <?= $form->field($model, "doc_file")->widget(FileInput::className(), [
+        'options' => ['accept' => 'application/pdf'],
+        'pluginOptions'=> [
+            'allowedFileExtensions'=>['pdf','png'],
+            'showUpload' => false,
+        ],
+    ]); ?>
+
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

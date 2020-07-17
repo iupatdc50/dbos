@@ -8,7 +8,7 @@ use kartik\datecontrol\DateControl;
 use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\member\Employment */
+/* @var $model app\models\employment\Employment */
 
 // The controller action that will render the list
 $url = Url::to(['/contractor/contractor-list']);

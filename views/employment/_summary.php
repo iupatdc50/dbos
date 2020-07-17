@@ -56,6 +56,18 @@ echo GridView::widget([
 					]),			
 		],
 		'columns' => [
+		        [
+                    'class' => 'kartik\grid\ExpandRowColumn',
+                    'width' => '50px',
+                    'value' => function () {
+                        return GridView::ROW_COLLAPSED;
+                    },
+                    'detailUrl' => Yii::$app->urlManager->createUrl([
+                            'employment-document/summary-json',
+                        ]),
+                    'headerOptions' => ['class' => 'kartik-sheet-style'],
+                    'expandOneOnly' => true,
+                ],
 				'effective_dt:date',
 				'end_dt:date',
 				[
@@ -80,18 +92,6 @@ echo GridView::widget([
 							return $result;
 						},
 				],
-				
-				[
-						'attribute' => 'showPdf',
-						'label' => 'Doc',
-						'format' => 'raw',
-						'value' => function($model) {
-							return (isset($model->doc_id)) ?
-								Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show referral']),
-									$model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
-						},
-				],
-				
 				[
 						'class' => 'kartik\grid\ActionColumn',
 						'visible' => Yii::$app->user->can('updateMember'),
@@ -124,14 +124,11 @@ echo GridView::widget([
 						  ],
 						  'urlCreator' => function ($action, $model) {
 						    	if ($action == 'resume') {
-                                    $url = '/employment/resume?member_id=' . $model->member_id . '&effective_dt=' . $model->effective_dt;
-                                    return $url;
+                                    return '/employment/resume?member_id=' . $model->member_id . '&effective_dt=' . $model->effective_dt;
                                 } elseif ($action == 'edit') {
-						    		$url ='/employment/edit?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
-						    		return $url;
+						    		return '/employment/edit?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
 						    	} elseif ($action === 'remove') {
-						        	$url ='/employment/remove?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
-						        	return $url;
+						        	return '/employment/remove?member_id='.$model->member_id . '&effective_dt='.$model->effective_dt;
 						    	}
 						    	return null;
 						  }

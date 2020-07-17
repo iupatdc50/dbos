@@ -15,7 +15,7 @@ use Exception;
 use Throwable;
 use Yii;
 use app\models\member\Status;
-use app\models\member\Employment;
+use app\models\employment\Employment;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -71,9 +71,13 @@ class MemberStatusController extends SummaryController
 	}
 
     /**
-     * @param $relation_id
+     * Had to override because of the pass by value of $model.  Clean
+     * this up.
+     *
+     * @param string $relation_id Member ID
      * @return array|mixed|string|Response
      * @throws NotFoundHttpException|Throwable
+     * @see \app\controllers\base\SubmodelController::actionCreate()
      */
 	public function actionCreate($relation_id)
 	{
@@ -88,8 +92,8 @@ class MemberStatusController extends SummaryController
 		
 		if ($model->load(Yii::$app->request->post())) {
 			if ($this->addStatus($model)) {
-				
-				if ($model->member_status == Status::IN_APPL) {
+
+			    if ($model->member_status == Status::IN_APPL) {
 					$this->member->application_dt = $model->effective_dt;
 					$this->member->save();
 					Yii::$app->session->addFlash('success', "APF assessment created");

@@ -97,7 +97,15 @@ class ReceiptMemberController extends BaseController
      */
     public function actionPayment()
     {
-        $post = Yii::$app->request->post();
+        $filters = [
+            'email' => FILTER_SANITIZE_EMAIL,
+            'charge' => [FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION],
+            'member_id' => FILTER_SANITIZE_STRING,
+            'cardholder_nm' => FILTER_SANITIZE_STRING,
+            'currency' => FILTER_SANITIZE_STRING,
+            'stripe_token' => FILTER_SANITIZE_STRING,
+        ];
+        $post = filter_var_array(Yii::$app->request->post(), $filters);
 
         $member = Member::findOne($post['member_id']);
 
@@ -118,7 +126,7 @@ class ReceiptMemberController extends BaseController
                 $customer = Customer::create([
                     'email' => $post['email'],
                     'name' => $post['cardholder_nm'],
-                    'source' => Yii::$app->request->post()['stripe_token'],
+                    'source' => $post['stripe_token'],
                 ]);
                 $member->stripe_id = $customer->id;
                 $member->save();

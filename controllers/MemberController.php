@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\accounting\ReceiptMember;
+use app\models\employment\Employment;
 use Throwable;
 use Yii;
 use app\controllers\base\RootController;
@@ -106,7 +107,15 @@ class MemberController extends RootController
     	$view = Yii::$app->user->can('browseMember') ? 'view' : 'viewext';
     	$model = $this->findModel($id);
     	$params = [];
-    	$params['model'] = $model;    
+    	$params['model'] = $model;
+
+    	$query = Employment::find()->where(['member_id' => $id])->orderBy('effective_dt desc');
+    	$emplProvider = new ActiveDataProvider([
+    	    'query' => $query,
+            'pagination' => ['pageSize' => 5],
+            'sort' => false,
+        ]);
+    	$params['emplProvider'] = $emplProvider;
 
     	$balance = 'Pending';
     	if (isset($model->currentStatus) && isset($model->currentClass)) {
@@ -341,10 +350,10 @@ class MemberController extends RootController
     	$model = $this->findModel($id);
     	$oldPath = $model->imagePath;
     	$oldId = $model->photo_id;
-    	
+
     	if ($model->load(Yii::$app->request->post())) {
     		$image = $model->uploadImage();
-    		 
+
     		if($image === false)
     			$model->photo_id = $oldId;
     		 

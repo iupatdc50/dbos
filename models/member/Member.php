@@ -5,6 +5,8 @@ namespace app\models\member;
 use app\models\accounting\DuesAllocation;
 use app\models\base\iDemographicInterface;
 use app\models\base\iIdInterface;
+use app\models\employment\CurrentEmployment;
+use app\models\employment\Employment;
 use app\models\training\WorkHoursSummary;
 use app\models\training\WorkProcess;
 use app\models\ZipCode;
@@ -95,6 +97,7 @@ use yii\db\Exception;
  * @property array $sizeOptions
  * @property OpDate $today
  * @property MemberLogin $enrolledOnline
+ * @property Document[] $unfiledDocs
  *
  */
 class Member extends ActiveRecord implements iNotableInterface, iDemographicInterface

@@ -115,7 +115,17 @@ echo GridView::widget([
 						*/
 						
 				],
-				'end_dt:date',
+				// 'end_dt:date',
+            [
+                'attribute' => 'showPdf',
+                'label' => 'Doc',
+                'format' => 'raw',
+                'value' => function($model) {
+                    return (isset($model->doc_id)) ?
+                        Html::a(Html::beginTag('span', ['class' => 'glyphicon glyphicon-paperclip', 'title' => 'Show attachment']),
+                            $model->imageUrl, ['target' => '_blank', 'data-pjax'=>"0"]) : '';
+                },
+            ],
 				[
 						'attribute' => 'reason',
 						/* Future to make this field updatable inline

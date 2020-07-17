@@ -3,10 +3,10 @@
 namespace app\controllers;
 
 use app\controllers\base\SummaryController;
+use Throwable;
 use Yii;
 use app\models\member\Member;
-use app\models\member\Employment;
-use yii\db\ActiveRecord;
+use app\models\employment\Employment;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
@@ -18,7 +18,7 @@ use yii\web\UploadedFile;
  */
 class EmploymentController extends SummaryController
 {
-	public $recordClass = 'app\models\member\Employment';
+	public $recordClass = 'app\models\employment\Employment';
 	public $relationAttribute = 'member_id';
 
     /**
@@ -38,15 +38,17 @@ class EmploymentController extends SummaryController
         if ($model->load(Yii::$app->request->post())) {
 	        // Prepopulate referencing column
 	        $model->member_id = $relation_id;
-            /* @var $image UploadedFile */
-        	$image = $model->uploadImage();
+//            /* @var $image UploadedFile */
+//        	$image = $model->uploadImage();
         	if	($model->save()) {
+/*
         		if ($image !== false) {
         			$path = $model->imagePath;
         			$image->saveAs($path);
         		}
         		Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
-        		return $this->goBack();
+ */
+                return $this->goBack();
         	}
         } 
         return $this->renderAjax('create', compact('model'));
@@ -141,13 +143,14 @@ class EmploymentController extends SummaryController
      * @return Response
      * @throws StaleObjectException
      * @throws NotFoundHttpException  If the model is not found
+     * @throws Throwable
      */
 	public function actionRemove($member_id, $effective_dt)
 	{
 		$model = $this->findByDate($member_id, $effective_dt);
 		if ($model !== null) {
 			
-			$removing_current = ($model->end_dt == null) ? true : false;
+			$removing_current = $model->end_dt == null;
 
         	$model->delete();
 
@@ -162,7 +165,7 @@ class EmploymentController extends SummaryController
 	
 	public function actionLoan($relation_id)
 	{
-		/** @var ActiveRecord $model */
+		/** @var Employment $model */
 		$model = new $this->recordClass;
 		// Prepopulate referencing column
 		$model->{$this->relationAttribute} = $relation_id;

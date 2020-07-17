@@ -15,6 +15,7 @@ class DocumentType extends ActiveRecord
 
     const CATG_MEMBER = 'Member';
     const CATG_TRAINING = 'Training';
+    const CATG_EMPLOYMENT = 'Employment';
 
     /**
      * @inheritdoc
@@ -49,6 +50,10 @@ class DocumentType extends ActiveRecord
 
     public function getCatgOptions()
     {
-        return [self::CATG_MEMBER => self::CATG_MEMBER, self::CATG_TRAINING => self::CATG_TRAINING];
+        return [
+            self::CATG_MEMBER => self::CATG_MEMBER,
+            self::CATG_TRAINING => self::CATG_TRAINING,
+            self::CATG_EMPLOYMENT => self::CATG_EMPLOYMENT,
+        ];
     }
 }

@@ -1,8 +1,12 @@
 <?php
 
-namespace app\models\member;
+namespace app\models\employment;
 
 use app\components\behaviors\OpImageBehavior;
+use app\models\member\Member;
+use app\models\member\Standing;
+use app\models\value\DocumentType;
+use Yii;
 use yii\base\InvalidCallException;
 use yii\db\ActiveQuery;
 use yii\db\Exception;
@@ -25,6 +29,8 @@ use app\components\utilities\OpDate;
  * @property Member $member
  * @property Contractor $contractor
  * @property Contractor $duesPayor
+ * @property string $descrip
+ * @property Document[] $unfiledDocs
  *
  * @method uploadImage()
  *
@@ -93,7 +99,7 @@ class Employment extends BaseEndable
     {
     	if (!isset($search['employer']))
     		throw new InvalidCallException('This function requires an employer parameter');
-    	/* @var Query $query */
+
     	$query = new Query;
     	$query->select('member_id as id, full_nm as text')
     		->from('CurrentEmployeePickList')
@@ -242,7 +248,33 @@ class Employment extends BaseEndable
     	$options = self::getTermReasonOptions();
     	return isset($options[$reason]) ? $options[$reason] : '';
     }
-    
-    
+
+    /**
+     * @param string $catg
+     * @return array
+     * @throws Exception
+     */
+    public function getUnfiledDocs($catg = DocumentType::CATG_EMPLOYMENT)
+    {
+        $sql = "SELECT doc_type "
+            . "  FROM " . DocumentType::tableName()
+            . "  WHERE catg = :catg  "
+            . "    AND doc_type NOT IN (SELECT doc_type FROM " . Document::tableName()
+            . "                            WHERE member_id = :member_id "
+            . "                              AND effective_dt = :effective_dt "
+            . "                         ) "
+            . "  ORDER BY doc_type "
+        ;
+        $cmd = Yii::$app->db->createCommand($sql);
+        $cmd->bindValues([
+            ':member_id' => $this->member_id,
+            ':effective_dt' => $this->effective_dt,
+            ':catg' => $catg,
+        ]);
+        return $cmd->queryAll();
+    }
+
+
+
 
 }

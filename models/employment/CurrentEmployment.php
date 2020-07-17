@@ -1,8 +1,6 @@
 <?php
 
-namespace app\models\member;
-
-use app\models\member\Employment;
+namespace app\models\employment;
 
 /**
  * This model uses the VIEW CurrentEmployment and is for current employment entries only
