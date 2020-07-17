@@ -2,7 +2,6 @@
 
 namespace app\models\employment;
 
-use app\components\behaviors\OpImageBehavior;
 use app\models\member\Member;
 use app\models\member\Standing;
 use app\models\value\DocumentType;
@@ -23,7 +22,6 @@ use app\components\utilities\OpDate;
  * @property string $employer
  * @property string $dues_payor
  * @property string $is_loaned
- * @property string $doc_id
  * @property string $term_reason
  *
  * @property Member $member
@@ -31,8 +29,6 @@ use app\components\utilities\OpDate;
  * @property Contractor $duesPayor
  * @property string $descrip
  * @property Document[] $unfiledDocs
- *
- * @method uploadImage()
  *
  */
 class Employment extends BaseEndable
@@ -46,11 +42,7 @@ class Employment extends BaseEndable
 	 */
 	private $_standing;
 	public $loan_ckbox;
-	/**
-	 * @var mixed	Stages document to be uploaded
-	 */
-	public $doc_file;
-	
+
 	
     /**
      * @inheritdoc
@@ -127,18 +119,6 @@ class Employment extends BaseEndable
     	return self::findOne(['member_id' => $member_id, 'effective_dt' => $effective_dt]);
     }
     
-	/**
-	 * Handles all the document attachment processing functions for the model
-	 * 
-	 * @see \yii\base\Component::behaviors()
-	 */
-	public function behaviors()
-	{
-		return [
-				OpImageBehavior::className(),
-		];
-	}
-
     /**
      * @inheritdoc
      */
@@ -150,8 +130,6 @@ class Employment extends BaseEndable
             [['member_id'], 'exist', 'targetClass' => '\app\models\member\Member'],
             [['employer', 'dues_payor'], 'exist', 'targetClass' => '\app\models\contractor\Contractor', 'targetAttribute' => 'license_nbr'],
         	[['loan_ckbox', 'term_reason'], 'safe'],
-            [['doc_id'], 'string', 'max' => 20],
-        	[['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],        		
         ];
     }
 

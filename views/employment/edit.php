@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Special version of create for employment. Launched by the Create controller action.
@@ -11,12 +11,10 @@ use yii\web\JsExpression;
 use kartik\datecontrol\DateControl;
 use kartik\select2\Select2;
 use kartik\checkbox\CheckboxX;
-use kartik\widgets\FileInput;
-
 
 
 /* @var $this yii\web\View */
-/* @var $model app\models\member\Employment */
+/* @var $model app\models\employment\Employment */
 
 // The controller action that will render the list
 $url = Url::to(['/contractor/contractor-list']);
@@ -90,14 +88,6 @@ $url = Url::to(['/contractor/contractor-list']);
 	])->label('Loan to', ['id' => 'duespayorlbl']); ?>
 	</div>
 	
-	<?= $form->field($model, "doc_file")->widget(FileInput::className(), [
-    		'options' => ['accept' => 'application/pdf'],
-    		'pluginOptions'=> [
-    				'allowedFileExtensions'=>['pdf','png'],
-    				'showUpload' => false,
-    		],
-    ]); ?>
-	
     <div class="form-group">
         <?= Html::submitButton('Update', ['class' => 'btn btn-success']) ?>
     </div>
@@ -111,7 +101,6 @@ $script = <<< JS
 
 $(function() {
  	if ($('#employment-loan_ckbox').val() != "1") {
-		$('#hideable').hide();
 		$('#hideable').hide();
  	}
 })

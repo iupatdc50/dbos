@@ -11,7 +11,6 @@ use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use yii\web\UploadedFile;
 
 /**
  * EmploymentController implements the CRUD actions for Employment model.
@@ -38,16 +37,7 @@ class EmploymentController extends SummaryController
         if ($model->load(Yii::$app->request->post())) {
 	        // Prepopulate referencing column
 	        $model->member_id = $relation_id;
-//            /* @var $image UploadedFile */
-//        	$image = $model->uploadImage();
         	if	($model->save()) {
-/*
-        		if ($image !== false) {
-        			$path = $model->imagePath;
-        			$image->saveAs($path);
-        		}
-        		Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
- */
                 return $this->goBack();
         	}
         } 
@@ -112,21 +102,9 @@ class EmploymentController extends SummaryController
 	{
 		$model = $this->findByDate($member_id, $effective_dt);
 		
-	    $oldPath = $model->imagePath;
-        $oldId = $model->doc_id;
-        
         if ($model->load(Yii::$app->request->post())) {
-            /* @var $image UploadedFile */
-        	$image = $model->uploadImage();
-        	
-        	if($image === false)
-        		$model->doc_id = $oldId;
-         
+
         	if	($model->save()) {
-            	if ($image !== false && (($oldPath === null) || unlink($oldPath))) {
-    				$path = $model->imagePath;
-    				$image->saveAs($path);
-    			}
     			Yii::$app->session->addFlash('success', "{$this->getBasename()} entry updated");
         		return $this->goBack();
         	}
