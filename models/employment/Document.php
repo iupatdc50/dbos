@@ -68,6 +68,7 @@ class Document extends ActiveRecord
             [['doc_id'], 'string', 'max' => 20],
             [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png, jpg, jpeg'],
             [['test_result'], 'in', 'range' => [self::POSITIVE, self::NEGATIVE]],
+            ['test_result', 'default'],
         ];
     }
 
