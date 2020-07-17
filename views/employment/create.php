@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Special version of create for employment. Launched by the Create controller action.
@@ -10,11 +10,10 @@ use yii\bootstrap\ActiveForm;
 use yii\web\JsExpression;
 use kartik\datecontrol\DateControl;
 use kartik\select2\Select2;
-use kartik\widgets\FileInput;
 
 
 /* @var $this yii\web\View */
-/* @var $model app\models\member\Employment */
+/* @var $model app\models\employment\Employment */
 
 // The controller action that will render the list
 $url = Url::to(['/contractor/contractor-list']);
@@ -49,14 +48,7 @@ $url = Url::to(['/contractor/contractor-list']);
 	    ],
 	]); ?>
 	
-	    <?= $form->field($model, 'doc_file')->widget(FileInput::className(), [
-    		'options' => ['accept' => 'application/pdf'],
-    		'pluginOptions'=> [
-    				'allowedFileExtensions'=>['pdf','png'],
-    				'showUpload' => false,
-    		],
-    ]); ?>
-    
+
 	
     
     <div class="form-group">
