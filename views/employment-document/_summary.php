@@ -13,7 +13,7 @@ use yii\widgets\Pjax;
 
 ?>
 
-<div id="document-panel">
+<div id="document-panel" class="leftside forty-pct">
 
 <?php
 

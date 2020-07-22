@@ -1,14 +1,18 @@
 <?php
 
 use kartik\grid\GridView;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider ActiveDataProvider */
+/* @var $id string   License number */
 
 $controller = 'contractor-signatory';
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
+        'id' => 'contractor-signatory',
 		'dataProvider' => $dataProvider,
 		'panel'=>[
 		        'type'=>GridView::TYPE_DEFAULT,
@@ -19,6 +23,18 @@ echo GridView::widget([
 		        'footer' => false,
 		],
 		'columns' => [
+            [
+                'class' => 'kartik\grid\ExpandRowColumn',
+                'width' => '50px',
+                'value' => function () {
+                    return GridView::ROW_COLLAPSED;
+                },
+                'detailUrl' => Yii::$app->urlManager->createUrl([
+                    "{$controller}/history-json",
+                ]),
+                'headerOptions' => ['class' => 'kartik-sheet-style'],
+                'expandOneOnly' => true,
+            ],
 				[
 						'attribute' => 'lob',
 						'label' => 'Local',
@@ -30,7 +46,7 @@ echo GridView::widget([
 						'attribute' => 'is_pla',
 						'label' => 'PLA',
 						'value' => function($model) {
-							return ($model->is_pla == 'T') ? true : false;
+							return $model->is_pla == 'T';
 						}
 				],
 				[
@@ -39,7 +55,7 @@ echo GridView::widget([
 						'attribute' => 'assoc',
 						'label' => 'Assoc',
 						'value' => function($model) {
-							return ($model->assoc == 'T') ? true : false;
+							return $model->assoc == 'T';
 						}
 				],
 				'signed_dt:date',
