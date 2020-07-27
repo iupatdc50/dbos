@@ -108,7 +108,7 @@ class MemberSearch extends Member
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         ;
 
-        $wage_cond = (strtolower($this->wage_percent) == 'q') ? ['>', 'should_be', 0] : ['MC.wage_percent' => $this->wage_percent];
+        $wage_cond = (strtolower($this->wage_percent) == 'q') ? ['>', 'should_be', 0] : CriteriaHelper::parseMixed('MC.wage_percent', $this->wage_percent);
         $query->andFilterWhere($wage_cond);
 
         if (strtolower($this->employer) == 'unemployed')
