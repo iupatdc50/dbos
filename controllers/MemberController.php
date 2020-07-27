@@ -17,7 +17,6 @@ use app\models\member\StatusCode;
 use app\models\member\MemberClass;
 use app\models\member\Note;
 use app\models\member\Document;
-use app\models\training\Standing as ClassStanding;
 use app\models\member\MemberSearch;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -98,7 +97,6 @@ class MemberController extends RootController
      * @param string $id
      * @return mixed
      * @throws NotFoundHttpException
-     * @throws Exception
      */
     public function actionView($id)
     {
@@ -123,17 +121,6 @@ class MemberController extends RootController
     	}
     	$params['balance'] = $balance;
 
-    	$wage_percent = [];
-        if (isset($model->currentStatus) && isset($model->currentClass)) {
-            $standing = new ClassStanding(['member' => $model]);
-            $result = $standing->wageShouldBe();
-            $wage_percent = [
-                'current' => $result['wage_percent'],
-                'should_be' => $result['should_be'],
-            ];
-        }
-        $params['wage_percent'] = $wage_percent;
-    	
     	if (Yii::$app->user->can('browseMember')) {
     		$params['noteModel'] = $this->createNote($model);
     	} else {

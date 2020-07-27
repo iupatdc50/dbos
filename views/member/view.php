@@ -203,11 +203,8 @@ $status = $model->currentStatus;
     $class = 'Unknown';
     if (isset($model->currentClass)) {
         $class = $model->currentClass->mClassDescrip;
-        if (($model->currentClass->wage_percent < 100) && (!empty($wage_percent))) {
-            if ($wage_percent['should_be'] > $wage_percent['current'])
-                $class .= Html::tag('span', " Qualifies for step increase", ['class' => 'accord-alert pull-right']);
-        }
-
+        if (isset($model->qualifiesForIncrease))
+            $class .= Html::tag('span', " Qualifies for step increase to: {$model->qualifiesForIncrease->should_be}%", ['class' => 'accord-alert pull-right']);
     }
 
     $classUrl = Yii::$app->urlManager->createUrl(['member-class/summary-json', 'id' => $model->member_id]);

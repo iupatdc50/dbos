@@ -16,6 +16,7 @@ class MemberSearch extends Member
 	public $lob_cd;
 	public $status;
 	public $class;
+	public $wage_percent;
 	public $fullName;
 	public $specialties;
 	public $employer;
@@ -30,7 +31,7 @@ class MemberSearch extends Member
             [['member_id', 'ssnumber', 'report_id', 'fullName', 'middle_inits', 
             		'suffix', 'birth_dt', 'gender', 
             		'shirt_size', 'local_pac', 'hq_pac', 'remarks', 
-            		'lob_cd', 'status', 'class', 'specialties', 'employer', 'dues_paid_thru_dt',
+            		'lob_cd', 'status', 'class', 'wage_percent', 'specialties', 'employer', 'dues_paid_thru_dt',
             		'expiredCount',
             ], 'safe'],
 //        	[['dues_paid_thru_dt'], 'date', 'format' => 'php:m/d/Y', 'message' => 'Invalid date'],
@@ -74,11 +75,9 @@ class MemberSearch extends Member
         		'asc' => ['last_nm' => SORT_ASC, 'first_nm' => SORT_ASC], 
         		'desc' => ['last_nm' => SORT_DESC, 'first_nm' => SORT_DESC],
         ];
-        $dataProvider->sort->attributes['class'] = [
-        		'asc' => ['member_class' => SORT_ASC, 'wage_percent' => SORT_ASC], 
-        		'desc' => ['member_class' => SORT_DESC, 'wage_percent' => SORT_DESC],
-        ];
-        
+        $dataProvider->sort->attributes['class'] = ['asc' => ['member_class' => SORT_ASC], 'desc' => ['member_class' => SORT_DESC]];
+        $dataProvider->sort->attributes['wage_percent'] = ['asc' => ['wage_percent' => SORT_ASC], 'desc' => ['wage_percent' => SORT_DESC]];
+
         // Default set to active
 		if (!isset($params['MemberSearch']['status']))
 			$params['MemberSearch']['status'] = 'A';
@@ -87,7 +86,7 @@ class MemberSearch extends Member
             return $dataProvider;
         }
         
-        $query->joinWith(['currentStatus', 'currentClass', 'specialties', 'employer.duesPayor']);
+        $query->joinWith(['currentStatus', 'currentClass', 'qualifiesForIncrease', 'specialties', 'employer.duesPayor']);
         $query->leftJoin(['CredCounts' => $cred_subquery], 'CredCounts.member_id = Members.member_id');
 
        	$criteria = CriteriaHelper::parseMixed('dues_paid_thru_dt', $this->dues_paid_thru_dt, true);
@@ -108,6 +107,9 @@ class MemberSearch extends Member
         	])
         	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         ;
+
+        $wage_cond = (strtolower($this->wage_percent) == 'q') ? ['>', 'should_be', 0] : ['MC.wage_percent' => $this->wage_percent];
+        $query->andFilterWhere($wage_cond);
 
         if (strtolower($this->employer) == 'unemployed')
             $query->andFilterWhere(['empl_status' => 'U']);

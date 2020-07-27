@@ -1,5 +1,6 @@
 <?php
 
+use app\models\member\MemberClass;
 use kartik\widgets\Select2;
 use yii\helpers\Html;
 use kartik\grid\GridView;
@@ -64,10 +65,19 @@ $this->params['breadcrumbs'][] = $this->title;
     		],
         	[
                     'attribute' => 'class',
-                    'value' => 'currentClass.mClassDescrip',
-                    'label' => 'Class',
-                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+                    'value' => 'currentClass.member_class',
         	],
+            [
+                    'attribute' => 'wage_percent',
+                    'width' => '60px',
+                    'value' => function($model) {
+                        return ($model->currentClass->member_class == MemberClass::APPRENTICE || $model->currentClass->member_class == MemberClass::MATERIALHANDLER) ? $model->currentClass->wage_percent : '';
+                    },
+                    'contentOptions' => function($model) {
+                        return (isset($model->qualifiesForIncrease)) ? ['class' => 'danger'] : null;
+                    },
+                    'label' => '%'
+            ],
 			'report_id',
             [
                     'label' => Html::tag('i', '', ['class' => 'glyphicon glyphicon-camera']),

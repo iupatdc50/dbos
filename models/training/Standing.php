@@ -36,37 +36,10 @@ class Standing extends Model
      * @return array|false
      * @throws Exception
      */
-    public function wageShouldBe()
-    {
-        /** @noinspection SqlCaseVsIf */
-        $sql = <<<SQL
-  SELECT 
-      H.total_hours,
-      CMC.wage_percent,
-      CASE WHEN CMC.member_class = 'M' THEN MP.wage_pct ELSE AP.wage_pct END AS should_be
-    FROM (SELECT TS.member_id, SUM(TS.total_hours) AS total_hours
-            FROM Timesheets AS TS
-            GROUP BY TS.member_id) AS H
-      JOIN CurrentMemberClasses AS CMC ON CMC.member_id = H.member_id
-      JOIN CurrentMemberStatuses AS CMS ON CMS.member_id = H.member_id
-      LEFT OUTER JOIN ApprenticePercentages AS AP ON AP.lob_cd = CMS.lob_cd
-                                                   AND H.total_hours BETWEEN AP.min_hours AND AP.max_hours
-      LEFT OUTER JOIN MHPercentages AS MP ON MP.lob_cd = CMS.lob_cd
-                                           AND H.total_hours BETWEEN MP.min_hours AND MP.max_hours
-    WHERE H.member_id = :member_id
-;
-SQL;
-        return $this->runSql($sql);
-
-    }
-
-    /**
-     * @return array|false
-     * @throws Exception
-     */
     public function ojt()
     {
         /** @noinspection SqlCaseVsIf */
+        /** @noinspection SqlResolve */
         $sql = <<<SQL
     SELECT
         CASE WHEN MCI.lob_cd = '1941' THEN 'Industrial' ELSE SUBSTR(MCI.trade, 7, LENGTH(MCI.trade) - 7) END AS trade, 

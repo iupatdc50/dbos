@@ -76,6 +76,7 @@ use yii\db\Exception;
  * @property MemberReinstateStaged $reinstateStaged
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
+ * @property QualifiesForIncrease $qualifiesForIncrease
  * @property Classification $classification
  * @property CurrentEmployment $employer
  * @property Employment $employerActive
@@ -671,6 +672,14 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     public function getClassification()
     {
     	return $this->hasOne(Classification::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getQualifiesForIncrease()
+    {
+        return $this->hasOne(QualifiesForIncrease::className(), ['member_id' => 'member_id']);
     }
 
     /**
