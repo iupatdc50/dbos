@@ -37,6 +37,9 @@ use yii\web\UploadedFile;
  * @property integer $employeeCount
  * @property Member[] $employees
  * @property Note[] $notes
+ * @property integer $noteCount
+ * @property string $statusText
+ * @property string $deductsDuesText
  */
 class Contractor extends ActiveRecord  implements iNotableInterface
 {

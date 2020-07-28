@@ -19,6 +19,7 @@ use yii\web\UploadedFile;
  * @property string $test_result
  *
  * @property string $imagePath
+ * @property string $imageUrl
  * @property array $typeOptions
  * @property array $resultOptions
  * @property string $extendedType

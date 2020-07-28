@@ -1,27 +1,49 @@
 <?php
 use kartik\grid\GridView;
+use kartik\widgets\Select2;
 use yii\helpers\Html;
 use yii\widgets\Pjax;
 
-/* @var $model yii\data\ActiveDataProvider */
-/* @var $searchModel app\models\member\EmploymentSearch */
+/* @var $provider yii\data\ActiveDataProvider */
+/* @var $searchModel app\models\employment\EmploymentSearch */
+/* @var $license_nbr string */
 
 Pjax::begin ( [ 
 		'id' => 'current-employees',
 		'enablePushState' => false 
 ] );
-echo GridView::widget ( [ 
+/** @noinspection PhpUnhandledExceptionInspection */
+echo GridView::widget ( [
 		'id' => 'current-employees',
 		'dataProvider' => $provider,
 		'filterModel' => $searchModel,
 		'panel' => [ 
 				'type' => GridView::TYPE_DEFAULT,
 				'heading' => 'Current Employees',
-				'before' => false,
+				'before' => '',
 				'after' => false 
 		],
-		'columns' => [ 
-				[ 
+		'toolbar' => [
+		    'content' =>
+                Html::a(
+                    '<i class="glyphicon glyphicon-print"></i>&nbsp;Print 9a Cards Report',
+                    ['/employment/print9a', 'license_nbr' => $license_nbr],
+                    ['class' => 'btn btn-default', 'target' => '_blank', 'data-pjax'=>"0"])
+        ],
+		'columns' => [
+                [
+                    'class' => 'kartik\grid\ExpandRowColumn',
+                    'width' => '50px',
+                    'value' => function () {
+                        return GridView::ROW_COLLAPSED;
+                    },
+                    'detailUrl' => Yii::$app->urlManager->createUrl([
+                        'employment-document/summary-json',
+                    ]),
+                    'headerOptions' => ['class' => 'kartik-sheet-style'],
+                    'expandOneOnly' => true,
+                ],
+				[
 						'attribute' => 'fullName',
 						'format' => 'raw',
 						'value' => function ($data) {
@@ -47,7 +69,7 @@ echo GridView::widget ( [
 		            	'filterType' => GridView::FILTER_SELECT2,
 		            	'filter' => ["" => "", "T" => "Loaned"],
 		            	'filterWidgetOptions' => [
-		            			'size' => \kartik\widgets\Select2::SMALL,
+		            			'size' => Select2::SMALL,
 		            			'hideSearch' => true,
 		            			'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
 		            	],

@@ -128,7 +128,11 @@ Accordion::widget([
    		
 	</div>
    	<div class="rightside thirtyfive-pct"> 
-   		<?= $this->render('_employee', ['provider' => $employeeProvider, 'searchModel' => $employeeSearchModel]); ?> 	
+   		<?= $this->render('_employee', [
+   		        'provider' => $employeeProvider,
+                'searchModel' => $employeeSearchModel,
+                'license_nbr' => $model->license_nbr,
+        ]); ?>
 
     </div>
 </div>
