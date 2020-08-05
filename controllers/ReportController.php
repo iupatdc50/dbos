@@ -229,9 +229,9 @@ class ReportController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $query = UniversalFile::find()->where(['acct_month' => $model->acct_month])
                                           ->orderBy([
+                                              'B' => SORT_ASC,
                                               'C' => SORT_ASC,
                                               'received_dt' => SORT_ASC,
-                                              'B' => SORT_ASC,
                                               'hd' => SORT_ASC,
                                               'N' => SORT_ASC,
                                               'O' => SORT_ASC,

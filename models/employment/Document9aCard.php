@@ -8,7 +8,7 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "Document9aCards".
+ * This is the model class for view "Document9aCards", a union used for reporting.
  *
  * @property string|null $employer
  * @property string $member_id

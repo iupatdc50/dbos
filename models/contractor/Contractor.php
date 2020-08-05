@@ -2,6 +2,7 @@
 
 namespace app\models\contractor;
 
+use app\models\employment\Document9aCard;
 use BadMethodCallException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
@@ -36,6 +37,7 @@ use yii\web\UploadedFile;
  * @property Signatory[] $signatories
  * @property integer $employeeCount
  * @property Member[] $employees
+ * @property Document9aCard[] $doc9aCards
  * @property Note[] $notes
  * @property integer $noteCount
  * @property string $statusText
@@ -259,7 +261,15 @@ class Contractor extends ActiveRecord  implements iNotableInterface
     	return $this->hasMany(Member::className(), ['member_id' => 'member_id'])
     			->viaTable('CurrentEmployees', ['employer' => 'license_nbr']);
     }
-    
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getDoc9aCards()
+    {
+        return $this->hasMany(Document9aCard::className(), ['employer' => 'license_nbr']);
+    }
+
     public function getDeductsDuesText()
     {
     	return OptionHelper::getTFText($this->deducts_dues);

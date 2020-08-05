@@ -4,12 +4,10 @@ namespace app\controllers;
 
 use app\controllers\base\SummaryController;
 use app\models\contractor\Contractor;
-use app\models\employment\Document9aCard;
 use Throwable;
 use Yii;
 use app\models\member\Member;
 use app\models\employment\Employment;
-use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
@@ -202,14 +200,7 @@ class EmploymentController extends SummaryController
 
         $contractorModel = Contractor::findOne($license_nbr);
 
-        $provider = new ActiveDataProvider([
-            'query' => Document9aCard::find()->where(['employer' => $license_nbr]),
-            'pagination' => ['pageSize' => 5],
-            'sort' => false,
-        ]);
-
         return $this->render('/employment/doc9a-preview', [
-            'dataProvider' => $provider,
             'contractorModel' => $contractorModel,
         ]);
     }

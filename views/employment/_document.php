@@ -6,7 +6,7 @@ use yii\widgets\DetailView;
 
 ?>
 
-<div class="document">
+<div class="document seventyfive-pct">
 
     <?= /** @noinspection PhpUnhandledExceptionInspection */
 
@@ -27,7 +27,7 @@ use yii\widgets\DetailView;
                     [
                         'attribute' => 'document',
                         'format' => 'raw',
-                        'value' => '<iframe class="thumbnail" src="' . $model->baseDocument->imageUrl . '#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" width="400" height="200"></iframe>',
+                        'value' => Html::img($model->baseDocument->imageUrl, ['class' => 'img-thumbnail', 'width' => '300', 'height' => '150',]),
                     ],
             ],
         ]);

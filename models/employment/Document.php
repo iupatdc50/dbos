@@ -31,6 +31,7 @@ class Document extends ActiveRecord
 {
     const POSITIVE = 'POSITIVE';
     const NEGATIVE = 'NEGATIVE';
+    const NINEA = '9a Card';
 
     // Injected Employment object, used for creating new entries
     /* @var Employment $employment */
@@ -68,6 +69,11 @@ class Document extends ActiveRecord
             [['doc_type'], 'exist', 'targetClass' => '\app\models\value\DocumentType'],
             [['doc_id'], 'string', 'max' => 20],
             [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png, jpg, jpeg'],
+            [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'jpg, jpeg', 'when' => function($model) {
+                return $model->doc_type == self::NINEA;
+            }, 'whenClient' => "function (attribute, value) {
+            	return ($('#docType').val() == '9a Card');
+    		}"],
             [['test_result'], 'in', 'range' => [self::POSITIVE, self::NEGATIVE]],
             ['test_result', 'default'],
         ];
