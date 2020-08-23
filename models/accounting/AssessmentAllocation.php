@@ -3,6 +3,7 @@
 namespace app\models\accounting;
 
 use app\modules\admin\models\FeeType;
+use yii\db\ActiveQuery;
 
 /** @noinspection PropertiesInspection */
 
@@ -10,7 +11,7 @@ use app\modules\admin\models\FeeType;
  * This is the model class for table "OtherAllocations".
  *
  * @property string $assessment_id
- * @property Assessment @assessment
+ * @property Assessment $assessment
  */
 class AssessmentAllocation extends BaseAllocation
 {
@@ -54,7 +55,7 @@ class AssessmentAllocation extends BaseAllocation
     }
     
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAssessment()
     {

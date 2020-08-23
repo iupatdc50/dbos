@@ -51,7 +51,7 @@ return [
 										'class' => EmailTarget::className(),
 										'levels' => Logger::LEVEL_ERROR,
 										'message' => [
-												'to' => 'support@dc50.org'
+												'to' => 'jmdemoor@objectpac.com'
 										]
 								]
 						],

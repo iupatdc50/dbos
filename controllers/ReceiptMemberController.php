@@ -303,7 +303,6 @@ class ReceiptMemberController extends BaseController
 
         $typesSubmitted = ReceiptMember::getFeeTypesSubmitted($member_id);
 
-        /** @noinspection SqlResolve */
         $count = Yii::$app->db->createCommand(
             'SELECT COUNT(*) FROM AllocatedMembers WHERE member_id = :member_id',
             [':member_id' => $member_id]
