@@ -152,7 +152,7 @@ class Employment extends BaseEndable
     {
     	$this->loan_ckbox = ($this->is_loaned == 'T');
     }
-    
+
     public function beforeSave($insert)
     {
     	if (parent::beforeSave($insert))
@@ -161,9 +161,11 @@ class Employment extends BaseEndable
     			if ($this->is_loaned == 'F')
     				$this->dues_payor = $this->employer;
     		} else {  // assume update
-    			if (($this->loan_ckbox == '0') && ($this->is_loaned == 'T')) {
-    				$this->is_loaned = 'F';
-    				$this->dues_payor = $this->employer;
+    			if ($this->loan_ckbox == '0' || $this->loan_ckbox == '') {
+    			    if ($this->is_loaned == 'T')
+    				    $this->is_loaned = 'F';
+    			    if ($this->dues_payor != $this->employer)
+    				    $this->dues_payor = $this->employer;
     			} elseif (($this->loan_ckbox == '1') && ($this->is_loaned == 'F')) {
     				$this->is_loaned = 'T';
     			}
