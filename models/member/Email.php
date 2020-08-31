@@ -58,7 +58,7 @@ class Email extends ActiveRecord
     /**
      * @param bool $insert
      * @return bool
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function beforeSave($insert)
     {

@@ -6,14 +6,14 @@
  * On create, a single address and single phone may be entered.
  */
 
-use yii\helpers\Html;
+use yii\db\ActiveQuery;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
-/* @var $modelsAddress \yii\db\ActiveQuery */
-/* @var $modelsPhone \yii\db\ActiveQuery */
-/* @var $modelsEmail \yii\db\ActiveQuery */
-/* @var $modelsSpecialty \yii\db\ActiveQuery */
+/* @var $modelsAddress ActiveQuery */
+/* @var $modelsPhone ActiveQuery */
+/* @var $modelsEmail ActiveQuery */
+/* @var $modelsSpecialty ActiveQuery */
 ?>
 
 	<hr>
@@ -38,6 +38,7 @@ use yii\helpers\Html;
 	    		[
 	    			'modelsEmail' => $modelsEmail,	
 	    			'relation_id' => $model->member_id,
+                    'count' => $model->emailCount,
 	    		]
 	    ) ?>
         <?= $this->render(

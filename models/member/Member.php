@@ -70,6 +70,7 @@ use yii\db\Exception;
  * @property AddressDefault $addressDefault
  * @property Address $mailingAddress
  * @property Email[] $emails
+ * @property integer $emailCount
  * @property Specialty[] $specialties
  * @property Status[] $statuses
  * @property Status $currentStatus
@@ -449,6 +450,14 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     public function getEmails()
     {
     	return $this->hasMany(Email::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return bool|int|string|null
+     */
+    public function getEmailCount()
+    {
+        return $this->hasMany(Email::className(), ['member_id' => 'member_id'])->count();
     }
     
     /**
