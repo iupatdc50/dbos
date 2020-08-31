@@ -1,22 +1,26 @@
 <?php
 
 use kartik\grid\GridView;
+use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
-/* @var $ modelsEmail \yii\db\ActiveQuery */
+/* @var $modelsEmail ActiveQuery */
 /* @var $relation_id string */
+/* @var $count integer */
 
 $controller = 'member-email';
+/** @noinspection PhpUnhandledExceptionInspection */
 echo GridView::widget([
-		'dataProvider' => new \yii\data\ActiveDataProvider([
+		'dataProvider' => new ActiveDataProvider([
 			        		'query' => $modelsEmail,
 			        		'pagination' => false,
 		]),
 		'panel'=>[
 				'type'=>GridView::TYPE_DEFAULT,
-				'heading'=>'<i class="glyphicon glyphicon-send"></i>&nbsp;Emails',
+				'heading'=>'<i class="glyphicon glyphicon-send"></i>&nbsp;Email (1 allowed per member)',
 				'before' => false,
 				'after' => false,
 				'footer' => false,
@@ -32,6 +36,7 @@ echo GridView::widget([
 												'id' => 'emailCreateButton',
 						'class' => 'btn btn-default btn-modal btn-embedded',
 						'data-title' => 'Email',
+                        'disabled' => !($count == 0),
 					]),
 		],
 	],
