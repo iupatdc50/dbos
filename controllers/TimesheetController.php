@@ -60,7 +60,6 @@ class TimesheetController extends Controller
 
         $member = $this->getMember($member_id);
 
-        /** @noinspection SqlResolve */
         $count = Yii::$app->db->createCommand(
             "SELECT COUNT(*) FROM Timesheets WHERE member_id = :member_id;",
             [':member_id' => $member_id])->queryScalar();
@@ -117,7 +116,6 @@ class TimesheetController extends Controller
             if ($modelTimesheet->save()) {
                 if ($image !== false) {
                     $path = $modelTimesheet->getImagePath();
-                    /** @noinspection PhpUndefinedMethodInspection */
                     $image->saveAs($path);
                 }
 
