@@ -9,7 +9,7 @@ $sql1 = &quot;
 CREATE TEMPORARY TABLE StageIntl (descrip VARCHAR(30), rate DECIMAL(9,2) NULL, receipt_nbr INT NULL) AS
 SELECT 
     Me.member_id,
-    MC.member_class,
+    COALESCE (MC.member_class, 'U') AS member_class,
     DR.rate,
     CONCAT(Me.last_nm, COALESCE(CONCAT(', ', Me.suffix), ''), ', ', LEFT(Me.first_nm, 1)) AS member_name, 
     Me.report_id,
@@ -36,7 +36,7 @@ SELECT
 	                        AND DR.rate_class = 'R'
 	                        AND DR.effective_dt &lt;= AA.received_dt
 	                        AND COALESCE(DR.end_dt, AA.received_dt) &gt;= AA.received_dt
-    JOIN MemberClasses AS MC ON MC.member_id = Me.member_id
+    LEFT OUTER JOIN MemberClasses AS MC ON MC.member_id = Me.member_id
                           AND MC.effective_dt &lt;= AA.received_dt
                           AND COALESCE(MC.end_dt, AA.received_dt) &gt;= AA.received_dt
   WHERE 1 = 1 
