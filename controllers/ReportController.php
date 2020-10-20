@@ -384,6 +384,22 @@ class ReportController extends Controller
                 }
             }
 
+            /*  START ========> Temporary code to hide either aerial lifts or MEWP *********************************************************/
+            $mewp65 = $objPHPExcel->getNamedRange('complete_dt65')->getRange();
+            $dt = $sheet->getCell($mewp65)->getValue();
+            $ints = '0123456789';
+            if (isset($dt)) {
+                $aerial40row = strpbrk($objPHPExcel->getNamedRange('complete_dt40')->getRange(), $ints);
+                $sheet->getRowDimension($aerial40row)->setVisible(false);
+                $aerial64row = strpbrk($objPHPExcel->getNamedRange('complete_dt64')->getRange(), $ints);
+                $sheet->getRowDimension($aerial64row)->setVisible(false);
+            } else {
+                $sheet->getRowDimension(strpbrk($mewp65, $ints))->setVisible(false);
+                $mewp66row = strpbrk($objPHPExcel->getNamedRange('complete_dt66')->getRange(), $ints);
+                $sheet->getRowDimension($mewp66row)->setVisible(false);
+            }
+            /*  END  ========> Temporary code to hide either aerial lifts or MEWP **********************************************************/
+
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
             $this->setHeaders($file_nm);
 
@@ -432,10 +448,20 @@ class ReportController extends Controller
             $sheet->getCell($objPHPExcel->getNamedRange('classification')->getRange())->setValue($ojt['classification']);
             $sheet->getCell($objPHPExcel->getNamedRange('wage_rate')->getRange())->setValue($ojt['wage_rate']);
 
+            /*  START  ========> Temporary code to hide either aerial lifts or MEWP *********************************************************/
+            $lifts = [];
+            /*  END  ========> Temporary code to hide either aerial lifts or MEWP **********************************************************/
+
             $row = 62;
             /* @var $credential CurrentMemberCredential */
             foreach ($credentials as $credential) {
                 if (isset($credential->complete_dt)) {
+
+                    /*  START  ========> Temporary code to hide either aerial lifts or MEWP *********************************************************/
+                    if ($credential->credential_id == 40 || $credential->credential_id == 64 || $credential->credential_id == 65)
+                        $lifts[$credential->credential_id] = $row;
+                    /*  END  ========> Temporary code to hide either aerial lifts or MEWP **********************************************************/
+
                     $sheet->getCell('A' . $row)->setValue(PHPExcel_Shared_Date::PHPToExcel(strtotime($credential->complete_dt)));
                     $sheet->getCell('B' . $row)->setValue($credential->credential);
                     if (isset($credential->expire_dt)) {
@@ -445,6 +471,13 @@ class ReportController extends Controller
                     $row++;
                 }
             }
+
+            /*  START  ========> Temporary code to hide either aerial lifts or MEWP *********************************************************/
+            if (key_exists(65, $lifts)  && key_exists(40, $lifts) && key_exists(64, $lifts)) {
+                $sheet->getRowDimension($lifts[40])->setVisible(false);
+                $sheet->getRowDimension($lifts[64])->setVisible(false);
+            }
+            /*  END  ========> Temporary code to hide either aerial lifts or MEWP **********************************************************/
 
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
             $this->setHeaders($file_nm);
