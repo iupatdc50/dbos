@@ -283,12 +283,17 @@ class MemberStatusController extends SummaryController
             if ($model->type == ReinstateForm::TYPE_APF) {
                 $assessModel = new ApfAssessment(['assessment_dt' => $today]);
                 $assessModel->makeFromReinstate($model, $this->member);
+                // By policy, immediately puts member on app when this option is selected
+                $this->member->addStatus(new Status([
+                    'member_status' => Status::IN_APPL,
+                    'reason' => Status::REASON_REINST,
+                ]));
             } elseif ($model->type == ReinstateForm::TYPE_BACKDUES) {
                 // Assume dues and reinstate fee are always checked
                 $stage->dues_owed_amt = $model->getFee(ReinstateForm::FEE_DUES)['amt'];
                 $assessModel = new ReinstateAssessment(['assessment_dt' => $today]);
                 $assessModel->makeFromReinstate($model, $this->member);
-                // By policy, immediately suspens when this option is selected
+                // By policy, immediately suspends when this option is selected
                 $this->member->addStatus(new Status([
                     'member_status' => Status::SUSPENDED,
                     'reason' => Status::REASON_REINST,
