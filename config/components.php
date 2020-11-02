@@ -27,15 +27,22 @@ return [
                         'useFileTransport' => false,
 						'messageConfig' => [
 								'charset' => 'UTF-8',
-								'from' => 'no-reply@dc50.org',
+								'from' => 'no-reply@dc50.biz',
 						],
 						'transport' => [
 								'class' => 'Swift_SmtpTransport',
+                                'host' => 'dc50.biz',
+                                'port' => 465,
+                                'encryption' => 'tls',
+                                'username' => 'dbos.admin@dc50.biz',
+                                'password' => '2020-Plate-10',
+/*
                                 'host' => 'smtp.gmail.com',
                                 'port' => 587,
                                 'encryption' => 'tls',
                                 'username' => 'dc50.dbos@gmail.com',
                                 'password' => '2020-Plate-06',
+*/
 						],
 				],
                 'reCaptcha' => require(__DIR__ . '/recaptcha.php'),

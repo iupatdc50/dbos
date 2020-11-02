@@ -34,6 +34,7 @@ class ReinstateForm extends Model
 
     /* @var Member $member */
     public $member;
+
     public $type;
     // for APF
     public $assessments_a = [];
