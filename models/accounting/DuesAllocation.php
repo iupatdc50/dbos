@@ -4,8 +4,10 @@ namespace app\models\accounting;
 
 use app\components\utilities\OpDate;
 use app\modules\admin\models\FeeType;
-use yii\base\InvalidConfigException;
+use Throwable;
+use yii\db\Exception;
 use yii\db\Query;
+use yii\db\StaleObjectException;
 use yii\helpers\ArrayHelper;
 
 /** @noinspection PropertiesInspection */
@@ -20,16 +22,15 @@ use yii\helpers\ArrayHelper;
 class DuesAllocation extends BaseAllocation
 {
 
-	/**
-	 * @var DuesRateFinder
-	 */
-	public $duesRateFinder;
-
 	public $unalloc_remainder;
+
 	/**
 	 * @var string Represents the current dues paid thru. Can be injected for testing
 	 */
 	public $start_dt;
+	// Member's current status and class values.  Can be injected for testing
+	public $lob_cd;
+	public $rate_class;
 
 	public static function allocTypes()
     {
@@ -48,11 +49,10 @@ class DuesAllocation extends BaseAllocation
      * @param string|array $search Criteria used for partial receipt list. If an array, then descrip
      *                               key will be a like search
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public static function listAll($search)
     {
-        /* @var Query $query */
         $query = new Query;
         $query->select('id as id, descrip as text')
             ->from('DuesAllocPickList')
@@ -70,8 +70,6 @@ class DuesAllocation extends BaseAllocation
         $command = $query->createCommand();
         return $command->queryAll();
     }
-
-
 
     /**
      * @inheritdoc
@@ -99,9 +97,9 @@ class DuesAllocation extends BaseAllocation
 
     /**
      * @return bool
-     * @throws InvalidConfigException
-     * @throws \yii\db\StaleObjectException
-     * @throws \yii\db\Exception
+     * @throws StaleObjectException
+     * @throws Exception
+     * @throws Throwable
      */
     public function beforeDelete()
     {
@@ -120,8 +118,7 @@ class DuesAllocation extends BaseAllocation
     /**
      * @param bool $clear
      * @return bool
-     * @throws InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function backOutDuesThru($clear = false)
     {
@@ -145,53 +142,29 @@ class DuesAllocation extends BaseAllocation
      *
      * @param bool $apf_only When true, calculate based on APF only
      * @return number|NULL
-     * @throws InvalidConfigException
-     * @throws \yii\db\Exception
      */
     public function estimateOwed($apf_only = false)
     {
-    	if (!isset($this->alloc_memb_id) || (!$this->rateFinderExists()))
+        if (!isset($this->alloc_memb_id))
     		return null;
     	$standing = $this->getStanding($apf_only);
-    	return $standing->getDuesBalance($this->duesRateFinder);
+    	return $standing->getDuesBalance();
     }
 
     /**
-     * Calculates number of months covered by allocation_amt.  Any remainder updates
+     * Calculates number of months covered by $allocation_amt property.  Any remainder updates
      * $unalloc_remainder property
      *
      * @param float $overage
      * @return NULL|integer
-     * @throws InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function calcMonths($overage = 0.00)
     {
-    	if (!$this->rateFinderExists())
-    		return null;
-    	$tab = $this->allocation_amt + $overage;
-    	$months = 0;
-    	$this->unalloc_remainder = 0.00;
-    	/* @var \yii\db\DataReader $periods */
-    	$periods = $this->duesRateFinder->getRatePeriods($this->getStartDt());
-    	foreach ($periods as $period) {
-    		if($period['max_in_period'] <= $tab) {
-    			$months += $period['months_in_period'];
-    			// Can't use standard substract on FP numbers
-    			$tab = bcsub($tab, $period['max_in_period'], 2);
-    		} else {
-    			// Can't use standard divide or fmod on FP numbers
-    			while ($period['rate'] <= $tab) {
-    				$months++;
-    				$tab = bcsub($tab, $period['rate'], 2);
-    			}
-    			$this->unalloc_remainder = $tab;
-    			$tab = 0.00;
-    		}
-    		if ($tab <= 0.00)
-    			break;
-    	}
-    	return $months;
+        $tab = $this->allocation_amt + $overage;
+        $result = FeeCalendar::getPeriodsCovered($this->getLobCd(), $this->getRateClass(), $this->getStartDt(), $tab);
+        $this->unalloc_remainder = $result['overage'];
+        return $result['periods'];
     }
 
     /**
@@ -200,8 +173,7 @@ class DuesAllocation extends BaseAllocation
      * @param null $months
      * @param null $op
      * @return string Paid thru date in MySql format
-     * @throws InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function  calcPaidThru($months = null, $op = null)
     {
@@ -214,26 +186,26 @@ class DuesAllocation extends BaseAllocation
     	$paid_thru->setToMonthEnd();
     	return $paid_thru->getMySqlDate();
     }
-    
-    private function getStartDt()
+
+    private function getLobCd()
     {
-		if(!(isset($this->start_dt)))
-			$this->start_dt = $this->member->dues_paid_thru_dt;
-		return $this->start_dt;
+        if(!(isset($this->lob_cd)))
+            $this->lob_cd = isset($this->member->currentStatus) ? $this->member->currentStatus->lob_cd : null;
+        return $this->lob_cd;
     }
 
-    /**
-     * @return bool
-     * @throws InvalidConfigException
-     */
-    private function rateFinderExists()
+    private function getRateClass()
     {
-    	if (isset($this->duesRateFinder)) {
-    		if(!($this->duesRateFinder instanceof DuesRateFinder))
-    			throw new InvalidConfigException('Not a valid dues rate finder object');
-    	} else
-    		throw new InvalidConfigException('No dues rate finder object injected');
-    	return true;
+        if(!(isset($this->rate_class)))
+            $this->rate_class = isset($this->member->currentClass) ? $this->member->currentClass->rate_class : 'R';
+        return $this->rate_class;
     }
-        
+
+    private function getStartDt()
+    {
+        if(!(isset($this->start_dt)))
+            $this->start_dt = $this->member->dues_paid_thru_dt;
+        return $this->start_dt;
+    }
+
 }

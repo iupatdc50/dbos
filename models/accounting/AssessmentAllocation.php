@@ -64,8 +64,7 @@ class AssessmentAllocation extends BaseAllocation
     
     public function applyToAssessment()
     {
-    	$standing = $this->getStanding();
-    	if ($assessment = $standing->getOutstandingAssessment($this->fee_type)) {
+    	if ($assessment = $this->assessmentWithBalance()) {
     		$this->assessment_id = $assessment->id;
     		return true;
     	}
@@ -80,7 +79,18 @@ class AssessmentAllocation extends BaseAllocation
         }
         return false;
     }
-    
-    
+
+    /**
+     * Uses Standing class to determine which assessment for a fee_type has a balance remaining
+     *
+     * @return Assessment|null
+     */
+    public function assessmentWithBalance()
+    {
+        if (!isset($this->alloc_memb_id))
+            return null;
+        $standing = $this->getStanding();
+        return $standing->getOutstandingAssessment($this->fee_type);
+    }
 
 }

@@ -4,8 +4,8 @@ namespace app\models\accounting;
 
 use app\models\member\ReinstateForm;
 use app\modules\admin\models\FeeType;
-use http\Exception\BadMethodCallException;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -31,7 +31,7 @@ use app\models\user\User;
  * @property User $createdBy
  * @property string $months [decimal(7,2)]
  * @property string $totalAllocated [decimal(7,2)]
- * @property string $balance [decimal(7,2)]
+ * @property number $balance [decimal(7,2)]
  */
 class Assessment extends ActiveRecord
 {
@@ -162,12 +162,13 @@ class Assessment extends ActiveRecord
      * @param Member $member
      * @return bool
      * @noinspection PhpUnusedParameterInspection
+     * @throws InvalidConfigException
      */
     public function makeFromReinstate(ReinstateForm $model, Member $member)
     {
         if (!isset($this->assessment_dt)) {
             Yii::error('*** AS010 Missing assessment date');
-            throw new BadMethodCallException('Missing assessment_dt');
+            throw new InvalidConfigException('Missing assessment_dt');
         }
         return true;
         // stub

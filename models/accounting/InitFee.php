@@ -7,7 +7,6 @@ use app\models\value\Lob;
 use app\models\member\ClassCode;
 use \app\components\utilities\OpDate;
 use yii\db\ActiveQuery;
-use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -104,15 +103,14 @@ class InitFee extends BaseEndable
      * If the dues are included in the APF, the dues are substracted from the amount that will
      * go on the assessment
      *
-     * @param DuesRateFinder $finder
+     * @param float $rate dues rate
      * @return float
-     * @throws Exception
      */
-    public function getAssessmentAmount(DuesRateFinder $finder)
+    public function getAssessmentAmount($rate)
     {
     	$amount = $this->fee;
     	if($this->included == 'T') {
-    		$amount -= ($finder->getCurrentRate($this->getToday()->getMySqlDate()) * (float) $this->dues_months);
+    		$amount -= ($rate * (float) $this->dues_months);
     	}
     	return $amount;
     }    

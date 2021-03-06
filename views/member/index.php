@@ -71,6 +71,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     'attribute' => 'wage_percent',
                     'width' => '60px',
                     'value' => function($model) {
+                        if (!isset($model->currentClass))
+                            return '';
                         return ($model->currentClass->member_class == MemberClass::APPRENTICE || $model->currentClass->member_class == MemberClass::MATERIALHANDLER) ? $model->currentClass->wage_percent : '';
                     },
                     'contentOptions' => function($model) {

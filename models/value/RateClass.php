@@ -2,7 +2,7 @@
 
 namespace app\models\value;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "RateClasses".
@@ -10,8 +10,13 @@ use Yii;
  * @property string $rate_class
  * @property string $descrip
  */
-class RateClass extends \yii\db\ActiveRecord
+class RateClass extends ActiveRecord
 {
+    const RC_REGULAR = 'R';
+    const RC_RETIREE = 'LE';
+    const RC_LIFETIME_LP = 'LP';
+    const RC_LIFETIME_LR = 'LR';
+
     /**
      * @inheritdoc
      */

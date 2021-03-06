@@ -25,8 +25,6 @@ use app\components\utilities\OpDate;
 use app\models\base\iNotableInterface;
 use app\models\value\TradeSpecialty;
 use app\models\value\DocumentType;
-use app\models\accounting\InitFee;
-use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 use app\models\accounting\ApfAssessment;
 use app\models\accounting\LastDuesReceipt;
@@ -74,6 +72,7 @@ use yii\db\Exception;
  * @property Specialty[] $specialties
  * @property Status[] $statuses
  * @property Status $currentStatus
+ * @property Status inServicePeriod
  * @property MemberReinstateStaged $reinstateStaged
  * @property MemberClass[] $classes
  * @property MemberClass $currentClass
@@ -98,6 +97,7 @@ use yii\db\Exception;
  * @property string $genderText
  * @property array $sizeOptions
  * @property OpDate $today
+ * @property OpDate duesPaidThruDtObject
  * @property MemberLogin $enrolledOnline
  * @property Document[] $unfiledDocs
  *
@@ -164,11 +164,6 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      * @var Standing 	May be injected, if required
      */
     public $standing;
-
-    /**
-     * @var DuesRateFinder May be injected, if required
-     */
-    public $rateFinder;
 
     /**
      * @inheritdoc
@@ -380,18 +375,11 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     /**
      * @param bool $insert
      * @param array $changedAttributes
-     * @throws Exception
      */
     public function afterSave($insert, $changedAttributes)
     {
     	parent::afterSave($insert, $changedAttributes); 
     	if (isset($changedAttributes['application_dt'])) {
-    		// APF for insert is created in controller after status and class entries are posted
-    		if (!$insert) {
-    			if ($this->isInApplication() && (!isset($this->currentApf))) {
-    				$this->createApfAssessment();
-    			}	
-    		}
     		unset($this->_application_dt);
     	}
     }
@@ -1048,34 +1036,6 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	;
     }
 
-    /**
-     * Builds an APF assessment record for the member
-     *
-     * @return boolean
-     * @throws Exception
-     */
-    public function createApfAssessment()
-    {   	
-    	// consider injecting the InitFee to simplify testing
-    	$init = InitFee::findOne([
-    			'lob_cd' => $this->currentStatus->lob_cd,
-    			'member_class' => $this->currentClass->member_class,
-                'end_dt' => null,
-    	]);
-    	if (!is_null($init)) {
-	    	$amount = $init->getAssessmentAmount($this->getRateFinder());
-	    	$apf_assessment = new ApfAssessment([
-	    			'member_id' => $this->member_id,
-	    			'fee_type' => FeeType::TYPE_INIT,
-	    			'assessment_dt' => $this->application_dt,
-	    			'assessment_amt' => $amount,
-	    			'months' => $init->dues_months,
-	    	]);
-	    	return $apf_assessment->save();
-    	}
-    	return false;
-    }
-    
     public function getLastDuesReceipt()
     {
     	return $this->hasOne(LastDuesReceipt::className(), ['member_id' => 'member_id']);
@@ -1114,7 +1074,10 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	}
     	return $result;	
     }
-    
+
+    /**
+     * @return OpDate
+     */
     public function getDuesPaidThruDtObject()
     {
     	if (!isset($this->_dues_paid_thru_dt))
@@ -1127,14 +1090,13 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      *
      * @param bool $apf_only
      * @return false|float|string|null
-     * @throws Exception
      */
     public function estimateDuesOwed($apf_only = false)
     {
         if (isset($this->reinstateStaged))
             return $this->reinstateStaged->dues_owed_amt;
         $standing = $this->getStanding($apf_only);
-        return $standing->getDuesBalance($this->getRateFinder());
+        return $standing->getDuesBalance();
     }
 
     protected function isOlderThanCutoff($months)
@@ -1214,7 +1176,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      * 
      * @return OpDate
      */
-    protected function getToday()
+    public function getToday()
     {
     	return new OpDate();
     }
@@ -1232,20 +1194,5 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
             ]);
         return $this->standing;
     }
-
-    /**
-     * @return DuesRateFinder
-     */
-    private function getRateFinder()
-    {
-        if(!(isset($this->rateFinder)))
-        {
-            $lob_cd = $this->currentStatus->lob_cd;
-            $class = $this->currentClass->rate_class;
-            $this->rateFinder = new DuesRateFinder($lob_cd, $class);
-        }
-        return $this->rateFinder;
-    }
-
 
 }

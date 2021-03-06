@@ -10,9 +10,7 @@ use app\models\member\RepairDuesForm;
 use Throwable;
 use Yii;
 use app\models\member\Member;
-use app\models\accounting\DuesRateFinder;
 use app\models\member\Standing;
-use yii\base\InvalidConfigException;
 use yii\bootstrap\ActiveForm;
 use yii\data\ActiveDataProvider;
 use yii\db\Exception;
@@ -76,7 +74,6 @@ class MemberBalancesController extends Controller
     /**
      * @param $id
      * @return array|string|Response
-     * @throws InvalidConfigException
      * @throws Exception
      * @throws Throwable
      */
@@ -114,10 +111,6 @@ class MemberBalancesController extends Controller
             foreach ($faulties as $faulty) {
                 /* @var $faulty DuesAllocPickList */
                 $alloc = $faulty->allocation;
-                $alloc->duesRateFinder = new DuesRateFinder(
-                    $member->currentStatus->lob_cd,
-                    isset($member->currentClass) ? $member->currentClass->rate_class : 'R'
-                );
                 $standing = new Standing(['member' => $member]);
                 $manager = new StatusManagerDues(['standing' => $standing]);
                 $errors = array_merge($errors, $manager->applyDues($alloc));

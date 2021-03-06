@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\controllers\base\SummaryController;
 use app\helpers\OptionHelper;
 use app\models\accounting\ApfAssessment;
+use app\models\accounting\InitFee;
 use app\models\accounting\ReinstateAssessment;
 use app\models\member\ClassCode;
 use app\models\member\MemberReinstateStaged;
@@ -269,7 +270,13 @@ class MemberStatusController extends SummaryController
 	public function actionReinstate($member_id)
     {
         $this->setMember($member_id);
-        $model = new ReinstateForm(['member' => $this->member]);
+        $init = InitFee::findOne([
+            'lob_cd' =>$this->member->currentStatus->lob_cd,
+            'member_class' => $this->member->currentClass->member_class,
+            'end_dt' => null,
+        ]);
+        $reinst_amt = AdminFee::getFee(FeeType::TYPE_REINST, $this->getToday()->getMysqlDate());
+        $model = new ReinstateForm($this->member, $init, $reinst_amt);
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = 'json';
@@ -279,7 +286,7 @@ class MemberStatusController extends SummaryController
         if ($model->load(Yii::$app->request->post())) {
             $stage = new MemberReinstateStaged(['reinstate_type' => $model->type]);
             $stage->dues_owed_amt = 0.00;
-            $today = $model->getToday()->getMySqlDate();
+            $today = $this->getToday()->getMySqlDate();
             if ($model->type == ReinstateForm::TYPE_APF) {
                 $assessModel = new ApfAssessment(['assessment_dt' => $today]);
                 $assessModel->makeFromReinstate($model, $this->member);
@@ -483,5 +490,15 @@ class MemberStatusController extends SummaryController
         }
 
     }
-	
+
+    /**
+     * Override this function when testing with fixed date
+     *
+     * @return OpDate
+     */
+    public function getToday()
+    {
+        return new OpDate();
+    }
+
 }

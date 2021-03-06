@@ -7,18 +7,23 @@ use app\models\member\Member;
 use app\models\member\Standing;
 use app\models\contractor\Contractor;
 use app\modules\admin\models\FeeType;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
-class StagedBill extends \yii\db\ActiveRecord
+/**
+ * Class StagedBill
+ *
+ * @property Contractor $employer
+ * @property Standing $standing
+ * @property Member $member
+ */
+class StagedBill extends ActiveRecord
 {
 	/**
 	 * @var Standing 	May be injected, if required
 	 */
 	private $_standing;
-	/**
-	 * @var DuesRateFinder 	May be injected, if required
-	 */
-	private $_rateFinder;
-	
+
 	/**
 	 * @inheritdoc
 	 */
@@ -33,7 +38,7 @@ class StagedBill extends \yii\db\ActiveRecord
 	}
 	
 	/**
-	 * @return \yii\db\ActiveQuery
+	 * @return ActiveQuery
 	 */
 	public function getMember()
 	{
@@ -55,20 +60,8 @@ class StagedBill extends \yii\db\ActiveRecord
 		$this->_standing = $standing;
 	}
 	
-	public function getRateFinder()
-	{
-		if(!(isset($this->_rateFinder))) {
-			$member = $this->member;
-			$lob_cd = $member->currentStatus->lob_cd;
-			$rate_class = $member->currentClass->rate_class;
-            /** @noinspection PhpUnhandledExceptionInspection */
-            $this->_rateFinder = new DuesRateFinder($lob_cd, $rate_class);
-		}
-		return $this->_rateFinder;
-	}
-	
 	/**
-	 * @return \yii\db\ActiveQuery
+	 * @return ActiveQuery
 	 */
 	public function getEmployer()
 	{
@@ -84,9 +77,8 @@ class StagedBill extends \yii\db\ActiveRecord
 	{
 		if ($this->employer->deducts_dues == 'T') {
 		    $overage = isset($this->member->overage) ? $this->member->overage : 0.00;
-		    $dues = $this->standing->getDuesBalance($this->rateFinder);
-		    $owed = ($dues > $overage) ? $dues - $overage : 0.00;
-            return  $owed;
+		    $dues = $this->standing->getDuesBalance();
+		    return ($dues > $overage) ? $dues - $overage : 0.00;
         }
 
 		return null;
@@ -113,12 +105,13 @@ class StagedBill extends \yii\db\ActiveRecord
 	 *   
 	 * @param string $license_nbr
 	 * @param string $lob_cd
-	 * @return \yii\data\ActiveDataProvider
+	 * @return ActiveDataProvider
 	 */
 	public function getPreFill($license_nbr, $lob_cd)
 	{
 		// @row_number counter starts at 1 to hold a place for the header, i.e., first data row is 2 on the spreadsheet 
-		$sql = <<<SQL
+        /** @noinspection SqlCaseVsIf */
+        $sql = <<<SQL
 
 			SELECT 
                 dues_payor, member_id,
@@ -161,12 +154,11 @@ SQL;
 		
 		$query = StagedBill::findBySql($sql, [':license_nbr' => $license_nbr, ':lob_cd' => $lob_cd]);
 		
-		$dataProvider = new ActiveDataProvider([
+		return new ActiveDataProvider([
 				'query' => $query,
 				'pagination' => ['pageSize' => 2000],
 		]);
 		
-		return $dataProvider;
 	}
 
 	public function getBillableCount($license_nbr, $lob_cd)

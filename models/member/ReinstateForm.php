@@ -3,14 +3,9 @@
 
 namespace app\models\member;
 
-use app\components\utilities\OpDate;
-use app\helpers\OptionHelper;
-use app\models\accounting\AdminFee;
-use app\models\accounting\DuesRateFinder;
 use app\models\accounting\FeeCalendar;
 use app\models\accounting\InitFee;
 use app\models\user\User;
-use app\modules\admin\models\FeeType;
 use yii\base\Model;
 
 class ReinstateForm extends Model
@@ -32,8 +27,11 @@ class ReinstateForm extends Model
     private $_options = [];
     private $_authUser;
 
-    /* @var Member $member */
-    public $member;
+    /* @var Member $_member */
+    private $_member;
+    /* @var InitFee $_init */
+    private $_init;
+    private $_reinst_amt;
 
     public $type;
     // for APF
@@ -42,6 +40,10 @@ class ReinstateForm extends Model
     public $assessments_b = [];
     // user ID
     public $authority;
+
+    // Member's current status and class values.  Can be injected for testing
+    public $lob_cd;
+    public $rate_class;
 
     public static function getAllowedTypes()
     {
@@ -86,57 +88,23 @@ class ReinstateForm extends Model
     }
 
     /**
-     * @todo Use DuesRateFinder after mods to compute with FeeCalendar
-     * @see DuesRateFinder
+     * ReinstateForm constructor.  Force injected classes
+     * @param Member $member
+     * @param InitFee $init
+     * @param number $reinst_amt
+     * @param array $config
      */
+    public function __construct(Member $member, InitFee $init, $reinst_amt, $config = [])
+    {
+        $this->_member = $member;
+        $this->_init = $init;
+        $this->_reinst_amt = $reinst_amt;
+        parent::__construct($config);
+    }
+
     public function init()
     {
-        $member = $this->member;
-        $lob_cd = $member->currentStatus->lob_cd;
-        $member_class = $member->currentClass->member_class;
-        $rate_class = $member->currentClass->rate_class;
-
-        $this->_fees[self::FEE_DUES] = [
-            'amt' => FeeCalendar::getTrueDuesBalance($lob_cd, $rate_class, $member->dues_paid_thru_dt),
-            'descrip' => 'dues: ',
-        ];
-
-        // Replace this code with DuesRateFinder (see todo)
-        $init = InitFee::findOne(['lob_cd' => $lob_cd, 'member_class' => $member_class, 'end_dt' => null]);
-        $amt = $init->fee;
-        if ($init->included == OptionHelper::TF_TRUE)
-            $amt -= FeeCalendar::getTrueDuesBalance($lob_cd, $rate_class, $member->dues_paid_thru_dt, $init->dues_months);
-        $this->_fees[self::FEE_APF] = [
-            'amt' => $amt,
-            'descrip' => 'init fee: ',
-        ];
-
-        $this->_fees[self::FEE_DUESINIT] = [
-            'amt' => FeeCalendar::getTrueDuesBalance($lob_cd, $rate_class, $member->dues_paid_thru_dt, self::INIT_MAX),
-            'descrip' => 'dues: ',
-        ];
-        $reinst_amt = AdminFee::getFee(FeeType::TYPE_REINST, $this->getToday()->getMysqlDate());
-        $this->_fees[self::FEE_REINST] = [
-            'amt' => $reinst_amt,
-            'descrip' => 'reinst: ',
-        ];
-        $this->_fees[self::FEE_REINSTINIT] = [
-            'amt' => $reinst_amt,
-            'descrip' => 'reinst: ',
-        ];
-
-        $this->_options = [
-            self::TYPE_BACKDUES => [
-                self::FEE_DUES => 'Monthly dues balance $' . number_format($this->_fees[self::FEE_DUES]['amt'], 2),
-                self::FEE_REINST => 'Reinstatement fee $' . number_format($this->_fees[self::FEE_REINST]['amt'], 2),
-            ],
-            self::TYPE_APF => [
-                self::FEE_APF => 'Assess initiation fee (APF) of $'. number_format($this->_fees[self::FEE_APF]['amt'], 2),
-                self::FEE_REINSTINIT => 'Assess reinstatement of $'. number_format($this->_fees[self::FEE_REINSTINIT]['amt'], 2) . ' in APF balance',
-                self::FEE_DUESINIT => 'Assess dues of $'. number_format($this->_fees[self::FEE_DUESINIT]['amt'], 2) . ' in APF balance',
-            ],
-        ];
-
+        $this->bootstrap();
     }
 
     public function getTypeOptions()
@@ -173,15 +141,62 @@ class ReinstateForm extends Model
         return $this->_authUser;
     }
 
-
-    /**
-     * Override this function when testing with fixed date
-     *
-     * @return OpDate
-     */
-    public function getToday()
+    protected function bootstrap()
     {
-        return new OpDate();
+        $lob_cd = $this->getLobCd();
+        $rate_code = $this->getRateClass();
+        $paid_thru_dt = $this->_member->dues_paid_thru_dt;
+        $today = $this->_member->getToday();
+
+        $this->_fees[self::FEE_DUES] = [
+            'amt' => FeeCalendar::getTrueDuesBalance($lob_cd, $rate_code, $paid_thru_dt, null, $today),
+            'descrip' => 'dues: ',
+        ];
+
+        $this->_fees[self::FEE_APF] = [
+            'amt' => $this->_init->fee,
+            'descrip' => 'init fee: ',
+        ];
+
+        $this->_fees[self::FEE_DUESINIT] = [
+            'amt' => FeeCalendar::getTrueDuesBalance($lob_cd, $rate_code, $paid_thru_dt, self::INIT_MAX),
+            'descrip' => 'dues: ',
+        ];
+        $this->_fees[self::FEE_REINST] = [
+            'amt' => $this->_reinst_amt,
+            'descrip' => 'reinst: ',
+        ];
+        $this->_fees[self::FEE_REINSTINIT] = [
+            'amt' => $this->_reinst_amt,
+            'descrip' => 'reinst: ',
+        ];
+
+        $this->_options = [
+            self::TYPE_BACKDUES => [
+                self::FEE_DUES => 'Monthly dues balance $' . number_format($this->_fees[self::FEE_DUES]['amt'], 2),
+                self::FEE_REINST => 'Reinstatement fee $' . number_format($this->_fees[self::FEE_REINST]['amt'], 2),
+            ],
+            self::TYPE_APF => [
+                self::FEE_APF => 'Assess initiation fee (APF) of $'. number_format($this->_fees[self::FEE_APF]['amt'], 2),
+                self::FEE_REINSTINIT => 'Assess reinstatement of $'. number_format($this->_fees[self::FEE_REINSTINIT]['amt'], 2) . ' in APF balance',
+                self::FEE_DUESINIT => 'Assess dues of $'. number_format($this->_fees[self::FEE_DUESINIT]['amt'], 2) . ' in APF balance',
+            ],
+        ];
+
+    }
+
+    private function getLobCd()
+    {
+        if(!(isset($this->lob_cd)))
+            $this->lob_cd = isset($this->_member->currentStatus) ? $this->_member->currentStatus->lob_cd : null;
+        return $this->lob_cd;
+    }
+
+    private function getRateClass()
+    {
+        if(!(isset($this->rate_class)))
+            $this->rate_class = isset($this->_member->currentClass) ? $this->_member->currentClass->rate_class : 'R';
+        return $this->rate_class;
     }
 
 }

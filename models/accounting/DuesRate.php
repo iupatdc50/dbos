@@ -37,6 +37,31 @@ class DuesRate extends BaseEndable
     }
 
     /**
+     * @param $lob_cd
+     * @param $rate_class
+     * @param $date
+     * @return false|float|null
+     */
+    public static function findCurrentByTrade($lob_cd, $rate_class, $date = null)
+    {
+        $query = self::find()->select('rate')
+            ->where([
+                'lob_cd' => $lob_cd,
+                'rate_class' => $rate_class,
+            ]);
+        if (isset($date)) {
+            $query->andWhere(['<=', 'effective_dt', $date]);
+            $query->andWhere(['or',
+                ['end_dt' => null],
+                ['>=', 'end_dt', $date],
+            ]);
+        } else {
+            $query->andWhere(['end_dt' => null]);
+        }
+        return $query->scalar();
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules()

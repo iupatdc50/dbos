@@ -25,7 +25,6 @@ class StatusManagerDues extends StatusManager
     /**
      * @param DuesAllocation $alloc
      * @return array
-     * @throws InvalidConfigException
      * @throws Exception
      */
     public function applyDues(DuesAllocation $alloc)

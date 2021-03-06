@@ -2,15 +2,14 @@
 
 namespace app\models\member;
 
+use app\models\accounting\FeeCalendar;
 use app\modules\admin\models\FeeType;
 use Yii;
 use yii\base\Model;
 use yii\base\InvalidConfigException;
 use app\components\utilities\OpDate;
-use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Assessment;
 use app\models\accounting\BaseAllocation;
-use yii\db\Exception;
 
 /** 
  * Model class for determining the financial status of a member
@@ -32,6 +31,9 @@ class Standing extends Model
 	 * @var Member
 	 */
 	public $member;
+	// Can inject for testing
+	public $lob_cd;
+	public $rate_class;
 
     /**
      * @var boolean When true, standing calculations will be based on APF only
@@ -45,6 +47,8 @@ class Standing extends Model
 	{
 		if(!(isset($this->member) && ($this->member instanceof Member)))
             throw new InvalidConfigException('No member object injected');
+        $this->lob_cd = isset($this->member->currentStatus) ? $this->member->currentStatus->lob_cd : null;
+        $this->rate_class = isset($this->member->currentClass) ? $this->member->currentClass->rate_class : 'R';
 	}
 
     /**
@@ -88,7 +92,7 @@ class Standing extends Model
 
 		$cr = ' - ';
 		
-		switch ($this->monthsToCurrent) {
+		switch ($this->getMonthsToCurrent()) {
 			case 0:
 				$paid_thru_dt = $this->member->duesPaidThruDtObject;
 				$descrip = 'Paid thru ' . $paid_thru_dt->getMonthName(true) . ' ' . $paid_thru_dt->getYear();
@@ -100,7 +104,7 @@ class Standing extends Model
 			default:
 				$start_dt = clone $this->member->duesPaidThruDtObject;
 				$start_dt->modify('+1 month');
-				$descrip = $start_dt->getMonthName(true) . '-' . $obligation_dt->getMonthName(true) . ' (' . $this->monthsToCurrent . ' months)';
+				$descrip = $start_dt->getMonthName(true) . '-' . $obligation_dt->getMonthName(true) . ' (' . $this->getMonthsToCurrent() . ' months)';
 		}
 
 		if($this->member->overage > 0.00)
@@ -115,16 +119,15 @@ class Standing extends Model
     /**
      * Returns total outstanding dues owed. If paid thru is future, returns 0.00
      *
-     * @param DuesRateFinder $rateFinder
      * @return false|float|string|null
-     * @throws Exception
      */
-	public function getDuesBalance(DuesRateFinder $rateFinder)
+	public function getDuesBalance()
 	{
 		$obligation_dt = $this->getDuesObligation();
 		$adjusted_pt_dt = clone $this->member->duesPaidThruDtObject;
 		$adjusted_pt_dt->modify('+' . $this->getDiscountedMonths() . ' month');
-		return ($obligation_dt > $this->member->duesPaidThruDtObject) ? $rateFinder->computeBalance($adjusted_pt_dt->getMySqlDate(), $obligation_dt->getMySqlDate()) : 0.00;
+        return  isset($this->lob_cd) && isset($this->rate_class) && ($obligation_dt > $this->member->duesPaidThruDtObject)
+            ? FeeCalendar::getTrueDuesBalance($this->lob_cd, $this->rate_class, $adjusted_pt_dt->getMySqlDate(), null, $obligation_dt) : 0.00;
 	}
 
     /**
@@ -137,7 +140,6 @@ class Standing extends Model
 	{
 		$assessments = Assessment::findAll(['member_id' => $this->member->member_id, 'fee_type' => $fee_type]);
 		foreach ($assessments as $assessment) {
-		    /** @var $assessment Assessment */
 		    if ($assessment->balance <> 0)
 		        return $assessment;
         }
@@ -179,7 +181,6 @@ SQL;
 	private function getCurrentMonthEnd()
 	{
 		if(!isset($this->_currentMonthEnd)) {
-            /** @noinspection PhpUnhandledExceptionInspection */
             $this->_currentMonthEnd = $this->getToday();
 			$this->_currentMonthEnd->setToMonthEnd();
 		}
@@ -197,7 +198,6 @@ SQL;
      */
 	private function getDuesObligation()
 	{
-        /** @noinspection PhpUnhandledExceptionInspection */
         $monthend_dt = $this->getCurrentMonthEnd();
 		if ($this->member->isInApplication()) {
 			$apf = $this->member->currentApf;

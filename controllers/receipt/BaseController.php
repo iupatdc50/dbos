@@ -7,12 +7,10 @@ use app\models\accounting\StatusManagerDues;
 use Exception;
 use Throwable;
 use Yii;
-use app\models\accounting\DuesRateFinder;
 use app\models\accounting\Receipt;
 use app\models\member\Member;
 use app\models\member\Standing;
 use app\models\member\OverageHistory;
-use yii\base\InvalidConfigException;
 use yii\db\Exception as DbException;
 use yii\db\StaleObjectException;
 use yii\web\Controller;
@@ -139,7 +137,6 @@ class BaseController extends Controller
      * @return Response
      * @throws DbException
      * @throws NotFoundHttpException
-     * @throws InvalidConfigException
      * @throws StaleObjectException
      * @throws Throwable
      */
@@ -197,7 +194,6 @@ class BaseController extends Controller
      * @return string
      * @throws DbException
      * @throws NotFoundHttpException
-     * @throws InvalidConfigException
      */
     public function actionUpdate($id)
     {
@@ -446,10 +442,6 @@ class BaseController extends Controller
     protected function prepareManager($alloc)
     {
         $member = $alloc->member;
-        $alloc->duesRateFinder = new DuesRateFinder(
-            $member->currentStatus->lob_cd,
-            isset($member->currentClass) ? $member->currentClass->rate_class : 'R'
-        );
         $standing = new Standing(['member' => $member]);
         return new StatusManagerDues(['standing' => $standing]);
 

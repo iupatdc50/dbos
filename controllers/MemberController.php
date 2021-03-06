@@ -2,8 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\accounting\ApfAssessment;
+use app\models\accounting\DuesRate;
+use app\models\accounting\InitFee;
 use app\models\accounting\ReceiptMember;
 use app\models\employment\Employment;
+use app\modules\admin\models\FeeType;
 use Throwable;
 use Yii;
 use app\controllers\base\RootController;
@@ -200,7 +204,7 @@ class MemberController extends RootController
         					if (!$model->addClass($modelClass))
         						throw new \Exception('Error when adding Member Class: ' . print_r($modelClass->errors, true));
         					if ($model->isInApplication()) {
-        						$model->createApfAssessment();
+        						$model->addAssessment($this->createApfAssessment($model));
         					}
         					$transaction->commit();
         					Yii::$app->session->setFlash('success', "Member record successfully created");
@@ -307,10 +311,14 @@ class MemberController extends RootController
     public function actionUpdate($id)
     {
     	parent::actionUpdate($id);
-    	
+
         $model = $this->findModel($id);
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            if ($model->isInApplication() && (!isset($model->currentApf)))
+                $this->createApfAssessment($model);
+
         	Yii::$app->session->setFlash('success', "Member record successfully updated");
         	return $this->redirect(['view', 'id' => $model->member_id]);
         } 
@@ -510,6 +518,21 @@ class MemberController extends RootController
     	}
     	return $note;
     }
+
+    protected function createApfAssessment(Member $member)
+    {
+        $rate = $this->getCurrentDuesRate($member);
+        $init = $this->getCurrentInitFee($member);
+        if (isset($init)) {
+            return new ApfAssessment([
+                'fee_type' => FeeType::TYPE_INIT,
+                'assessment_dt' => $member->application_dt,
+                'assessment_amt' => $init->getAssessmentAmount($rate),
+                'months' => $init->dues_months,
+            ]);
+        }
+        return false;
+    }
     
     /**
      * Override this function when testing with fixed date
@@ -527,7 +550,32 @@ class MemberController extends RootController
     		$model->application_dt = $this->getToday()->getMySqlDate();
     	}
     }
-    
-    
-    
+
+    /**
+     * @param Member $member
+     * @return InitFee|false|null
+     */
+    protected function getCurrentInitFee(Member $member)
+    {
+        if(isset($member->currentClass) && $member->currentStatus) {
+            return InitFee::findOne([
+                'lob_cd' => $member->currentStatus->lob_cd,
+                'member_class' => $member->currentClass->member_class,
+                'end_dt' => null,
+            ]);
+        }
+        return false;
+    }
+
+    /**
+     * @param Member $member
+     * @return false|float|null
+     */
+    protected function getCurrentDuesRate(Member $member)
+    {
+        if(isset($member->currentClass) && $member->currentStatus) {
+            return DuesRate::findCurrentByTrade($member->currentStatus->lob_cd, $member->currentClass->rate_class);
+        }
+        return false;
+    }
 }

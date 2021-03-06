@@ -31,7 +31,7 @@ class AdminFee extends ActiveRecord
      *
      * @param string $fee_type
      * @param string $date MySQL format
-     * @return false|string|null
+     * @return false|number|null
      */
     public static function getFee($fee_type, $date)
     {
