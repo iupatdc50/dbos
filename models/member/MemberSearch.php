@@ -2,7 +2,7 @@
 
 namespace app\models\member;
 
-use app\models\training\CurrentMemberCredential;
+// use app\models\training\CurrentMemberCredential;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\helpers\CriteriaHelper;
@@ -18,7 +18,9 @@ class MemberSearch extends Member
 	public $class;
 	public $wage_percent;
 	public $fullName;
-	public $specialties;
+	public $email;
+	public $phone;
+//	public $specialties;
 	public $employer;
 	public $expiredCount;
 	
@@ -31,8 +33,11 @@ class MemberSearch extends Member
             [['member_id', 'ssnumber', 'report_id', 'fullName', 'middle_inits', 
             		'suffix', 'birth_dt', 'gender', 
             		'shirt_size', 'local_pac', 'hq_pac', 'remarks', 
-            		'lob_cd', 'status', 'class', 'wage_percent', 'specialties', 'employer', 'dues_paid_thru_dt',
-            		'expiredCount',
+            		'lob_cd', 'status', 'class', 'wage_percent',
+                    'phone', 'email',
+//                    'specialties',
+                    'employer', 'dues_paid_thru_dt',
+//            		'expiredCount',
             ], 'safe'],
 //        	[['dues_paid_thru_dt'], 'date', 'format' => 'php:m/d/Y', 'message' => 'Invalid date'],
         		
@@ -58,11 +63,13 @@ class MemberSearch extends Member
     public function search($params)
     {
         $query = Member::find();
+        /*
         $cred_subquery = CurrentMemberCredential::find()
             ->select('member_id, COUNT(*) AS expired_count')
             ->where('expire_dt < "' . date('Y-m-d') . '"')
             ->groupBy('member_id')
         ;
+        */
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -77,6 +84,11 @@ class MemberSearch extends Member
         ];
         $dataProvider->sort->attributes['class'] = ['asc' => ['member_class' => SORT_ASC], 'desc' => ['member_class' => SORT_DESC]];
         $dataProvider->sort->attributes['wage_percent'] = ['asc' => ['wage_percent' => SORT_ASC], 'desc' => ['wage_percent' => SORT_DESC]];
+        $dataProvider->sort->attributes['phone'] = ['asc' => ['phone' => SORT_ASC], 'desc' => ['phone' => SORT_DESC]];
+        $dataProvider->sort->attributes['email'] = [
+            'asc' => [Email::tableName() . '.email' => SORT_ASC],
+            'desc' => [Email::tableName() . '.email' => SORT_DESC],
+        ];
 
         // Default set to active
 		if (!isset($params['MemberSearch']['status']))
@@ -86,14 +98,20 @@ class MemberSearch extends Member
             return $dataProvider;
         }
         
-        $query->joinWith(['currentStatus', 'currentClass', 'qualifiesForIncrease', 'specialties', 'employer.duesPayor']);
-        $query->leftJoin(['CredCounts' => $cred_subquery], 'CredCounts.member_id = Members.member_id');
+        $query->joinWith(['currentStatus', 'currentClass', 'qualifiesForIncrease',
+//            'specialties',
+            'defaultPhone',
+            'defaultEmail',
+            'employer.duesPayor',
+        ]);
+//        $query->leftJoin(['CredCounts' => $cred_subquery], 'CredCounts.member_id = Members.member_id');
 
        	$criteria = CriteriaHelper::parseMixed('dues_paid_thru_dt', $this->dues_paid_thru_dt, true);
        	$query->andFilterWhere($criteria);
+       	/*
         $criteria = CriteriaHelper::parseMixed('expired_count', $this->expiredCount);
         $query->andFilterWhere($criteria);
-
+        */
 
         $query->andFilterWhere(['lob_cd' => $this->lob_cd])
         	->andFilterWhere(['member_class' => $this->class])
@@ -105,7 +123,9 @@ class MemberSearch extends Member
         			['like', 'nick_nm', $this->fullName],
         			[Member::tableName() . '.member_id' => $this->fullName],
         	])
-        	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
+            ->andFilterWhere(['like', Email::tableName() . '.email', $this->email])
+            ->andFilterWhere(['like', 'phone', $this->phone])
+//        	->andFilterWhere(['like', Specialty::tableName() . '.specialty', $this->specialties])
         ;
 
         $wage_cond = (strtolower($this->wage_percent) == 'q') ? ['>', 'should_be', 0] : CriteriaHelper::parseMixed('MC.wage_percent', $this->wage_percent);

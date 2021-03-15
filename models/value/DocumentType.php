@@ -17,6 +17,8 @@ class DocumentType extends ActiveRecord
     const CATG_TRAINING = 'Training';
     const CATG_EMPLOYMENT = 'Employment';
 
+    const TYPE_RECURRING_CCAUTH = 'Recurring Credit Card Authorization Form';
+
     /**
      * @inheritdoc
      */

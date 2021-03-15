@@ -64,9 +64,11 @@ use yii\db\Exception;
  * @property string $fullName
  * @property Phone[] $phones
  * @property PhoneDefault $phoneDefault
+ * @property Phone $defaultPhone
  * @property Address[] $addresses
  * @property AddressDefault $addressDefault
  * @property Address $mailingAddress
+ * @property Email $defaultEmail
  * @property Email[] $emails
  * @property integer $emailCount
  * @property Specialty[] $specialties
@@ -81,6 +83,7 @@ use yii\db\Exception;
  * @property CurrentEmployment $employer
  * @property Employment $employerActive
  * @property DuesBalance $duesBalance
+ * @property Document $recurCcAuth
  * @property FeeBalance[] $feeBalances
  * @property integer $ccgBalanceCount
  * @property AllBalance $allBalance
@@ -433,11 +436,22 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     }
     
     /**
+     * Assume 1 email by policy
+     *
+     * @return ActiveQuery
+     */
+    public function getDefaultEmail()
+    {
+    	return $this->hasOne(Email::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @deprecated Should only have a single email by policy
      * @return ActiveQuery
      */
     public function getEmails()
     {
-    	return $this->hasMany(Email::className(), ['member_id' => 'member_id']);
+        return $this->hasMany(Email::className(), ['member_id' => 'member_id']);
     }
 
     /**
@@ -795,7 +809,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     		$full_nm .= ' [Stub]';
     	return $full_nm;
     }
-    
+
     public function getAddressTexts()
     {
     	$texts = [];
@@ -804,7 +818,13 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	}
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }
-    
+
+    public function getDefaultPhone()
+    {
+        return $this->hasOne(Phone::className(), ['member_id' => 'member_id'])
+                    ->via('phoneDefault');
+    }
+
     public function getPhoneTexts()
     {
     	$texts = [];
@@ -1097,6 +1117,13 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
             return $this->reinstateStaged->dues_owed_amt;
         $standing = $this->getStanding($apf_only);
         return $standing->getDuesBalance();
+    }
+
+    public function getRecurCcAuth()
+    {
+        return $this->hasOne(Document::className(), ['member_id' => 'member_id'])
+                    ->andOnCondition(['doc_type' => DocumentType::TYPE_RECURRING_CCAUTH])
+        ;
     }
 
     protected function isOlderThanCutoff($months)

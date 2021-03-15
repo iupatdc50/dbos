@@ -61,6 +61,7 @@ $status = $model->currentStatus;
                             'value' => Html::encode(isset($status) ? $status->lob->short_descrip : 'No Trade'),
                         ],
                         [
+                            'label' => isset($model->recurCcAuth) ? Html::tag('span', 'Recurring', ['class' => 'label label-success pull-left']) . ' Dues Thru' : 'Dues Thru',
                             'attribute' => 'dues_paid_thru_dt',
                             'value' => isset($model->lastDuesReceipt) ?
                                 Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)),

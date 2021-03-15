@@ -80,7 +80,11 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                     'label' => '%'
             ],
-			'report_id',
+			[
+			        'attribute' => 'report_id',
+                    'label' => "Gov't ID",
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+            ],
             [
                     'label' => Html::tag('i', '', ['class' => 'glyphicon glyphicon-camera']),
                     'encodeLabel' => false,
@@ -107,12 +111,29 @@ $this->params['breadcrumbs'][] = $this->title;
                         return Html::a(Html::encode($model->fullName), '/member/view?id=' . $model->member_id);
                     },
             ],
+            /*
         	[
             		'attribute' => 'specialties',
         			'value' => 'specialtyTexts',
         			'format' => 'ntext',
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
+            */
+            [
+                    'attribute' => 'phone',
+                    'label' => 'Phone',
+                    'value' => function($model) {
+                        return (isset($model->defaultPhone) ? $model->defaultPhone->phone : null);
+                    },
+                    'contentOptions' => ['style' => 'white-space: nowrap;'],
+            ],
+            [
+                'attribute' => 'email',
+                'label' => 'Email',
+                'value' => function($model) {
+                    return (isset($model->defaultEmail) ? $model->defaultEmail->email : null);
+                },
+            ],
         	[
                     'attribute' => 'dues_paid_thru_dt',
                     'format' => 'date',
@@ -131,6 +152,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
         			'contentOptions' => ['style' => 'white-space: nowrap;'],
         	],
+            /*
             [
                     'attribute' => 'expiredCount',
                     'label' => 'Expired Classes',
@@ -148,6 +170,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                 'visible' => Yii::$app->user->can('browseTraining'),
             ],
+            */
             /*
             [
                     'class' => 'yii\grid\ActionColumn',
