@@ -130,6 +130,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'email',
                 'label' => 'Email',
+                'format' => 'email',
                 'value' => function($model) {
                     return (isset($model->defaultEmail) ? $model->defaultEmail->email : null);
                 },
