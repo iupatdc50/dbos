@@ -118,7 +118,7 @@ class DuesAllocation extends BaseAllocation
     /**
      * @param bool $clear
      * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
     public function backOutDuesThru($clear = false)
     {
@@ -161,7 +161,8 @@ class DuesAllocation extends BaseAllocation
      */
     public function calcMonths($overage = 0.00)
     {
-        $tab = $this->allocation_amt + $overage;
+        // Can't use standard add on FP numbers
+        $tab = bcadd($this->allocation_amt, $overage, 2);
         $result = FeeCalendar::getPeriodsCovered($this->getLobCd(), $this->getRateClass(), $this->getStartDt(), $tab);
         $this->unalloc_remainder = $result['overage'];
         return $result['periods'];
@@ -173,7 +174,7 @@ class DuesAllocation extends BaseAllocation
      * @param null $months
      * @param null $op
      * @return string Paid thru date in MySql format
-     * @throws Exception
+     * @throws \Exception
      */
     public function  calcPaidThru($months = null, $op = null)
     {
