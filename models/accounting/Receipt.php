@@ -4,6 +4,7 @@ namespace app\models\accounting;
 
 use Yii;
 use yii\base\Exception;
+use yii\base\InvalidValueException;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -35,6 +36,7 @@ use app\components\utilities\OpDate;
  * @property string $remarks
  * @property string $lob_cd
  * @property string $acct_month
+ * @property string $period
  * @property string $void [enum('T', 'F')]
  * @property int $updated_by [int(11)]
  * @property int $updated_at [int(11)]
@@ -151,7 +153,7 @@ class Receipt extends ActiveRecord
         $common_rules = [
             [['payor_nm'], 'string', 'max' => 100],
         	[['payor_nm', 'helper_hrs'], 'default', 'value' => null],
-        	[['payment_method', 'received_dt', 'received_amt', 'acct_month'], 'required'],
+        	[['payment_method', 'received_dt', 'received_amt', 'acct_month', 'period'], 'required'],
         	[['payment_method'], 'in', 'range' => self::getAllowedMethods()],
         	[['payor_type'], 'in', 'range' => self::getAllowedPayors()],
         	[['received_dt'], 'date', 'format' => 'php:Y-m-d'],
@@ -199,20 +201,28 @@ class Receipt extends ActiveRecord
         	'feeTypeTexts' => 'Fee Types',
         	'xlsx_file' => 'Import From Spreadsheet',
             'lob_cd' => 'Trade',
-        	'acct_month' => 'Acct Month',
+            'acct_month' => 'Acct Month',
+            'period' => 'Period',
             'populate' => 'Prebuild Employees',
         ];
         return array_merge($this->_labels, $common_labels);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function init()
     {
         if ($this->scenario == self::SCENARIO_CREATE) {
             if (!isset($this->received_dt)) {
-                $today = $this->today;
-                $this->received_dt = $today->getMySqlDate();
+                $date = $this->today;
+                $this->received_dt = $date->getMySqlDate();
                 if (!isset($this->acct_month))
-                    $this->acct_month = $today->getYearMonth();
+                    $this->acct_month = $date->getYearMonth();
+                if (!isset($this->period)) {
+                    $date->modify('-1 month');
+                    $this->period = $date->getYearMonth();
+                }
             }
 
         }
@@ -265,19 +275,35 @@ class Receipt extends ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'updated_by']);
     }
 
-    public function getAcctMonthText()
+    /**
+     * @param string $field Column name
+     * @return string
+     */
+    public function getMonthText($field)
     {
-    	return OptionHelper::getPrettyMonthYear($this->acct_month);
+    	return OptionHelper::getPrettyMonthYear($this->$field);
     }
-    
-    public function getAcctMonthOptions(OpDate $base_dt = null)
+
+    /**
+     * @param string $base_dt MySQL format date
+     * @param int $span
+     * @return array Array of months; returns empty array if $base_dt is invalid
+     * @throws \Exception
+     */
+    public function getMonthOptions($base_dt = null, $span = 2)
     {
-    	if (!isset($base_dt)) {
-    		$base_dt = new OpDate();
-    		 if (isset($this->received_dt))
-    		     $base_dt->setFromMySql($this->received_dt);
-    	}
-    	return OpDate::getMonthsList($base_dt, 2);
+        $dt = new OpDate();
+        if (isset($base_dt)) {
+            try {
+                $dt->setFromMySql($base_dt);
+            } catch (InvalidValueException $e) {
+//                Yii::$app->session->addFlash('error', 'Invalid date.  Contact support. Error: `R010`');
+                Yii::error("*** R010: Receipt::getMonthOptions received invalid date `{$base_dt}`");
+                return [];
+            }
+        } elseif (isset($this->received_dt))
+            $dt->setFromMySql($this->received_dt);
+    	return OpDate::getMonthsList($dt, $span);
     }
 
     public function getMethodOptions()

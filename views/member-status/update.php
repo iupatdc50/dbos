@@ -1,5 +1,6 @@
 <?php /** @noinspection PhpUnhandledExceptionInspection */
 
+use kartik\datecontrol\DateControl;
 use yii\widgets\DetailView;
 use kartik\widgets\FileInput;
 use yii\bootstrap\ActiveForm;
@@ -30,8 +31,8 @@ $this->params['breadcrumbs'][] = 'Update';
                         'label' => 'Trade',
                         'value' => Html::encode($model->lob->short_descrip),
                     ],
-                    'effective_dt:date',
-                    'end_dt:date',
+//                    'effective_dt:date',
+//                    'end_dt:date',
                     [
                         'attribute' => 'member_status',
                         'value' => Html::encode($model->status->descrip),
@@ -49,6 +50,10 @@ $this->params['breadcrumbs'][] = 'Update';
             'enableClientValidation' => true,
 
         ]); ?>
+
+        <?= $form->field($model, 'effective_dt')->widget(DateControl::className(), [
+            'type' => DateControl::FORMAT_DATE,
+        ])  ?>
 
         <?= $form->field($model, 'reason')->textarea(['rows' => 6]) ?>
 

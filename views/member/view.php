@@ -92,7 +92,18 @@ $status = $model->currentStatus;
                     ],
                 ]); ?>
                 <?php if(isset($model->reinstateStaged)): ?>
-                    <div class="flash-notice">Reinstatement preparation complete</div>
+                    <div class="flash-notice">
+                        Reinstatement pending balance due
+                        <?php if(Yii::$app->user->can('createReceipt')) : ?>
+                            <?= Html::a('Cancel', ['member-status/cancel-reinstate', 'member_id' => $model->member_id], [
+                                'class' => 'btn btn-detail btn-default pull-right',
+                                'data' => [
+                                    'confirm' => 'Are you sure you want to cancel reinstate in progress?',
+                                    'method' => 'post',
+                                ],
+                            ]) ?>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
                 <div>
                     <?php if(Yii::$app->user->can('createReceipt') && ($status->member_status != Status::INACTIVE || isset($model->reinstateStaged))) :?>
@@ -170,7 +181,7 @@ $status = $model->currentStatus;
                 ['attribute' => 'gender', 'value' => Html::encode($model->genderText)],
                 'shirt_size',
                 'pacTexts:ntext',
-                //        	'application_dt:date',
+                'application_dt:date',
                 [
                     'attribute' => 'init_dt',
                     'format' => $model->isInApplication() ? NULL : 'date',

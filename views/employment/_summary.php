@@ -12,6 +12,7 @@ use yii\widgets\Pjax;
 /* @var $dataProvider ActiveDataProvider */
 /* @var $id string Relational ID around which data is summarized */
 /* @var $curr_effective_dt */
+/* @var $employer */
 ?>
 
 <div id="employment-history">

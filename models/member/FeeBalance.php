@@ -9,6 +9,7 @@ use yii\db\ActiveRecord;
 /**
  * This is the model class for table "FeeBalances".
  *
+ * @property integer $id
  * @property string $member_id
  * @property string $fee_type
  * @property float|null $balance_amt

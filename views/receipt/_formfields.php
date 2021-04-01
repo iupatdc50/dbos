@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 use kartik\select2\Select2;
 use kartik\datecontrol\DateControl;
@@ -23,10 +23,15 @@ use kartik\datecontrol\DateControl;
 	])   ?>
        
     <?= $form->field($model, 'acct_month')->widget(Select2::className(), [
-    		'data' => $model->acctMonthOptions,
+    		'data' => $model->getMonthOptions(),
     		'options' => ['placeholder' => 'Select month...'],
     ]) ?>
-	
+
+    <?= $form->field($model, 'period')->widget(Select2::className(), [
+        'data' => $model->getMonthOptions(null, 3),
+        'options' => ['placeholder' => 'Select month...'],
+    ]) ?>
+
     <?= $form->field($model, 'payment_method')->widget(Select2::className(), [
     		'data' => $model->methodOptions,
     		'options' => ['placeholder' => 'Select...', 'id' => 'paymentmethod'],

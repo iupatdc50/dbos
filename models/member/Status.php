@@ -166,6 +166,10 @@ class Status extends BaseEndable
         parent::afterSave($insert, $changedAttributes);
         if ($this->_image !== false && (($this->_hold_path === null) || unlink($this->_hold_path)))
             $this->_image->saveAs($this->getImagePath());
+        if (!$insert && isset($changedAttributes['effective_dt']) && ($this->member_status = Status::IN_APPL)) {
+            $this->member->application_dt = $this->effective_dt;
+            $this->member->save();
+        }
     }
 
     public function beforeDelete()

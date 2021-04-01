@@ -2,6 +2,7 @@
 
 namespace app\models\member;
 
+use app\models\accounting\Assessment;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -11,8 +12,13 @@ use yii\db\ActiveRecord;
  * @property string $member_id
  * @property string $reinstate_type
  * @property string $dues_owed_amt [decimal(9,2)]
+ * @property string $hold_application_dt
+ * @property integer $status_id
+ * @property integer $assessment_id
  *
  * @property Member $member
+ * @property Status $status
+ * @property Assessment $assessment
  */
 class MemberReinstateStaged extends ActiveRecord
 {
@@ -79,6 +85,22 @@ class MemberReinstateStaged extends ActiveRecord
     public function getMember()
     {
         return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAssessment()
+    {
+        return $this->hasOne(Assessment::className(), ['id' => 'assessment_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getStatus()
+    {
+        return $this->hasOne(Status::className(), ['id' => 'status_id']);
     }
 
 }

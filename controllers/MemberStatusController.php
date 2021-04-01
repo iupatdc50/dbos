@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\controllers\base\SummaryController;
 use app\helpers\OptionHelper;
 use app\models\accounting\ApfAssessment;
+use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\InitFee;
 use app\models\accounting\ReinstateAssessment;
 use app\models\member\ClassCode;
@@ -17,6 +18,7 @@ use Throwable;
 use Yii;
 use app\models\member\Status;
 use app\models\employment\Employment;
+use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -198,6 +200,8 @@ class MemberStatusController extends SummaryController
      * @param $member_id
      * @return array|string|Response
      * @throws NotFoundHttpException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
 	public function actionForfeit($member_id) 
 	{
@@ -213,8 +217,11 @@ class MemberStatusController extends SummaryController
 		
 		if ($model->load(Yii::$app->request->post())) {
 
-            /** @noinspection PhpStatementHasEmptyBodyInspection */
-            if ($this->addStatus($model)) { } // stub
+            if ($this->addStatus($model)) {
+                // Remove assessments with outstanding balances
+                foreach ($this->member->feeBalances as $balance)
+                    Assessment::findOne($balance->id)->delete();
+            }
 			
 			return $this->goBack();
 
@@ -288,24 +295,34 @@ class MemberStatusController extends SummaryController
             $stage->dues_owed_amt = 0.00;
             $today = $this->getToday()->getMySqlDate();
             if ($model->type == ReinstateForm::TYPE_APF) {
+                // Hold application_dt for undo
+                $stage->hold_application_dt = $this->member->application_dt;
                 $assessModel = new ApfAssessment(['assessment_dt' => $today]);
                 $assessModel->makeFromReinstate($model, $this->member);
                 // By policy, immediately puts member on app when this option is selected
-                $this->member->addStatus(new Status([
+                $status = new Status([
                     'member_status' => Status::IN_APPL,
                     'reason' => Status::REASON_REINST,
-                ]));
+                ]);
+                $this->member->addStatus($status);
             } elseif ($model->type == ReinstateForm::TYPE_BACKDUES) {
                 // Assume dues and reinstate fee are always checked
                 $stage->dues_owed_amt = $model->getFee(ReinstateForm::FEE_DUES)['amt'];
                 $assessModel = new ReinstateAssessment(['assessment_dt' => $today]);
                 $assessModel->makeFromReinstate($model, $this->member);
                 // By policy, immediately suspends when this option is selected
-                $this->member->addStatus(new Status([
+                $status = new Status([
                     'member_status' => Status::SUSPENDED,
                     'reason' => Status::REASON_REINST,
-                ]));
+                ]);
+                $this->member->addStatus($status);
             }
+
+            // Setup undo keys
+            if (isset($status))
+                $stage->status_id = $status->id;
+            if (isset($assessModel))
+                $stage->assessment_id = $assessModel->id;
 
             if (isset($model->authority) && ($model->authority != '')) {
                 $note_qty = 'Selected';
@@ -327,6 +344,38 @@ class MemberStatusController extends SummaryController
 
         $model->assessments_b = [ReinstateForm::FEE_DUES, ReinstateForm::FEE_REINST];
         return $this->renderAjax('reinstate', ['model' => $model]);
+    }
+
+    /**
+     * @param $member_id
+     * @return Response
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public function actionCancelReinstate($member_id)
+    {
+        $staged = MemberReinstateStaged::findOne($member_id);
+        if ($assessment = $staged->assessment) {
+            if (AssessmentAllocation::find()->where(['assessment_id' => $assessment->id])->count() > 0) {
+                $note = new Note(['note' => 'Reinstatement cancelled. Partial payment(s) forfeited.']);
+                $staged->member->addNote($note);
+            }
+            $assessment->delete();
+        }
+        if ($status = $staged->status) {
+            if ($status->delete())
+                Status::openLatest($member_id);
+        }
+        if (isset($staged->hold_application_dt)) {
+            $member = $staged->member;
+            $member->application_dt = $staged->hold_application_dt;
+            $member->save();
+        }
+        if ($staged->delete())
+            Yii::$app->session->addFlash('success', 'Reinstatement successfully cancelled');
+        else
+            Yii::$app->session->addFlash('error', 'Problem with reinstate cancel. Requires manual process');
+        return $this->goBack();
     }
 
     /**

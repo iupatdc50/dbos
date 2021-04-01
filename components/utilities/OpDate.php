@@ -2,6 +2,11 @@
 
 namespace app\components\utilities;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
+use yii\base\InvalidValueException;
+
 /**
  * Extends the standard PHP 5.2 DateTime class to override modify() and provide
  * some additional functionality
@@ -13,7 +18,7 @@ namespace app\components\utilities;
  * @version 1.5
  *         
  */
-class OpDate extends \DateTime 
+class OpDate extends DateTime
 {
 	CONST OP_ADD = '+';
 	CONST OP_SUBTRACT = '-';
@@ -38,7 +43,13 @@ class OpDate extends \DateTime
 		$end = gmmktime ( 0, 0, 0, $date2->_month, $date2->_day, $date2->_year );
 		return ($end - $start) / (60 * 60 * 24);
 	}
-	
+
+    /**
+     * @param OpDate $date
+     * @param int $span
+     * @return array
+     * @throws Exception
+     */
 	static public function getMonthsList(OpDate $date, $span = 3) {
 		$base_dt = clone  $date;
 		$base_dt->modify(self::OP_SUBTRACT . $span . ' month');
@@ -49,18 +60,19 @@ class OpDate extends \DateTime
 		}
 		return $list;
 	}
-	
-	/**
-	 * Forces object creation with now date only to override how class handles
-	 * incorrect dates
-	 *
-	 * @param DateTimeZone $timezone        	
-	 */
+
+    /**
+     * Forces object creation with now date only to override how class handles
+     * incorrect dates
+     *
+     * @param DateTimeZone $timezone
+     * @throws Exception
+     */
 	public function __construct($timezone = null) {
 		if ($timezone) {
 			parent::__construct ( 'now', $timezone );
 		} else {
-			parent::__construct ( 'now' );
+			parent::__construct ();
 		}
 		// $this->setTime(0, 0, 0);
 		$this->refreshDateParts ();
@@ -79,10 +91,10 @@ class OpDate extends \DateTime
 	public function setDate($year, $month, $day) {
 		if (! is_numeric ( $year ) || ! is_numeric ( $month ) || ! is_numeric ( $day )) {
 			$msg = 'Expects 3 numbers separated by commas in the order: year, month, day. ';
-			throw new \yii\base\InvalidValueException ( $msg . "Submitted: Year `{$year}` Month `{$month}` Day `{$day}`" );
+			throw new InvalidValueException ( $msg . "Submitted: Year `{$year}` Month `{$month}` Day `{$day}`" );
 		}
 		if (! checkdate ( $month, $day, $year )) {
-			throw new \yii\base\InvalidValueException ( "Non-existent date: Year `{$year}` Month `{$month}` Day `{$day}`" );
+			throw new InvalidValueException ( "Non-existent date: Year `{$year}` Month `{$month}` Day `{$day}`" );
 		}
 		parent::setDate ( $year, $month, $day );
 		$this->refreshDateParts ();
@@ -100,7 +112,7 @@ class OpDate extends \DateTime
 		$submitted = "Hour `{$hour}` Minute `{$minute}` Second `{$second}`";
 		if (! is_numeric ( $hour ) || ! is_numeric ( $minute ) || ! is_numeric ( $second )) {
 			$msg = 'Expects 2 or 3 numbers separated by comas in the order: hour, minute, second. ';
-			throw new \yii\base\InvalidValueException ( $msg . 'Submitted: ' . $submitted );
+			throw new InvalidValueException ( $msg . 'Submitted: ' . $submitted );
 		}
 		$outOfRange = FALSE;
 		if ($hour < 0 || $hour > 23) {
@@ -113,7 +125,7 @@ class OpDate extends \DateTime
 			$outOfRange = TRUE;
 		}
 		if ($outOfRange) {
-			throw new \yii\base\InvalidValueException ( 'Invalid time: ' . $submitted );
+			throw new InvalidValueException ( 'Invalid time: ' . $submitted );
 		}
 		parent::setTime ( $hour, $minute, $second );
 		$this->refreshTimeParts ();
@@ -130,20 +142,20 @@ class OpDate extends \DateTime
 		}
 		return false;
 	}
-	
-	/**
-	 * Alters the timestamp
-	 *
-	 * Overrides the month add and subtract functionality to more correctly handle
-	 * end of month out-of-bounds.
-	 *
-	 * @param string $modify
-	 *        	Standard strtotime add/sub expressions
-	 */
-	public function modify($modify) {
-		$parts = explode ( ' ', $modify );
+
+    /**
+     * Alters the timestamp
+     *
+     * Overrides the month add and subtract functionality to more correctly handle
+     * end of month out-of-bounds.
+     *
+     * @param string $modifier Standard strtotime add/sub expressions
+     * @throws Exception
+     */
+	public function modify($modifier) {
+		$parts = explode ( ' ', $modifier );
 		if (! is_array ( $parts ) || count ( $parts ) != 2) {
-			throw new \yii\base\InvalidValueException ( "Expecting a 2 part expression. Submitted: `{$modify}`." );
+			throw new InvalidValueException ( "Expecting a 2 part expression. Submitted: `{$modifier}`." );
 		}
 		if ($parts [1] === 'month') {
 			$count = 0;
@@ -157,13 +169,16 @@ class OpDate extends \DateTime
 				$this->subtractMonths ( $subtract );
 				return;
 			}
-			throw new \yii\base\InvalidValueException ( "Ill-formed add/substract months expression `{$modify}`." );
+			throw new InvalidValueException ( "Ill-formed add/substract months expression `{$modifier}`." );
 		}
 		// Pass all non-month arithmetic to parent
-		parent::modify ( $modify );
+		parent::modify ( $modifier );
 		$this->refreshDateParts ();
 	}
-	
+
+    /**
+     * @throws Exception
+     */
 	public function setToMonthEnd()
 	{
 		$this->modify('+1 month');
@@ -186,7 +201,7 @@ class OpDate extends \DateTime
 	public function setMDY($dateString) {
 		$parts = preg_split ( '{[-/ :.]}', $dateString );
 		if (! is_array ( $parts ) || count ( $parts ) != 3) {
-			throw new \yii\base\InvalidValueException ( "Expects date as MM/DD/YYYY. Submitted `{$dateString}`." );
+			throw new InvalidValueException ( "Expects date as MM/DD/YYYY. Submitted `{$dateString}`." );
 		}
 		$this->setDate ( $parts [2], $parts [0], $parts [1] );
 	}
@@ -194,11 +209,11 @@ class OpDate extends \DateTime
 	public function setHM($timeString, $ampm = TRUE) {
 		$divs = explode ( ' ', $timeString );
 		if ($ampm && count ( $divs ) != 2) {
-			throw new \yii\base\InvalidValueException ( "`{$timeString}` is missing am/pm" );
+			throw new InvalidValueException ( "`{$timeString}` is missing am/pm" );
 		}
 		$parts = explode ( ':', $divs [0] );
 		if (count ( $parts ) != 2) {
-			throw new \yii\base\InvalidValueException ( "Expecting time as `HH:MM`. Submitted `{$timeString}`." );
+			throw new InvalidValueException ( "Expecting time as `HH:MM`. Submitted `{$timeString}`." );
 		}
 		if ($ampm) {
 			if ($parts [0] == 12) {
@@ -210,7 +225,7 @@ class OpDate extends \DateTime
 			$hour = $parts [0];
 		$this->setTime ( $hour, $parts [1] );
 	}
-	
+
 	/**
 	 * Performs setDate with a standard MySQL format date input
 	 *
@@ -220,22 +235,25 @@ class OpDate extends \DateTime
 	 */
 	public function setFromMySql($dateString) {
 		if (! is_string ( $dateString )) {
-			throw new \yii\base\InvalidValueException ( "Expecting a date string" );
+			throw new InvalidValueException ( "Expecting a date string" );
 		}
 		$divs = explode ( ' ', $dateString );
 		$parts = explode ( '-', $divs [0] );
 		if (! is_array ( $parts ) || count ( $parts ) != 3) {
-			throw new \yii\base\InvalidValueException ( "Expecting date as `YYYY-MM-DD`. Submitted: {$dateString}" );
+			throw new InvalidValueException ( "Expecting date as `YYYY-MM-DD`. Submitted: {$dateString}" );
 		}
+        if (! checkdate ($parts[1], $parts[2], $parts[0])) {
+            throw new InvalidValueException ( "Non-existent date: Year `{$parts[0]}` Month `{$parts[1]}` Day `{$parts[2]}`" );
+        }
 		$this->setDate ( $parts [0], $parts [1], $parts [2] );
 		if (count ( $divs ) == 2) {
 			$parts = explode ( ':', $divs [1] );
 			if (! is_array ( $parts ) || count ( $parts ) != 3) {
-				throw new \yii\base\InvalidValueException ( "Expecting time as `HH:MM:SS`. Submitted: {$dateString}" );
+				throw new InvalidValueException ( "Expecting time as `HH:MM:SS`. Submitted: {$dateString}" );
 			}
 			$this->setTime ( $parts [0], $parts [1], $parts[2] );
 		} else {
-			$this->setTime (0, 0, 0);
+			$this->setTime (0, 0);
 		}
 		return $this;
 	}
@@ -253,6 +271,7 @@ class OpDate extends \DateTime
 	public function getDisplayDate($leading = true, $separator = '-') {
 		return $leading ? $this->format ( "m{$separator}d{$separator}Y" ) : $this->format ( "n{$separator}j{$separator}Y" );
 	}
+
 	public function getDisplayTime($ampm = TRUE) {
 		return $ampm ? $this->format ( 'h:i a' ) : $this->format ( 'H:i' );
 	}
@@ -284,9 +303,8 @@ class OpDate extends \DateTime
 	/**
 	 * Returns day portion of date
 	 *
-	 * @param bool $ordinal
-	 *        	When true, attach "st", "nd", "rd", or "th" suffix
-	 * @return variant
+	 * @param bool $ordinal When true, attach "st", "nd", "rd", or "th" suffix
+	 * @return string
 	 */
 	public function getDay($ordinal = false) {
 		return $ordinal ? $this->format ( 'jS' ) : $this->_day;
@@ -374,7 +392,7 @@ class OpDate extends \DateTime
 	 */
 	private function addMonths($nbrOfMonths) {
 		if (! is_numeric ( $nbrOfMonths )) {
-			throw new \yii\base\InvalidValueException ( "Expecting an integer. Submitted `{$nbrOfMonths}`" );
+			throw new InvalidValueException ( "Expecting an integer. Submitted `{$nbrOfMonths}`" );
 		}
 		$nbrOfMonths = ( int ) $nbrOfMonths;
 		$new = $this->_month + $nbrOfMonths;
@@ -394,13 +412,13 @@ class OpDate extends \DateTime
 		$this->checkEndMonthInBounds ();
 		parent::setDate ( $this->_year, $this->_month, $this->_day );
 	}
-	
-	/**
-	 * Replacement functionality for subtracting months from date
-	 *
-	 * @param int $nbrOfMonths
-	 *        	Number of months to subtract from date
-	 */
+
+    /**
+     * Replacement functionality for subtracting months from date
+     *
+     * @param int $nbrOfMonths Number of months to subtract from date
+     * @throws Exception
+     */
 	private function subtractMonths($nbrOfMonths) {
 		if (! is_numeric ( $nbrOfMonths )) {
 			throw new Exception ( "Expecting an integer. Submitted `{$nbrOfMonths}`" );

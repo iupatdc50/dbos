@@ -19,8 +19,12 @@ use app\helpers\OptionHelper;
             'received_dt:date',
 			[
 					'attribute' => 'acct_month',
-					'value' => $modelReceipt->acctMonthText,
+					'value' => $modelReceipt->getMonthText('acct_month'),
 			],
+            [
+                    'attribute' => 'period',
+                    'value' => $modelReceipt->getMonthText('period'),
+            ],
         	[
             		'attribute' => 'payor_nm',
             		'value' => $modelReceipt->payor_nm,
