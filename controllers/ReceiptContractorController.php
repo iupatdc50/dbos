@@ -7,7 +7,7 @@ use Yii;
 use app\controllers\receipt\MultiMemberController;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptContractor;
-use app\models\accounting\ReceiptContractorSearch;
+// use app\models\accounting\ReceiptContractorSearch;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\RemittanceExcel;
 use app\models\member\Member;
@@ -72,7 +72,7 @@ class ReceiptContractorController extends MultiMemberController
 								$path = $model->filePath;
 								$file->saveAs($path);
 								$remittance = new RemittanceExcel(['xlsx_file' => $model->filePath]);
-								$allocs = $remittance->setFeeColumns($model->fee_types)->allocsArray;
+								$allocs = $remittance->setFeeColumns($model->fee_types)->getAllocsArray();
 								foreach ($allocs as $alloc) {
 									$member = Member::findOne([
 											'report_id' => $alloc['report_id'],
@@ -121,6 +121,7 @@ class ReceiptContractorController extends MultiMemberController
 		
 	}
 
+	/*
     public function actionSummaryJson($id)
 	{
     	if (!Yii::$app->user->can('browseReceipt'))
@@ -129,6 +130,7 @@ class ReceiptContractorController extends MultiMemberController
         $searchModel = new ReceiptContractorSearch();
         $searchModel->license_nbr = $id;
         /** @noinspection PhpUndefinedMethodInspection */
+    /*
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 //			$dataProvider->pagination = ['pageSize' => 8];
         return $this->asJson($this->renderAjax('_summary', [
@@ -137,6 +139,7 @@ class ReceiptContractorController extends MultiMemberController
         ]));
 
 	}
+    */
 
     /**
      * @param $license_nbr

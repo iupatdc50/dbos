@@ -3,13 +3,14 @@
 namespace app\models\accounting;
 
 use Yii;
+use yii\db\Exception;
 
 class ReceiptMultiMember extends Receipt
 {
 	protected $_remit_filter = 'employer_remittable';
 	/**
 	 * Injected employer object
-	 * @var \app\models\accounting\ResponsibleEmployer
+	 * @var ResponsibleEmployer
 	 */
 	public $responsible;
 
@@ -20,7 +21,7 @@ class ReceiptMultiMember extends Receipt
      * @param $license_nbr
      * @param null $year    If entered, then select only for the year indicated
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public static function getFeeTypesSubmitted($license_nbr, $year = null)
     {
@@ -43,6 +44,7 @@ class ReceiptMultiMember extends Receipt
         $date_constraint = is_null($year) ? '' :
             "  WHERE LEFT(R.acct_month, 4) = '{$year}' ";
 
+        /** @noinspection SqlCaseVsIf */
         $sql =
             "SELECT 
                  CASE WHEN unalloc_total > 0 THEN 'T' ELSE 'F' END AS has_unallocs,
@@ -85,11 +87,10 @@ class ReceiptMultiMember extends Receipt
         $date_constraint = is_null($year) ? '' :
             "  WHERE LEFT(Re.acct_month, 4) = '{$year}' ";
 
-        $sql =
-
+        return
             "SELECT 
                 Re.`id`,
-                Re.received_dt, " .
+                Re.received_dt, CONCAT(LEFT(DATE_FORMAT(CONCAT(LEFT(Re.period, 4), '-', RIGHT(Re.period, 2), '-01'), '%M'), 3), ' ''', SUBSTR(Re.period, 3, 2)) AS period, " .
             $cols .
             "    Re.received_amt AS total
               FROM Receipts AS Re
@@ -100,7 +101,6 @@ class ReceiptMultiMember extends Receipt
             ORDER BY Re.received_dt DESC 
             ";
 
-        return $sql;
     }
 
     public function getCustomAttributes($forPrint = false)
@@ -113,7 +113,7 @@ class ReceiptMultiMember extends Receipt
                 'format' => 'ntext',
                 'label' => 'Fee Types'
             ];
-        };
+        }
         return $attrs;
     }
 

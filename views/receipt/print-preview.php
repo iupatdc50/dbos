@@ -7,13 +7,16 @@ use yii\helpers\Html;
 
 
 	$common_attributes = [
-        	[
-            		'attribute' => 'payor_nm',
-            		'value' => $model->payor_nm . ($model->payor_type == 'O' ? ' (for ' . $model->responsible->employer->contractor . ')' : ''),
-    		],
+	        [
+	                'attribute' => 'receiptPayor',
+                    'label' => 'Payor',
+            ],
+            [       'attribute' => 'period',
+                    'value' => Html::encode($model->getMonthText('period')),
+            ],
             [
             		'attribute' => 'payment_method',
-            		'value' => Html::encode($model->methodText) . ($model->payment_method != '1' ? ' [' . $model->tracking_nbr . ']' : ''),
+            		'value' => Html::encode($model->getMethodText()) . ($model->payment_method != '1' ? ' [' . $model->tracking_nbr . ']' : ''),
    			],
         	'unallocated_amt',
         	'remarks:ntext',

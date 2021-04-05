@@ -41,5 +41,11 @@ class ReceiptOther extends ReceiptMultiMember
         return false;
     }
 
-
+    public function getReceiptPayor()
+    {
+        $payor = parent::getReceiptPayor();
+        if (isset($this->responsible))
+            $payor .= ' (for ' . $this->responsible->employer->contractor . ')';
+        return $payor;
+    }
 }

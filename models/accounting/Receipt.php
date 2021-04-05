@@ -53,6 +53,7 @@ use app\components\utilities\OpDate;
  * @property UndoReceipt $undoReceipt
  * @property string $totalAllocation [decimal(7,2)]
  * @property string $outOfBalance [decimal(7,2)]
+ * @property string $receiptPayor
  * @property OpDate $today
  */
 class Receipt extends ActiveRecord
@@ -568,6 +569,11 @@ class Receipt extends ActiveRecord
     public function dependenciesUpdated()
     {
         $this->markAttributeDirty('updated_by');
+    }
+
+    public function getReceiptPayor()
+    {
+        return $this->payor_nm;
     }
     
     /**

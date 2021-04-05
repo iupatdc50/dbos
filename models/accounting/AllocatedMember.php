@@ -21,6 +21,7 @@ use yii\db\StaleObjectException;
  * @property Member $member
  * @property BaseAllocation[] $allocations
  * @property CcOtherLocal $otherLocal
+ * @property integer $allocationCount
  */
 class AllocatedMember extends ActiveRecord
 {

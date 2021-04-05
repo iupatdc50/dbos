@@ -2,10 +2,11 @@
 
 use kartik\grid\GridView;
 use kartik\helpers\Html;
+use yii\data\SqlDataProvider;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
-/* @var $sqlProvider \yii\data\SqlDataProvider */
+/* @var $sqlProvider SqlDataProvider */
 /* @var $typesSubmitted array fee types submittted */
 
 $baseColumns = [
@@ -15,9 +16,10 @@ $baseColumns = [
     ],
     [
         'attribute' => 'received_dt',
-        'format' => ['date', 'php:n/j/Y'],
+        'format' => ['date', 'php:m/d/y'],
         'label' => 'Received',
     ],
+    'period',
 ];
 
 $feeColumns = [];
@@ -51,7 +53,7 @@ $aftColumns  = [
             'contentOptions' => ['style' => 'white-space: nowrap;'],
             'template' => '{view}',
             'buttons' => [
-                'view' => function ($url, $model, $key) {
+                'view' => function ($url) {
                     return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, [
                         'title' => 'View',
                         'target' => '_blank',
@@ -59,12 +61,12 @@ $aftColumns  = [
                     ]);
                 },
             ],
-            'urlCreator' => function ($action, $model, $key, $index) {
+            'urlCreator' => function ($action, $model) {
                 if ($action === 'view') {
                     $route = '/receipt-contractor';
-                    $url = Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model['id']]);
-                    return $url;
+                    return Yii::$app->urlManager->createUrl([$route . '/view', 'id' => $model['id']]);
                 }
+                return null;
             },
         ],
 ];
