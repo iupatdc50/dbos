@@ -85,8 +85,9 @@ use yii\db\Exception;
  * @property DuesBalance $duesBalance
  * @property Document $recurCcAuth
  * @property FeeBalance[] $feeBalances
+ * @property float $totalFeeBalance
  * @property integer $ccgBalanceCount
- * @property AllBalance $allBalance
+ * @property float $allBalance
  * @property DuesAllocation[] $duesAllocations
  * @property ApfAssessment $currentApf
  * @property LastDuesReceipt $lastDuesReceipt
@@ -235,6 +236,9 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         return $command->queryAll();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function init()
     {
     	$this->app_cutoff_dt = $this->getToday();
@@ -348,6 +352,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      * @param bool $insert
      * @return bool
      * @throws InvalidConfigException
+     * @throws \Exception
      */
     public function beforeSave($insert) 
     {
@@ -558,7 +563,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
             try {
                 $this->reinstateStaged->delete();
             } catch (Throwable $e) {
-                Yii::error("*** ME020 Reinstate stage for member `{$this->member_id}` {$this->fullName} could not be deleted.  Error(s): " . print_r($this->reinstateStaged->errors, true));
+                Yii::error("*** ME020 Reinstate stage for member `$this->member_id` $this->fullName could not be deleted.  Error(s): " . print_r($this->reinstateStaged->errors, true));
                 Yii::$app->session->addFlash('error', 'Unable to complete transaction [Code: ME020]');
                 return false;
             }
@@ -578,7 +583,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     		->from(Status::tableName() . ' St')
     		->where(['and', 
     					['St.member_status' => Status::GRANTINSVC],
-    					['or', "St.end_dt > '{$this->dues_paid_thru_dt}'" , ['St.end_dt' => null]]
+    					['or', "St.end_dt > '$this->dues_paid_thru_dt'" , ['St.end_dt' => null]]
     		]);
     }
     
@@ -847,7 +852,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     {
     	$texts = [];
     	if ($this->local_pac == 'T')
-    		$texts[] = isset($this->ncfs_id) ? "Local [NCFS ID: {$this->ncfs_id}]" : 'Local';
+    		$texts[] = isset($this->ncfs_id) ? "Local [NCFS ID: $this->ncfs_id]" : 'Local';
     	if ($this->hq_pac == 'T')
     		$texts[] = 'HQ';
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
@@ -887,7 +892,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     /**
      * Process upload of image
      *
-     * @return mixed the uploaded image instance
+     * @return false|UploadedFile the uploaded image instance
      * @throws \yii\base\Exception
      */
     public function uploadImage() 
@@ -902,7 +907,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         $ext = end($parts);
         if (strtolower($ext) =='jpeg')
             $ext = 'jpg';
-        $this->photo_id = Yii::$app->security->generateRandomString(16).".{$ext}";
+        $this->photo_id = Yii::$app->security->generateRandomString(16).".$ext";
  
         return $image;
     }
@@ -943,8 +948,9 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      * date.  When on or prior to the 20th, the starting paid thru is the end of the previous month.
      * Otherwise it is the end of the current month.
      *
-     * @param bool $use_current   If true, use today's date instead of application date
+     * @param bool $use_current If true, use today's date instead of application date
      * @return OpDate
+     * @throws \Exception
      */
     public function getDuesStartDt($use_current = false)
     {
@@ -980,9 +986,28 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         ;
     }
 
+    public function getTotalFeeBalance()
+    {
+        return $this->hasMany(FeeBalance::className(), ['member_id' => 'member_id'])
+            ->sum('balance_amt')
+        ;
+    }
+
     public function getAllBalance()
     {
-        return $this->hasOne(AllBalance::className(), ['member_id' => 'member_id']);
+        // Do NOT use AllBalance VIEW; performs poorly
+        // return $this->hasOne(AllBalance::className(), ['member_id' => 'member_id']);
+        $balance = 'Pending';
+        if (isset($this->currentStatus) && isset($this->currentClass)) {
+            $balance = 0.00;
+            if (!($this->currentStatus->member_status == Status::OUTOFSTATE)) {
+                $balance = bcadd($this->duesBalance->balance_amt, $this->overage, 2);
+                $fee_balance = $this->totalFeeBalance;
+                if (!is_null($fee_balance))
+                    $balance = bcadd($balance, $fee_balance, 2);
+            }
+        }
+        return $balance;
     }
 
     /**
@@ -1072,7 +1097,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	$result = false;
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'A')) {
     		if (!isset($this->dues_paid_thru_dt)) 
-    			throw new \Exception("Dues paid thru date is not set for member: {$this->member_id}");
+    			throw new \Exception("Dues paid thru date is not set for member: $this->member_id");
     		$result = $this->isOlderThanCutoff(self::MONTHS_DELINQUENT);
     	}
     	return $result;
@@ -1089,7 +1114,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	$result = false;
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == 'S')) {
     		if (!isset($this->dues_paid_thru_dt))
-    			throw new \Exception("Dues paid thru date is not set for member: {$this->member_id}");
+    			throw new \Exception("Dues paid thru date is not set for member: $this->member_id");
     		$result = $this->isOlderThanCutoff(self::MONTHS_GRACE_PERIOD);
     	}
     	return $result;	
@@ -1126,6 +1151,11 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         ;
     }
 
+    /**
+     * @param $months
+     * @return bool
+     * @throws \Exception
+     */
     protected function isOlderThanCutoff($months)
     {
     	$cutoff = $this->getToday();

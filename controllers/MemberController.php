@@ -81,7 +81,7 @@ class MemberController extends RootController
 
     /**
      * Lists all Member models.
-     * @return mixed
+     * @return string
      */
     public function actionIndex()
     {
@@ -99,7 +99,7 @@ class MemberController extends RootController
     /**
      * Displays a single Member model.
      * @param string $id
-     * @return mixed
+     * @return string
      * @throws NotFoundHttpException
      */
     public function actionView($id)
@@ -119,11 +119,7 @@ class MemberController extends RootController
         ]);
     	$params['emplProvider'] = $emplProvider;
 
-    	$balance = 'Pending';
-    	if (isset($model->currentStatus) && isset($model->currentClass)) {
-    	    $balance = Yii::$app->formatter->asDecimal(($model->currentStatus->member_status == Status::OUTOFSTATE) ? 0.00 : $model->allBalance->total_due, 2);
-    	}
-    	$params['balance'] = $balance;
+    	$params['balance'] = $model->allBalance;
 
     	if (Yii::$app->user->can('browseMember')) {
     		$params['noteModel'] = $this->createNote($model);
@@ -146,12 +142,13 @@ class MemberController extends RootController
     /**
      * Creates a new Member model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * @return Response|string
      * @throws \yii\base\Exception
      */
     public function actionCreate()
     {
-    	$this->storeReturnUrl();
+        /** @noinspection PhpExpressionResultUnusedInspection */
+        $this->storeReturnUrl();
     	
     	$idGenerator = new MemberId();
         $model = new Member(['idGenerator' => $idGenerator, 'scenario' => Member::SCENARIO_CREATE]);
@@ -305,7 +302,7 @@ class MemberController extends RootController
      * Updates an existing Member model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
-     * @return mixed
+     * @return Response|string
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
@@ -383,7 +380,7 @@ class MemberController extends RootController
      * Deletes an existing Member model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
-     * @return mixed
+     * @return Response
      * @throws NotFoundHttpException
      * @throws \Exception
      * @throws StaleObjectException

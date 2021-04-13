@@ -34,7 +34,7 @@ class ReceiptMemberController extends BaseController
     /**
      * Displays a single Receipt model.
      * @param integer $id
-     * @return mixed
+     * @return Response|string
      * @throws NotFoundHttpException
      */
     public function actionView($id)
@@ -69,7 +69,7 @@ class ReceiptMemberController extends BaseController
     {
         $member = Member::findOne($id);
 
-        $total_due = $member->allBalance->total_due;
+        $total_due = $member->allBalance;
         if($total_due < 0.00)
             $total_due = 0.00;
 
@@ -91,7 +91,6 @@ class ReceiptMemberController extends BaseController
      *
      * @return Response
      * @throws Exception
-     * @noinspection PhpRedundantCatchClauseInspection
      *
      * @todo Sanitize post()
      */
@@ -110,7 +109,7 @@ class ReceiptMemberController extends BaseController
         $member = Member::findOne($post['member_id']);
 
         if (!isset($post['stripe_token'])) {
-            Yii::error("*** RMC020 Member `{$member->member_id}` {$member->fullName} did not return CC verification token");
+            Yii::error("*** RMC020 Member `$member->member_id` $member->fullName did not return CC verification token");
             Yii::$app->session->addFlash('error', 'Unable to process credit card [Code: RMC020]');
             return $this->goBack();
         }
@@ -195,7 +194,7 @@ class ReceiptMemberController extends BaseController
      *
      * @param $lob_cd
      * @param null $id
-     * @return string
+     * @return string|Response
      * @throws \Exception
      */
 	public function actionCreate($lob_cd, $id = null)
@@ -219,7 +218,7 @@ class ReceiptMemberController extends BaseController
 				if ($model->save(false)) {
 					$modelMember->receipt_id = $model->id;
 					if (!$modelMember->save())
-						throw new \Exception("Error when trying to stage Allocated Member `{$modelMember->errors}`");
+						throw new \Exception("Error when trying to stage Allocated Member `$modelMember->errors`");
 					$builder = new AllocationBuilder();
 					$result = $builder->prepareAllocs($modelMember, $model->fee_types);
 					if ($result != true)
@@ -238,7 +237,7 @@ class ReceiptMemberController extends BaseController
 		
 		if (!isset($model->received_amt) && isset($modelMember->member_id)) {
 		    $member = $modelMember->member;
-            $model->received_amt = number_format($member->allBalance->total_due, 2);
+            $model->received_amt = number_format($member->allBalance, 2);
         }
 
 		if (Yii::$app->request->isAjax)
@@ -261,7 +260,6 @@ class ReceiptMemberController extends BaseController
      */
 	public function actionItemize($id)
 	{
-		$this->storeReturnUrl();
 		$modelReceipt = $this->findModel($id);
 		$allocProvider = $this->buildAllocProvider($id);
 		return $this->render('itemize', [
