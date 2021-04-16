@@ -34,7 +34,8 @@ use yii\helpers\Url;
         <table class="fifty-pct table table-striped table-bordered detail-view"><tbody>
             <tr>
                 <th class="sixty-pct right">Dues Balance</th>
-                <td class="right"><?= number_format($member->duesBalance->balance_amt, 2) ?></td>
+                <td class="right"><?= /** @noinspection PhpUnhandledExceptionInspection */
+                    number_format($member->getDuesBalance(), 2) ?></td>
             </tr>
             <?php foreach ($member->feeBalances AS $balance): ?>
                 <tr>

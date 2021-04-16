@@ -82,7 +82,6 @@ use yii\db\Exception;
  * @property Classification $classification
  * @property CurrentEmployment $employer
  * @property Employment $employerActive
- * @property DuesBalance $duesBalance
  * @property Document $recurCcAuth
  * @property FeeBalance[] $feeBalances
  * @property float $totalFeeBalance
@@ -963,11 +962,39 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     }
 
     /**
-     * @return ActiveQuery
+     * @return mixed
+     * @throws Exception
      */
     public function getDuesBalance()
     {
-        return $this->hasOne(DuesBalance::className(), ['member_id' => 'member_id']);
+        // Do NOT use DuesBalance VIEW; performs poorly
+        // return $this->hasOne(DuesBalance::className(), ['member_id' => 'member_id']);
+        $sql = <<<SQL
+            SELECT 
+              Me.member_id,
+              CASE 
+                WHEN FC.lob_cd IS NULL THEN 0.00 
+                WHEN MS.member_status = 'O' THEN 0.00
+                ELSE SUM(FC.rate) 
+              END AS balance_amt
+            FROM Members AS Me
+              JOIN MemberStatuses AS MS ON MS.member_id = Me.member_id
+                                         AND MS.effective_dt = (SELECT MAX(effective_dt) FROM MemberStatuses WHERE member_id = Me.member_id)
+              LEFT OUTER JOIN MemberClasses AS MC ON MC.member_id = Me.member_id
+                                        AND MC.end_dt IS NULL
+                LEFT OUTER JOIN FeeCalendar AS FC ON FC.lob_cd = MS.lob_cd
+                                                   AND FC.rate_class = MC.rate_class
+                                                   AND FC.end_dt BETWEEN DATE_ADD(Me.dues_paid_thru_dt, INTERVAL 1 DAY) AND LAST_DAY(CURDATE())   
+            WHERE Me.member_id = :member_id
+            GROUP BY Me.member_id 
+            ;
+SQL;
+        $cmd = Yii::$app->db->createCommand($sql);
+        $cmd->bindValues([
+            ':member_id' => $this->member_id,
+        ]);
+        $result = $cmd->queryOne();
+        return $result['balance_amt'];
     }
 
     /**
@@ -993,6 +1020,10 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         ;
     }
 
+    /**
+     * @return float|string
+     * @throws Exception
+     */
     public function getAllBalance()
     {
         // Do NOT use AllBalance VIEW; performs poorly
@@ -1001,7 +1032,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         if (isset($this->currentStatus) && isset($this->currentClass)) {
             $balance = 0.00;
             if (!($this->currentStatus->member_status == Status::OUTOFSTATE)) {
-                $balance = bcadd($this->duesBalance->balance_amt, $this->overage, 2);
+                $balance = bcadd($this->getDuesBalance(), $this->overage, 2);
                 $fee_balance = $this->totalFeeBalance;
                 if (!is_null($fee_balance))
                     $balance = bcadd($balance, $fee_balance, 2);
