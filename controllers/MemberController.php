@@ -149,7 +149,7 @@ class MemberController extends RootController
     {
         /** @noinspection PhpExpressionResultUnusedInspection */
         $this->storeReturnUrl();
-    	
+
     	$idGenerator = new MemberId();
         $model = new Member(['idGenerator' => $idGenerator, 'scenario' => Member::SCENARIO_CREATE]);
         $modelAddress = new Address(['set_as_default' => true]);
@@ -160,6 +160,7 @@ class MemberController extends RootController
         
         // New member defaults
         $model->exempt_apf = false;
+        $model->is_ccd = false;
         
         if ($model->load(Yii::$app->request->post())
         		&& $modelAddress->load(Yii::$app->request->post()) 
@@ -170,9 +171,11 @@ class MemberController extends RootController
         	
         	$image = $model->uploadImage();
         	if ($model->validate() && $modelAddress->validate() && $modelPhone->validate() && $modelEmail->validate()) {
-        		
-        		$model->init_dt = ($model->exempt_apf) ? $model->application_dt : null;
-        		 
+
+        	    // May enter init date on a new member who is clearing in (CCD), otherwise default tp appl date
+        	    if (!isset($model->init_dt))
+        		    $model->init_dt = ($model->exempt_apf || $model->is_ccd) ? $model->application_dt : null;
+
         		$transaction = Yii::$app->db->beginTransaction();
         		try {
         			if ($model->save(false)) {
@@ -193,7 +196,14 @@ class MemberController extends RootController
         				if ($modelAddress->save(false) && $modelPhone->save(false)) {
 							// Assume lob_cd comes from $_POST
 							$modelStatus->effective_dt = $model->application_dt;
-							$modelStatus->reason = Status::REASON_NEW;
+							if ($model->is_ccd) {
+							    Yii::info('Other Local: ' . $modelStatus->other_local);
+                                $prev = ($modelStatus->other_local > 0) ? $modelStatus->other_local : 'Unspecified';
+                                $modelStatus->reason = Status::REASON_CCD . $prev;
+                                $modelStatus->member_status = Status::ACTIVE;
+                            } else
+							    $modelStatus->reason = Status::REASON_NEW;
+
         					if (!$model->addStatus($modelStatus))
         						throw new \Exception('Error when adding Status: ' . print_r($modelStatus->errors, true));
         					// Assume class_id comes from $_POST

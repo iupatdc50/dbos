@@ -20,10 +20,11 @@ use app\helpers\OptionHelper;
 /* @var $modelsAddress ActiveQuery */
 /* @var $modelPhone app\models\member\Phone */
 /* @var $modelsPhone ActiveQuery */
-/* @var $modelEmail ActiveQuery */
+/* @var $modelEmail app\models\member\Email */
 /* @var $modelsEmail ActiveQuery */
-/* @var $modelStatus ActiveQuery */
+/* @var $modelStatus app\models\member\Status */
 /* @var $modelsSpecialty ActiveQuery */
+/* @var $modelClass app\models\member\MemberClass */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -31,7 +32,7 @@ use app\helpers\OptionHelper;
 
     <?php $form = ActiveForm::begin([
     		'options' => ['enctype' => 'multipart/form-data'], // ** Must have for file uploads **
-//    		'type' => ActiveForm::TYPE_HORIZONTAL
+    		'type' => ActiveForm::TYPE_HORIZONTAL
     		
     ]); ?>
     

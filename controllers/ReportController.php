@@ -17,7 +17,7 @@ use Exception;
 use Yii;
 use yii\base\UserException;
 use yii\data\ActiveDataProvider;
-use \yii\web\Controller;
+use yii\web\Controller;
 use app\models\report\ExportCsvForm;
 use app\models\member\PacExport;
 use yii\web\ForbiddenHttpException;
@@ -38,8 +38,8 @@ class ReportController extends Controller
 	public $layout = 'reporting';
 
 	/**
-	 * @return mixed
-	 */
+	 * @return string
+     */
 	public function actionIndex()
 	{
 
@@ -128,7 +128,7 @@ class ReportController extends Controller
 					$file_nm = "pac_export_{$model->lob_cd}_{$model->begin_dt->getTimestamp()}.txt";
 					$fqdn = $path . $file_nm;
 					$exporter->export()->saveAs($fqdn); 
-					$msg = nl2br("Export successfully generated \n\t--> File Name: {$file_nm} \n--> Total Record Count: {$count} \n--> Total Trans Amount: {$amount}");
+					$msg = nl2br("Export successfully generated \n\t--> File Name: $file_nm \n--> Total Record Count: $count \n--> Total Trans Amount: $amount");
 	        		Yii::$app->session->addFlash('success', $msg);
 				} catch (Exception $e) {
 					Yii::error("*** RC100  Export error (Messages: " . print_r($e, true));
@@ -151,7 +151,8 @@ class ReportController extends Controller
 	public function actionDownload($fqdn)
 	{
 		if(file_exists($fqdn)) {
-			return Yii::$app->response->sendFile($fqdn)->on(Response::EVENT_AFTER_SEND, function($event) {
+            /** @noinspection PhpVoidFunctionResultUsedInspection */
+            return Yii::$app->response->sendFile($fqdn)->on(Response::EVENT_AFTER_SEND, function($event) {
     			unlink($event->data);
 			}, $fqdn);
 		}
@@ -298,7 +299,7 @@ class ReportController extends Controller
                 $member = Member::findOne($model->member_id);
                 if (in_array($member->currentClass->member_class, [ClassCode::CLASS_APPRENTICE, ClassCode::CLASS_HANDLER]))
                     return $this->redirect(['/report/transfer-form', 'member_id' => $model->member_id]);
-                Yii::$app->session->addFlash('error', "{$member->fullName} is not an apprentice");
+                Yii::$app->session->addFlash('error', "$member->fullName is not an apprentice");
             }
 
 
@@ -354,7 +355,7 @@ class ReportController extends Controller
                             $range = $objPHPExcel->getNamedRange('brand')->getRange();
                             $sheet->getCell($range)->setValue($resp->brand);
                             $range = $objPHPExcel->getNamedRange('size')->getRange();
-                            $sheet->getCell($range)->setValue("{$resp->resp_size} ({$resp->resp_type})");
+                            $sheet->getCell($range)->setValue("$resp->resp_size ($resp->resp_type)");
                         }
                     }
                     $named = $objPHPExcel->getNamedRange('expire_dt' . $credential->credential_id);
@@ -367,8 +368,8 @@ class ReportController extends Controller
                                 $this->alertCell($sheet, $range);
                                 // Haz/lead includes other credentials in certificate
                                 if ($credential->credential_id == Credential::HAZ_LEAD)
-                                    // G15 Lead Awareness, G18 Respiratory Protection, G21 Silica Awareness
-                                    foreach (['G15', 'G18', 'G21'] as $cell)
+                                    // G16 Lead Awareness, G21 Respiratory Protection, G24 Silica Awareness
+                                    foreach (['G16', 'G21', 'G24'] as $cell)
                                         $this->alertCell($sheet, $cell);
                             }
                         }
@@ -379,7 +380,7 @@ class ReportController extends Controller
                         $sheet->getCell($range)->setValue($schedule_dt);
                     }
                 } else {
-                    Yii::error("*** MCC100 `{$credential->credential_id}` has no corresponding range on template. Credential: " . print_r($credential, true));
+                    Yii::error("*** MCC100 `$credential->credential_id` has no corresponding range on template. Credential: " . print_r($credential, true));
                     throw new UserException("Problem exporting certificate.  See log for details.  Code `MCC100`");
                 }
             }
@@ -387,18 +388,18 @@ class ReportController extends Controller
             /*  START ========> Temporary code to hide either aerial lifts or MEWP *********************************************************/
             $mewp65 = $objPHPExcel->getNamedRange('complete_dt65')->getRange();
             $dt = $sheet->getCell($mewp65)->getValue();
-            $ints = '0123456789';
             if (isset($dt)) {
-                $aerial40row = strpbrk($objPHPExcel->getNamedRange('complete_dt40')->getRange(), $ints);
-                $sheet->getRowDimension($aerial40row)->setVisible(false);
-                $aerial64row = strpbrk($objPHPExcel->getNamedRange('complete_dt64')->getRange(), $ints);
-                $sheet->getRowDimension($aerial64row)->setVisible(false);
+                $this->toggleRowVisibility($sheet, 'complete_dt40');
+                $this->toggleRowVisibility($sheet, 'complete_dt64');
             } else {
-                $sheet->getRowDimension(strpbrk($mewp65, $ints))->setVisible(false);
-                $mewp66row = strpbrk($objPHPExcel->getNamedRange('complete_dt66')->getRange(), $ints);
-                $sheet->getRowDimension($mewp66row)->setVisible(false);
+                $this->toggleRowVisibility($sheet, 'complete_dt65');
+                $this->toggleRowVisibility($sheet, 'complete_dt66');
             }
             /*  END  ========> Temporary code to hide either aerial lifts or MEWP **********************************************************/
+
+            // CAS visibility.  If no CAS 1, always show CAS 2.  If CAS 2 exists and is active, hide CAS 1 row, otherwise hide CAS 2 row
+            $hide = $member->isCasLevel2() ? Credential::CAS_LEVEL_1 : Credential::CAS_LEVEL_2;
+            $this->toggleRowVisibility($sheet, 'complete_dt' . $hide);
 
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
             $this->setHeaders($file_nm);
@@ -411,7 +412,7 @@ class ReportController extends Controller
             return $content;
         }
 
-        throw new ForbiddenHttpException("You are not allowed to perform this action ({$member_id})");
+        throw new ForbiddenHttpException("You are not allowed to perform this action ($member_id)");
     }
 
     /**
@@ -453,8 +454,12 @@ class ReportController extends Controller
             /*  END  ========> Temporary code to hide either aerial lifts or MEWP **********************************************************/
 
             $row = 62;
+            $skip = $member->isCasLevel2() ? Credential::CAS_LEVEL_1 : Credential::CAS_LEVEL_2;
+
             /* @var $credential CurrentMemberCredential */
             foreach ($credentials as $credential) {
+                if ($credential->credential_id == $skip)
+                    continue;
                 if (isset($credential->complete_dt)) {
 
                     /*  START  ========> Temporary code to hide either aerial lifts or MEWP *********************************************************/
@@ -490,7 +495,7 @@ class ReportController extends Controller
             return $content;
         }
 
-        throw new ForbiddenHttpException("You are not allowed to perform this action ({$member_id})");
+        throw new ForbiddenHttpException("You are not allowed to perform this action ($member_id)");
 }
 
     public function actionExpiredClasses()
@@ -513,14 +518,31 @@ class ReportController extends Controller
         $sheet->getStyle($range)->getFont()->setBold(true);
     }
 
+    /**
+     * @param PHPExcel_Worksheet $sheet
+     * @param $namedRange
+     * @param false $visible
+     * @noinspection PhpSameParameterValueInspection
+     */
+    private function toggleRowVisibility(PHPExcel_Worksheet $sheet, $namedRange, $visible = false)
+    {
+        $row = strpbrk($sheet->getParent()->getNamedRange($namedRange)->getRange(), '0123456789');
+        $sheet->getRowDimension($row)->setVisible($visible);
+    }
+
+    /**
+     * @param $file_nm
+     * @param string $extension
+     * @noinspection PhpSameParameterValueInspection
+     */
     private function setHeaders($file_nm, $extension = 'xlsx')
     {
         $headers = Yii::$app->getResponse()->getHeaders();
         $headers->set('Cache-Control', 'no-cache');
         $headers->set('Pragma', 'no-cache');
         $headers->set('Content-Type', 'application/force-download');
-        $headers->set('Content-Type', "application/{$extension};charset=utf-8");
-        $headers->set('Content-Disposition', "attachment;filename={$file_nm}.{$extension}");
+        $headers->set('Content-Type', "application/$extension;charset=utf-8");
+        $headers->set('Content-Disposition', "attachment;filename=$file_nm.$extension");
         $headers->set('Expires', '0');
     }
 

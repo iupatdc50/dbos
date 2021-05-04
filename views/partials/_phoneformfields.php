@@ -1,7 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
-use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
 use kartik\widgets\Select2;
 use kartik\checkbox\CheckboxX;
 
@@ -25,7 +23,6 @@ use kartik\checkbox\CheckboxX;
     
     <?php if (!$phone->isDefault): ?>
     
-    <br />
     <?= $form->field($phone, 'set_as_default')->widget(CheckboxX::className(), ['pluginOptions' => ['threeState' => false]]) ?>
     
     <?php endif; ?>

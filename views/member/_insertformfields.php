@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Member data entry form partial
@@ -6,8 +6,6 @@
  * On create, a single address and single phone may be entered.
  */
 
-use yii\helpers\Html;
-use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
 use kartik\checkbox\CheckboxX;
 use kartik\datecontrol\DateControl;
@@ -17,9 +15,9 @@ use kartik\datecontrol\DateControl;
 /* @var $model app\models\member\Member */
 /* @var $modelAddress app\models\member\Address */
 /* @var $modelPhone app\models\member\Phone */
-/* @var $modelEmail \yii\db\ActiveQuery */
-/* @var $modelStatus \yii\db\ActiveQuery */
-/* @var $modelClass \yii\db\ActiveQuery */
+/* @var $modelEmail app\models\member\Email */
+/* @var $modelStatus app\models\member\Status */
+/* @var $modelClass app\models\member\MemberClass */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -56,9 +54,28 @@ use kartik\datecontrol\DateControl;
     	
 	    <?= $form->field($model, 'application_dt')->widget(DateControl::className(), [
 	    		'type' => DateControl::FORMAT_DATE,
-	    ]) ?>
+	    ])->label('Appl Date') ?>
 
     	
     	<?= $form->field($model, 'exempt_apf')->widget(CheckboxX::className(), ['pluginOptions' => ['threeState' => false]]); ?>
-    
-	    
+
+        <?= $form->field($model, 'is_ccd')->widget(CheckboxX::className(), [
+                'pluginOptions' => ['threeState' => false],
+                'pluginEvents' => [
+                    'change' => "function () {
+    					if ($(this).val() == '1') {
+    						\$('#ccdfields').show();
+						} else {
+    						\$('#ccdfields').hide();
+						}
+					}",
+                ],
+        ]); ?>
+
+        <div hidden id="ccdfields">
+            <?= $form->field($modelStatus, 'other_local')->textInput(['maxlength' => 10])->label('Previous Local') ?>
+            <?= $form->field($model, 'init_dt')->widget(DateControl::className(), [
+                'type' => DateControl::FORMAT_DATE,
+            ])->label('Init Date') ?>
+        </div>
+

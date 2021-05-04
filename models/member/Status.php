@@ -117,6 +117,7 @@ class Status extends BaseEndable
             [['doc_file'], 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'pdf, png'],
 
         	[['other_local'], 'required', 'on' => self::SCENARIO_CCD],
+            [['other_local'], 'string', 'max' => 10],
         	['init_dt', AtLeastValidator::className(), 'in' => ['paid_thru_dt', 'init_dt'], 'on' => self::SCENARIO_RESET],
         	['alloc_id', 'exist', 'targetClass' => '\app\models\accounting\BaseAllocation', 'targetAttribute' => 'id'],
         ];
@@ -153,7 +154,7 @@ class Status extends BaseEndable
 
             $this->_image = $this->uploadImage();
 
-            if ($this->_image === false)
+            if ($this->_image == false)
                 $this->doc_id = $hold_id;
 
             return true;

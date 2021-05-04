@@ -11,7 +11,6 @@ use yii\db\ActiveQuery;
  * @property string $member_id
  *
  * @property Member $aggregate
- * @property PhoneDefault $isDefault
  */
 class Phone extends BasePhone
 {

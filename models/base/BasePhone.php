@@ -22,6 +22,7 @@ use app\models\value\PhoneType;
  *
  * @property PhoneType $phoneType
  * @property string $phoneText
+ * @property ActiveRecord $isDefault
  */
 abstract class BasePhone extends ActiveRecord
                          implements iDefaultableInterface
@@ -77,7 +78,6 @@ abstract class BasePhone extends ActiveRecord
    public function beforeDelete()
     {
     	if (parent::beforeDelete()) {
-            /** @noinspection PhpPossiblePolymorphicInvocationInspection */
             if ($this->isDefault) {
 	    		Yii::$app->session->addFlash('error', 'Cannot delete default phone');
 	    		return false;

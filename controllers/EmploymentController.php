@@ -48,7 +48,7 @@ class EmploymentController extends SummaryController
 
     /**
      * @param int $id
-     * @return mixed|void
+     * @return void
      * @throws NotFoundHttpException
      */
 	public function actionUpdate($id)
@@ -128,6 +128,11 @@ class EmploymentController extends SummaryController
 	{
 		$model = $this->findByDate($member_id, $effective_dt);
 		if ($model !== null) {
+
+		    if (!empty($model->documents)) {
+                Yii::$app->session->addFlash('error', "Cannot delete {$this->getBasename()}. Record has attached documents.");
+                return $this->goBack();
+            }
 			
 			$removing_current = $model->end_dt == null;
 

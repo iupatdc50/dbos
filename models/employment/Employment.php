@@ -28,7 +28,8 @@ use app\components\utilities\OpDate;
  * @property Contractor $contractor
  * @property Contractor $duesPayor
  * @property string $descrip
- * @property Document[] $unfiledDocs
+ * @property Document $documents
+ * @property DocumentType[] $unfiledDocs
  *
  */
 class Employment extends BaseEndable
@@ -227,6 +228,11 @@ class Employment extends BaseEndable
     	$reason = isset($code) ? $code : $this->term_reason;
     	$options = self::getTermReasonOptions();
     	return isset($options[$reason]) ? $options[$reason] : '';
+    }
+
+    public function getDocuments()
+    {
+        return $this->hasMany(Document::className(), ['member_id' => 'member_id', 'effective_dt' => 'effective_dt']);
     }
 
     /**

@@ -7,6 +7,7 @@ use app\models\base\iDemographicInterface;
 use app\models\base\iIdInterface;
 use app\models\employment\CurrentEmployment;
 use app\models\employment\Employment;
+use app\models\training\Credential;
 use app\models\training\WorkHoursSummary;
 use app\models\training\WorkProcess;
 use app\models\ZipCode;
@@ -164,6 +165,11 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
 	public $exempt_apf;
 
     /**
+     * @var boolean Stages whether new member is a CC deposit
+     */
+    public $is_ccd;
+
+    /**
      * @var Standing 	May be injected, if required
      */
     public $standing;
@@ -273,7 +279,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id', 'nick_nm'], 'default'],
             ['overage', 'default', 'value' => 0.00],
         	[['ssnumber', 'imse_id', 'ncfs_id'], 'unique'],
-            [['exempt_apf', 'wage_percent'], 'safe'],
+            [['exempt_apf', 'is_ccd', 'wage_percent'], 'safe'],
         ];
     }
 
@@ -314,7 +320,8 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	'drug_test_dt' => 'Last Drug Test',
         	'exempt_apf' => 'Exempt APF?',
         	'overage' => 'Overage',
-            'nick_nm' => 'Nick Name'
+            'nick_nm' => 'Nick Name',
+            'is_ccd' => 'Is CCD?',
         ];
     }
     
@@ -716,6 +723,11 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         if (isset($catg))
             $query->onCondition(['catg' => $catg]);
         return $query;
+    }
+
+    public function getCurrentCredential($id)
+    {
+        return $this->hasOne(CurrentMemberCredential::className(), ['member_id' => 'member_id'])->onCondition(['credential_id' =>$id]);
     }
 
     /**
@@ -1208,6 +1220,24 @@ SQL;
     public function getLocalPacText()
     {
     	return OptionHelper::getTFText($this->local_pac);
+    }
+
+    /**
+     *
+     * @return bool
+     */
+    public function isCasLevel2()
+    {
+        /* @var CurrentMemberCredential $cas */
+        $cas = $this->getCurrentCredential(Credential::CAS_LEVEL_2)->one();
+        if (isset($cas)) {
+            if ($cas->expire_dt >= $this->getToday()->getMySqlDate())
+                return true;
+            // If CAS level 2 is expired, but there is no Level 1 credential, expired level 2 will display
+            if (!($this->getCurrentCredential(Credential::CAS_LEVEL_1)->one()))
+                return true;
+        }
+        return false;
     }
 
     /**

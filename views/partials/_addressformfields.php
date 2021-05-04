@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -27,9 +27,9 @@ use kartik\checkbox\CheckboxX;
     <?= $form->field($address, 'address_type')->hiddenInput()->label(false); ?>
     <?php endif; ?>
 
-    <?= $form->field($address, 'address_ln1')->textInput(['maxlength' => 50])->label('Address Line 1') ?>
+    <?= $form->field($address, 'address_ln1')->textInput(['maxlength' => 50])->label('Address') ?>
 
-    <?= $form->field($address, 'address_ln2')->textInput(['maxlength' => 50])->label('Address Line 2') ?>
+    <?= $form->field($address, 'address_ln2')->textInput(['maxlength' => 50])->label('Line 2') ?>
 
     <?= $form->field($address, 'zip_cd', [
     		'addon' => [
@@ -43,7 +43,7 @@ use kartik\checkbox\CheckboxX;
     						'asButton' => true,
    					],
     		],
-    ])->textInput(['maxlength' => 5])->label('Zip Code') ?>
+    ])->textInput(['maxlength' => 5])->label('Zip') ?>
     
     <div class="form-group generated-city-ln">
     	<label class="control-label col-sm-3" for="city-ln"></label>
@@ -51,8 +51,7 @@ use kartik\checkbox\CheckboxX;
     </div>
     
     <?php if (!$address->isDefault): ?>
-    <br />
-    
+
     <?= $form->field($address, 'set_as_default')->widget(CheckboxX::className(), ['pluginOptions' => ['threeState' => false]]) ?>
     
     <?php endif; ?>
