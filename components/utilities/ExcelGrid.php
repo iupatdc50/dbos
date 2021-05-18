@@ -10,16 +10,16 @@ use PHPExcel_Writer_IWriter;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveQueryInterface;
+use yii\db\ActiveQuery;
 use yii\grid\ActionColumn;
 use yii\grid\DataColumn;
 use yii\grid\GridView;
 use yii\grid\SerialColumn;
 use yii\helpers\ArrayHelper;
 use yii\base\Model;
-use \PHPExcel;
-use \PHPExcel_IOFactory;
-use \PHPExcel_Style_NumberFormat;
+use PHPExcel;
+use PHPExcel_IOFactory;
+use PHPExcel_Style_NumberFormat;
 
 class ExcelGrid extends GridView
 {
@@ -32,8 +32,7 @@ class ExcelGrid extends GridView
 	private $_provider;
 	private $_visibleColumns;
 	private $_beginRow = 1;
-	private $_endRow;
-	private $_endCol;
+    private $_endCol;
 	private $_objPHPExcel;
 	/* @var $_objPHPExcelSheet PHPExcel_Worksheet */
 	private $_objPHPExcelSheet;
@@ -48,7 +47,6 @@ class ExcelGrid extends GridView
 	}
 
     /**
-     * @return string|void
      * @throws PHPExcel_Exception
      * @throws PHPExcel_Reader_Exception
      * @throws PHPExcel_Writer_Exception
@@ -100,16 +98,18 @@ class ExcelGrid extends GridView
 		$lastModifiedBy = '';
 		extract($this->properties);
 		$this->_objPHPExcel->getProperties()
-		->setCreator($creator)
-		->setTitle($title)
-		->setSubject($subject)
-		->setDescription($description)
-		->setCategory($category)
-		->setKeywords($keywords)
-		->setManager($manager)
-		//->setCompany($company)
-		->setCreated($created)
-		->setLastModifiedBy($lastModifiedBy);
+		    ->setCreator($creator)
+		    ->setTitle($title)
+		    ->setSubject($subject)
+		    ->setDescription($description)
+		    ->setCategory($category)
+		    ->setKeywords($keywords)
+		    ->setManager($manager)
+		    //->setCompany($company)
+		    ->setCreated($created)
+		    ->setLastModifiedBy($lastModifiedBy)
+            ->setCustomProperty('Document number', $this->properties['doc_number'])
+        ;
 		$this->_objPHPExcelSheet = $this->_objPHPExcel->getActiveSheet();
 		if(isset($this->properties['sheetTitle']))
 			$this->_objPHPExcelSheet->setTitle($this->properties['sheetTitle']);
@@ -158,11 +158,11 @@ class ExcelGrid extends GridView
 			return 0;
 		}
 		$keys = $this->_provider->getKeys();
-		$this->_endRow = 0;
+		$endRow = 0;
 		foreach ($models as $index => $model) {
 			$key = $keys[$index];
 			$this->generateRow($model, $key, $index);
-			$this->_endRow++;
+			$endRow++;
 		}
 		// Set autofilter on
 		$this->_objPHPExcelSheet->setAutoFilter(
@@ -170,17 +170,17 @@ class ExcelGrid extends GridView
 				$this->_beginRow .
 				":" .
 				self::columnName($this->_endCol) .
-				$this->_endRow
+                $endRow
 		);
 		
-		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . strval($this->_endRow + 1));
+		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . ($endRow + 1));
 		$style->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
 
 		for($col = 1; $col <= $this->_endCol; $col++) {
 			$this->_objPHPExcelSheet->getColumnDimension(self::columnName($col))->setAutoSize(true);
 		}
 
-		return ($this->_endRow > 0) ? count($models) : 0;
+		return ($endRow > 0) ? count($models) : 0;
 	}
 
     /**
@@ -191,7 +191,6 @@ class ExcelGrid extends GridView
      */
 	public function generateRow($model, $key, $index)
 	{
-		$cells = [];
 		$this->_endCol = 0;
 		foreach ($this->_visibleColumns as $column) {
 			if ($column instanceof SerialColumn || $column instanceof ActionColumn) {
@@ -218,7 +217,7 @@ class ExcelGrid extends GridView
 				$value =ArrayHelper::getValue($model, $column->attribute, '');
 			}
 			$this->_endCol++;
-			$cells[] = $this->_objPHPExcelSheet->setCellValue(self::columnName($this->_endCol) . ($index + $this->_beginRow + 1),
+			$this->_objPHPExcelSheet->setCellValue(self::columnName($this->_endCol) . ($index + $this->_beginRow + 1),
 					strip_tags($value), true);
 		}
 	}
@@ -240,7 +239,7 @@ class ExcelGrid extends GridView
 	protected function setVisibleColumns()
 	{
 		$cols = [];
-		foreach ($this->columns as $key => $column) {
+		foreach ($this->columns as $column) {
 			if ($column instanceof SerialColumn || $column instanceof ActionColumn) {
 				continue;
 			}
@@ -260,7 +259,7 @@ class ExcelGrid extends GridView
 		}
 		$provider = $this->dataProvider;
 		if ($col->label === null) {
-			if ($provider instanceof ActiveDataProvider && $provider->query instanceof ActiveQueryInterface) {
+			if ($provider instanceof ActiveDataProvider && $provider->query instanceof ActiveQuery) {
 				$model = new $provider->query->modelClass;
 				$label = $model->getAttributeLabel($col->attribute);
 			} else {
@@ -293,8 +292,8 @@ class ExcelGrid extends GridView
 		header("Cache-Control: no-cache");
 		header("Pragma: no-cache");
         header("Content-Type: application/force-download");
-        header("Content-Type: application/{$this->extension}; charset=utf-8");
-		header("Content-Disposition: attachment; filename={$this->filename}.{$this->extension}");
+        header("Content-Type: application/$this->extension; charset=utf-8");
+		header("Content-Disposition: attachment; filename=$this->filename.$this->extension");
 		header("Expires: 0");
 	}
 }

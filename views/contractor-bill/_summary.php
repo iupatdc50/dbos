@@ -1,11 +1,12 @@
 <?php
 
 use kartik\grid\GridView;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider ActiveDataProvider */
 
 $controller = 'contractor-bill';
 
@@ -24,6 +25,16 @@ echo GridView::widget([
 //		        'footer' => false,
 		],
 		'columns' => [
+                [
+                    'class'=>'kartik\grid\ExpandRowColumn',
+                    'width'=>'50px',
+                    'value'=>function () {
+                        return GridView::ROW_COLLAPSED;
+                    },
+                    'detailUrl'=> Yii::$app->urlManager->createUrl(['bill-payment/summary-json']),
+                    'headerOptions'=>['class'=>'kartik-sheet-style'],
+                    'expandOneOnly'=>true,
+                ],
 		        [
 		            'attribute' => 'created_at',
                     'format' => 'raw',

@@ -2,7 +2,12 @@
 
 namespace app\models\accounting;
 
-use Yii;
+use Exception;
+use PHPExcel_Cell;
+use PHPExcel_Exception;
+use PHPExcel_IOFactory;
+use PHPExcel_Reader_Exception;
+use PHPExcel_Worksheet;
 use yii\base\Model;
 use yii\base\InvalidConfigException;
 
@@ -17,6 +22,9 @@ class RemittanceExcel extends Model
 	 * @var string	Path to the Excel spreadsheet.  Must be injected on Create.
 	 */
 	public $xlsx_file;
+    /**
+     * @var PHPExcel_Worksheet
+     */
 	public $sheet;
 	/**
 	 * @var string Excel columns start with A, B, C, etc.
@@ -25,35 +33,44 @@ class RemittanceExcel extends Model
 	public $maxCol;
 	public $maxRow;
 	private $_feeColumns = [];
-	
+
+    /**
+     * @throws InvalidConfigException
+     * @throws Exception
+     */
 	public function init()
 	{
 		if(!isset($this->xlsx_file))
 			throw new InvalidConfigException('Must inject an Excel spreadsheet');
 		
 		try {
-			$inputFileType = \PHPExcel_IOFactory::identify($this->xlsx_file);
-			$objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+			$inputFileType = PHPExcel_IOFactory::identify($this->xlsx_file);
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);
 			$objExcel = $objReader->load($this->xlsx_file);
-		} catch (\PHPExcel_Reader_Exception $e) {
-            throw new \Exception('Unable to stage Excel spreadsheet: ' . $e);
+		} catch (PHPExcel_Reader_Exception $e) {
+            throw new Exception('Unable to stage Excel spreadsheet: ' . $e);
 		}
 
         try {
-            $this->sheet = $objExcel->getSheet(0);
+            $this->sheet = $objExcel->getSheet();
             $this->maxColA = $this->sheet->getHighestColumn();
-            $this->maxCol = \PHPExcel_Cell::columnIndexFromString($this->maxColA);
+            $this->maxCol = PHPExcel_Cell::columnIndexFromString($this->maxColA);
             $this->maxRow = $this->sheet->getHighestRow();
-        } catch (\PHPExcel_Exception $e) {
-            throw new \Exception('Unable to access staged Excel spreadsheet: ' . $e);
+        } catch (PHPExcel_Exception $e) {
+            throw new Exception('Unable to access staged Excel spreadsheet: ' . $e);
 		}
 	}
-	
+
+    /**
+     * @param array $fee_types
+     * @return $this
+     * @throws Exception
+     */
 	public function setFeeColumns($fee_types = [])
 	{
 		$headerRow = $this->sheet->rangeToArray('A1:' . $this->maxColA . '1', null, true, false);
 		if (!($headerRow[0][0] == self::FIRST_COLHEAD))
-			throw new \Exception('Spreadsheet is not the right format (no header row)');
+			throw new Exception('Spreadsheet is not the right format (no header row)');
 		
 		$this->_feeColumns = [];
 		
@@ -72,7 +89,11 @@ class RemittanceExcel extends Model
 	{
 		return $this->_feeColumns;
 	}
-	
+
+    /**
+     * @return array
+     * @throws InvalidConfigException
+     */
 	public function getAllocsArray()
 	{
 		if(empty($this->_feeColumns))
@@ -102,5 +123,10 @@ class RemittanceExcel extends Model
 		}
 		return $allocs;
 	}
+
+	public function getDocNumber()
+    {
+        return $this->sheet->getParent()->getProperties()->getCustomPropertyValue('Document number');
+    }
 	
 }

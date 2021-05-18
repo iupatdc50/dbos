@@ -2,8 +2,8 @@
 
 namespace app\models\accounting;
 
+use Exception;
 use Yii;
-use yii\base\Exception;
 use yii\base\InvalidValueException;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -48,6 +48,7 @@ use app\components\utilities\OpDate;
  * @property ReceiptAllocSumm[] $allocSumms
  * @property AssessmentAllocation[] $assessmentAllocations
  * @property DuesAllocation[] $duesAllocations
+ * @property BillPayment $billPayment
  * @property User $createdBy
  * @property User $updatedBy
  * @property UndoReceipt $undoReceipt
@@ -210,7 +211,7 @@ class Receipt extends ActiveRecord
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function init()
     {
@@ -289,7 +290,7 @@ class Receipt extends ActiveRecord
      * @param string $base_dt MySQL format date
      * @param int $span
      * @return array Array of months; returns empty array if $base_dt is invalid
-     * @throws \Exception
+     * @throws Exception
      */
     public function getMonthOptions($base_dt = null, $span = 2)
     {
@@ -299,7 +300,7 @@ class Receipt extends ActiveRecord
                 $dt->setFromMySql($base_dt);
             } catch (InvalidValueException $e) {
 //                Yii::$app->session->addFlash('error', 'Invalid date.  Contact support. Error: `R010`');
-                Yii::error("*** R010: Receipt::getMonthOptions received invalid date `{$base_dt}`");
+                Yii::error("*** R010: Receipt::getMonthOptions received invalid date `$base_dt`");
                 return [];
             }
         } elseif (isset($this->received_dt))
@@ -321,14 +322,14 @@ class Receipt extends ActiveRecord
     {
     	$method = isset($code) ? $code : $this->payment_method;
     	$options = $this->methodOptions;
-    	return isset($options[$method]) ? $options[$method] : "Unknown Payment Method `{$method}`";
+    	return isset($options[$method]) ? $options[$method] : "Unknown Payment Method `$method`";
     }
     
     public function getPayorText($code = null)
     {
     	$payor = isset($code) ? $code : $this->payor_type;
     	$options = self::getPayorOptions();
-    	return isset($options[$payor]) ? $options[$payor] : "Unknown Payor Type `{$payor}`";
+    	return isset($options[$payor]) ? $options[$payor] : "Unknown Payor Type `$payor`";
     }
 
     /**
@@ -338,7 +339,7 @@ class Receipt extends ActiveRecord
     {
         $type = $this->payor_type;
         $options = self::getPayorOptions();
-        return isset($options[$type]) ? strtolower($options[$type]) : "Unknown Payor Type `{$type}`";
+        return isset($options[$type]) ? strtolower($options[$type]) : "Unknown Payor Type `$type`";
     }
 
     /**
@@ -455,8 +456,7 @@ class Receipt extends ActiveRecord
     /**
      * Process upload of spreadsheet
      *
-     * @return mixed the uploaded spreadsheet
-     * @throws Exception
+     * @return false|UploadedFile the uploaded spreadsheet
      */
     public function uploadFile()
     {
@@ -467,10 +467,18 @@ class Receipt extends ActiveRecord
         // generate a unique file name for storage
         $name_parts = explode(".", $file->name);
         $ext = end($name_parts);
-        $this->xlsx_name = Yii::$app->security->generateRandomString(16).".{$ext}";
-    	
+        $this->xlsx_name = 'R' . $this->id . ".$ext";
+//        $this->xlsx_name = Yii::$app->security->generateRandomString(16).".{$ext}";
+
         return $file;
     	
+    }
+
+    public function addBillPayment(BillPayment $bill_payment)
+    {
+        $bill_payment->receipt_id = $this->id;
+        $bill_payment->transmittal = $this->xlsx_name;
+        $bill_payment->save();
     }
 
     /**
@@ -502,8 +510,7 @@ class Receipt extends ActiveRecord
      * @param bool $forPrint If true, excludes certain attributes from printable receipt
      * @return array
      */
-    public function getCustomAttributes(/** @noinspection PhpUnusedParameterInspection */
-        $forPrint = false)
+    public function getCustomAttributes($forPrint = false)
     {
     	return [];
     }
@@ -574,6 +581,11 @@ class Receipt extends ActiveRecord
     public function getReceiptPayor()
     {
         return $this->payor_nm;
+    }
+
+    public function getBillPayment()
+    {
+        return null;
     }
     
     /**

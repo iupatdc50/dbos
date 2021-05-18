@@ -21,6 +21,7 @@ use yii\db\ActiveRecord;
  *
  * @property Contractor $contractor
  *
+ * @property string $imagePath
  * @method uploadImage()
  */
 class Agreement extends ActiveRecord

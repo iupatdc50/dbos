@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\accounting\BillPayment;
 use Throwable;
 use Yii;
 use app\controllers\receipt\MultiMemberController;
@@ -80,8 +81,8 @@ class ReceiptContractorController extends MultiMemberController
 											'first_nm' => $alloc['first_nm'],
 									]);
 									if (!isset($member)) {
-									    Yii::$app->session->addFlash('error', "Receipt {$model->id} member `{$alloc['report_id']}` not found.  Skipping row.");
-										Yii::warning("Receipt {$model->id} member `{$alloc['report_id']}` not found.  Skipping row.");
+									    Yii::$app->session->addFlash('error', "Receipt $model->id member `{$alloc['report_id']}` not found.  Skipping row.");
+										Yii::warning("Receipt $model->id member `{$alloc['report_id']}` not found.  Skipping row.");
 										continue;
 									}
                                     $builder = new AllocationBuilder();
@@ -94,7 +95,8 @@ class ReceiptContractorController extends MultiMemberController
                                             $alloc_memb->delete();
                                     }
 								}
-								$model->deleteUploadedFile();
+								$model->addBillPayment(new BillPayment(['bill_id' => $remittance->getDocNumber()]));
+//								$model->deleteUploadedFile();
 							}
 							
 							$transaction->commit();

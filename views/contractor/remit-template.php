@@ -9,6 +9,7 @@ use yii\web\View;
 /* @var $modelContractor app\models\contractor\Contractor */
 /* @var $modelsFeeType app\models\accounting\TradeFeeType[] */
 /* @var $lob_cd string */
+/* @var $doc_number string */
 
 $file_nm = 'RemitTemplate_' . $modelContractor->license_nbr . '_' . $lob_cd;
 $sheetTitle = substr($modelContractor->contractor, 0, 23) . ' (' . $lob_cd . ')';
@@ -65,7 +66,8 @@ ExcelGrid::widget([
 		'dataProvider' => $dataProvider,
 		'filename' => $file_nm,
 		'properties' => [
-				'sheetTitle' => $sheetTitle,
+			'sheetTitle' => $sheetTitle,
+            'doc_number' => $doc_number,
 		], 
 		'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => ''],
 		'columns' => array_merge ($base, $submittables),

@@ -30,6 +30,7 @@ use yii\web\UploadedFile;
  * @property string $is_active
  *
  * @property array $statusOptions
+ * @property array $currentLobOptions
  * @property UnionContractor $currentSignatory
  * @property Address[] $addresses
  * @property Phone[] $phones
@@ -285,7 +286,7 @@ class Contractor extends ActiveRecord  implements iNotableInterface
     	if (isset($override)) {
     		$options = $this->statusOptions;
     		if (!isset($options[$override])) {
-    			throw new InvalidParamException("Invalid override `{$override}` passed in parameter"); 
+    			throw new InvalidParamException("Invalid override `$override` passed in parameter");
     		}
     		$this->is_active = $override;
     	} else {

@@ -2,9 +2,10 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\View;
 
 /* @var $model app\models\accounting\Receipt  */
-/* @var $this \yii\web\View */
+/* @var $this View */
 
 ?>
 

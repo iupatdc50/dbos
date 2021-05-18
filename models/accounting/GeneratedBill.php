@@ -7,6 +7,8 @@ use app\models\value\Lob;
 use app\models\user\User;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "GeneratedBills".
@@ -23,7 +25,7 @@ use yii\behaviors\BlameableBehavior;
  * @property Lob $lob
  * @property User $creator
  */
-class GeneratedBill extends \yii\db\ActiveRecord
+class GeneratedBill extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -74,7 +76,7 @@ class GeneratedBill extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getContractor()
     {
@@ -82,7 +84,7 @@ class GeneratedBill extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getLob()
     {
@@ -90,11 +92,20 @@ class GeneratedBill extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCreator()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
 
+    public function deleteImage()
+    {
+        return true;
+    }
+
+    public function getBillPayments()
+    {
+        return $this->hasMany(BillPayment::className(), ['receipt_id' => 'id']);
+    }
 }

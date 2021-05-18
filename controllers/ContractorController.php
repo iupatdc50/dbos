@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\accounting\GeneratedBill;
 use app\models\contractor\Email;
+use Throwable;
 use Yii;
 use app\controllers\base\RootController;
 use app\models\contractor\Contractor;
@@ -77,11 +78,12 @@ class ContractorController extends RootController
 
     /**
      * Lists all Contractor models.
-     * @return mixed
+     * @return string
      */
     public function actionIndex()
     {
-    	$this->storeReturnUrl();
+        /** @noinspection PhpExpressionResultUnusedInspection */
+        $this->storeReturnUrl();
     	 
     	$searchModel = new ContractorSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -191,6 +193,7 @@ class ContractorController extends RootController
     			'modelContractor' => $modelContractor, 
     			'lob_cd' => $lob_cd,
     			'modelsFeeType' => $modelsFeeType,
+                'doc_number' => $audit->id,
     	]);
     	
     }
@@ -198,7 +201,7 @@ class ContractorController extends RootController
     /**
      * Displays a single Contractor model.
      * @param string $id
-     * @return mixed
+     * @return string
      * @throws NotFoundHttpException
      */
     public function actionView($id)
@@ -226,8 +229,7 @@ class ContractorController extends RootController
      * Allows a single address and phone on initial create
      * If creation is successful, the browser will be redirected to the 'view' page.
      *
-     * @return mixed
-     * @throws Exception
+     * @return Response|string
      */
     public function actionCreate()
     {
@@ -259,7 +261,7 @@ class ContractorController extends RootController
         				$modelAddress->license_nbr = $model->license_nbr;
         				$modelPhone->license_nbr = $model->license_nbr;
         				if ($modelSig->save(false) && $modelAddress->save(false) && $modelPhone->save(false)) {
-        					if ($image !== false) {
+        					if ($image != false) {
         						$path = $modelSig->imagePath;
         						$image->saveAs($path);
         					}
@@ -298,7 +300,7 @@ class ContractorController extends RootController
      * Updates an existing Contractor model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
-     * @return mixed
+     * @return Response|string
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
@@ -323,10 +325,11 @@ class ContractorController extends RootController
      * Deletes an existing Contractor model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
-     * @return mixed
+     * @return Response
      * @throws NotFoundHttpException
      * @throws \Exception
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionDelete($id)
     {

@@ -25,6 +25,15 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
         <?= $this->render('../receipt/_viewtoolbar', ['model' => $model]); ?>
 	    <?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
 
+
+        <?php if(isset($model->billPayment)): ?>
+            <?=  Html::a(
+                '<i class="glyphicon glyphicon-list-alt"></i>&nbsp;Show Transmittal',
+                ['/bill-payment/show-transmittal', 'xlsx_name' => $model->billPayment->transmittal],
+                ['class' => 'btn btn-default', 'target' => '_blank', 'data-pjax'=>"0"])
+            ?>
+        <?php endif; ?>
+
     </div>
 
     <div class="rightside fiftyfive-pct">

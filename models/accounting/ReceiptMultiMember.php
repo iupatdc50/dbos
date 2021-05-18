@@ -5,6 +5,9 @@ namespace app\models\accounting;
 use Yii;
 use yii\db\Exception;
 
+/**
+ * Class ReceiptMultiMember
+ */
 class ReceiptMultiMember extends Receipt
 {
 	protected $_remit_filter = 'employer_remittable';
@@ -26,7 +29,7 @@ class ReceiptMultiMember extends Receipt
     public static function getFeeTypesSubmitted($license_nbr, $year = null)
     {
         $date_constraint = is_null($year) ? '' :
-            "  JOIN Receipts AS Re ON Re.`id` = M.receipt_id AND LEFT(Re.acct_month, 4) = '{$year}' ";
+            "  JOIN Receipts AS Re ON Re.`id` = M.receipt_id AND LEFT(Re.acct_month, 4) = '$year' ";
 
         $sql =
 
@@ -35,14 +38,14 @@ class ReceiptMultiMember extends Receipt
                   JOIN AllocatedMembers AS M ON M.id = A.alloc_memb_id 
                     JOIN ResponsibleEmployers AS E ON E.receipt_id = M.receipt_id AND E.license_nbr = :license_nbr 
                   JOIN FeeTypes AS FT ON FT.fee_type = A.fee_type
-            {$date_constraint} 
+            $date_constraint 
                 ORDER BY FT.seq
                 ";
 
         $rows = Yii::$app->db->createCommand($sql, [':license_nbr' => $license_nbr])->queryAll();
 
         $date_constraint = is_null($year) ? '' :
-            "  WHERE LEFT(R.acct_month, 4) = '{$year}' ";
+            "  WHERE LEFT(R.acct_month, 4) = '$year' ";
 
         /** @noinspection SqlCaseVsIf */
         $sql =
@@ -85,7 +88,7 @@ class ReceiptMultiMember extends Receipt
         }
 
         $date_constraint = is_null($year) ? '' :
-            "  WHERE LEFT(Re.acct_month, 4) = '{$year}' ";
+            "  WHERE LEFT(Re.acct_month, 4) = '$year' ";
 
         return
             "SELECT 
@@ -117,5 +120,8 @@ class ReceiptMultiMember extends Receipt
         return $attrs;
     }
 
-
+    public function getBillPayment()
+    {
+        return $this->hasOne(BillPayment::className(), ['receipt_id' => 'id']);
+    }
 }
