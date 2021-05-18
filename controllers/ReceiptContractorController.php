@@ -95,8 +95,10 @@ class ReceiptContractorController extends MultiMemberController
                                             $alloc_memb->delete();
                                     }
 								}
-								$model->addBillPayment(new BillPayment(['bill_id' => $remittance->getDocNumber()]));
-//								$model->deleteUploadedFile();
+								if ($remittance->getDocNumber() > 0)
+								    $model->addBillPayment(new BillPayment(['bill_id' => $remittance->getDocNumber()]));
+								else  // for transmittals produced before 1.6.6 r 250
+								    $model->deleteUploadedFile();
 							}
 							
 							$transaction->commit();
