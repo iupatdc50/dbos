@@ -72,7 +72,7 @@ class MemberCredentialController extends Controller
             $image = $model->uploadImage();
             if ($model->save()) {
 
-                if ($image !== false) {
+                if ($image != false) {
                     $path = $model->imagePath;
                     $image->saveAs($path);
                 }
@@ -149,7 +149,7 @@ class MemberCredentialController extends Controller
         }
 
         if (!Yii::$app->user->can('browseTraining'))
-            throw new ForbiddenHttpException("You are not allowed to perform this action ({$id})");
+            throw new ForbiddenHttpException("You are not allowed to perform this action ($id)");
 
         Yii::$app->user->returnUrl = Yii::$app->request->url;
 
@@ -179,7 +179,7 @@ class MemberCredentialController extends Controller
         ]);
 
         $cred = Credential::findOne($curr->credential_id);
-        $show_attach = ($cred->catg == CredCategory::CATG_MEDTESTS);
+        $show_attach = ($cred->catg != CredCategory::CATG_CORE);
 
         return $this->renderAjax('_history', [
             'dataProvider' => $dataProvider,
@@ -204,14 +204,14 @@ class MemberCredentialController extends Controller
                 $command->execute();
                 Yii::$app->session->setFlash('success', "Credential entry deleted. Previous entry promoted");
                 if(isset($credential->doc_id) && (!$credential->deleteImage()))
-                    Yii::$app->session->setFlash('error', "Could not delete document `{$credential->doc_id}`");
+                    Yii::$app->session->setFlash('error', "Could not delete document `$credential->doc_id`");
             } catch  (Exception $e) {
                 Yii::$app->session->setFlash('error', "Problem with post.  See log for details. Code `MCC110`");
-                Yii::error("*** MCC110 Delete MemberCredential {$id} failed. Errors: " . print_r($e->errorInfo, true));
+                Yii::error("*** MCC110 Delete MemberCredential $id failed. Errors: " . print_r($e->errorInfo, true));
             }
             return $this->goBack();
         }
-        throw new ForbiddenHttpException("You are not allowed to perform this action ({$id})");
+        throw new ForbiddenHttpException("You are not allowed to perform this action ($id)");
 
     }
 

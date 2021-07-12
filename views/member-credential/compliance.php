@@ -45,7 +45,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $recurProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Recurring',
-            'doc' => false,
+            'doc' => true,
             'expires' => true,
             'catg' => CredCategory::CATG_RECURRING,
         ]); ?>
@@ -57,7 +57,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $nonrecurProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Non-expiring',
-            'doc' => false,
+            'doc' => true,
             'expires' => false,
             'catg' => CredCategory::CATG_NONRECUR,
         ]); ?>

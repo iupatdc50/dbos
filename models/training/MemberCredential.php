@@ -6,6 +6,8 @@ use app\components\behaviors\OpImageBehavior;
 use app\components\utilities\OpDate;
 use app\helpers\OptionHelper;
 use app\models\member\Member;
+use Exception;
+use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -25,6 +27,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property Credential $credential
  *
+ * @property string $imagePath
  * @method uploadImage()
  * @method deleteImage()
  *
@@ -107,6 +110,7 @@ class MemberCredential extends ActiveRecord
      * @param bool $insert
      * @return bool
      * @throws InvalidConfigException
+     * @throws Exception
      */
     public function beforeSave($insert)
     {
@@ -131,11 +135,12 @@ class MemberCredential extends ActiveRecord
      * @param bool $insert
      * @param array $changedAttributes
      * @throws StaleObjectException
+     * @throws Throwable
      */
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert) {
-            $periods = $this->scheduled;
+            $periods = $this->getScheduled();
             /* @var MemberScheduled $period */
             foreach ($periods as $period)
                 $period->delete();
@@ -155,6 +160,7 @@ class MemberCredential extends ActiveRecord
      * @param $catg
      * @return array
      * @throws InvalidConfigException
+     * @noinspection DuplicatedCode
      */
     public function getCredentialOptions($catg)
     {
