@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 use app\models\training\CredCategory;
 use kartik\datecontrol\DateControl;
@@ -69,7 +69,7 @@ use kartik\widgets\Select2;
     </div>
 
     <?php
-    if ($model->catg == CredCategory::CATG_MEDTESTS)
+    if ($model->catg != CredCategory::CATG_CORE)
         echo $form->field($model, "doc_file")->widget(FileInput::className(), [
             'pluginOptions'=> [
                 'allowedFileExtensions'=>['pdf','png', 'jpg', 'jpeg'],

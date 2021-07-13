@@ -26,6 +26,7 @@ use yii\helpers\ArrayHelper;
  * @property string $doc_id [varchar(20)]
  *
  * @property Credential $credential
+ * @property MemberScheduled[] $scheduled
  *
  * @property string $imagePath
  * @method uploadImage()
@@ -140,8 +141,7 @@ class MemberCredential extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert) {
-            $periods = $this->getScheduled();
-            /* @var MemberScheduled $period */
+            $periods = $this->scheduled;
             foreach ($periods as $period)
                 $period->delete();
         }
