@@ -35,6 +35,8 @@ use app\helpers\SsnHelper;
 use app\components\validators\SsnValidator;
 use yii\db\Exception;
 
+
+// add back in  * @property Subscription $subscription
 /**
  * This is the model class for table "Members".
  *
@@ -61,6 +63,7 @@ use yii\db\Exception;
  * @property number $overage
  * @property string $card_id [varchar(20)]
  * @property string $nick_nm [varchar(30)]
+ * @property string $stripe_id [varchar(50)]
  *
  * @property string $fullName
  * @property Phone[] $phones
@@ -614,8 +617,6 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      */
     public function addStatus(Status $status, /** @noinspection PhpUnusedParameterInspection */ $config = [])
     {
-    	if (!($status instanceof Status))
-    		throw new BadMethodCallException('Not an instance of MemberStatus');
     	$status->member_id = $this->member_id;
     	if (!isset($status->effective_dt))
     	    $status->effective_dt = $this->getToday()->getMySqlDate();
@@ -651,6 +652,13 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     {
         return $this->hasOne(MemberLogin::className(), ['member_id' => 'member_id']);
     }
+
+    /*
+    public function getSubscription()
+    {
+        return $this->hasOne(Subscription::className(), ['member_id' => 'member_id']);
+    }
+    */
     
     /**
      * @return ActiveQuery
@@ -677,8 +685,6 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
      */
     public function addClass(MemberClass $class, /** @noinspection PhpUnusedParameterInspection */ $config = [])
     {
-    	if (!($class instanceof MemberClass))
-    		throw new BadMethodCallException('Not an instance of MemberClass');
     	$class->member_id = $this->member_id;
     	if ($class->resolveClasses()) {
     	    if (!($result = $class->save()))
@@ -1044,7 +1050,7 @@ SQL;
         if (isset($this->currentStatus) && isset($this->currentClass)) {
             $balance = 0.00;
             if (!($this->currentStatus->member_status == Status::OUTOFSTATE)) {
-                $balance = bcadd($this->getDuesBalance(), $this->overage, 2);
+                $balance = bcsub($this->getDuesBalance(), $this->overage, 2);
                 $fee_balance = $this->totalFeeBalance;
                 if (!is_null($fee_balance))
                     $balance = bcadd($balance, $fee_balance, 2);
