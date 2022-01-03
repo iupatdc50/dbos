@@ -15,6 +15,7 @@ ExcelGrid::widget([
     'filename' => $file_nm,
     'properties' => [
         'sheetTitle' => $sheetTitle,
+        'doc_number' => '',
     ],
     'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => ''],
     'columns' => [

@@ -7,6 +7,7 @@ use app\models\base\BaseEndable;
 use app\models\value\Lob;
 use app\models\value\RateClass;
 use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 
@@ -20,6 +21,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property Lob $lobCd
  * @property RateClass $rateClass
+ * @property DuesStripeProduct $duesStripeProduct
  */
 class DuesRate extends BaseEndable
 {
@@ -41,8 +43,9 @@ class DuesRate extends BaseEndable
      * @param $rate_class
      * @param $date
      * @return false|float|null
+     * @noinspection PhpReturnDocTypeMismatchInspection
      */
-    public static function findCurrentByTrade($lob_cd, $rate_class, $date = null)
+    public static function findCurrentValByTrade($lob_cd, $rate_class, $date = null)
     {
         $query = self::find()->select('rate')
             ->where([
@@ -59,6 +62,31 @@ class DuesRate extends BaseEndable
             $query->andWhere(['end_dt' => null]);
         }
         return $query->scalar();
+    }
+
+    /**
+     * @param $lob_cd
+     * @param $rate_class
+     * @param null $date
+     * @return array|ActiveRecord|null
+     */
+    public static function findCurrentByTrade($lob_cd, $rate_class, $date = null)
+    {
+        $query = self::find()
+            ->where([
+                'lob_cd' => $lob_cd,
+                'rate_class' => $rate_class,
+            ]);
+        if (isset($date)) {
+            $query->andWhere(['<=', 'effective_dt', $date]);
+            $query->andWhere(['or',
+                ['end_dt' => null],
+                ['>=', 'end_dt', $date],
+            ]);
+        } else {
+            $query->andWhere(['end_dt' => null]);
+        }
+        return $query->one();
     }
 
     /**
@@ -127,6 +155,11 @@ class DuesRate extends BaseEndable
     public function getRateClassOptions()
     {
         return ArrayHelper::map(RateClass::find()->orderBy('descrip')->all(), 'rate_class', 'descrip');
+    }
+
+    public function getDuesStripeProduct()
+    {
+        return $this->hasOne(DuesStripeProduct::className(), ['dues_rate_id' => 'id']);
     }
 
 }

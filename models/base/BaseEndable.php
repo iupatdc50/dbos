@@ -33,10 +33,11 @@ class BaseEndable extends ActiveRecord
 	}
 	
 	/**
-	 * Removes the end date on the most current row.  Can be used to open an entry when the opn entry 
+	 * Removes the end date on the most current row.  Can be used to open an entry when the open entry
 	 * is deleted
 	 * 
-	 * @param string $id  Identifies the searchable column on the table
+	 * @param string|array $id  Identifies the searchable column(s) on the table. Can be an array of key => val to handle
+     *                          multiple qualifying columns
 	 */
 	public static function openLatest($id)
 	{
@@ -74,7 +75,7 @@ class BaseEndable extends ActiveRecord
 	{
         $end_dt = (new OpDate())->setFromMySql($this->effective_dt)->sub(new DateInterval('P1D'));
         $condition = $this->buildQualClause();
-		$condition .= " AND end_dt IS NULL AND effective_dt < '{$this->effective_dt}'";
+		$condition .= " AND end_dt IS NULL AND effective_dt < '$this->effective_dt'";
 		call_user_func([$this->className(), 'updateAll'], ['end_dt' => $end_dt->getMySqlDate()], $condition);
 	}
 

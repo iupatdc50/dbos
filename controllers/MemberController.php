@@ -147,7 +147,6 @@ class MemberController extends RootController
      */
     public function actionCreate()
     {
-        /** @noinspection PhpExpressionResultUnusedInspection */
         $this->storeReturnUrl();
 
     	$idGenerator = new MemberId();
@@ -581,7 +580,7 @@ class MemberController extends RootController
     protected function getCurrentDuesRate(Member $member)
     {
         if(isset($member->currentClass) && $member->currentStatus) {
-            return DuesRate::findCurrentByTrade($member->currentStatus->lob_cd, $member->currentClass->rate_class);
+            return DuesRate::findCurrentValByTrade($member->currentStatus->lob_cd, $member->currentClass->rate_class);
         }
         return false;
     }

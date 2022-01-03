@@ -82,6 +82,10 @@ div.lion {
   width:    190px;
 }
 
+.whitewash td {
+	background: #ffffff;
+}
+
 div.flash-error, div.flash-notice, div.flash-success
 {
 	padding:.8em;
@@ -190,6 +194,11 @@ div.pvcmain {
 }
 
 /* =====================================     End PVC card print */
+
+.cc-logo {
+	width: 30px;
+	height: 20px;
+}
 
 .vertical
 {
@@ -318,6 +327,15 @@ table .total-border {
 	height: 100px;
 }
 
+.table-cc-existing {
+	margin-left: 3em;
+	background-color: #eeeeee;
+}
+
+.td-middle {
+	vertical-align: middle !important;
+}
+
 .negative {
 	color:#8a1f11;
 }
@@ -407,6 +425,10 @@ span.active {
 }
 span.inactive {
 	color: #d43f3a;
+	font-weight: bold;
+}
+
+span.emphasize {
 	font-weight: bold;
 }
 

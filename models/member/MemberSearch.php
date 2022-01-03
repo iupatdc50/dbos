@@ -12,7 +12,7 @@ use app\helpers\CriteriaHelper;
  */
 class MemberSearch extends Member
 {
-	// Search place holders
+	// Search placeholders
 	public $lob_cd;
 	public $status;
 	public $class;

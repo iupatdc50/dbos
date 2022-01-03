@@ -18,6 +18,9 @@ use yii\db\ActiveRecord;
 class Lob extends ActiveRecord
 {
     CONST TRADE_FL = '1926';
+    CONST TRADE_GL = '1889';
+    CONST TRADE_PT = '1791';
+    CONST TRADE_TP = '1944';
 
     /**
      * @inheritdoc

@@ -2,8 +2,11 @@
 
 namespace app\modules\admin\controllers;
 
+use app\helpers\ExceptionHelper;
 use app\helpers\TokenHelper;
+use app\models\accounting\DuesStripeProduct;
 use app\models\accounting\FeeCalendar;
+use app\models\accounting\StripeProductManager;
 use Throwable;
 use Yii;
 use app\models\accounting\DuesRate;
@@ -14,6 +17,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\web\Response;
 
 /**
  * DuesRateController implements the CRUD actions for DuesRate model.
@@ -34,7 +38,7 @@ class DuesRateController extends Controller
 
     /**
      * Lists all DuesRate models.
-     * @return mixed
+     * @return string
      */
     public function actionIndex()
     {
@@ -53,10 +57,60 @@ class DuesRateController extends Controller
         ]);
     }
 
+    public function actionStripeProdJson()
+    {
+        if (isset($_POST['expandRowKey'])) {
+
+            $key = $_POST['expandRowKey'];
+
+            $product = DuesStripeProduct::findOne($key);
+
+            return $this->asJson($this->renderAjax('_stripeprod', [
+                'id' => $key,
+                'product' => $product,
+            ]));
+        }
+        Yii::$app->session->addFlash('error', 'No Dues Rate row selected [Error: DRC010]');
+        return $this->goBack();
+
+    }
+
+    public function actionCreateProduct($id)
+    {
+        $rate = DuesRate::findOne($id);
+        $manager = new StripeProductManager(['rate' => $rate]);
+
+        if (($price = $manager->createProduct()) == false) {
+            foreach ($manager->messages as $code => $message)
+                $this->exceptionHandler($code, $message['friendly'], $message['system']);
+            return $this->goBack();
+        }
+
+        $product = new DuesStripeProduct([
+            'dues_rate_id' => $rate->id,
+            'stripe_id' => $price->product,
+            'stripe_price_id' => $price->id,
+        ]);
+
+        if ($product->save())
+            Yii::$app->session->addFlash('success', "Stripe product `$product->stripe_id` added for trade `$rate->lob_cd`" );
+        else
+            $this->exceptionHandler('DRC015', 'Internal Error', [$product->errors]);
+
+        return $this->goBack();
+
+    }
+
+    public function actionDeleteProduct($id)
+    {
+        Yii::$app->session->addFlash('notice', "Stripe product deletion is currently not available in this interface.  [Attempted on `$id`]" );
+        return $this->goBack();
+    }
+
     /**
      * Creates a new DuesRate model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * @return string|Response
      */
     public function actionCreate()
     {
@@ -71,7 +125,7 @@ class DuesRateController extends Controller
      * Deletes an existing DuesRate model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
-     * @return mixed
+     * @return Response
      * @throws NotFoundHttpException
      * @throws StaleObjectException
      * @throws Throwable
@@ -81,16 +135,16 @@ class DuesRateController extends Controller
         $model = $this->findModel($id);
 
         $removing_current = false;
-        $id = [];
+        $ids = [];
         if ($model->end_dt == null) {
             $removing_current = true;
-            $id = ['lob_cd' => $model->lob_cd, 'rate_class' => $model->rate_class];
+            $ids = ['lob_cd' => $model->lob_cd, 'rate_class' => $model->rate_class];
         }
 
         $model->delete();
 
         if ($removing_current)
-            DuesRate::openLatest($id);
+            DuesRate::openLatest($ids);
 
         return $this->redirect(['index']);
     }
@@ -108,4 +162,11 @@ class DuesRateController extends Controller
             return $model;
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+    protected function exceptionHandler($code, $message, array $errors)
+    {
+        ExceptionHelper::handleError(Yii::$app->session, $code, $message, $errors);
+    }
+
+
 }

@@ -4,7 +4,6 @@ namespace app\models\accounting;
 
 use app\modules\admin\models\FeeType;
 use Stripe\Charge;
-use Stripe\Customer;
 use Yii;
 use app\models\member\Member;
 use yii\db\ActiveQuery;
@@ -14,7 +13,7 @@ use yii\db\Exception;
  * Class ReceiptMember
  * @package app\models\accounting
  *
- * @property Transaction $transaction
+ * @property StripeTransaction $transaction
  * @property Member $payingMember
  */
 class ReceiptMember extends Receipt
@@ -42,7 +41,7 @@ class ReceiptMember extends Receipt
 		];
 		return parent::rules();
 	}
-	
+
 	/**
 	 * Assume that member receipt applies to only one member
 	 * 
@@ -60,7 +59,7 @@ class ReceiptMember extends Receipt
      */
 	public function getTransaction()
     {
-        return $this->hasOne(Transaction::className(), ['receipt_id' => 'id']);
+        return $this->hasOne(StripeTransaction::className(), ['receipt_id' => 'id']);
     }
 
     /**
@@ -71,14 +70,6 @@ class ReceiptMember extends Receipt
     public function cleanup()
     {
         parent::cleanup();
-        // Check for outstanding in-progress credit card transaction
-        if (isset($this->transaction)) {
-            $transaction = $this->transaction;
-            if ($transaction->dbos_status == Transaction::DBOS_INPROGRESS) {
-                $transaction->dbos_status = Transaction::DBOS_COMPLETED;
-                $transaction->save();
-            }
-        }
         // Determine if the completed process is part of a reinstatement cycle
         $this->payingMember->removeReinstateStaged();
     }
@@ -87,35 +78,26 @@ class ReceiptMember extends Receipt
      * Builds a DBOS receipt from a Stripe-posted Charge and leaves it in
      * an unposted state
      *
-     * $payment_data = [
-     *      'member_id' => <string>,
-     *      'lob_cd' => <string>,
-     *      'currency' => 'usd',
-     *      'charge' => <decimal, 2>,
-     *      'email' => <string>,
-     * ];
-     *
-     * @param array $payment_data
-     * @param Customer $customer
+     * @param Member $member
      * @param Charge $charge
+     * @param null $other_local Used to pass other local for CCD
      * @return bool|int     Receipt ID if successful, false if not
      */
-    public function makeUnposted(array $payment_data, Customer $customer, Charge $charge)
+    public function makeUnposted(Member $member, Charge $charge, $other_local = null)
     {
-        $member = Member::findOne($payment_data['member_id']);
-
-        $this->payor_nm = $customer->name;
+        $this->payor_nm = $charge->metadata['cardholder_nm'];
         $this->payment_method = self::METHOD_CREDIT;
         $this->payor_type = self::PAYOR_MEMBER;
-        $this->received_dt = date("Y-m-d", $charge->created);
-        $this->received_amt = $payment_data['charge'];
-        $this->created_at = $charge->created;
-        $this->remarks = 'Online dues payment';
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->tracking_nbr = $charge->metadata->tracking;
-        $this->lob_cd = $member->currentStatus->lob_cd;
-        $this->acct_month = date("Ym", $charge->created);
-        $this->updated_at = $charge->created;
+        $this->received_amt = floatval($charge->amount / 100);
+        $this->remarks = 'Online dues/fees payment';
+        $this->tracking_nbr = $charge->metadata['tracking'];
+        $this->lob_cd = $charge->metadata['trade'];
+
+        /*
+         * Placeholder to satisfy Receipt SCENARIO_CREATE rule
+         * $this->fee_types unnecessary for Stripe-posted receipts
+         */
+        $this->fee_types = ['**'];
 
         if ($this->save()) {
             $alloc_memb = new AllocatedMember([
@@ -137,8 +119,8 @@ class ReceiptMember extends Receipt
                         break;
                     }
                     $balance -= $alloc->allocation_amt;
-                    if ($alloc->fee_type == FeeType::TYPE_CC && $payment_data['other_local'] > 0)
-                        $alloc_memb->addOtherLocal(new CcOtherLocal(['other_local' => $payment_data['other_local']]));
+                    if ($alloc->fee_type == FeeType::TYPE_CC && $other_local > 0)
+                        $alloc_memb->addOtherLocal(new CcOtherLocal(['other_local' => $other_local]));
                 }
 
                 if ($allocs_ok) {
@@ -160,15 +142,61 @@ class ReceiptMember extends Receipt
                         $this->makeUndo($this->id);
                         return $this->id;
                     } catch (Exception $e) {
-                        Yii::error('*** RM010: Unable to stage receipt. Error(s) ' . print_r ($e->errorInfo, true));
-                        Yii::$app->session->addFlash('error', 'Problem with post. Please contact support.  Error: `RM010`');
+                        $this->exceptionHandler('RM010', 'Unable to stage receipt undo', $e->errorInfo);
                     }
                 }
             }
         } else {
-            Yii::error('*** RM020: Unable to stage receipt. Error(s) ' . print_r ($this->errors, true));
-            Yii::$app->session->addFlash('error', 'Problem with post. Please contact support.  Error: `RM020`');
+            $this->exceptionHandler('RM020', 'Unable to stage receipt', $this->errors);
         }
+        return false;
+    }
+
+    /**
+     * Builds and posts a DBOS receipt from a Stripe-posted subscription invoice paid.
+     *
+     * Assumes that there is only 1 month of dues at a time for each invoice
+     *
+     * @param Member $member
+     * @param Charge $charge Expects Customer expanded
+     * @param $tracking_nbr
+     * @return int receipt_id
+     * @throws \Exception
+     */
+    public function makePosted(Member $member, Charge $charge, $tracking_nbr)
+    {
+        $this->payor_nm = $charge->customer->name;
+        $this->payment_method = self::METHOD_CREDIT;
+        $this->payor_type = self::PAYOR_MEMBER;
+        $this->received_amt = floatval($charge->amount / 100);
+        $this->remarks = 'Subscription dues payment';
+        $this->tracking_nbr = $tracking_nbr;
+        $this->lob_cd = $member->currentStatus->lob_cd;
+
+        $this->fee_types = [FeeType::TYPE_DUES];
+
+        if ($this->save()) {
+            $alloc_memb = new AllocatedMember([
+                'receipt_id' => $this->id,
+                'member_id' => $member->member_id,
+            ]);
+
+            if ($alloc_memb->save()) {
+                $alloc = new DuesAllocation([
+                    'alloc_memb_id' => $alloc_memb->id,
+                    'fee_type' => FeeType::TYPE_DUES,
+                    'allocation_amt' => $this->received_amt,
+                    'months' => 1,
+                ]);
+                $alloc->paid_thru_dt = $alloc->calcPaidThru(1);
+                if ($alloc->save()) {
+                    $member->dues_paid_thru_dt = $alloc->paid_thru_dt;
+                    if ($member->save())
+                        return $this->id;
+                }
+            }
+        }
+        $this->exceptionHandler('RM021', 'Unable to post receipt', $this->errors);
         return false;
     }
 
@@ -181,7 +209,7 @@ class ReceiptMember extends Receipt
     public static function getFeeTypesSubmitted($member_id, $year = null)
     {
         $date_constraint = is_null($year) ? '' :
-            "  JOIN Receipts AS Re ON Re.`id` = M.receipt_id AND LEFT(Re.acct_month, 4) = '{$year}' ";
+            "  JOIN Receipts AS Re ON Re.`id` = M.receipt_id AND LEFT(Re.acct_month, 4) = '$year' ";
 
         /** @noinspection SqlResolve */
         $sql =
@@ -216,7 +244,7 @@ class ReceiptMember extends Receipt
             $cols .= "SUM(CASE WHEN AA.fee_type = '" . $row['fee_type'] . "' THEN AA.amt ELSE NULL END) AS `" . $row['fee_type'] . "`,";
 
         $date_constraint = is_null($year) ? '' :
-            "  WHERE LEFT(Re.acct_month, 4) = '{$year}' ";
+            "  WHERE LEFT(Re.acct_month, 4) = '$year' ";
 
         $group_by = ($total_only) ? '' :
             " GROUP BY Re.`id`, Re.received_dt, Re.payor_type 
@@ -235,5 +263,15 @@ class ReceiptMember extends Receipt
         ;
 
     }
-	
+
+    protected function setReceivedDefault()
+    {
+        parent::setReceivedDefault();
+        if (!isset($this->period)) {
+            $date = $this->getRecdDtObj();
+            $this->period = $date->getYearMonth();
+        }
+
+    }
+
 }

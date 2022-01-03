@@ -66,8 +66,8 @@ class SiteController extends RootController
 	 * stores current login time. Also forces a password reset if the current
 	 * password is User::RESET_USER_PW
 	 * 
-	 * @throws Exception
-	 * @return string
+	 * @return string|Response
+     *@throws Exception
      */
 	public function actionLogin()
 	{
@@ -95,7 +95,6 @@ class SiteController extends RootController
 		return $this->render('login', compact('model'));
 	}
 
-    /** @noinspection PhpUnused */
 	public function actionLogout()
 	{
 		Yii::$app->user->logout();
@@ -118,20 +117,17 @@ class SiteController extends RootController
 		return $this->goHome();
 	}
 
-    /** @noinspection PhpUnused */
 	public function actionUnavailable()
 	{
 		return $this->render('unavailable');
 	}
 
-    /** @noinspection PhpUnused */
 	public function actionTerms()
 	{
 		$this->layout = 'aux';
 		return $this->render('terms');
 	}
 
-    /** @noinspection PhpUnused */
 	public function actionMaintenance()
     {
         return $this->renderPartial('maintenance');

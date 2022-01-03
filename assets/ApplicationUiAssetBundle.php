@@ -12,7 +12,7 @@ class ApplicationUiAssetBundle extends AssetBundle
 	public $js = [
 			'js/main.js',
             'js/accounting.js',
-            'js/payment.js',
+            'js/stripe.js',
             'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js',
 	];
 	public $depends = [

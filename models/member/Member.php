@@ -36,7 +36,6 @@ use app\components\validators\SsnValidator;
 use yii\db\Exception;
 
 
-// add back in  * @property Subscription $subscription
 /**
  * This is the model class for table "Members".
  *
@@ -106,6 +105,7 @@ use yii\db\Exception;
  * @property OpDate $today
  * @property OpDate duesPaidThruDtObject
  * @property MemberLogin $enrolledOnline
+ * @property Subscription $subscription
  * @property Document[] $unfiledDocs
  *
  */
@@ -460,6 +460,20 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     }
 
     /**
+     * @param Email $email
+     * @return bool
+     * @throws \yii\base\Exception
+     */
+    public function addEmail(Email $email)
+    {
+        if(!isset($email->member))
+            $email->member = $this;
+        if ($email->validate())
+            return $email->save();
+        throw new \yii\base\Exception('Invalid email. Errors: ' . print_r($email->errors, true));
+    }
+
+    /**
      * @deprecated Should only have a single email by policy
      * @return ActiveQuery
      */
@@ -653,13 +667,16 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         return $this->hasOne(MemberLogin::className(), ['member_id' => 'member_id']);
     }
 
-    /*
+    /**
+     * Enrollment for credit card auto-pay
+     *
+     * @return ActiveQuery
+     */
     public function getSubscription()
     {
         return $this->hasOne(Subscription::className(), ['member_id' => 'member_id']);
     }
-    */
-    
+
     /**
      * @return ActiveQuery
      */
@@ -708,6 +725,21 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     public function getQualifiesForIncrease()
     {
         return $this->hasOne(QualifiesForIncrease::className(), ['member_id' => 'member_id']);
+    }
+
+    /**
+     * Checks for minimum components necessary to bill or receive payment
+     *
+     * @return array
+     */
+    public function checkProfile()
+    {
+        $messages = [];
+        if (!isset($this->currentStatus))
+            $messages[] = 'Cannot identify local union.  Check Status panel.';
+        if (!isset($this->currentClass))
+            $messages[] = 'Cannot identify rate class.  Check Class panel.';
+        return $messages;
     }
 
     /**
@@ -819,14 +851,24 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     {
     	return ArrayHelper::map(Size::find()->orderBy('seq')->all(), 'size_cd', 'size_cd');
     }
-    
-    public function getFullName()
+
+    /**
+     * When $last_nm_1st = true format name includes middle inits and suffix. Otherwise, the format
+     * is simply <first_nm last_nm>
+     *
+     * @param bool $last_nm_1st
+     * @return string
+     */
+    public function getFullName($last_nm_1st = true)
     {
-    	$full_nm = $this->last_nm . ', ' . $this->first_nm . 
-    	       (isset($this->middle_inits) ? ' ' . $this->middle_inits : '') .
-    	       (isset($this->suffix) ? ', ' .$this->suffix : '') .
-               (isset($this->nick_nm) ? ' `' . $this->nick_nm . '`' : '')
-    	;
+        if ($last_nm_1st)
+            $full_nm = $this->last_nm . ', ' . $this->first_nm .
+                   (isset($this->middle_inits) ? ' ' . $this->middle_inits : '') .
+                   (isset($this->suffix) ? ', ' .$this->suffix : '') .
+                   (isset($this->nick_nm) ? ' `' . $this->nick_nm . '`' : '')
+            ;
+        else
+            $full_nm = $this->first_nm . ' ' . $this->last_nm;
     	if (isset($this->currentStatus) && ($this->currentStatus->member_status == Status::STUB))
     		$full_nm .= ' [Stub]';
     	return $full_nm;
@@ -1111,8 +1153,6 @@ SQL;
      */
     public function addAssessment(Assessment $class)
     {
-    	if (!($class instanceof Assessment))
-    		throw new BadMethodCallException('Not an instance of Assessment');
     	$class->member_id = $this->member_id;
     	if ($class->validate())
     	    return $class->save();
@@ -1260,8 +1300,6 @@ SQL;
      */
     public function addOverageHistory(OverageHistory $history)
     {
-        if (!($history instanceof OverageHistory))
-            throw new BadMethodCallException('Not an instance of OverageHistory');
         $history->member_id = $this->member_id;
         $history->dues_paid_thru_dt = $this->dues_paid_thru_dt;
         $history->overage = $this->overage;

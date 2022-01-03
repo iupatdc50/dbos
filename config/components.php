@@ -1,8 +1,8 @@
 <?php
 /** @noinspection PhpIncludeInspection */
 
-use yii\log\EmailTarget;
-use yii\log\Logger;
+// use yii\log\EmailTarget;
+// use yii\log\Logger;
 
 return [
                 'cache' => [
@@ -54,6 +54,7 @@ return [
 										'categories' => ['application'],
 										'levels' => YII_DEBUG ? ['trace', 'info', 'warning', 'error'] : ['warning', 'error'],
 								],
+                            /*
 								'problems' => [
 										'class' => EmailTarget::className(),
 										'levels' => Logger::LEVEL_ERROR,
@@ -61,6 +62,7 @@ return [
 												'to' => 'jmdemoor@objectpac.com'
 										]
 								]
+                            */
 						],
 				],
 				'request' => [

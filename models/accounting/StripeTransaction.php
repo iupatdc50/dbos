@@ -2,7 +2,10 @@
 
 namespace app\models\accounting;
 
+use app\models\member\Member;
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 
@@ -13,25 +16,21 @@ use yii\db\Exception;
  * @property string|null $customer_id
  * @property string|null $tracking_nbr
  * @property int|null $receipt_id
- * @property string|null $member_id
- * @property string|null $currency
- * @property float|null $charge
  * @property int|null $created_at
- * @property string|null $stripe_status
- * @property string|null $dbos_status
  */
-class Transaction extends ActiveRecord
+class StripeTransaction extends ActiveRecord
 {
-    const STRIPE_SUCCEEDED = 'succeeded';
-    const DBOS_INPROGRESS = 'in progress';
-    const DBOS_COMPLETED = 'completed';
+    // Auto recurring charge from subscription
+    const TYPE_AUTO = 'A';
+    // Manual one-time charge
+    const TYPE_MANUAL = 'M';
 
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'Transactions';
+        return 'StripeTransactions';
     }
 
     /**
@@ -46,6 +45,13 @@ class Transaction extends ActiveRecord
         return $db->createCommand('SELECT UUID_SHORT();')->queryScalar();
     }
 
+    public function behaviors()
+    {
+        return [
+            ['class' => TimestampBehavior::className(), 'updatedAtAttribute' => false],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -54,11 +60,8 @@ class Transaction extends ActiveRecord
         return [
             [['transaction_id'], 'required'],
             [['receipt_id', 'created_at'], 'integer'],
-            [['charge'], 'number'],
             [['transaction_id', 'customer_id'], 'string', 'max' => 100],
-            [['tracking_nbr', 'stripe_status', 'dbos_status'], 'string', 'max' => 20],
-            [['member_id'], 'string', 'max' => 11],
-            [['currency'], 'string', 'max' => 3],
+            [['tracking_nbr'], 'string', 'max' => 20],
             [['tracking_nbr'], 'unique'],
             [['transaction_id'], 'unique'],
         ];
@@ -74,12 +77,17 @@ class Transaction extends ActiveRecord
             'customer_id' => 'Customer ID',
             'tracking_nbr' => 'Tracking Nbr',
             'receipt_id' => 'Receipt ID',
-            'member_id' => 'Member ID',
-            'currency' => 'Currency',
-            'charge' => 'Charge',
             'created_at' => 'Created At',
-            'stripe_status' => 'Stripe Status',
-            'dbos_status' => 'Dbos Status',
         ];
     }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getMember()
+    {
+        return $this->hasOne(Member::className(), ['stripe_id' => $this->customer_id]);
+    }
+
+
 }

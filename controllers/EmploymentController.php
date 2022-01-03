@@ -89,7 +89,7 @@ class EmploymentController extends SummaryController
             if ($model->save()) {
                 Yii::$app->session->addFlash('success', "Employment resumed");
             } else {
-                Yii::$app->session->AddFlash('error', "Could not update {$this->getBasename()}. Check log for details. Code `EC010`");
+                Yii::$app->session->addFlash('error', "Could not update {$this->getBasename()}. Check log for details. Code `EC010`");
                 Yii::error("*** EC010 Employment save error.  Messages: " . print_r($model->errors, true));
             }
 

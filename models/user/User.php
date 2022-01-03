@@ -47,6 +47,7 @@ class User extends ActiveRecord
 	const ROLE_AUTH_THRESHOLD = 30;
 	const RESET_USER_PW = 'DC50-temp';
 	const USER_PORTAL = 34;
+    const USER_SYSTEM = 1;
 	const TOKEN_EXPIRE_PERIOD = 86400; // 1 day
 	
 	public $password_clear = null;
@@ -160,7 +161,7 @@ class User extends ActiveRecord
         	$this->setPassword($this->password_clear);
 
         if ($this->isNewRecord)
-            $this->auth_key = Yii::$app->security->generateRandomString($length = 32);
+            $this->auth_key = Yii::$app->security->generateRandomString();
 
         return $return;
     }
@@ -219,7 +220,7 @@ class User extends ActiveRecord
     public function initiateReset()
     {
         try {
-            $temp_password = Yii::$app->security->generateRandomString($length = 8);
+            $temp_password = Yii::$app->security->generateRandomString(8);
             $this->setPassword($temp_password);
             $this->generatePasswordResetToken();
         } catch (Exception $e) {
@@ -342,7 +343,7 @@ class User extends ActiveRecord
     public function getStatusText()
     {
     	$options = $this->getStatusOptions();
-    	return isset($options[$this->status]) ? $options[$this->status] : "Unknown status ({$this->status})";
+    	return isset($options[$this->status]) ? $options[$this->status] : "Unknown status ($this->status)";
     }
     
     public function getAssignments()
@@ -382,11 +383,11 @@ class User extends ActiveRecord
     {
         $not = ($staff_roles) ? '' : ' NOT ';
         // asterisk in the description indicates staff role
-        $cond = " AND description {$not} LIKE '%*'";
+        $cond = " AND description $not LIKE '%*'";
         /** @noinspection PhpParamsInspection */
         $excludes = "'" . implode("', '", $this->inUseRoles) . "'";
         /** @noinspection SqlResolve */
-        $sql = "SELECT name, description FROM AuthItems WHERE type = 1 {$cond} AND name NOT IN ({$excludes});";
+        $sql = "SELECT name, description FROM AuthItems WHERE type = 1 $cond AND name NOT IN ($excludes);";
         return ArrayHelper::map(yii::$app->db->createCommand($sql)->queryAll(), 'name', 'description');
 
     }

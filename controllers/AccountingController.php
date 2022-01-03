@@ -2,14 +2,19 @@
 
 namespace app\controllers;
 
+use app\models\member\SubscriptionEventSearch;
+use Exception;
 use InvalidArgumentException;
 use kartik\widgets\ActiveForm;
+use Throwable;
 use Yii;
-use \yii\web\Controller;
+use yii\db\StaleObjectException;
+use yii\web\Controller;
 use app\models\accounting\CreateReceiptForm;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptSearch;
 use app\models\member\Member;
+use yii\web\Response;
 
 class AccountingController extends Controller
 {
@@ -18,21 +23,26 @@ class AccountingController extends Controller
 
     /**
      * @param null $mine_only
-     * @return mixed
+     * @return string
      */
     public function actionIndex($mine_only = null)
     {
         Yii::$app->user->returnUrl = Yii::$app->request->url;
 
-        $searchModel = new ReceiptSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $mine_only);
-        $payorPicklist = $searchModel->payorOptions;
-        
+        $receiptSearchModel = new ReceiptSearch();
+        $receiptProvider = $receiptSearchModel->search(Yii::$app->request->queryParams, $mine_only);
+
+        $eventSearchModel = new SubscriptionEventSearch();
+        $eventProvider = $eventSearchModel->search(Yii::$app->request->queryParams);
+
         return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        	'payorPicklist' => $payorPicklist,
+            'receiptSearchModel' => $receiptSearchModel,
+            'receiptProvider' => $receiptProvider,
+        	'payorPicklist' => ReceiptSearch::getPayorOptions(),
         	'mine_only' => $mine_only,
+            'eventSearchModel' => $eventSearchModel,
+            'eventProvider' => $eventProvider,
+            'statusPicklist' => SubscriptionEventSearch::getStatusOptions(),
         ]);
     }
     
@@ -74,9 +84,9 @@ class AccountingController extends Controller
      * Deletes an existing Receipt model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
-     * @return mixed
-     * @throws \Exception
-     * @throws \yii\db\StaleObjectException
+     * @return Response
+     * @throws Exception
+     * @throws StaleObjectException|Throwable
      */
     public function actionDelete($id)
     {

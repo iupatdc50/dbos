@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-        'version' => '1.6.7.690',
+        'version' => '2.0.2.730',
 		'basePath' => realpath ( __DIR__ . '/../' ),
         'aliases' => [
             '@bower' => '@vendor/bower-asset',
@@ -65,7 +65,8 @@ $config = [
 		'extensions' => require (__DIR__ . '/../vendor/yiisoft/extensions.php'), 
 		'params' => [
 				'imageDir' => DIRECTORY_SEPARATOR . 'idc' . DIRECTORY_SEPARATOR,
-				'docDir' => DIRECTORY_SEPARATOR . 'saa' . DIRECTORY_SEPARATOR,
+                'docDir' => DIRECTORY_SEPARATOR . 'saa' . DIRECTORY_SEPARATOR,
+                'logoDir' => DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR,
 				'uploadDir' => DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR,
 				'tempDir' => DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR,
                 'tokenDir' => __DIR__ . '/../runtime/tokens' . DIRECTORY_SEPARATOR,
@@ -80,7 +81,13 @@ $config = [
 				'rules' => [
 						[
 								'allow' => true,
-								'actions' => ['login', 'maintenance', 'request-pw-reset'],
+								'actions' => ['login', 'maintenance', 'request-pw-reset',
+                                    // Stripe webhook endpoints for each trade
+                                    'handle-webhook1791',
+                                    'handle-webhook1889',
+                                    'handle-webhook1926',
+                                    'handle-webhook1944',
+                                ],
 						],
 						[
 								'allow' => true,

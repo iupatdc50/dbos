@@ -1,6 +1,5 @@
 <?php
 
-use kartik\widgets\Select2;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use kartik\grid\GridView;
@@ -42,13 +41,26 @@ $this->params['breadcrumbs'][] = $this->title;
                             ]),
 		],
         'columns' => [
-        	[
+            [
+                'class' => 'kartik\grid\ExpandRowColumn',
+                'width' => '50px',
+                'value' => function () {
+                    return GridView::ROW_COLLAPSED;
+                },
+                'detailUrl' => Yii::$app->urlManager->createUrl([
+                    '/admin/dues-rate/stripe-prod-json',
+                ]),
+                'headerOptions' => ['class' => 'kartik-sheet-style'],
+                'expandOneOnly' => true,
+            ],
+
+            [
                 'class' => 'kartik\grid\DataColumn',
         		'attribute' => 'lob_cd',
         		'filterType' => GridView::FILTER_SELECT2,
         		'filter' => $lobPicklist,
         		'filterWidgetOptions' => [
-        						'size' => Select2::SMALL,
+        						'size' => kartik\select2\Select2::SMALL,
         						'hideSearch' => true,
         						'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
         		],
@@ -61,7 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filterType' => GridView::FILTER_SELECT2,
                 'filter' => array_merge(["" => ""], $searchModel->rateClassOptions),
                 'filterWidgetOptions' => [
-                    'size' => Select2::SMALL,
+                    'size' => kartik\select2\Select2::SMALL,
                     'hideSearch' => true,
                     'pluginOptions' => ['allowClear' => true, 'placeholder' => 'All'],
                 ],

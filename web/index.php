@@ -1,8 +1,7 @@
 <?php
 
-$host_env = __DIR__ . '/../config/host-env.php';
+$host_env = __DIR__ . '/../config/host-env.ph_';
 if (file_exists($host_env))
-    /** @noinspection PhpIncludeInspection */
     include $host_env;
 
 require(__DIR__ . '/../vendor/autoload.php');

@@ -124,4 +124,19 @@ class ReceiptMultiMember extends Receipt
     {
         return $this->hasOne(BillPayment::className(), ['receipt_id' => 'id']);
     }
+
+    /**
+     * @throws \Exception
+     */
+    protected function setReceivedDefault()
+    {
+        parent::setReceivedDefault();
+        if (!isset($this->period)) {
+            $date = $this->getRecdDtObj();
+            $date->modify('-1 month');
+            $this->period = $date->getYearMonth();
+        }
+    }
+
+
 }

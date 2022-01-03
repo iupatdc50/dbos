@@ -2,9 +2,9 @@
 
 namespace app\models\accounting;
 
+use Exception;
 use yii\base\InvalidConfigException;
 use app\models\member\Standing;
-use yii\db\Exception;
 
 class StatusManagerDues extends StatusManager
 {

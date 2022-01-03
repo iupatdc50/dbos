@@ -20,6 +20,9 @@ $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 $status = $model->currentStatus;
 ?>
+
+<?= $this->render('../partials/_modal') ?>
+
 <div class="member-view">
 
 <table class="hundred-pct">
@@ -50,6 +53,14 @@ $status = $model->currentStatus;
                     <?php endif; ?>
                 </p>
                 <hr>
+                <?php
+                    $autopay = null;
+                    if (isset($model->subscription))
+                        $autopay = 'Auto Pay';
+                    // Temporary until all autopay is set up in Stripe
+                    elseif (isset($model->recurCcAuth))
+                        $autopay = 'Recurring';
+                ?>
                 <?= /** @noinspection PhpUnhandledExceptionInspection */
                 DetailView::widget([
                     'model' => $model,
@@ -61,7 +72,7 @@ $status = $model->currentStatus;
                             'value' => Html::encode(isset($status) ? $status->lob->short_descrip : 'No Trade'),
                         ],
                         [
-                            'label' => isset($model->recurCcAuth) ? Html::tag('span', 'Recurring', ['class' => 'label label-success pull-left']) . ' Dues Thru' : 'Dues Thru',
+                            'label' =>  is_null($autopay) ? 'Dues Thru' : Html::tag('span', $autopay, ['class' => 'label label-success pull-left']) . ' Dues Thru',
                             'attribute' => 'dues_paid_thru_dt',
                             'value' => isset($model->lastDuesReceipt) ?
                                 Html::a(date('m/d/Y', strtotime($model->dues_paid_thru_dt)),
@@ -118,14 +129,14 @@ $status = $model->currentStatus;
                         'title' => 'Create receipt (cash or check)',
                     ]) ?>
                     <?=
-//                        Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
-                       Html::button('<i class="glyphicon glyphicon-credit-card"></i> Future', [
+                        Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
+//                       Html::button('<i class="glyphicon glyphicon-credit-card"></i> Future', [
                         'class' => 'btn btn-default btn-modal',
                         'id' => 'creditCardButton',
-                        'value' => Url::to(['receipt-member/credit-card', 'id'  => $model->member_id]),
+                        'value' => Url::to(['credit-card/approve', 'id'  => $model->member_id]),
                         'data-title' => 'Credit Card',
-//                        'disabled' => !(isset($status) && isset($model->currentClass)),
-                        'disabled' => true,
+                        'disabled' => !(isset($status) && isset($model->currentClass)),
+//                        'disabled' => true,
                         'title' => 'Accept credit card payment',
                     ])
                     ?>
@@ -222,8 +233,9 @@ $status = $model->currentStatus;
     $classUrl = Yii::$app->urlManager->createUrl(['member-class/summary-json', 'id' => $model->member_id]);
     $timesheetUrl = Yii::$app->urlManager->createUrl(['timesheet/summary-json', 'id' => $model->member_id]);
 
-//    $balance = isset($model->currentClass) ? $model->currentClass->mClassDescrip : 'Unknown';
     $balancesUrl = Yii::$app->urlManager->createUrl(['member-balances/summary-json', 'id' => $model->member_id]);
+
+    $subscriptionUrl = Yii::$app->urlManager->createUrl(['credit-card/summary-json', 'id' => $model->member_id]);
 
     $historyUrl = Yii::$app->urlManager->createUrl(['receipt-member/summ-flattened-json', 'member_id' => $model->member_id]);
 
@@ -252,6 +264,10 @@ Accordion::widget([
             [
                 'header' => Html::tag('span', 'Balances'),
                 'content' => '<div class="balances" data-url=' . $balancesUrl . '>loading...</div>',
+            ],
+            [
+                'header' => Html::tag('span', 'Subscription'),
+                'content' => '<div data-url=' . $subscriptionUrl . '>loading...</div>',
             ],
             [
                 'header' => Html::tag('span', 'Receipt History'),
@@ -310,19 +326,5 @@ Accordion::widget([
   
 </div>
 
-<?= $this->render('../partials/_modal') ?>
-
-<?php
-
-$script = <<< JS
-
-$('#idcButton').click(function() {
-    window.open($(this).attr('value'), 'IDCard', 'width=506,height=750');
-});
-
-JS;
-// $this->registerJs($script);
-
-?>
 
 

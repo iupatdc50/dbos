@@ -21,6 +21,12 @@ class OptionHelper
 	CONST STATUS_ACTIVE = 'A';
 	CONST STATUS_CLOSED = 'C';
 	CONST STATUS_CANCELLED = 'X';
+
+	// Stripe brand spelling
+	CONST BRAND_VISA = 'Visa';
+	CONST BRAND_MC = 'MasterCard';
+	CONST BRAND_DISCOVER = 'Discover';
+	CONST BRAND_AMEX = 'American Express';
 	
 	private static $MONTHS = [
 			'01' => 'January',
@@ -53,7 +59,7 @@ class OptionHelper
 	public static function getGenderText($code)
 	{
 		$options = self::getGenderOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown gender ({$code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown gender ($code)";
 	}
 	
 	public static function getAllowedTF()
@@ -72,7 +78,7 @@ class OptionHelper
 	public static function getTFText($code)
 	{
 		$options = self::getTFOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown ({$code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown ($code)";
 	}
 	
 	public static function getAllowedAddressTypes()
@@ -92,7 +98,7 @@ class OptionHelper
 	public static function getAddressTypeText($code)
 	{
 		$options = self::getAddressTypeOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown ({$code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown ($code)";
 	}
 	
 	public static function getAllowedStatus()
@@ -112,7 +118,7 @@ class OptionHelper
 	public static function getStatusText($code)
 	{
 		$options = self::getStatusOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown status ({$code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown status ($code)";
 	}
 	
 	public static function getAllowedDisp()
@@ -132,15 +138,47 @@ class OptionHelper
 	public static function getDispText($code)
 	{
 		$options = self::getDispOptions();
-		return isset($options[$code]) ? $options[$code] : "Unknown disposition ({$code})";
+		return isset($options[$code]) ? $options[$code] : "Unknown disposition ($code)";
 	}
 	
 	public static function getPrettyMonthYear($yyyymm)
 	{
 		$months = self::$MONTHS;
 		$month = substr($yyyymm, 4);
-		return isset($months[$month]) ? $months[$month] . ' ' . substr($yyyymm, 0, 4) : "Unknown month ({$yyyymm})";
+		return isset($months[$month]) ? $months[$month] . ' ' . substr($yyyymm, 0, 4) : "Unknown month ($yyyymm)";
 	}
-	
-	
+
+	public static function getBrandMaskOptions()
+    {
+        return [
+            self::BRAND_AMEX => '**** ****** *',
+            self::BRAND_DISCOVER => '**** **** **** ',
+            self::BRAND_MC => '**** **** **** ',
+            self::BRAND_VISA => '**** **** **** ',
+        ];
+    }
+
+    public static function getBrandMask($brand)
+    {
+        $options = self::getBrandMaskOptions();
+        return isset($options[$brand]) ? $options[$brand] : "Unknown payment method ($brand)";
+    }
+
+    public static function getBrandLogoNmOptions()
+    {
+        return [
+            self::BRAND_AMEX => 'logo_amex.png',
+            self::BRAND_DISCOVER => 'logo_discover.png',
+            self::BRAND_MC => 'logo_mc.png',
+            self::BRAND_VISA => 'logo_visa.png',
+        ];
+    }
+
+    public static function getBrandLogoNm($brand)
+    {
+        $options = self::getBrandLogoNmOptions();
+        return isset($options[$brand]) ? $options[$brand] : "Unknown payment method ($brand)";
+    }
+
+
 }
