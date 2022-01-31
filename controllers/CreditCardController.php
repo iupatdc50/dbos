@@ -67,7 +67,8 @@ class CreditCardController extends Controller
      */
     public function actionSummaryJson($id)
     {
-        if (!Yii::$app->user->can('browseReceipt'))
+//        if (!Yii::$app->user->can('browseReceipt'))
+        if (!Yii::$app->user->can('disabled'))
             return $this->asJson($this->renderAjax('/partials/_deniedview'));
 
         $member = $this->findMember($id);

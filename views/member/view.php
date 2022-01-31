@@ -135,8 +135,8 @@ $status = $model->currentStatus;
                         'id' => 'creditCardButton',
                         'value' => Url::to(['credit-card/approve', 'id'  => $model->member_id]),
                         'data-title' => 'Credit Card',
-                        'disabled' => !(isset($status) && isset($model->currentClass)),
-//                        'disabled' => true,
+//                        'disabled' => !(isset($status) && isset($model->currentClass)),
+                        'disabled' => true,
                         'title' => 'Accept credit card payment',
                     ])
                     ?>
