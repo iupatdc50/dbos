@@ -271,7 +271,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	[['application_dt'], 'validateApplicationDt', 'on' => self::SCENARIO_CREATE],
         	[['birth_dt'], 'validateBirthDt'],
 			[['gender'], 'in', 'range' => OptionHelper::getAllowedGender()],
-        	[['local_pac', 'hq_pac'], 'in', 'range' => OptionHelper::getAllowedTF()],
+        	[['local_pac', 'hq_pac'], 'in', 'range' => OptionHelper::getAllowedTF(true)],
         	['ssnumber', SsnValidator::className()],
             [['report_id'], 'string', 'max' => 11],
             [['last_nm', 'first_nm'], 'string', 'max' => 30],
@@ -910,10 +910,17 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     public function getPacTexts()
     {
     	$texts = [];
-    	if ($this->local_pac == 'T')
-    		$texts[] = isset($this->ncfs_id) ? "Local [NCFS ID: $this->ncfs_id]" : 'Local';
-    	if ($this->hq_pac == 'T')
-    		$texts[] = 'HQ';
+
+        if ($this->local_pac == OptionHelper::TF_TRUE)
+    		$texts[] = isset($this->ncfs_id) ? "Local\: Yes [NCFS ID: $this->ncfs_id]" : 'Local\: Yes';
+        elseif ($this->local_pac == OptionHelper::TF_DECLINED)
+            $texts[] = 'Local: Declined';
+
+    	if ($this->hq_pac == OptionHelper::TF_TRUE)
+    		$texts[] = 'HQ: Yes';
+        elseif ($this->hq_pac == OptionHelper::TF_DECLINED)
+            $texts[] = 'HQ: Declined';
+
     	return (sizeof($texts) > 0) ? implode(PHP_EOL, $texts) : null;
     }
     
@@ -1005,7 +1012,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     /**
      * Starting dues paid thru date is based on the application date, but can be overridden by current
      * date.  When on or prior to the 20th, the starting paid thru is the end of the previous month.
-     * Otherwise it is the end of the current month.
+     * Otherwise, it is the end of the current month.
      *
      * @param bool $use_current If true, use today's date instead of application date
      * @return OpDate
@@ -1102,7 +1109,7 @@ SQL;
     }
 
     /**
-     * A active member is "in application" if his initiation date is null for a new member,
+     * An active member is "in application" if his initiation date is null for a new member,
      * or less than the application date if he has been assessed a new APF after reinstatement
      * 
      * @return boolean

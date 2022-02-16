@@ -9,6 +9,7 @@ class OptionHelper
 	
 	CONST TF_FALSE = 'F';
 	CONST TF_TRUE = 'T';
+    CONST TF_DECLINED = 'D';
 	
 	CONST ADDRESS_MAILING = 'M';
 	CONST ADDRESS_LOCATION = 'L';
@@ -62,22 +63,28 @@ class OptionHelper
 		return isset($options[$code]) ? $options[$code] : "Unknown gender ($code)";
 	}
 	
-	public static function getAllowedTF()
+	public static function getAllowedTF($declined_option = false)
 	{
-		return [self::TF_FALSE, self::TF_TRUE];
+		$allowed = [self::TF_FALSE, self::TF_TRUE];
+        if ($declined_option)
+            $allowed[] = self::TF_DECLINED;
+        return $allowed;
 	}
 	
-	public static function getTFOptions()
-	{
-		return [
+	public static function getTFOptions($declined_option = false)
+    {
+		$options = [
 				self::TF_FALSE => 'No',
 				self::TF_TRUE => 'Yes'
 		];
+        if ($declined_option)
+            $options[self::TF_DECLINED] = 'Declined';
+        return $options;
 	}
 	
 	public static function getTFText($code)
 	{
-		$options = self::getTFOptions();
+		$options = self::getTFOptions(true);
 		return isset($options[$code]) ? $options[$code] : "Unknown ($code)";
 	}
 	

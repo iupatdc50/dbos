@@ -4,8 +4,10 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\member\Member */
-/* @var $modelsAddress \yii\db/ActiveQuery */
-/* @var $modelsPhone \yii\db/ActiveQuery */
+/* @var $modelsAddress yii\db\ActiveQuery */
+/* @var $modelsPhone yii\db\ActiveQuery */
+/* @var $modelsEmail yii\db\ActiveQuery */
+/* @var $modelsSpecialty yii\db\ActiveQuery */
 
 $this->title = 'Update Member: ' . ' ' . $model->fullName;
 $this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];

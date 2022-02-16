@@ -12,6 +12,7 @@ use kartik\form\ActiveForm;
 use kartik\datecontrol\DateControl;
 use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
+use kartik\select2\Select2 as S2Const;
 use app\helpers\OptionHelper;
 
 /* @var $this yii\web\View */
@@ -74,7 +75,7 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'gender')->widget(Select2::className(), [
     		'data' => OptionHelper::getGenderOptions(), 
     		'hideSearch' => false,
-			'size' => Select2::SMALL,
+			'size' => S2Const::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
@@ -85,14 +86,14 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'shirt_size')->widget(Select2::className(), [
     		'data' => $model->sizeOptions,
     		'hideSearch' => false,
-			'size' => Select2::SMALL,
+			'size' => S2Const::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
     <?= $form->field($model, 'local_pac')->widget(Select2::className(), [
-    		'data' => OptionHelper::getTFOptions(), 
+    		'data' => OptionHelper::getTFOptions(true),
     		'hideSearch' => false,
-			'size' => Select2::SMALL,
+			'size' => S2Const::SMALL,
     		'options' => ['placeholder' => 'Select...', 'id' => 'localpac'],
     ]) ?>
 
@@ -101,9 +102,9 @@ use app\helpers\OptionHelper;
     		 ->label('NCFS ID', ['id' => 'ncfslbl']) ?>
 
     <?= $form->field($model, 'hq_pac')->widget(Select2::className(), [
-    		'data' => OptionHelper::getTFOptions(), 
+    		'data' => OptionHelper::getTFOptions(true),
     		'hideSearch' => false,
-			'size' => Select2::SMALL,
+			'size' => S2Const::SMALL,
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
@@ -158,7 +159,7 @@ $(function() {
 	toggle($('#localpac').val());
 })
 
-$('#localpac').change(function() {
+$('#localpac').on("change", function() {
 	toggle($(this).val());
 });
  		
