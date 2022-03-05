@@ -28,7 +28,7 @@ use kartik\datecontrol\DateControl;
     ]) ?>
 
     <?= $form->field($model, 'period')->widget(Select2::className(), [
-        'data' => $model->getMonthOptions(null, 3),
+        'data' => $model->getMonthOptions(null, 6),
         'options' => ['placeholder' => 'Select month...'],
     ]) ?>
 
