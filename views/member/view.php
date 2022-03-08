@@ -118,9 +118,11 @@ $status = $model->currentStatus;
                 <?php endif; ?>
                 <div>
                     <?php if(Yii::$app->user->can('createReceipt') && ($status->member_status != Status::INACTIVE || isset($model->reinstateStaged))) :?>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"><h4 class="panel-title">Create Receipt</h4></div>
+                        <div class="panel-body">
                     <?=
-//                    Html::button('<i class="glyphicon glyphicon-usd"></i> Cash or Check', [
-                      Html::button('<i class="glyphicon glyphicon-usd"></i> Create Receipt', [
+                        Html::button('<i class="glyphicon glyphicon-usd"></i> Cash or Check', [
                         'class' => 'btn btn-default btn-modal',
                         'id' => 'receiptCreateButton',
                         'value' => Url::to(['receipt-member/create', 'lob_cd' => $status->lob_cd, 'id'  => $model->member_id]),
@@ -130,16 +132,16 @@ $status = $model->currentStatus;
                     ]) ?>
                     <?=
                         Html::button('<i class="glyphicon glyphicon-credit-card"></i> Credit Card', [
-//                       Html::button('<i class="glyphicon glyphicon-credit-card"></i> Future', [
                         'class' => 'btn btn-default btn-modal',
                         'id' => 'creditCardButton',
                         'value' => Url::to(['credit-card/approve', 'id'  => $model->member_id]),
                         'data-title' => 'Credit Card',
-//                        'disabled' => !(isset($status) && isset($model->currentClass)),
-                        'disabled' => true,
+                        'disabled' => !(isset($status) && isset($model->currentClass)),
                         'title' => 'Accept credit card payment',
                     ])
                     ?>
+                        </div>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
