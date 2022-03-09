@@ -912,7 +912,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
     	$texts = [];
 
         if ($this->local_pac == OptionHelper::TF_TRUE)
-    		$texts[] = isset($this->ncfs_id) ? "Local\: Yes [NCFS ID: $this->ncfs_id]" : 'Local\: Yes';
+    		$texts[] = isset($this->ncfs_id) ? "Local: Yes [NCFS ID: $this->ncfs_id]" : 'Local: Yes';
         elseif ($this->local_pac == OptionHelper::TF_DECLINED)
             $texts[] = 'Local: Declined';
 

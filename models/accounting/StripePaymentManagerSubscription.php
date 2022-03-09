@@ -37,7 +37,8 @@ class StripePaymentManagerSubscription extends StripePaymentManager
         $date = new OpDate();
         if ($date->getDay() > self::ANCHOR_DAY)
             $date->modify('+1 month');
-        $anchor = gmmktime(0, 0, 0, $date->getMonth(), 15, $date->getYear());
+        // Noon hour keeps the date timezone agnostic for US
+        $anchor = gmmktime(12, 0, 0, $date->getMonth(), self::ANCHOR_DAY, $date->getYear());
 
         try {
             $subscription = $this->stripe->subscriptions->create([
