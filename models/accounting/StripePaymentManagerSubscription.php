@@ -12,11 +12,12 @@ class StripePaymentManagerSubscription extends StripePaymentManager
     // By policy, the bill date for each cycle is the 15th of the month
     CONST ANCHOR_DAY = 15;
     public $price_id;
+    public $defer;
 
     public function rules()
     {
         return array_merge(parent::rules(), [
-            ['price_id', 'required'],
+            [['price_id', 'defer'], 'required'],
         ]);
     }
 
@@ -35,6 +36,8 @@ class StripePaymentManagerSubscription extends StripePaymentManager
         }
 
         $date = new OpDate();
+        if (((int)$this->defer) > 0)
+            $date->modify("+$this->defer month");
         if ($date->getDay() > self::ANCHOR_DAY)
             $date->modify('+1 month');
         // Noon hour keeps the date timezone agnostic for US
