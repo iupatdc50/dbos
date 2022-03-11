@@ -36,8 +36,10 @@ class StripePaymentManagerSubscription extends StripePaymentManager
         }
 
         $date = new OpDate();
+        /*  This won't work
         if (((int)$this->defer) > 0)
             $date->modify("+$this->defer month");
+        */
         if ($date->getDay() > self::ANCHOR_DAY)
             $date->modify('+1 month');
         // Noon hour keeps the date timezone agnostic for US
