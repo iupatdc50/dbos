@@ -36,10 +36,11 @@ class StripePaymentManagerSubscription extends StripePaymentManager
         }
 
         $date = new OpDate();
-        /*  This won't work
-        if (((int)$this->defer) > 0)
+        $start_prop = 'billing_cycle_anchor';
+        if (((int)$this->defer) > 0) {
             $date->modify("+$this->defer month");
-        */
+            $start_prop = 'trial_end';
+        }
         if ($date->getDay() > self::ANCHOR_DAY)
             $date->modify('+1 month');
         // Noon hour keeps the date timezone agnostic for US
@@ -51,7 +52,7 @@ class StripePaymentManagerSubscription extends StripePaymentManager
                 'items' => [
                     ['price' => $this->price_id],
                 ],
-                'billing_cycle_anchor' => $anchor,
+                $start_prop => $anchor,
                 'proration_behavior' => 'none',
             ]);
         } catch (ApiErrorException $e) {
