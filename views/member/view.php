@@ -328,5 +328,23 @@ Accordion::widget([
   
 </div>
 
+<?php
+
+$script = <<< JS
+
+/**
+ * If a modal window is displayed that includes a modal-left class div,
+ * move the modal to the left
+ */
+$('#modalCreate').on('shown.bs.modal', function () {
+    if ($('.modal-left').length) { 
+        $('.modal-dialog').css("margin-left", '30px');
+    } else {
+        $('.modal-dialog').css("margin-left", 'auto');
+    }
+});
+
+JS;
+$this->registerJs($script);
 
 

@@ -13,7 +13,7 @@
             </div>
             <div class="col-xs-10 form-group">
                 <label class="control-label" for="charge">Charge</label>
-                <input id="charge" name="charge" class="form-control required number" type="number" value="<?= $total_due ?>">
+                <input id="charge" name="charge" class="form-control required number" type="number" value="<?= $total_due ?>" min="0.50">
             </div>
         </div>
         <br />

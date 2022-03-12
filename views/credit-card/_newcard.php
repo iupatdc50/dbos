@@ -7,7 +7,7 @@ use app\models\member\Member;
 
 ?>
 
-<div id="new-card">
+<div id="new-card" class="modal-left">
     <div class="form-group">
         <label class="control-label" for="email">Receipt Email</label>
         <input id="email" name="email" type="email" value="<?= isset($member->defaultEmail) ? $member->defaultEmail->email : null ?>" class="form-control required email" placeholder="Receipt email">
