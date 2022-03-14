@@ -7,9 +7,11 @@
  */
 $(function(){
 	$(document).on('click', '.btn-modal', function() {
-		var modal = $('#modalCreate').modal('show');
-		modal.find('#modalContent').load($(this).attr('value'));
-		var title = $(this).attr('data-title');
+		let modal = $('#modalCreate');
+		modal.find('#modalContent').load($(this).attr('value'), function() {
+			modal.modal('show');
+		});
+		let title = $(this).attr('data-title');
 		if(title.substr(0, 1) === '#') {
 			modal.find('#title').html(title.slice(1));
 		} else {
