@@ -62,67 +62,73 @@ class StripeEndpointManager extends Model
         if ($object instanceof Invoice) {
 
             if (isset($object->subscription)) {
-                // Handle the Invoice event
-                try {
-                    $charge = $this->stripe->charges->retrieve($object->charge, ['expand' => ['customer']]);
-                } catch (ApiErrorException $e) {
-                    $msg = 'Problem accessing charge on object';
-                    Yii::error('⚠️  ' . $msg . ': ' . $e->getMessage());
-                    Yii::info('Payload: ' . $payload);
-                    return $this->status400($msg);
-                }
-                $member = Member::findOne(['stripe_id' => $charge->customer->id]);
-                if (isset($member)) {
-                    $eventLog = new SubscriptionEvent([
-                        'event_id' => $event->id,
-                        'customer_id' => $charge->customer->id,
-                        'invoice_id' => $object->number,
-                        'created_dt' => date("Y-m-d", $charge->created),
-                        'charge_amt' => $charge->amount /100,
-                    ]);
 
-                    switch ($event->type) {
-                        case 'invoice.paid':
-                            $receipt = new ReceiptMember([
-                                'scenario' => Receipt::SCENARIO_CREATE,
-                                'received_dt' => date("Y-m-d", $charge->created),
-                            ]);
-                            try {
-                                $receipt_id = $receipt->makePosted($member, $charge, $object->number);
-                            } catch (Exception $e) {
-                                Yii::error('⚠️  Could not post receipt. Error: ' . $e->getMessage());
-                                Yii::info('Payload: ' . $payload);
-                                break;
-                            }
-                            if ($receipt_id == false)
-                                break;
-                            $transaction = new StripeTransaction([
-                                'transaction_id' => $charge->id,
-                                'trans_type' => StripeTransaction::TYPE_AUTO,
-                                'customer_id' => $charge->customer->id,
-                                'tracking_nbr' => $object->number,
-                                'receipt_id' => $receipt_id,
-                            ]);
-                            $transaction->save();
-                            $eventLog->status = SubscriptionEvent::STATUS_PAID;
-                            $eventLog->receipt_id = $receipt_id;
-                            break;
-                        case 'invoice.payment_failed':
-                            $eventLog->status = SubscriptionEvent::STATUS_FAILED;
-                            if (isset($object->next_payment_attempt))
-                                $eventLog->next_attempt = $object->next_payment_attempt;
-                            break;
-                        default:
-                            // Unexpected event type
-                            Yii::error(print_r('*** Received unknown event type: ' . $event, true));
+                // Null charge invoices are generated for "trial period" subscriptions
+                if (isset($object->charge)) {
+
+                    // Handle the Invoice event
+                    try {
+                        $charge = $this->stripe->charges->retrieve($object->charge, ['expand' => ['customer']]);
+                    } catch (ApiErrorException $e) {
+                        $msg = 'Problem accessing charge on object';
+                        Yii::error('⚠️  ' . $msg . ': ' . $e->getMessage());
+                        Yii::info('Payload: ' . $payload);
+                        return $this->status400($msg);
                     }
+                    $member = Member::findOne(['stripe_id' => $charge->customer->id]);
+                    if (isset($member)) {
+                        $eventLog = new SubscriptionEvent([
+                            'event_id' => $event->id,
+                            'customer_id' => $charge->customer->id,
+                            'invoice_id' => $object->number,
+                            'created_dt' => date("Y-m-d", $charge->created),
+                            'charge_amt' => $charge->amount / 100,
+                        ]);
 
-                    $eventLog->save();
+                        switch ($event->type) {
+                            case 'invoice.paid':
+                                $receipt = new ReceiptMember([
+                                    'scenario' => Receipt::SCENARIO_CREATE,
+                                    'received_dt' => date("Y-m-d", $charge->created),
+                                ]);
+                                try {
+                                    $receipt_id = $receipt->makePosted($member, $charge, $object->number);
+                                } catch (Exception $e) {
+                                    Yii::error('⚠️  Could not post receipt. Error: ' . $e->getMessage());
+                                    Yii::info('Payload: ' . $payload);
+                                    break;
+                                }
+                                if ($receipt_id == false)
+                                    break;
+                                $transaction = new StripeTransaction([
+                                    'transaction_id' => $charge->id,
+                                    'trans_type' => StripeTransaction::TYPE_AUTO,
+                                    'customer_id' => $charge->customer->id,
+                                    'tracking_nbr' => $object->number,
+                                    'receipt_id' => $receipt_id,
+                                ]);
+                                $transaction->save();
+                                $eventLog->status = SubscriptionEvent::STATUS_PAID;
+                                $eventLog->receipt_id = $receipt_id;
+                                break;
+                            case 'invoice.payment_failed':
+                                $eventLog->status = SubscriptionEvent::STATUS_FAILED;
+                                if (isset($object->next_payment_attempt))
+                                    $eventLog->next_attempt = $object->next_payment_attempt;
+                                break;
+                            default:
+                                // Unexpected event type
+                                Yii::error(print_r('*** Received unknown event type: ' . $event, true));
+                        }
 
-                } else // Member find is unsuccessful
-                    Yii::error('⚠️  Stripe customer does not match any member. Payload ignored: ' . $payload);
+                        $eventLog->save();
+
+                    } else // Member find is unsuccessful
+                        Yii::error('⚠️  Stripe customer does not match any member. Payload ignored: ' . $payload);
+                } // Ignore null charge invoices
 
             } // Ignore non-Subscription invoices
+
         } elseif ($object instanceof \Stripe\Subscription) {
             if ($object->status == 'canceled')
                 try {

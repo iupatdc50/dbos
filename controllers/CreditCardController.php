@@ -389,7 +389,8 @@ class CreditCardController extends Controller
     {
         $signature = $_SERVER['HTTP_STRIPE_SIGNATURE'];
         $payload = Yii::$app->request->getRawBody();
-        $manager = new StripeEndpointManager();
+        $stripe = $this->getStripeClient(Lob::TRADE_GL);
+        $manager = new StripeEndpointManager(['stripe' => $stripe]);
         return $manager->handleEvent(Lob::TRADE_GL, $signature, $payload);
     }
 
@@ -400,7 +401,8 @@ class CreditCardController extends Controller
     {
         $signature = $_SERVER['HTTP_STRIPE_SIGNATURE'];
         $payload = Yii::$app->request->getRawBody();
-        $manager = new StripeEndpointManager();
+        $stripe = $this->getStripeClient(Lob::TRADE_FL);
+        $manager = new StripeEndpointManager(['stripe' => $stripe]);
         return $manager->handleEvent(Lob::TRADE_FL, $signature, $payload);
     }
 
@@ -411,7 +413,8 @@ class CreditCardController extends Controller
     {
         $signature = $_SERVER['HTTP_STRIPE_SIGNATURE'];
         $payload = Yii::$app->request->getRawBody();
-        $manager = new StripeEndpointManager();
+        $stripe = $this->getStripeClient(Lob::TRADE_TP);
+        $manager = new StripeEndpointManager(['stripe' => $stripe]);
         return $manager->handleEvent(Lob::TRADE_TP, $signature, $payload);
     }
 
