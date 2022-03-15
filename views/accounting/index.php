@@ -152,14 +152,12 @@ $toggle_mine_only = !$mine_only;
                                 return Html::a($model->member->fullName, Yii::$app->urlManager->createUrl(['/member/view', 'id' => $model->member->member_id]));
                             }
                         ],
-                        'invoice_id',
-                        /*
                         [
                             'attribute' => 'invoice_id',
-                            'format' => 'raw',
-                            'value' => function(SubscriptionEvent $model) {return '...' . substr($model->invoice_id, -4);}
+                            'contentOptions' => ['style' => 'white-space: nowrap;'],
+                        //    'format' => 'raw',
+                        //    'value' => function(SubscriptionEvent $model) {return '...' . substr($model->invoice_id, -4);}
                         ],
-                        */
                         [
                             'attribute' => 'created_dt',
                             'format' => 'date',
