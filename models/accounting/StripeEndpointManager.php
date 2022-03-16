@@ -115,6 +115,8 @@ class StripeEndpointManager extends Model
                                 $eventLog->status = SubscriptionEvent::STATUS_FAILED;
                                 if (isset($object->next_payment_attempt))
                                     $eventLog->next_attempt = $object->next_payment_attempt;
+                                /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+                                $eventLog->reason = $charge->outcome->reason;
                                 break;
                             default:
                                 // Unexpected event type
