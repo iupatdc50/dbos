@@ -4,12 +4,10 @@ namespace app\models\accounting;
 
 use app\components\validators\AtLeastValidator;
 use app\helpers\ExceptionHelper;
-use app\models\member\Email;
 use app\models\member\Member;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 use Yii;
-use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\Model;
 
@@ -61,7 +59,6 @@ class StripePaymentManager extends Model
      * in the customer record.  Otherwise, a new Customer object is built and referenced in the DBOS member record
      *
      * @return bool
-     * @throws Exception
      */
     public function processCard()
     {
@@ -72,8 +69,10 @@ class StripePaymentManager extends Model
             return false;
         }
 
+        /*
         if (!isset($this->member->defaultEmail))
             $this->member->addEmail(new Email(['email' => $this->email]));
+        */
 
         try {
             if (isset($this->member->stripe_id)) {
