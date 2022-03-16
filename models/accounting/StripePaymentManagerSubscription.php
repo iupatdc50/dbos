@@ -37,12 +37,18 @@ class StripePaymentManagerSubscription extends StripePaymentManager
 
         $date = new OpDate();
         $start_prop = 'billing_cycle_anchor';
+
+        // If subscription is entered on the 15th, force 1 month trial (Stripe constraint)
+        if (((int)$this->defer == 0) && ($date->getDay() == self::ANCHOR_DAY))
+            $this->defer = '1';
+
         if (((int)$this->defer) > 0) {
             $date->modify("+$this->defer month");
             $start_prop = 'trial_end';
         }
         if ($date->getDay() > self::ANCHOR_DAY)
             $date->modify('+1 month');
+
         // Noon hour keeps the date timezone agnostic for US
         $anchor = gmmktime(12, 0, 0, $date->getMonth(), self::ANCHOR_DAY, $date->getYear());
 

@@ -8,6 +8,7 @@
 /* @var $member_id string */
 
 use app\helpers\OptionHelper;
+use Stripe\Subscription;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\DetailView;
@@ -63,7 +64,10 @@ use yii\widgets\DetailView;
                             'status',
                             [
                                 'label' => 'Next Chg',
-                                'value' => date('m/d/Y', $stripe_subs->billing_cycle_anchor),
+                                'format' => 'raw',
+                                'value' => function (Subscription $model) {
+                                    return ($model->status == 'past_due' ? 'pending' : date('m/d/Y', $model->current_period_end));
+                                }
                             ],
                             [
                                 'label' => 'Currency',

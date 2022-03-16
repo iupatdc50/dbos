@@ -154,9 +154,17 @@ $toggle_mine_only = !$mine_only;
                         ],
                         [
                             'attribute' => 'invoice_id',
-                            'contentOptions' => ['style' => 'white-space: nowrap;'],
-                        //    'format' => 'raw',
-                        //    'value' => function(SubscriptionEvent $model) {return '...' . substr($model->invoice_id, -4);}
+                            'contentOptions' => function(SubscriptionEvent $model) {
+                                $options = [];
+                                $options['style'] = 'white-space: nowrap;';
+                                if ($model->status == SubscriptionEvent::STATUS_FAILED)
+                                    $options['class'] = 'negative';
+                                return $options;
+                            },
+                            'format' => 'raw',
+                            'value' => function(SubscriptionEvent $model) {
+                                return ($model->status == SubscriptionEvent::STATUS_FAILED) ? $model->reason : $model->invoice_id;
+                            },
                         ],
                         [
                             'attribute' => 'created_dt',

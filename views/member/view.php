@@ -118,7 +118,7 @@ $status = $model->currentStatus;
                 <?php endif; ?>
                 <div>
                     <?php if(Yii::$app->user->can('createReceipt') && ($status->member_status != Status::INACTIVE || isset($model->reinstateStaged))) :?>
-                    <div class="panel panel-primary">
+                    <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title">Create Receipt</h4></div>
                         <div class="panel-body">
                     <?=

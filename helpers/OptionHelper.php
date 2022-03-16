@@ -158,10 +158,16 @@ class OptionHelper
 	public static function getBrandMaskOptions()
     {
         return [
+            /*
             self::BRAND_AMEX => '**** ****** *',
             self::BRAND_DISCOVER => '**** **** **** ',
             self::BRAND_MC => '**** **** **** ',
             self::BRAND_VISA => '**** **** **** ',
+            */
+            self::BRAND_AMEX => '... ',
+            self::BRAND_DISCOVER => '... ',
+            self::BRAND_MC => '... ',
+            self::BRAND_VISA => '... ',
         ];
     }
 

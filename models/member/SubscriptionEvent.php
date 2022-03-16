@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property string|null $status
  * @property int|null $receipt_id
  * @property int|null $next_attempt
+ * @property string|null $reason
  *
  * @property Member $member
  * @property ReceiptMember $receipt
@@ -52,7 +53,7 @@ class SubscriptionEvent extends ActiveRecord
             [['event_id', 'customer_id', 'invoice_id', 'created_dt', 'charge_amt'], 'required'],
             [['receipt_id', 'next_attempt'], 'integer'],
             [['charge_amt'], 'number'],
-            [['created_dt', 'status'], 'string'],
+            [['created_dt', 'status', 'reason'], 'string'],
             [['event_id', 'customer_id', 'invoice_id'], 'string', 'max' => 50],
             [['event_id'], 'unique'],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Member::className(), 'targetAttribute' => ['customer_id' => 'stripe_id']],
@@ -68,12 +69,13 @@ class SubscriptionEvent extends ActiveRecord
         return [
             'event_id' => 'Event ID',
             'customer_id' => 'Customer ID',
-            'invoice_id' => 'Ref #',
+            'invoice_id' => 'Ref',
             'created_dt' => 'Created',
             'charge_amt' => 'Charge',
             'status' => 'Status',
             'receipt_id' => 'Receipt ID',
             'next_attempt' => 'Next Try',
+            'reason' => 'Reason',
         ];
     }
 
