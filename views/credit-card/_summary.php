@@ -66,7 +66,7 @@ use yii\widgets\DetailView;
                                 'label' => 'Next Chg',
                                 'format' => 'raw',
                                 'value' => function (Subscription $model) {
-                                    return ($model->status == 'past_due' ? 'pending' : date('m/d/Y', $model->current_period_end));
+                                    return ($model->status == 'past_due') ? 'pending' : date('m/d/Y', $model->current_period_end);
                                 }
                             ],
                             [

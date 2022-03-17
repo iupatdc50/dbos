@@ -7,16 +7,6 @@ use yii\bootstrap\Html;
 
 ?>
 
-<div class="row">
-    <div class="col-xs-2 form-group">
-        <label class="control-label" for="defer">Months to Defer</label>
-        <input id="defer" name="defer" type="number" value="0" class="form-control required number" min="0" max="12">
-        <p class="help-block help-block-error"></p>
-    </div>
-</div>
-
-<br />
-
 <div class="form-group">
     <?= Html::submitButton($submit_lbl, [
         'class' => 'btn btn-success',
