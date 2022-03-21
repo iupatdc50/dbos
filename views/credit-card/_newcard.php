@@ -10,7 +10,7 @@ use app\models\member\Member;
 <div id="new-card" class="modal-left">
     <div class="form-group">
         <label class="control-label" for="email">Receipt Email</label>
-        <input id="email" name="email" type="email" value="<?= isset($member->defaultEmail) ? $member->defaultEmail->email : null ?>" class="form-control required email" placeholder="Receipt email">
+        <input id="email" name="email" type="email" value="<?= isset($member->defaultEmail) ? $member->defaultEmail->email : "info@dc50.org" ?>" class="form-control required email" placeholder="Receipt email">
         <p class="help-block help-block-error"></p>
     </div>
     <br />

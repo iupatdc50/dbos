@@ -107,7 +107,7 @@ $toggle_mine_only = !$mine_only;
                         [
                             'attribute' => 'received_amt',
                             'contentOptions' => ['class' => 'right'],
-                            'value' => function($model) { return ($model->void == OptionHelper::TF_TRUE) ? '** VOID **' : $model->received_amt; },
+                            'value' => function($model) { return ($model->void == OptionHelper::TF_TRUE) ? '***' : $model->received_amt; },
                         ],
                         /*  Remove for performance reasons (does not use an index with eager load)
                         [

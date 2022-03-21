@@ -135,6 +135,11 @@ class ReceiptMemberController extends BaseController
         return parent::actionUpdate($id);
     }
 
+    public function actionRefund($id)
+    {
+        return $this->render('../site/unavailable');
+    }
+
     public function actionSummaryAjax($id)
 	{
 		$searchModel = new ReceiptMemberSearch();

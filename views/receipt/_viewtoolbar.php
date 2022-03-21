@@ -1,10 +1,11 @@
 <?php
 
+use app\models\accounting\Receipt;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\View;
 
-/* @var $model app\models\accounting\Receipt  */
+/* @var $model Receipt  */
 /* @var $this View */
 
 ?>
@@ -25,7 +26,16 @@ use yii\web\View;
 			                'method' => 'post',
 			            ],
 			        ]) ?>
-			    <?php endif; ?> 
+                    <?php if($model->payment_method == Receipt::METHOD_CREDIT): ?>
+                        <?= Html::a('Refund CC', ['refund', 'id' => $model->id], [
+                            'class' => 'btn btn-default',
+                            'data' => [
+                                'confirm' => 'Are you sure you want to refund this payment?  This will send a refund to the card issuer.',
+                                'method' => 'post',
+                            ],
+                        ]) ?>
+                    <?php endif; ?>
+			    <?php endif; ?>
 			<?php endif; ?>
 
         	<?php if(Yii::$app->user->can('reportAccounting')): ?>

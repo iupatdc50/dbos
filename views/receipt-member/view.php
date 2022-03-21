@@ -1,11 +1,15 @@
 <?php
 
-/* @var $this \yii\web\View */
-/* @var $allocProvider yii\data\ActiveDataProvider */
-
+use app\models\accounting\ReceiptMember;
 use yii\helpers\Html;
 use kartik\grid\GridView;
 use app\helpers\OptionHelper;
+use yii\web\View;
+
+/* @var $this View */
+/* @var $model ReceiptMember */
+/* @var $allocProvider yii\data\ActiveDataProvider */
+
 
 
 $this->title = $model->id;
