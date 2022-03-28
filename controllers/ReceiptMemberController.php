@@ -2,6 +2,10 @@
 
 namespace app\controllers;
 
+use app\helpers\ExceptionHelper;
+use app\models\accounting\RefundForm;
+use app\models\accounting\StripePaymentManagerCharge;
+use Throwable;
 use Yii;
 use yii\data\ActiveDataProvider;
 use app\controllers\receipt\BaseController;
@@ -15,6 +19,7 @@ use app\models\member\Member;
 use app\models\accounting\CcOtherLocal;
 use yii\data\SqlDataProvider;
 use yii\db\Exception;
+use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -135,9 +140,51 @@ class ReceiptMemberController extends BaseController
         return parent::actionUpdate($id);
     }
 
+    /**
+     * @param $id
+     * @return Response|string
+     * @throws NotFoundHttpException
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
     public function actionRefund($id)
     {
-        return $this->render('../site/unavailable');
+        /* @var $receipt ReceiptMember */
+        $receipt = $this->findModel($id);
+        $manager = new StripePaymentManagerCharge(['member' => $receipt->payingMember]);
+        $model = new RefundForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if (($refund = $manager->createRefund($model->charge_id)) != false) {
+                $transaction = $receipt->transaction;
+                $transaction->refund_id = $refund->id;
+                $transaction->save();
+                $result = $receipt->void(Yii::$app->user->identity->username, true);
+
+                if (empty($result)) {
+                    Yii::$app->session->setFlash('success', "Charge refunded and receipt successfully voided");
+                    return $this->redirect(['view', 'id' => $model->receipt_id]);
+                }
+                // Error handling
+            }
+            foreach ($manager->messages as $code => $message)
+                ExceptionHelper::handleError(Yii::$app->session, $code, $message['friendly'], $message['system']);
+
+        }
+
+        $model->receipt_id = $receipt->id;
+        $model->charge_id = $receipt->transaction->transaction_id;
+        if (($charge = $manager->getCharge($model->charge_id)) == false) {
+            foreach ($manager->messages as $code => $message)
+                ExceptionHelper::handleError(Yii::$app->session, $code, $message['friendly'], $message['system']);
+            return $this->goBack();
+        }
+
+        return $this->renderAjax('refund', [
+            'model' => $model,
+            'receipt' => $receipt,
+            'card' => $charge->source,
+        ]);
     }
 
     public function actionSummaryAjax($id)

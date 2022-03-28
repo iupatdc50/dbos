@@ -4,12 +4,14 @@ namespace app\models\accounting;
 
 use app\helpers\ExceptionHelper;
 use Exception;
+use Throwable;
 use Yii;
 use yii\base\InvalidValueException;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
 use app\helpers\OptionHelper;
@@ -426,6 +428,39 @@ class Receipt extends ActiveRecord
     		->andOnCondition(['<>', 'fee_type', FeeType::TYPE_DUES])
     		->via('allocatedMembers')
     	;
+    }
+
+    /**
+     * @param $username
+     * @param $refund
+     * @return array
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public function void($username, $refund = false)
+    {
+        $errors = [];
+
+        foreach($this->members as $alloc_memb) {
+            // Calls removeAllocations() manually to merge errors with base action
+            $errors = array_merge($errors, $alloc_memb->removeAllocations());
+            if (!$alloc_memb->delete())
+                $errors = array_merge($errors, $alloc_memb->errors);
+        }
+
+        $this->received_amt = 0.00;
+        $this->unallocated_amt = 0.00;
+        $this->helper_dues = null;
+        $this->void = OptionHelper::TF_TRUE;
+
+        $action = $refund ? 'Refunded by: ' : 'Voided by: ';
+        $this->remarks = $action . $username;
+
+        if (!$this->save())
+            $errors = array_merge($errors, $this->errors);
+
+        return $errors;
+
     }
 
     /**

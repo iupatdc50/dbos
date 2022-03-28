@@ -50,8 +50,9 @@ class StripePaymentManagerCharge extends StripePaymentManager
 
         } catch (CardException $e) {
             $this->messages['SPM051'] = [
-                'friendly' => 'Payment unsuccessful: ',
-                'system' => [$e->getError()->message],
+                'friendly' => $e->getError()->message,
+                'system' => [$e->getError()->decline_code],
+                'show_friendly' => true,
             ];
         } catch (RateLimitException $e) {
             $this->messages['SPM052'] = [
@@ -72,6 +73,7 @@ class StripePaymentManagerCharge extends StripePaymentManager
             $this->messages['SPM055'] = [
                 'friendly' => 'Connectivity problems or network interruption.  Please try again later.',
                 'system' => [],
+                'show_friendly' => true,
             ];
         } catch (ApiErrorException $e) {
             $this->messages['SPM056'] = [
@@ -85,6 +87,47 @@ class StripePaymentManagerCharge extends StripePaymentManager
 
         return false;
 
+    }
+
+    public function getCharge($id)
+    {
+        $charge = null;
+
+        try {
+            $charge = $this->stripe->charges->retrieve($id, ['expand' => ['customer']]);
+        } catch (ApiErrorException $e) {
+            $this->messages['SPM057'] = [
+                'friendly' => 'Internal error: ',
+                'system' => [$e->getError()->message],
+            ];
+        }
+
+        if (empty($this->messages))
+            return $charge;
+
+        return false;
+
+    }
+
+    public function createRefund($charge_id)
+    {
+        $refund = null;
+
+        try {
+            $refund = $this->stripe->refunds->create([
+                'charge' => $charge_id,
+            ]);
+        } catch (ApiErrorException $e) {
+            $this->messages['SPM058'] = [
+                'friendly' => 'Internal error: ',
+                'system' => [$e->getError()->message],
+            ];
+        }
+
+        if (empty($this->messages))
+            return $refund;
+
+        return false;
     }
 
 }

@@ -20,7 +20,6 @@ use yii\data\ActiveDataProvider;
 use app\models\accounting\BaseAllocation;
 use app\models\accounting\ReceiptAllocSumm;
 use app\components\utilities\OpDate;
-use app\helpers\OptionHelper;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -86,7 +85,7 @@ class BaseController extends Controller
     
     /**
      * Lists all Receipt models.
-     * @return mixed
+     * @return Response
      */
     public function actionIndex()
     {
@@ -191,9 +190,10 @@ class BaseController extends Controller
 
     /**
      * @param $id
-     * @return string
+     * @return Response | string
      * @throws DbException
      * @throws NotFoundHttpException
+     * @throws Exception
      */
     public function actionUpdate($id)
     {
@@ -253,7 +253,7 @@ class BaseController extends Controller
      * Voids an existing Receipt model.
      *
      * @param integer $id
-     * @return mixed
+     * @return Response
      * @throws Exception
      * @throws StaleObjectException
      * @throws Throwable
@@ -261,29 +261,14 @@ class BaseController extends Controller
     public function actionVoid($id)
     {
         $model = $this->findModel($id);
-        $this->_dbErrors = [];
-        
-        foreach($model->members as $alloc_memb) {
-            // Calls removeAllocations() manually to merge errors with base action
-        	$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->removeAllocations());
-        	if (!$alloc_memb->delete())
-        		$this->_dbErrors = array_merge($this->_dbErrors, $alloc_memb->errors);
-        }
 
-        $model->received_amt = 0.00;
-        $model->unallocated_amt = 0.00;
-        $model->helper_dues = null;
-        $model->remarks = 'Voided by: ' . Yii::$app->user->identity->username;
-        $model->void = OptionHelper::TF_TRUE;
+        $result = $model->void(Yii::$app->user->identity->username);
         
-        if (!$model->save())
-        	$this->_dbErrors = array_merge($this->_dbErrors, $model->errors);
-        
-        if (empty($this->_dbErrors))
+        if (empty($result))
         	Yii::$app->session->setFlash('success', "Receipt successfully voided");
         else {
 			Yii::$app->session->addFlash('error', 'Could not complete receipt void.  Check log for details. Code `BC020`');
-			Yii::error("*** BC020 Receipt void error(s).  Errors: " . print_r($this->_dbErrors, true) . " Receipt: " . print_r($model, true));
+			Yii::error("*** BC020 Receipt void error(s).  Errors: " . print_r($result, true) . " Receipt: " . print_r($model, true));
         }
 
         return $this->redirect(['view', 'id' => $model->id]);
@@ -291,7 +276,7 @@ class BaseController extends Controller
     }
 
     /**
-     * Backs out of a create or update action.  If the receipt is held in the Undo tables, the held receipt is restored.
+     * Backs out of a create or update action.  If the receipt is held in the `Undo` tables, the held receipt is restored.
      *
      * @param integer $id
      * @return Response
@@ -372,7 +357,7 @@ class BaseController extends Controller
     public function findModel($id)
     {
         if (($model = Receipt::findOne($id)) == null) {
-            Yii::error("*** BC050: Could not find receipt `{$id}`");
+            Yii::error("*** BC050: Could not find receipt `$id`");
             throw new NotFoundHttpException('The requested page does not exist.');
         }
         return $model;

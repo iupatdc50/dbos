@@ -17,6 +17,7 @@ use yii\db\Exception;
  * @property string|null $tracking_nbr
  * @property int|null $receipt_id
  * @property int|null $created_at
+ * @property string|null $refund_id
  */
 class StripeTransaction extends ActiveRecord
 {

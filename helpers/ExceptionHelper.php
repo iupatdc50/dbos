@@ -17,12 +17,13 @@ class ExceptionHelper
      * @param $code
      * @param $message
      * @param array $errors
+     * @param bool $show_friendly
      */
-    public static function handleError(Session $session, $code, $message, array $errors)
+    public static function handleError(Session $session, $code, $message, array $errors, $show_friendly = false)
     {
         Yii::error("*** $code: $message. Error(s) " . print_r ($errors, true));
-        if ($code == self::CC_AUTH_ERROR)
-            $msg = $errors[0];
+        if ($show_friendly)
+            $msg = "$message. Code: `$code`";
         else
             $msg = "Problem with post or action. Please contact support.  Error: `$code`";
         $session->addFlash('error', $msg);

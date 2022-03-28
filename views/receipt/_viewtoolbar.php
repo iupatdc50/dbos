@@ -27,12 +27,11 @@ use yii\web\View;
 			            ],
 			        ]) ?>
                     <?php if($model->payment_method == Receipt::METHOD_CREDIT): ?>
-                        <?= Html::a('Refund CC', ['refund', 'id' => $model->id], [
-                            'class' => 'btn btn-default',
-                            'data' => [
-                                'confirm' => 'Are you sure you want to refund this payment?  This will send a refund to the card issuer.',
-                                'method' => 'post',
-                            ],
+                        <?= Html::button('Refund CC', [
+                            'class' => 'btn btn-modal btn-default',
+                            'id' => 'receiptRefundButton',
+                            'value' => Url::to(['refund', 'id' => $model->id]),
+                            'data-title' => '#Refund Credit Card Payment',
                         ]) ?>
                     <?php endif; ?>
 			    <?php endif; ?>
