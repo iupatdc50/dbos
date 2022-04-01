@@ -167,16 +167,17 @@ $status = $model->currentStatus;
                         ['class' => 'btn btn-default'])
                     ?>
                 <?php endif; ?>
-                <?php if(Yii::$app->user->can('reportAccounting')): ?>
-                    <?=  Html::a(
-                        '<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
-                        ['/member/print-preview', 'id' => $model->member_id],
-                        ['class' => 'btn btn-default', 'target' => '_blank'])
-                    ?>
-                <?php endif; ?>
-
             <?php endif; ?>
-        </p></div>
+
+            <?php if(Yii::$app->user->can('reportAccounting')): ?>
+                <?=  Html::a(
+                    '<i class="glyphicon glyphicon-print"></i>&nbsp;Print',
+                    ['/member/print-preview', 'id' => $model->member_id],
+                    ['class' => 'btn btn-default', 'target' => '_blank'])
+                ?>
+            <?php endif; ?>
+
+            </p></div>
         <?= /** @noinspection PhpUnhandledExceptionInspection */
         DetailView::widget([
             'model' => $model,
