@@ -165,7 +165,7 @@ class ReceiptMemberController extends BaseController
                     Yii::$app->session->setFlash('success', "Charge refunded and receipt successfully voided");
                     return $this->redirect(['view', 'id' => $model->receipt_id]);
                 }
-                // Error handling
+                $manager->messages = array_merge($manager->messages, $result);
             }
             foreach ($manager->messages as $code => $message)
                 ExceptionHelper::handleError(Yii::$app->session, $code, $message['friendly'], $message['system']);

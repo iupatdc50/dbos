@@ -52,7 +52,7 @@ use yii\widgets\DetailView;
         <?= Html::submitButton('Submit Refund', [
             'class' => 'btn btn-success',
             'id' => 'submitter',
-            'disabled' => true,
+//            'disabled' => true,
         ]); ?>
         <?= Html::button('Cancel', [
             'class' => 'btn btn-default',
