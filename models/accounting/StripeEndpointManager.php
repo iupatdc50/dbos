@@ -3,7 +3,6 @@
 namespace app\models\accounting;
 
 use app\models\member\Member;
-use app\models\member\Subscription;
 use app\models\member\SubscriptionEvent;
 use Exception;
 use Stripe\Exception\ApiErrorException;
@@ -12,11 +11,9 @@ use Stripe\Exception\UnexpectedValueException;
 use Stripe\Invoice;
 use Stripe\StripeClient;
 use Stripe\Webhook;
-use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Model;
-use yii\db\StaleObjectException;
 use yii\web\Response;
 
 class StripeEndpointManager extends Model
@@ -130,16 +127,6 @@ class StripeEndpointManager extends Model
                 } // Ignore null charge invoices
 
             } // Ignore non-Subscription invoices
-
-        } elseif ($object instanceof \Stripe\Subscription) {
-            if ($object->status == 'canceled')
-                try {
-                    Subscription::findOne(['stripe_id' => $object->id])->delete();
-                } catch (StaleObjectException $e) {
-                    Yii::error("⚠️  Could not delete subscription `$object->id` in DBOS. Error: " . $e->getMessage());
-                } catch (Throwable $e) {
-                    Yii::error("⚠️  Could not delete subscription `$object->id` in DBOS. Error: " . $e->getMessage());
-                }
         }
 
         return new Response([

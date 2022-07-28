@@ -205,11 +205,22 @@ class CreditCardController extends Controller
     /**
      * @return Response
      * @throws \Exception
+     * @throws Throwable
      */
     public function actionAddSubscription()
     {
         $member = Member::findOne(filter_var_array(Yii::$app->request->post(),  ['member_id' => FILTER_SANITIZE_STRING]));
         $manager = new StripePaymentManagerSubscription(['member' => $member]);
+
+        if ($manager->activeSubscriptionExists()) {
+            $this->exceptionHandler('CCC021', 'An active subswcription exists for this member', ['Uncanceled subscription for: ' . $member->member_id]);
+            return $this->goBack();
+        }
+
+        // Remove reference to (assumed) canceled subscription
+        if (isset($member->subscription))
+            $member->subscription->delete();
+
 
         $manager->attributes = Yii::$app->request->post();
 
@@ -246,7 +257,7 @@ class CreditCardController extends Controller
     }
 
     /**
-     * Cancels Stripe subscription and removes reference row in DBOS
+     * Cancels Stripe subscription
      *
      * @param $id
      * @return Response
@@ -260,13 +271,18 @@ class CreditCardController extends Controller
         $stripe = $this->getStripeClient($member->currentStatus->lob_cd);
 
         try {
-            $stripe->subscriptions->cancel($member->subscription->stripe_id, []);
-            $member->subscription->delete();
-            Yii::$app->session->addFlash('success', "Auto-pay subscription successfully cancelled");
+            $stripe_subs = $stripe->subscriptions->retrieve($member->subscription->stripe_id, []);
+
+            if($stripe_subs->status <> Subscription::STATUS_CANCELED) {
+                $stripe->subscriptions->cancel($member->subscription->stripe_id, []);
+                Yii::$app->session->addFlash('success', "Auto-pay subscription successfully cancelled");
+            } else
+                Yii::$app->session->addFlash('notice', "No action. Subscription already cancelled");
+
         } catch (ApiErrorException $e) {
             $this->exceptionHandler('CCC060', 'Unable to cancel subscription', [$e->getMessage()]);
         } catch (Throwable $e) {
-            $this->exceptionHandler('CCC060', 'Unable remove subscription reference', [$e->getMessage()]);
+            $this->exceptionHandler('CCC061', 'Unable remove subscription reference', [$e->getMessage()]);
         }
 
         return $this->goBack();

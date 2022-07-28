@@ -72,4 +72,26 @@ class StripePaymentManagerSubscription extends StripePaymentManager
         return $subscription;
     }
 
+    /**
+     * @return bool
+     */
+    public function activeSubscriptionExists()
+    {
+        $memb_subs = $this->member->subscription;
+        if (isset($memb_subs)) {
+            try {
+                $stripe_subs = $this->stripe->subscriptions->retrieve($memb_subs->stripe_id, []);
+            } catch (ApiErrorException $e) {
+                $this->messages['SPM070'] = [
+                    'friendly' => 'Internal error: ',
+                    'system' => [$e->getError()->message],
+                ];
+                return false;
+            }
+            if (isset($stripe_subs) && ($stripe_subs->status <> Subscription::STATUS_CANCELED))
+                return true;
+        }
+        return false;
+    }
+
 }

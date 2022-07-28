@@ -16,6 +16,9 @@ use yii\db\ActiveRecord;
  */
 class Subscription extends ActiveRecord
 {
+    const STATUS_CANCELED = 'canceled';
+    const STATUS_PASTDUE = 'past_due';
+
     /**
      * {@inheritdoc}
      */

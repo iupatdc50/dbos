@@ -60,7 +60,7 @@ class UserController extends Controller
 
     /**
      * Lists all User models.
-     * @return mixed
+     * @return string
      */
     public function actionIndex()
     {
@@ -76,7 +76,7 @@ class UserController extends Controller
     /**
      * Displays a single User model.
      * @param integer $id
-     * @return mixed
+     * @return string
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      */
@@ -93,13 +93,13 @@ class UserController extends Controller
         			'rolesModel' => $rolesModel,
          	]);
     	}
-    	throw new ForbiddenHttpException("You are not allowed to view this record ({$model->id})");
+    	throw new ForbiddenHttpException("You are not allowed to view this record ($model->id)");
     }
 
     /**
      * Creates a new User model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * @return Response|string
      */
     public function actionCreate()
     {
@@ -118,7 +118,7 @@ class UserController extends Controller
      * Updates an existing User model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
-     * @return mixed
+     * @return Response|string
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      */
@@ -131,14 +131,14 @@ class UserController extends Controller
 	            return $this->redirect(['view', 'id' => $model->id]);
 	        return $this->render('update', ['model' => $model]);
         }
-    	throw new ForbiddenHttpException("You are not allowed to perform this action ({$model->id})");
+    	throw new ForbiddenHttpException("You are not allowed to perform this action ($model->id)");
     }
 
     /**
      * Deletes an existing User model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
-     * @return mixed
+     * @return Response
      * @throws NotFoundHttpException
      * @throws StaleObjectException
      * @throws Throwable
@@ -165,7 +165,7 @@ class UserController extends Controller
             if ($pw) {
                 $user->save();
 
-                $body = "You recently requested a password reset for your account in DBOS.  This response is valid for one day only.  Your temporary password is: {$pw}";
+                $body = "You recently requested a password reset for your account in DBOS.  This response is valid for one day only.  Your temporary password is: $pw";
                 $email = new Email([
                     'name' => 'DC50 Support',
                     'email' => 'noreply@dc50.org',
@@ -213,6 +213,7 @@ class UserController extends Controller
     {
     	$model = $this->findModel($id);
     	$model->setPassword(User::RESET_USER_PW);
+        $model->generatePasswordResetToken();
     	$model->save(false);
     	Yii::$app->session->addFlash('success', "Successfully set password to system default.");
     	return $this->redirect(['view', 'id' => $model->id]);

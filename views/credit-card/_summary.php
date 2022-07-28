@@ -61,13 +61,25 @@ use yii\widgets\DetailView;
                                 'label' => 'Item',
                                 'value' => Html::encode($product->name),
                             ],
-                            'status',
+                            [
+                                'attribute' => 'status',
+                                'visible' => $stripe_subs->status <> Subscription::STATUS_CANCELED,
+                            ],
                             [
                                 'label' => 'Next Chg',
                                 'format' => 'raw',
                                 'value' => function (Subscription $model) {
-                                    return ($model->status == 'past_due') ? 'pending' : date('m/d/Y', $model->current_period_end);
-                                }
+                                    return ($model->status == Subscription::STATUS_PAST_DUE) ? 'pending' : date('m/d/Y', $model->current_period_end);
+                                },
+                                'visible' => $stripe_subs->status <> Subscription::STATUS_CANCELED,
+                            ],
+                            [
+                                'label' => 'Canceled',
+                                'format' => 'raw',
+                                'value' => function (Subscription $model) {
+                                    return date('m/d/Y', $model->canceled_at);
+                                },
+                                'visible' => $stripe_subs->status == Subscription::STATUS_CANCELED,
                             ],
                             [
                                 'label' => 'Currency',
@@ -85,15 +97,25 @@ use yii\widgets\DetailView;
                         ],
                     ]);
                     ?>
-                    <?=  Html::a('<i class="glyphicon glyphicon-remove"></i> Cancel Subscription', ['cancel-subscription', 'id' => $member_id], [
-                            'class' => 'btn btn-default',
-                            'data' => [
-                                'confirm' => 'Are you sure you want to cancel this subscription?',
-                                'method' => 'post',
-                            ],
+                    <?php if($stripe_subs->status == Subscription::STATUS_CANCELED): ?>
+                        <?= Html::button('<i class="glyphicon glyphicon-edit"></i>&nbsp;Re-Enroll Subscription',
+                            ['value' => Url::to(['enroll', 'id'  => $member_id]),
+                                'id' => 'enrollButton',
+                                'class' => 'btn btn-default btn-modal',
+                                'data-title' => 'Auto-Pay Enrollment',
+                            ])
+                        ?>
+                    <?php else: ?>
+                        <?=  Html::a('<i class="glyphicon glyphicon-remove"></i> Cancel Subscription', ['cancel-subscription', 'id' => $member_id], [
+                                'class' => 'btn btn-default',
+                                'data' => [
+                                    'confirm' => 'Are you sure you want to cancel this subscription?',
+                                    'method' => 'post',
+                                ],
 
-                    ]);
-                    ?>
+                        ]);
+                        ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </td>
