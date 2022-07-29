@@ -81,7 +81,7 @@ $this->params['breadcrumbs'][] = 'Compliance';
             'dataProvider' => $coreProvider,
             'relation_id' => $member->member_id,
             'heading' => 'Apprenticeship School',
-            'doc' => false,
+            'doc' => true,
             'expires' => false,
             'catg' => CredCategory::CATG_CORE,
         ]); ?>
