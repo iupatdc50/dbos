@@ -3,6 +3,7 @@
 namespace app\models\accounting;
 
 use app\helpers\ExceptionHelper;
+use app\models\value\DocumentType;
 use Exception;
 use Throwable;
 use Yii;
@@ -61,6 +62,9 @@ use app\components\utilities\OpDate;
  * @property OpDate $today
  * @property OpDate $recdDtObj
  * @property string $urlQual
+ * @property Document[] $unfiledDocs
+ * @property array $feeTypesArray
+ *
  */
 class Receipt extends ActiveRecord
 {
@@ -616,7 +620,29 @@ class Receipt extends ActiveRecord
     {
         return null;
     }
-    
+
+    /**
+     * @param string $catg
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    public function getUnfiledDocs($catg = DocumentType::CATG_RECEIPT)
+    {
+        $sql = "SELECT doc_type "
+            . "  FROM " . DocumentType::tableName()
+            . "  WHERE catg = :catg  "
+            . "    AND doc_type NOT IN (SELECT doc_type FROM " . Document::tableName()
+            . "                            WHERE receipt_id = :receipt_id) "
+            . "  ORDER BY doc_type "
+        ;
+        $cmd = Yii::$app->db->createCommand($sql);
+        $cmd->bindValues([
+            ':receipt_id' => $this->id,
+            ':catg' => $catg,
+        ]);
+        return $cmd->queryAll();
+    }
+
     /**
      * Override this function when testing with fixed date
      *

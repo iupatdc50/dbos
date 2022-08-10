@@ -2,6 +2,7 @@
 
 namespace app\controllers\receipt;
 
+use app\models\accounting\Document;
 use Yii;
 use app\models\accounting\ResponsibleEmployer;
 use app\models\accounting\StagedAllocation;
@@ -9,7 +10,11 @@ use app\models\accounting\StagedAllocationSearch;
 use app\models\accounting\AllocatedMemberSearch;
 use app\models\accounting\Receipt;
 use app\models\accounting\ReceiptMultiMember;
+use yii\base\InvalidConfigException;
+use yii\data\ActiveDataProvider;
+use yii\db\Exception;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * Class MultiMemberController
@@ -25,11 +30,12 @@ class MultiMemberController extends BaseController
     /**
      * Displays a single Receipt model.
      * @param integer $id
-     * @return mixed
+     * @return string|Response
      * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
+        $this->storeReturnUrl();
         $model = $this->findModel($id);
 
         /* @var $model ReceiptMultiMember */
@@ -46,12 +52,19 @@ class MultiMemberController extends BaseController
                 'fee_types' => $model->feeTypesArray,
             ]);
 
+        $query = Document::find()->where(['receipt_id' => $model->id])->orderBy('doc_type asc');
+        $docProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => ['pageSize' => 5],
+            'sort' => false,
+        ]);
+
         $searchMemb = new AllocatedMemberSearch(['receipt_id' => $id]);
         /** @noinspection PhpUndefinedMethodInspection */
         $membProvider = $searchMemb->search(Yii::$app->request->queryParams);
 
         /** @noinspection MissedViewInspection */
-        return $this->render('view', compact('model', 'membProvider', 'searchMemb'));
+        return $this->render('view', compact('model', 'docProvider', 'membProvider', 'searchMemb'));
     }
 
     /**
@@ -59,8 +72,8 @@ class MultiMemberController extends BaseController
      * @param array $fee_types
      * @return string
      * @throws NotFoundHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      */
     public function actionItemize($id, array $fee_types = [])
     {
@@ -100,7 +113,7 @@ class MultiMemberController extends BaseController
     public function findModel($id)
     {
         $model = parent::findModel($id);
-        /* @var $model \app\models\accounting\ReceiptMultiMember */
+        /* @var $model ReceiptMultiMember */
         $model->responsible = ResponsibleEmployer::findOne(['receipt_id' => $id]);
         return $model;
     }

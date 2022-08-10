@@ -16,6 +16,7 @@ class DocumentType extends ActiveRecord
     const CATG_MEMBER = 'Member';
     const CATG_TRAINING = 'Training';
     const CATG_EMPLOYMENT = 'Employment';
+    const CATG_RECEIPT = 'Receipt';
 
     const TYPE_RECURRING_CCAUTH = 'Recurring Credit Card Authorization Form';
 
@@ -56,6 +57,7 @@ class DocumentType extends ActiveRecord
             self::CATG_MEMBER => self::CATG_MEMBER,
             self::CATG_TRAINING => self::CATG_TRAINING,
             self::CATG_EMPLOYMENT => self::CATG_EMPLOYMENT,
+            self::CATG_RECEIPT => self::CATG_RECEIPT,
         ];
     }
 }

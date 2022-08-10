@@ -71,6 +71,7 @@ class FeeType extends ActiveRecord
             [['freq'], 'string'],
             [['fee_type'], 'string', 'max' => 2],
             [['descrip'], 'string', 'max' => 50],
+            [['short_descrip'], 'string', 'max' => 15],
         	[['is_assess'], 'in', 'range' => OptionHelper::getAllowedTF()],
         ];
     }
@@ -83,6 +84,7 @@ class FeeType extends ActiveRecord
         return [
             'fee_type' => 'Fee Type',
             'descrip' => 'Descrip',
+            'short_descrip' => 'Col Head',
             'freq' => 'Freq',
         	'extDescrip' => 'Description',
         	'is_assess' => 'Assessible',

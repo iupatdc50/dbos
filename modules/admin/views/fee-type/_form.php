@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -18,6 +18,8 @@ use kartik\select2\Select2;
 
     <?= $form->field($model, 'descrip')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'short_descrip')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'freq')->dropDownList([ 'R' => 'R', 'M' => 'M', 'O' => 'O', ], ['prompt' => '']) ?>
 
     <?= $form->field($model, 'is_assess')->widget(Select2::className(), [
@@ -27,7 +29,14 @@ use kartik\select2\Select2;
     		'options' => ['placeholder' => 'Select...'],
     ]) ?>
 
-    
+    <?= $form->field($model, 'contribution')->widget(Select2::className(), [
+        'data' => OptionHelper::getTFOptions(),
+        'hideSearch' => true,
+        'size' => Select2::SMALL,
+        'options' => ['placeholder' => 'Select...'],
+    ]) ?>
+
+
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

@@ -3,10 +3,10 @@
 use yii\helpers\Html;
 use app\helpers\OptionHelper;
 
-
 /* @var $this yii\web\View */
 /* @var $model app\models\accounting\receipt */
 /* @var $membProvider yii\data\ActiveDataProvider */
+/* @var $docProvider yii\data\ActiveDataProvider */
 /* @var $searchMemb app\models\accounting\AllocatedMemberSearch */
 
 $this->title = $model->id;
@@ -25,7 +25,6 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
         <?= $this->render('../receipt/_viewtoolbar', ['model' => $model]); ?>
 	    <?= $this->render('../receipt/_detail', ['modelReceipt' => $model]); ?>
 
-
         <?php if(isset($model->billPayment)): ?>
             <?=  Html::a(
                 '<i class="glyphicon glyphicon-list-alt"></i>&nbsp;Show Transmittal',
@@ -33,6 +32,16 @@ $void_banner = ($model->void == OptionHelper::TF_TRUE) ? ' <span class="lbl-dang
                 ['class' => 'btn btn-default', 'target' => '_blank', 'data-pjax'=>"0"])
             ?>
         <?php endif; ?>
+
+        <hr>
+
+        <?= $this->render('../partials/_documentsummary', [
+            'dataProvider' => $docProvider,
+            'id' => $model->id,
+            'controller' => 'receipt-document',
+            'permission' => 'uploadDocs',
+
+        ]) ?>
 
     </div>
 

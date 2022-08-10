@@ -25,13 +25,17 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     </p>
 
-    <?= DetailView::widget([
+    <?= /** @noinspection PhpUnhandledExceptionInspection */
+    DetailView::widget([
         'model' => $model,
         'attributes' => [
             'fee_type',
             'descrip',
+            'short_descrip',
             'freq',
         	'is_assess',
+            'contribution',
+            'seq',
         ],
     ]) ?>
 
