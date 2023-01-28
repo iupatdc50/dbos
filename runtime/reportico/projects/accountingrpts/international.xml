@@ -6,7 +6,7 @@ $start_dt = substr($report_month, 1, 8) . '01';
 $end_dt = $report_month;
 
 $sql1 = &quot;
-CREATE TEMPORARY TABLE StageIntl (descrip VARCHAR(30), rate DECIMAL(9,2) NULL, receipt_nbr INT NULL) AS
+CREATE TEMPORARY TABLE StageIntl (descrip VARCHAR(50), rate DECIMAL(9,2) NULL, receipt_nbr INT NULL) AS
 SELECT 
     Me.member_id,
     COALESCE (MC.member_class, 'U') AS member_class,
