@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\components\utilities\OpDate;
 use app\helpers\ExceptionHelper;
+use app\helpers\OptionHelper;
 use app\models\accounting\CreditCardUpdateForm;
 use app\models\accounting\DuesRate;
 use app\models\accounting\Receipt;
@@ -23,6 +24,7 @@ use Yii;
 use yii\base\Action;
 use yii\base\Exception;
 use yii\bootstrap\ActiveForm;
+use yii\db\StaleObjectException;
 use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
@@ -213,7 +215,7 @@ class CreditCardController extends Controller
         $manager = new StripePaymentManagerSubscription(['member' => $member]);
 
         if ($manager->activeSubscriptionExists()) {
-            $this->exceptionHandler('CCC021', 'An active subswcription exists for this member', ['Uncanceled subscription for: ' . $member->member_id]);
+            $this->exceptionHandler('CCC021', 'An active subscription exists for this member', ['Uncanceled subscription for: ' . $member->member_id]);
             return $this->goBack();
         }
 
@@ -247,6 +249,7 @@ class CreditCardController extends Controller
         $member_subs = new Subscription([
             'member_id' => $member->member_id,
             'stripe_id' => $subscription->id,
+            'is_active' => 'T',
         ]);
         $member_subs->save();
 
@@ -275,6 +278,8 @@ class CreditCardController extends Controller
 
             if($stripe_subs->status <> Subscription::STATUS_CANCELED) {
                 $stripe->subscriptions->cancel($member->subscription->stripe_id, []);
+                $member->subscription->is_active = OptionHelper::TF_FALSE;
+                $member->subscription->save();
                 Yii::$app->session->addFlash('success', "Auto-pay subscription successfully cancelled");
             } else
                 Yii::$app->session->addFlash('notice', "No action. Subscription already cancelled");
@@ -287,6 +292,34 @@ class CreditCardController extends Controller
 
         return $this->goBack();
 
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     * @throws NotFoundHttpException
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public function actionRemoveStripeCustomer($id)
+    {
+        $member = $this->findMember($id);
+
+        if (isset($member->subscription)) {
+            $subscription = $member->subscription;
+            if ($subscription->is_active == OptionHelper::TF_TRUE) {
+                Yii::$app->session->addFlash('error', "Customer has active subscription. Cancel subscription before removing ID");
+                return $this->goBack();
+            } else {
+                // Remove assumed cancelled subscription and its events
+                $subscription->delete();
+            }
+        }
+
+        $member->stripe_id = null;
+        $member->save();
+
+        return $this->goBack();
     }
 
     /**

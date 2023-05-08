@@ -325,6 +325,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	'overage' => 'Overage',
             'nick_nm' => 'Nick Name',
             'is_ccd' => 'Is CCD?',
+            'stripe_id' => 'Stripe Customer ID'
         ];
     }
     

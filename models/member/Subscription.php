@@ -2,8 +2,10 @@
 
 namespace app\models\member;
 
+use Throwable;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 
 /**
  * This is the model class for table "MemberSubscriptions".
@@ -11,8 +13,10 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $member_id
  * @property string $stripe_id
+ * @property string $is_active
  *
  * @property Member $member
+ * @property SubscriptionEvent[] $events
  */
 class Subscription extends ActiveRecord
 {
@@ -54,6 +58,22 @@ class Subscription extends ActiveRecord
     }
 
     /**
+     * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public function beforeDelete()
+    {
+        if (!parent::beforeDelete())
+            return false;
+
+        foreach ($this->events as $event)
+            $event->delete();
+
+        return true;
+    }
+
+    /**
      * Gets query for [[Member]].
      *
      * @return ActiveQuery
@@ -62,4 +82,14 @@ class Subscription extends ActiveRecord
     {
         return $this->hasOne(Member::className(), ['member_id' => 'member_id']);
     }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getEvents()
+    {
+        return $this->hasMany(SubscriptionEvent::className(), ['customer_id' => 'stripe_id'])
+            ->via('member');
+    }
+
 }

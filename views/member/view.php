@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\OptionHelper;
 use yii\data\ActiveDataProvider;
 use yii\widgets\DetailView;
 use yii\jui\Accordion;
@@ -55,7 +56,7 @@ $status = $model->currentStatus;
                 <hr>
                 <?php
                     $autopay = null;
-                    if (isset($model->subscription))
+                    if (isset($model->subscription) && ($model->subscription->is_active == OptionHelper::TF_TRUE))
                         $autopay = 'Auto Pay';
                     // Temporary until all autopay is set up in Stripe
                     elseif (isset($model->recurCcAuth))
@@ -210,6 +211,22 @@ $status = $model->currentStatus;
                         ? Yii::$app->user->can('browseMemberExt') ? Html::a(Html::encode($model->employer->descrip), '/contractor/view?id=' . $model->employer->dues_payor) : Html::encode($model->employer->descrip)
                         : 'Unemployed',
                     'label' => 'Employer',
+                ],
+                [
+                    'attribute' => 'stripe_id',
+                    'value' =>
+                        $model->stripe_id
+                        . Html::a('<i class="glyphicon glyphicon-remove"></i>&nbsp;Remove ID', ['/credit-card/remove-stripe-customer', 'id' => $model->member_id], [
+                            'class' => 'btn btn-default btn-embedded pull-right',
+                            'data' => [
+                                'confirm' => 'Are you sure you want to remove Stripe customer? ** WARNING: This action cannot be reversed',
+                                'method' => 'post',
+                            ],
+
+                        ]),
+                    'format' => 'raw',
+                    'contentOptions' => ['class' => 'text-muted'],
+                    'visible' => (Yii::$app->user->can('updateReceipt') && isset($model->stripe_id)),
                 ],
             ],
         ]); ?>

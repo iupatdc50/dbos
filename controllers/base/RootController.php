@@ -23,6 +23,7 @@ class RootController extends Controller
 	
 	public function init()
 	{
+        parent::init();
 		if (!isset($this->session)) 
 			$this->session = Yii::$app->session;
 		if (!isset($this->today))
@@ -31,12 +32,12 @@ class RootController extends Controller
 			$this->setSessionInfo();
 	}
 	
-	public function actionView(/** @noinspection PhpUnusedParameterInspection */ $id)
+	public function actionView($id)
 	{
 		$this->storeReturnUrl();
 	}
 	
-	public function actionUpdate(/** @noinspection PhpUnusedParameterInspection */ $id)
+	public function actionUpdate($id)
 	{
 		$this->storeReturnUrl();
 	}
