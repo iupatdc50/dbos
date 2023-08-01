@@ -21,7 +21,7 @@ class LoginForm extends Model
 				[['username', 'password'], 'required'],
 				['rememberMe', 'boolean'],
 				['password', 'validatePassword'],
-                [['reCaptcha'], ReCaptchaValidator2::className(), 'uncheckedMessage' => 'Please confirm that you are not a bot.'],
+//                [['reCaptcha'], ReCaptchaValidator2::className(), 'uncheckedMessage' => 'Please confirm that you are not a bot.'],
 		];
 	}
 
