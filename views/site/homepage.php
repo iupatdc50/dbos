@@ -81,3 +81,16 @@ EOF;
 </div>
 
 <?= $this->render('../partials/_modal') ?>
+
+<?php
+
+$style = <<< CSS
+
+.fc-event-allday .fc-content .fc-time {
+	font-size: 0;
+}
+
+CSS;
+
+$this->registerCss($style);
+

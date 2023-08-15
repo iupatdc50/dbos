@@ -40,7 +40,7 @@ class SiteController extends RootController
 			$event = new Event([
 					'id' => $homeEvent->id,
 					'title' => $homeEvent->title,
-					'allDay' => ($homeEvent->all_day == OptionHelper::TF_TRUE),
+				//	'allDay' => ($homeEvent->all_day == OptionHelper::TF_TRUE),
 					'start' => $homeEvent->start_dt,
 					'end' => $homeEvent->end_dt,
 					'editable' => true,
