@@ -65,7 +65,13 @@ class BaseController extends Controller
 			if	($model->save()) {
 				if ($image !== false) {
 					$path = $model->imagePath;
-					$image->saveAs($path);
+                    			if ($image->saveAs($path))
+                        			Yii::$app->session->addFlash('success', "Document successfully added");
+                    			else {
+                        			Yii::$app->session->addFlash('error', 'Could not upload document image. Check file size. Code `BC005`');
+                        			Yii::error("*** BC005 Upload failed.  Messages: " . print_r($image->error, true));
+                        			$model->delete();
+                    			}
 				}
 				return $this->goBack();
 			}

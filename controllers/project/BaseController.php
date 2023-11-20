@@ -31,6 +31,7 @@ class BaseController extends RootController
 	
 	public function init()
 	{
+		parent::init();
 		// Use agreement type to build specific model names
 		$this->_recordClass = 'app\models\project\\' . strtolower($this->type) . '\Project';
 		$this->_recordSearchClass = 'app\models\project\\' . strtolower($this->type) . '\ProjectSearch';

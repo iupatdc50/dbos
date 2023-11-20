@@ -20,7 +20,7 @@ use kartik\widgets\FileInput;
     echo $form->field($model, "doc_file")->widget(FileInput::className(), [
 //        'options' => ['accept' => 'application/pdf'],
         'pluginOptions' => [
-            'allowedFileExtensions' => ['pdf', 'png', 'jpg', 'jpeg'],
+            'allowedFileExtensions' => ['pdf'],
             'allowedPreviewTypes' => null,
         ],
     ]);

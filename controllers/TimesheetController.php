@@ -116,7 +116,11 @@ class TimesheetController extends Controller
             if ($modelTimesheet->save()) {
                 if ($image !== false) {
                     $path = $modelTimesheet->getImagePath();
-                    $image->saveAs($path);
+                    if ($image->saveAs($path) === false) {
+                        Yii::$app->session->addFlash('error', 'Could not upload DPR image. Check file size. Code `TC005`');
+                        Yii::error("*** TC005 Upload failed.  Messages:  (`{$member->member_id}`).  Messages: " . print_r($image->error, true));
+                    }
+
                 }
 
                 if ($modelHours->load(Yii::$app->request->post())) {
@@ -197,10 +201,16 @@ class TimesheetController extends Controller
                         unlink($oldPath);
                     $path = $model->getImagePath();
                     /* @var $image UploadedFile */
-                    $image->saveAs($path);
+
+                    if ($image->saveAs($path))
+                        Yii::$app->session->addFlash('success', "DPR form successfully uploaded for Acct Month `$model->acct_month`");
+                    else {
+                        Yii::$app->session->addFlash('error', "Could not upload DPR image. Check file size. Code `TC020`");
+                        Yii::error("*** TC020 Upload failed.  Messages: " . print_r($image->error, true));
+                    }
+ 
                 }
 
-                Yii::$app->session->addFlash('success', "DPR form successfully uploaded");
                 return $this->redirect(['index', 'member_id' => $model->member_id]);
             }
         }
