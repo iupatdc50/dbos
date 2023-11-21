@@ -1,14 +1,51 @@
-# Requires FollowSymLinks to work; also turn on the REWRITE engine
-<IfModule mod_rewrite.c>
-   Options +FollowSymlinks
-   RewriteEngine On
-</IfModule>
+# DC50 Office
+Require ip 66.91.135.198
+Require ip 192.168.75.0/24
 
-# Unless explicit file or director exists, redirect all requests to Yii entry script
+## ---- Tech support    ---- ##
+# ObjectPac Office
+Require ip 75.111.28.60
+# MethodIT Josh
+Require ip 98.151.228.163
+## ---- End tech support --- ##
+
+## ---- Remote users    ---- ##
+# Shane Awai 2022-12-15
+Require ip 66.91.101.89
+## ---- End remote users ---- ##
+
+## ---- Stripe Webhook notification IPs ** Do NOT remove ** ---- #
+Require ip 3.18.12.63
+Require ip 3.130.192.231
+Require ip 13.235.14.237
+Require ip 13.235.122.149
+Require ip 18.211.135.69
+Require ip 35.154.171.200
+Require ip 52.15.183.38
+Require ip 54.88.130.119
+Require ip 54.88.130.237
+Require ip 54.187.174.169
+Require ip 54.187.205.235
+Require ip 54.187.216.72
+## ---- End Stripe Webhook IPs ---- ##
+
+## ---- SSL Labs IPs ** Uncomment when running TLS analysis (ssllabs.com) ** ---- #
+# Require ip 104.130.202.77
+# Require ip 64.41.200.0/24
+## ---- End SSL Labs IPs ---- #
+
+## ---- Force DBOS front controller ---- ##
+Options +FollowSymlinks
+
 <IfModule mod_rewrite.c>
+   RewriteEngine On
+   RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f 
    RewriteCond %{REQUEST_FILENAME} !-d
    RewriteRule . index.php 
+   RewriteCond %{HTTPS} off
+   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
 AddType application/octet-stream .txt
+## ---- End front controller rules ---- ##
