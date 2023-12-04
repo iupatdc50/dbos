@@ -7,6 +7,8 @@ Require ip 192.168.75.0/24
 Require ip 75.111.28.60
 # MethodIT Josh
 Require ip 98.151.228.163
+# Uncomment for localhost testing
+# Require ip 127.0.0.1
 ## ---- End tech support --- ##
 
 ## ---- Remote users    ---- ##
