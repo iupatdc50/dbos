@@ -119,7 +119,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
 	CONST MONTHS_GRACE_PERIOD = 6;
 	CONST MONTHS_DELINQUENT = 3;
 
-	CONST CUTOFF_DAY = 20;
+	CONST CUTOFF_DAY = 31; // 1/24/2024 Policy change. No cutoff for dues start following month
 	
 	/**
 	 * @var OpDate
