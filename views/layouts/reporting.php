@@ -78,6 +78,11 @@ use kartik\widgets\SideNav;
 												'url'=>'/report/wrong-payor',	
 												'active' => (yii::$app->requestedRoute == 'report/wrong-payor'),
 										],
+                                        [
+                                                'label' => 'IMSe Audit',
+                                                'url'=>'/report/imse-audit',
+                                                'active' => (yii::$app->requestedRoute == 'report/imse-audit'),
+                                        ],
 								],
 						],
 						[

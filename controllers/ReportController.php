@@ -175,8 +175,16 @@ class ReportController extends Controller
 				'report_nm' => 'glaziers',
 		]);
 	}
-	
-	public function actionWrongPayor()
+
+    public function actionImseAudit()
+    {
+        return $this->render('reportico', [
+            'folder' => 'memberrpts',
+            'report_nm' => 'imseaudit',
+        ]);
+    }
+
+    public function actionWrongPayor()
 	{
 		return $this->render('reportico', [
 				'folder' => 'accountingrpts',
