@@ -68,6 +68,15 @@ class BaseEndable extends ActiveRecord
 			$this->restripe();
 	}
 
+    public function isOnlyOccurrence()
+    {
+        $condition = $this->buildQualClause();
+        /* @var $query yii\db\ActiveQuery */
+        $query = call_user_func([$this->className(), 'find']);
+        $query->where($condition);
+        return ($query->count() == 1);
+    }
+
     /**
      * @throws Exception
      */

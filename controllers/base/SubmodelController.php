@@ -2,14 +2,17 @@
 
 namespace app\controllers\base;
 
+use Exception;
+use Throwable;
 use Yii;
 use app\models\base\BaseEndable;
-use yii\data\ActiveDataProvider;
+use yii\db\ActiveRecord;
 use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\StringHelper;
+use yii\web\Response;
 
 /**
  * SubmodelController implements the CRUD actions for a primary model's submodel.
@@ -31,7 +34,7 @@ class SubmodelController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['post'],
                 ],
@@ -41,11 +44,12 @@ class SubmodelController extends Controller
 
     /**
      * Creates a new ActiveRecord model.
-     * 
-     * Assumes that all submodel creates are ajax 
-	 *
-	 * @todo Add relational attr as a hidden field on each concrete form so that it can be set and validated client side
-     * @return mixed
+     *
+     * Assumes that all submodel creates are ajax
+     *
+     * @return array|string|Response
+     * @throws Exception
+     * @todo Add relational attr as a hidden field on each concrete form so that it can be set and validated client side
      */
     public function actionCreate($relation_id)
     {
@@ -60,7 +64,7 @@ class SubmodelController extends Controller
 					Yii::$app->session->addFlash('success', "{$this->getBasename()} entry created");
 	        		return $this->goBack();
 	        	}
-	        	throw new \Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
+	        	throw new Exception	('Problem with post.  Errors: ' . print_r($model->errors, true));
         	}
         } 
         $this->initCreate($model);
@@ -73,7 +77,8 @@ class SubmodelController extends Controller
      * Updates an existing ActiveRecord model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
-     * @return mixed
+     * @return Response|string
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -91,25 +96,37 @@ class SubmodelController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException|Throwable
      */
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
 
         $removing_current = false;
-        if (($model instanceof BaseEndable) && ($model->end_dt == null)) {
-        	$removing_current = true;
-        	$qualifier = $model->qualifier();
-        	$relation_id = $model->$qualifier;
+        $relation_id = null;
+        if ($model instanceof BaseEndable) {
+
+            if (!$this->canDelete($model)) {
+                Yii::$app->session->addFlash('error', "By rule, {$this->getBasename()} entry cannot be deleted.");
+                return $this->goBack();
+            }
+
+
+            if ($model->end_dt == null) {
+                $removing_current = true;
+                $qualifier = $model->qualifier();
+                $relation_id = $model->$qualifier;
+            }
+
         }
 
         try {
             if ($model->delete())
                 Yii::$app->session->addFlash('success', "{$this->getBasename()} entry deleted");
         } catch (StaleObjectException $e) {
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Yii::$app->session->addFlash('error', 'Problem deleting model. Check log for details. Code `SC050`');
-            Yii::error("*** SC050  Model delete error (ID: `{$id}`).  Messages: " . print_r($model->errors, true));
+            Yii::error("*** SC050  Model delete error (ID: `$id`).  Messages: " . print_r($model->errors, true));
         }
 
         if ($removing_current)
@@ -122,7 +139,7 @@ class SubmodelController extends Controller
      * Finds the ActiveRecord model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return \yii\db\ActiveRecord the loaded model
+     * @return ActiveRecord the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
@@ -137,6 +154,15 @@ class SubmodelController extends Controller
     protected function initCreate($model)
     {
     	
+    }
+
+    /**
+     * @param BaseEndable $model
+     * @return true
+     */
+    protected function canDelete(BaseEndable $model)
+    {
+        return true;
     }
     
     protected function getBasename()

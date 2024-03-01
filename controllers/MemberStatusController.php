@@ -8,6 +8,7 @@ use app\models\accounting\ApfAssessment;
 use app\models\accounting\AssessmentAllocation;
 use app\models\accounting\InitFee;
 use app\models\accounting\ReinstateAssessment;
+use app\models\base\BaseEndable;
 use app\models\member\ClassCode;
 use app\models\member\MemberReinstateStaged;
 use app\models\member\Note;
@@ -474,6 +475,18 @@ class MemberStatusController extends SummaryController
 		if (!isset($model->lob_cd) && ($this->member->currentStatus != null))
 			$model->lob_cd = $this->member->currentStatus->lob_cd;
 	}
+
+    /**
+     * Do not allow deletion if last remaining endable
+     * @param BaseEndable $model
+     * @return bool
+     */
+    protected function canDelete(BaseEndable $model)
+    {
+        if ($model->isOnlyOccurrence())
+            return false;
+        return parent::canDelete($model);
+    }
 
     /**
      * @param Status $model
