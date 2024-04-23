@@ -59,8 +59,8 @@ $status = $model->currentStatus;
                     if (isset($model->subscription) && ($model->subscription->is_active == OptionHelper::TF_TRUE))
                         $autopay = 'Auto Pay';
                     // Temporary until all autopay is set up in Stripe
-                    elseif (isset($model->recurCcAuth))
-                        $autopay = 'Recurring';
+                    // elseif (isset($model->recurCcAuth))
+                    //    $autopay = 'Recurring';
                 ?>
                 <?= /** @noinspection PhpUnhandledExceptionInspection */
                 DetailView::widget([
