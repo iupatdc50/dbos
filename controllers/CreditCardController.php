@@ -65,7 +65,6 @@ class CreditCardController extends Controller
      * @return Response
      * @throws ApiErrorException
      * @throws NotFoundHttpException
-     * @noinspection PhpPossiblePolymorphicInvocationInspection
      */
     public function actionSummaryJson($id)
     {
@@ -278,8 +277,9 @@ class CreditCardController extends Controller
 
             if($stripe_subs->status <> Subscription::STATUS_CANCELED) {
                 $stripe->subscriptions->cancel($member->subscription->stripe_id, []);
-                $member->subscription->is_active = OptionHelper::TF_FALSE;
-                $member->subscription->save();
+                // ** Replace clearing the is_active flag with a webhook.
+                // $member->subscription->is_active = OptionHelper::TF_FALSE;
+                // $member->subscription->save();
                 Yii::$app->session->addFlash('success', "Auto-pay subscription successfully cancelled");
             } else
                 Yii::$app->session->addFlash('notice', "No action. Subscription already cancelled");

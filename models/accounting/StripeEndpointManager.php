@@ -2,6 +2,7 @@
 
 namespace app\models\accounting;
 
+use app\helpers\OptionHelper;
 use app\models\member\Member;
 use app\models\member\SubscriptionEvent;
 use Exception;
@@ -10,6 +11,7 @@ use Stripe\Exception\SignatureVerificationException;
 use Stripe\Exception\UnexpectedValueException;
 use Stripe\Invoice;
 use Stripe\StripeClient;
+use Stripe\SubscriptionSchedule;
 use Stripe\Webhook;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -56,7 +58,16 @@ class StripeEndpointManager extends Model
 
         /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         $object = $event->data->object;
-        if ($object instanceof Invoice) {
+
+        if ($object instanceof SubscriptionSchedule) {
+            if (isset($object->canceled_at) && isset($object->customer)) {
+                // Handle canceled event
+                $member = Member::findOne(['stripe_id' => $object->customer->id]);
+                $member->subscription->is_active = OptionHelper::TF_FALSE;
+                $member->subscription->save();
+            } // Ignore non-cancelled SubscriptionSchedule
+
+        } elseif ($object instanceof Invoice) {
 
             if (isset($object->subscription)) {
 

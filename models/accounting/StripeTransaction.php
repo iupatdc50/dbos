@@ -10,7 +10,7 @@ use yii\db\ActiveRecord;
 use yii\db\Exception;
 
 /**
- * This is the model class for table "Transactions".
+ * This is the model class for table "StripeTransactions".
  *
  * @property string $transaction_id
  * @property string|null $customer_id
