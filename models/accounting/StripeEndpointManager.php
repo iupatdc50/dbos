@@ -62,7 +62,7 @@ class StripeEndpointManager extends Model
         if ($object instanceof Subscription) {
             if (isset($object->canceled_at) && isset($object->customer)) {
                 // Handle canceled event
-                $member = Member::findOne(['stripe_id' => $object->customer->id]);
+                $member = Member::findOne(['stripe_id' => $object->customer]);
                 $member->subscription->is_active = OptionHelper::TF_FALSE;
                 $member->subscription->save();
             } // Ignore non-cancelled Subscription
@@ -106,7 +106,7 @@ class StripeEndpointManager extends Model
                                     Yii::info('Payload: ' . $payload);
                                     break;
                                 }
-                                if ($receipt_id == false)
+                                if (!$receipt_id)
                                     break;
                                 $transaction = new StripeTransaction([
                                     'transaction_id' => $charge->id,
