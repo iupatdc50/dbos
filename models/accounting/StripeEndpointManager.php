@@ -95,6 +95,12 @@ class StripeEndpointManager extends Model
 
                         switch ($event->type) {
                             case 'invoice.paid':
+
+                                if (ReceiptMember::find()->where(['tracking_nbr' => $object->number])->count() > 0) {
+                                    Yii::error('⚠️  Bypassing invoice already processed: ' . $object->number);
+                                    break;
+                                }
+
                                 $receipt = new ReceiptMember([
                                     'scenario' => Receipt::SCENARIO_CREATE,
                                     'received_dt' => date("Y-m-d", $charge->created),
