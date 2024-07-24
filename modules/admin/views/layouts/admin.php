@@ -158,6 +158,11 @@ app\assets\ApplicationUiAssetBundle::register($this);
                                     'url' => '/admin/document-type',
                                     'active' => (yii::$app->requestedRoute == 'admin/document-type'),
                                 ],
+                                [
+                                    'label' => 'Member Class Codes',
+                                    'url' => '/admin/class-code',
+                                    'active' => (yii::$app->requestedRoute == 'admin/class-code'),
+                                ],
 								[
 								        'label' => 'Phone Types',
                                         'url'=>'/admin/default/unavailable',

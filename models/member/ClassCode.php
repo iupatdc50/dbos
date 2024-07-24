@@ -41,8 +41,8 @@ class ClassCode extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'member_class_cd' => 'Member Class Cd',
-            'descrip' => 'Descrip',
+            'member_class_cd' => 'Classification',
+            'descrip' => 'Description',
         ];
     }
 }
