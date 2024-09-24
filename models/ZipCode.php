@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "ZipCodes".
@@ -12,9 +12,8 @@ use Yii;
  * @property string $island
  * @property string $st
  *
- * @property Island $island0
  */
-class ZipCode extends \yii\db\ActiveRecord
+class ZipCode extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -65,14 +64,6 @@ class ZipCode extends \yii\db\ActiveRecord
     		return true;
     	}
     	return false;
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getIsland0()
-    {
-        return $this->hasOne(Island::className(), ['island' => 'island']);
     }
     
     /**
