@@ -37,7 +37,7 @@ composer.lock
 /config/stripe.php
 /config/db.php
 /config/db-test.php
-/config/host-env.php
+/config/host-env.ph*
 /migrations
 /runtime/*
 !/runtime/reportico
