@@ -54,6 +54,13 @@ class ReportController extends Controller
         ]);
     }
 
+    public function actionTrainingMembers()
+    {
+        return $this->render('reportico', [
+            'folder' => 'memberrpts',
+            'report_nm' => 'trainingmembers',
+        ]);
+    }
     public function actionInactiveMembers()
     {
         return $this->render('reportico', [

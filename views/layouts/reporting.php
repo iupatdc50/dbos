@@ -203,7 +203,7 @@ use kartik\widgets\SideNav;
                                 'items' => [
                                     [
                                         'label' => 'Active Members List',
-                                        'url'=>'/report/active-members',
+                                        'url'=>'/report/training-members',
                                     ],
                                     [
                                         'label' => 'Training History',
