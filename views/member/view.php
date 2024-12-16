@@ -226,7 +226,7 @@ $status = $model->currentStatus;
                         ]),
                     'format' => 'raw',
                     'contentOptions' => ['class' => 'text-muted'],
-                    'visible' => (Yii::$app->user->can('deleteReceipt') && isset($model->stripe_id)),
+                    'visible' => (Yii::$app->user->can('RemoveID') && isset($model->stripe_id)),
                 ],
             ],
         ]); ?>
