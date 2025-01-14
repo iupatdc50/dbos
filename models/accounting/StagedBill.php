@@ -34,7 +34,7 @@ class StagedBill extends ActiveRecord
 	
 	public function attributes()
 	{
-		return array_merge(parent::attributes(), ['PC', 'JT', 'IU', 'LM', 'PA']);
+		return array_merge(parent::attributes(), ['PC', 'JT', 'IU', 'LM', 'PA', 'AD']);
 	}
 	
 	/**
@@ -112,25 +112,26 @@ class StagedBill extends ActiveRecord
 		// @row_number counter starts at 1 to hold a place for the header, i.e., first data row is 2 on the spreadsheet 
         /** @noinspection SqlCaseVsIf */
         $sql = <<<SQL
-
 			SELECT 
                 dues_payor, member_id,
 				classification, last_nm, first_nm, middle_inits, report_id, member_status,
 			    CASE WHEN pc_operand IS NULL THEN pc_factor ELSE CONCAT('=ROUND(', pc_operand, seq, '*', pc_factor, ',2)') END AS PC,
 			    CASE WHEN jt_operand IS NULL THEN jt_factor ELSE CONCAT('=ROUND(', jt_operand, seq, '*', jt_factor, ',2)') END AS JT,
 			    CASE WHEN lm_operand IS NULL THEN lm_factor ELSE CONCAT('=ROUND(', lm_operand, seq, '*', lm_factor, ',2)') END AS LM,
+				CASE WHEN ad_operand IS NULL THEN ad_factor ELSE CONCAT('=ROUND(', ad_operand, seq, '*', ad_factor, ',2)') END AS AD,
 				CASE WHEN iu_operand IS NULL THEN iu_factor ELSE CONCAT('=ROUND(', iu_operand, seq, '*', iu_factor, ',2)') END AS IU,
 				CASE WHEN pa_operand IS NULL THEN pa_factor ELSE CONCAT('=ROUND(', pa_operand, seq, '*', pa_factor, ',2)') END AS PA
 			  FROM (				
 				SELECT 
-					(@row_number:=@row_number + 1) AS seq,
+					ROW_NUMBER() over(order by classification, last_nm, first_nm, middle_inits)+1 seq,
 					classification, last_nm, first_nm, middle_inits, report_id, member_status,
                     dues_payor, member_id,
 					pc_factor, pc_operand,
 				    jt_factor, jt_operand,
 				    lm_factor, lm_operand,
 				    iu_factor, iu_operand,
-                    pa_factor, pa_operand
+                    pa_factor, pa_operand,
+                    ad_factor, ad_operand
 				  FROM (
 				    SELECT 
 				        classification, last_nm, first_nm, middle_inits, report_id, member_status
@@ -142,14 +143,13 @@ class StagedBill extends ActiveRecord
                        ,lm_factor, lm_operand
                        ,iu_factor, iu_operand
                        ,pa_factor, pa_operand
+				       ,ad_factor, ad_operand
 				      FROM StagedBills
 				      WHERE dues_payor = :license_nbr
 				        AND lob_cd = :lob_cd
 				    ORDER BY classification, last_nm, first_nm, middle_inits
-				  ) AS b, (SELECT @row_number:=1) AS t
-				  		
+				  ) AS b
 				) AS f
-				
 SQL;
 		
 		$query = StagedBill::findBySql($sql, [':license_nbr' => $license_nbr, ':lob_cd' => $lob_cd]);

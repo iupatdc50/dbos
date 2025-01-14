@@ -28,6 +28,7 @@ class ExcelGrid extends GridView
 	public $filename='excel';
 	public $extension='xlsx';
 	public $summaryCols;
+    public $grandCols;
 	/* @var $_provider ActiveDataProvider */
 	private $_provider;
 	private $_visibleColumns;
@@ -173,7 +174,8 @@ class ExcelGrid extends GridView
                 $endRow
 		);
 		
-		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . ($endRow + 1));
+//		$style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol) . ($endRow + 1));
+        $style = $this->_objPHPExcelSheet->getStyle('A2:' . self::columnName($this->_endCol+1) . ($endRow + 3));
 		$style->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
 
 		for($col = 1; $col <= $this->_endCol; $col++) {
@@ -234,6 +236,22 @@ class ExcelGrid extends GridView
             $formula = "=SUM(" . $colA . "1:" . $colA . ($row + 2) . ")";
             $this->_objPHPExcelSheet->setCellValue($colA . $total_row, $formula, true);
         }
+
+        if (!is_null($this->grandCols)) {
+            $formula = null;
+            foreach ($this->grandCols as $col) {
+                $colA = self::columnName($col);
+                if(!is_null($formula)) { $formula .= ","; }
+                $formula .= $colA . $total_row;
+            }
+            $formula = "=SUM(" . $formula . ")";
+            $colA = self::columnName(end($this->summaryCols) + 1);
+//            $colFrom = self::columnName($this->summaryCols[0]);
+//            $colTo = self::columnName(end($this->summaryCols));
+//            $formula = "=SUM(" . $colFrom . $total_row . ':' . $colTo . $total_row . ")";
+            $this->_objPHPExcelSheet->setCellValue($colA . $total_row, $formula, true);
+        }
+
     }
 
 	protected function setVisibleColumns()

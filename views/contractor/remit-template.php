@@ -39,11 +39,12 @@ $base = [
 			[
 					'label' => 'GW: Gross Wages',  				// column H [8]
 					'value' => null,
-			],
+			]
 ];
 
 $summaryCols = [7, 8];
 $col_nbr = 8;
+$grandCols = [];
 
 $submittables = [];
 foreach ($modelsFeeType as $modelFeeType) {
@@ -57,13 +58,15 @@ foreach ($modelsFeeType as $modelFeeType) {
 				'label' => $modelFeeType->colHead,
 				'value' => null,
 		];
-	if ($modelFeeType->fee_type != FeeType::TYPE_HOURS)
-	    $summaryCols[] = ++$col_nbr;
+	if ($modelFeeType->fee_type != FeeType::TYPE_HOURS) {
+        $summaryCols[] = ++$col_nbr;
+        $grandCols[] = $col_nbr;
+    }
 }
 
 /** @noinspection PhpUnhandledExceptionInspection */
 ExcelGrid::widget([
-		'dataProvider' => $dataProvider,
+        'dataProvider' => $dataProvider,
 		'filename' => $file_nm,
 		'properties' => [
 			'sheetTitle' => $sheetTitle,
@@ -72,6 +75,7 @@ ExcelGrid::widget([
 		'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => ''],
 		'columns' => array_merge ($base, $submittables),
         'summaryCols' => $summaryCols,
+        'grandCols' => $grandCols,
 ]);
 
 
