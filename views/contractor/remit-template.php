@@ -1,6 +1,6 @@
 <?php
 
-use app\components\utilities\ExcelGrid;
+use app\components\utilities\RemitGrid;
 use app\modules\admin\models\FeeType;
 use yii\web\View;
 
@@ -45,6 +45,11 @@ $base = [
 $summaryCols = [7, 8];
 $col_nbr = 8;
 $grandCols = [];
+$groups = [
+    0 => ["cols" => [7,8], "backgroundcolor" => "ffffff", "grandtotal" => false],  // white
+    1 => ["cols" => [], "backgroundcolor" => "d3d3d3", "grandtotal" => true],      // light grey
+    2 => ["cols" => [], "backgroundcolor" => "add8e6", "grandtotal" => true]      // light blue
+];
 
 $submittables = [];
 foreach ($modelsFeeType as $modelFeeType) {
@@ -61,11 +66,16 @@ foreach ($modelsFeeType as $modelFeeType) {
 	if ($modelFeeType->fee_type != FeeType::TYPE_HOURS) {
         $summaryCols[] = ++$col_nbr;
         $grandCols[] = $col_nbr;
+        if ($modelFeeType->fee_type != FeeType::TYPE_JTP) {
+            $groups[1]["cols"][] = $col_nbr;
+        } else {
+            $groups[2]["cols"][] = $col_nbr;
+        }
     }
 }
 
 /** @noinspection PhpUnhandledExceptionInspection */
-ExcelGrid::widget([
+RemitGrid::widget([
         'dataProvider' => $dataProvider,
 		'filename' => $file_nm,
 		'properties' => [
@@ -76,6 +86,7 @@ ExcelGrid::widget([
 		'columns' => array_merge ($base, $submittables),
         'summaryCols' => $summaryCols,
         'grandCols' => $grandCols,
+        'groups' => $groups,
 ]);
 
 
