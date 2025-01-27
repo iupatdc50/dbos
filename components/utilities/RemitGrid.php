@@ -264,7 +264,7 @@ class RemitGrid extends GridView
                     $this->_objPHPExcelSheet->setCellValue($colA . $total_row, $formula, true);
                 }
 
-                if ($group['grandtotal']) {
+                if ($group['grandtotal'] and !is_null($firstcol)) {
                     $colA = $firstcol . $total_row . ":" . $lastcol . $total_row;
                     $formula = "=SUM(" . $colA . ")";
 
