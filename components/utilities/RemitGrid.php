@@ -32,6 +32,7 @@ class RemitGrid extends GridView
 	public $summaryCols;
     public $grandCols;
     public $groups;
+    public $footer;
 	/* @var $_provider ActiveDataProvider */
 	private $_provider;
 	private $_visibleColumns;
@@ -234,13 +235,15 @@ class RemitGrid extends GridView
         $this->_objPHPExcelSheet->setCellValue($colA . $total_row, 'Subtotal', true);
         $this->_objPHPExcelSheet->setCellValue($colA . ($total_row + 1), 'Total', true);
 
-        if (!is_null($this->groups)) {
-//            $myrow = 20;
-            foreach ($this->groups as $group) {
-//                $myrow++;
-//                $value = implode(',', $group["cols"]);
-//                $this->_objPHPExcelSheet->setCellValue('A' . $myrow, $value, true);
+        if (!is_null($this->footer)) {
+            $colA = 'B' . ($total_row + 3);
+            $this->_objPHPExcelSheet->setCellValue($colA, $this->footer, true);
+            $colA = 'B' . ($total_row + 3) . ':G' . ($total_row + 3);
+            $this->_objPHPExcelSheet->mergeCells($colA);
+        }
 
+        if (!is_null($this->groups)) {
+            foreach ($this->groups as $group) {
                 $firstcol = null;
                 $lastcol = null;
                 foreach ($group["cols"] as $col) {

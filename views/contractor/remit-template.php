@@ -87,6 +87,7 @@ RemitGrid::widget([
         'summaryCols' => $summaryCols,
         'grandCols' => $grandCols,
         'groups' => $groups,
+        'footer' => $sheetTitle . ' - ' . date('F Y'),
 ]);
 
 
