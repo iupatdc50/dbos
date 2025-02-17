@@ -76,7 +76,7 @@ class UniversalFile extends ActiveRecord
         return [
             [['acct_month', 'B', 'C', 'K', 'N', 'O'], 'required'],
             [['D', 'F', 'S', 'T', 'U', 'W', 'X', 'Z', 'AA', 'AB', 'AD', 'AE', 'AG', 'AH', 'AI', 'AK', 'AM', 'AN', 'AO', 'AP', 'AR', 'AT', 'AU', 'AV', 'AW'], 'string'],
-            [['H', 'J', 'V', 'Y', 'AC', 'AF', 'AJ', 'AL', 'AS'], 'number'],
+            [['H', 'J', 'V', 'Y', 'AC', 'AF', 'AJ', 'AL', 'AS', 'AX'], 'number'],
             [['M'], 'safe'],
             [['B', 'P', 'Q', 'R'], 'string'],
             [['acct_month'], 'string', 'max' => 6],
@@ -145,6 +145,7 @@ class UniversalFile extends ActiveRecord
             'AU' => 'Death Benefit Paid Rate',
             'AV' => 'Market Recovery Paid Rate?',
             'AW' => 'Death Fund Paid Rate',
+            'AX' => 'Admin Fees Paid',
         ];
     }
 }
