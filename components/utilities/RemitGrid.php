@@ -75,7 +75,7 @@ class RemitGrid extends GridView
 
         // lock header row with password
         $sheet = $this->_objPHPExcelSheet;
-        $sheet->protectCells('A1:Z1');
+        $sheet->protectCells('A1:Z1','dbos');
         $sheet->getStyle('A2:Z99')->getProtection()->setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);
         $sheet->getProtection()->setSheet(true);
 
