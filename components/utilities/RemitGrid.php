@@ -9,6 +9,7 @@ use PHPExcel_Style_Fill;
 use PHPExcel_Worksheet;
 use PHPExcel_Writer_Exception;
 use PHPExcel_Writer_IWriter;
+use PHPExcel_Style_Protection;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
@@ -71,7 +72,14 @@ class RemitGrid extends GridView
 		$row = $this->generateBody();
 		if (!is_null($this->summaryCols))
 		    $this->generateTotals($row);
-		$writer = $this->_objPHPExcelWriter;
+
+        // lock header row with password
+        $sheet = $this->_objPHPExcelSheet;
+        $sheet->protectCells('A1:Z1');
+        $sheet->getStyle('A2:Z99')->getProtection()->setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);
+        $sheet->getProtection()->setSheet(true);
+
+        $writer = $this->_objPHPExcelWriter;
 		$this->setHttpHeaders();
 		ob_end_clean();
 		$writer->save('php://output');
