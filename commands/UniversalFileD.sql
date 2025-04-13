@@ -35,18 +35,36 @@ select
     NULL AS `S`,
     NULL AS `T`,
     NULL AS `U`,
-    `CtL`.`factor` AS `V`,
+    case when `Ms`.member_status <> 'O' then /* show if not out of state */
+    	`CtL`.`factor`
+    else null end AS `V`,
+#    `CtL`.`factor` AS `V`,
     NULL AS `W`,
     NULL AS `X`,
-    `CtI`.`factor` AS `Y`,
-    0.25 AS `Z`,
+    case when `Ms`.member_status <> 'O' then /* show if not out of state */
+	    `CtI`.`factor`
+    else null end AS `Y`,
+#   `CtI`.`factor` AS `Y`,
+    case when `Ms`.member_status <> 'O' then /* show if not out of state */
+	    0.25
+    else null end AS `Z`,
+#    0.25 AS `Z`,
     NULL AS `AA`,
     NULL AS `AB`,
-    `FSL`.`amt` AS `AC`,
+    case when `Ms`.member_status <> 'O' then /* show if not out of state */
+	    `FSL`.`amt`
+    else null end AS `AC`,
+#    `FSL`.`amt` AS `AC`,
     NULL AS `AD`,
     NULL AS `AE`,
-    `FSI`.`amt` AS `AF`,
-    (0.25 * `FSH`.`amt`) AS `AG`,
+    case when `Ms`.member_status <> 'O' then /* show if not out of state */
+	    `FSI`.`amt`
+    else null end AS `AF`,
+#    `FSI`.`amt` AS `AF`,
+    case when `Ms`.member_status <> 'O' then /* show if not out of state */
+ 	   (0.25 * `FSH`.`amt`)
+    else null end AS `AG`,
+#    (0.25 * `FSH`.`amt`) AS `AG`,
     NULL AS `AH`,
     NULL AS `AI`,
     `FS5`.`amt` AS `AJ`,
@@ -98,6 +116,7 @@ left join `FeeSumByMonth` `FSA` on
                 and (`FSA`.`fee_type` = 'IN'))))
 join `Members` `Me` on
     ((`Me`.`member_id` = `ILI`.`member_id`)))
+left join `MemberStatuses` `Ms` on (`Ms`.`member_id` = `ILI`.`member_id` and `Ms`.`end_dt` is NULL) 
 left join `Contributions` `CtL` on
     (((`CtL`.`lob_cd` = `ILI`.`lob_cd`)
         and (`CtL`.`contrib_type` = 'LM'))))
