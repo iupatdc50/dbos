@@ -185,7 +185,12 @@ class ContractorController extends RootController
         ]);
     	$audit->save();
 
-    	$modelsFeeType = TradeFeeType::find()->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])->orderBy('seq')->all();
+        /* add removal of IUPAT PAC entries from all but Glaziers */
+    	$modelsFeeType = TradeFeeType::find()
+            ->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])
+            ->andwhere(['or', 'fee_type<>"IU"', 'lob_cd="1889"'])
+            ->orderBy('seq')
+            ->all();
 
     	$dataProvider = $stagedBillModel->getPreFill($id, $lob_cd);
     	return $this->renderPartial('remit-template', [
