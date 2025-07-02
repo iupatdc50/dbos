@@ -18,6 +18,7 @@ use app\models\employment\EmploymentSearch;
 use app\models\accounting\CreateRemitForm;
 use app\models\accounting\StagedBill;
 use app\models\accounting\TradeFeeType;
+use app\modules\admin\models\FeeType;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
@@ -26,6 +27,7 @@ use yii\filters\AccessControl;
 use app\helpers\OptionHelper;
 use yii\web\Response;
 use yii\web\UploadedFile;
+
 
 /**
  * ContractorController implements the CRUD actions for Contractor model.
@@ -186,9 +188,11 @@ class ContractorController extends RootController
     	$audit->save();
 
         /* add removal of IUPAT PAC entries from all but Glaziers */
+        /* ->andwhere(['or', 'fee_type<>"IU"', 'lob_cd="1889"']) */
+        /* fee_type filter is temporary until later this year 7/2/25 tspeed */
     	$modelsFeeType = TradeFeeType::find()
             ->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])
-            ->andwhere(['or', 'fee_type<>"IU"', 'lob_cd="1889"'])
+            ->andWhere(['!=', 'fee_type', FeeType::TYPE_IUPAT])
             ->orderBy('seq')
             ->all();
 
