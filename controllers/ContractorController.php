@@ -187,9 +187,9 @@ class ContractorController extends RootController
         ]);
     	$audit->save();
 
-        /* add removal of IUPAT PAC entries from all but Glaziers */
-        /* ->andwhere(['or', 'fee_type<>"IU"', 'lob_cd="1889"']) */
-        /* fee_type filter is temporary until later this year 7/2/25 tspeed */
+        /** add removal of IUPAT PAC entries from all but Glaziers */
+        /** ->andwhere(['or', 'fee_type<>"IU"', 'lob_cd="1889"']) */
+        /** fee_type filter is temporary until later this year 7/2/25 tspeed */
     	$modelsFeeType = TradeFeeType::find()
             ->where(['lob_cd' => $lob_cd, 'employer_remittable' => true])
             ->andWhere(['!=', 'fee_type', FeeType::TYPE_IUPAT])
