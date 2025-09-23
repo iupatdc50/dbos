@@ -105,7 +105,7 @@ class MemberController extends RootController
     public function actionView($id)
     {
     	parent::actionView($id);
-    	
+
     	$view = Yii::$app->user->can('browseMember') ? 'view' : 'viewext';
     	$model = $this->findModel($id);
     	$params = [];

@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-        'version' => '2.0.14.815',
+        'version' => '2.0.14.820',
 		'basePath' => realpath ( __DIR__ . '/../' ),
         'aliases' => [
             '@bower' => '@vendor/bower-asset',
@@ -104,10 +104,11 @@ $config = [
 
 if(YII_ENV_DEV) {
 	$config['bootstrap'][] = 'debug';
-    $config['modules']['gii']['class'] = 'yii\gii\Module';
-    $config['modules']['gii']['allowedIPs'] = ['*'];
     $config['modules']['debug']['class'] = 'yii\debug\Module';
     $config['modules']['debug']['allowedIPs'] = ['*'];
+    $config['bootstrap'][] = 'gii';
+    $config['modules']['gii']['class'] = 'yii\gii\Module';
+    $config['modules']['gii']['allowedIPs'] = ['*'];
 }
 
 return $config;

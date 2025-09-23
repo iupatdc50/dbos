@@ -112,6 +112,13 @@ use app\helpers\OptionHelper;
     <?= $form->field($model, 'overage')->textInput(['maxlength' => true]) ?>
     <?php endif; ?>
 
+    <?= $form->field($model, 'OptOut')->widget(Select2::className(), [
+        'data' => OptionHelper::getTFOptions(false),
+        'hideSearch' => false,
+        'size' => S2Const::SMALL,
+        'options' => ['placeholder' => 'Select...', 'id' => 'OptOut'],
+    ]) ?>
+
     <hr>
 	    <div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

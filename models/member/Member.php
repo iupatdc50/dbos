@@ -63,6 +63,7 @@ use yii\db\Exception;
  * @property string $card_id [varchar(20)]
  * @property string $nick_nm [varchar(30)]
  * @property string $stripe_id [varchar(50)]
+ * @property string $OptOut [char(1)]
  *
  * @property string $fullName
  * @property Phone[] $phones
@@ -279,7 +280,7 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	[['shirt_size'], 'exist', 'targetClass' => Size::className(), 'targetAttribute' => 'size_cd'],
             [['photo_id'], 'string', 'max' => 20],
         	[['photo_file'], 'file', 'mimeTypes' => 'image/jpeg'],
-        	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id', 'nick_nm'], 'default'],
+        	[['middle_inits', 'suffix', 'photo_id', 'imse_id', 'ncfs_id', 'nick_nm', 'OptOut'], 'default'],
             ['overage', 'default', 'value' => 0.00],
         	[['ssnumber', 'imse_id', 'ncfs_id'], 'unique'],
             [['exempt_apf', 'is_ccd', 'wage_percent'], 'safe'],
@@ -325,7 +326,8 @@ class Member extends ActiveRecord implements iNotableInterface, iDemographicInte
         	'overage' => 'Overage',
             'nick_nm' => 'Nick Name',
             'is_ccd' => 'Is CCD?',
-            'stripe_id' => 'Stripe Customer ID'
+            'stripe_id' => 'Stripe Customer ID',
+            'OptOut' => 'Elec Opt Out',
         ];
     }
     

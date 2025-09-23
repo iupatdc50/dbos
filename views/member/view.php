@@ -212,6 +212,7 @@ $status = $model->currentStatus;
                         : 'Unemployed',
                     'label' => 'Employer',
                 ],
+                ['attribute' => 'OptOut', 'value' => OptionHelper::getTFText($model->OptOut)],
                 [
                     'attribute' => 'stripe_id',
                     'value' =>
