@@ -5,7 +5,7 @@ $env = !YII_ENV_PROD ? ' (' .YII_ENV . ')' : '';
 $config = [ 
 		'id' => 'dbos',
 		'name' => 'DC50 Business Office Support' . $env,
-        'version' => '2.0.14.820',
+        'version' => '2.0.14.825',
 		'basePath' => realpath ( __DIR__ . '/../' ),
         'aliases' => [
             '@bower' => '@vendor/bower-asset',
@@ -60,6 +60,9 @@ $config = [
 				'admin' => [
 						'class' => 'app\modules\admin\AdminModule',
 				],
+                'events' => [
+                        'class' => 'app\modules\events\EventsModule',
+                ],
 		],
 		'components' => require (__DIR__ . '/components.php'),
 		'extensions' => require (__DIR__ . '/../vendor/yiisoft/extensions.php'), 
