@@ -88,6 +88,10 @@ app\assets\ApplicationUiAssetBundle::register($this);
 		                $menuItems[] = [
 		                		'label' => 'Admin', 'url' => ['/admin'],
 		                ];
+                    if(Yii::$app->user->can('manageSupport'))
+                        $menuItems[] = [
+                                'label' => 'Gift Events', 'url' => ['/events'],
+                        ];
 	                $menuItems[] = [
 	                	'label' => 'Account: ' . Yii::$app->user->identity->first_nm,
 	                	'items' => [
