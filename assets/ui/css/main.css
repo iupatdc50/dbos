@@ -395,6 +395,7 @@ ul.noBullets {list-style: none;}
 .three-em {height: 3em;}
 .ten-em {width: 10em;}
 .twelve-em {width: 12em;}
+.ten-pct {width: 10%;}
 .twentyfive-pct {width: 25%;}
 .thirtyfive-pct {width: 35%;}
 .forty-pct {width: 40%;}

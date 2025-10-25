@@ -108,6 +108,7 @@ use yii\db\Exception;
  * @property MemberLogin $enrolledOnline
  * @property Subscription $subscription
  * @property Document[] $unfiledDocs
+ * @property string $island
  *
  */
 class Member extends ActiveRecord implements iNotableInterface, iDemographicInterface
@@ -1367,4 +1368,10 @@ SQL;
         return $this->standing;
     }
 
+    public function getIsland()
+    {
+        $zipcode = $this->addressDefault->address->zip_cd;
+        $zip_model = ZipCode::findOne($zipcode);
+        return $zip_model->island;
+    }
 }
