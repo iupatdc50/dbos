@@ -1370,8 +1370,14 @@ SQL;
 
     public function getIsland()
     {
-        $zipcode = $this->addressDefault->address->zip_cd;
-        $zip_model = ZipCode::findOne($zipcode);
-        return $zip_model->island;
+        $model_addressDefault = $this->addressDefault;
+        if (isset($model_addressDefault)) {
+//            $zipcode = $this->addressDefault->address->zip_cd;
+            $zipcode = $model_addressDefault->address->zip_cd;
+            $zip_model = ZipCode::findOne($zipcode);
+            return $zip_model->island;
+        } else {
+            return 'NoIsland';
+        }
     }
 }
