@@ -253,9 +253,9 @@ class MaintenanceController extends Controller
 			                                     AND (MS.reason IS NULL OR MS.member_status <> '$susp_reinst' OR (MS.member_status = '$susp_reinst' AND MS.reason <> '$reason_reinst'))
 			                                     AND MS.end_dt IS NULL 
                     WHERE dues_paid_thru_dt <= :cutoff_dt 
-			          AND lob_cd <> '1941'
 			  ;
 SQL;
+//        AND lob_cd <> '1941'
 
 	}
 
