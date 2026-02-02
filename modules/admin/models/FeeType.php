@@ -31,6 +31,7 @@ class FeeType extends ActiveRecord
 	CONST TYPE_WAGEPCT = 'PC';
 	CONST TYPE_LMCI = 'LM';
 	CONST TYPE_MHWAGEPCT = 'PM';
+    CONST TYPE_IUPAT_ADMIN = 'AD';
 
     /**
      * @inheritdoc
@@ -58,6 +59,7 @@ class FeeType extends ActiveRecord
             self::TYPE_WAGEPCT,
             self::TYPE_LMCI,
             self::TYPE_MHWAGEPCT,
+            self::TYPE_IUPAT_ADMIN,
         ];
     }
 
