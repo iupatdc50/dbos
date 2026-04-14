@@ -46,7 +46,7 @@ select
     else null end AS `Y`,
 #   `CtI`.`factor` AS `Y`,
     case when `Ms`.member_status <> 'O' then /* show if not out of state */
-	    0.25
+	    0.35
     else null end AS `Z`,
 #    0.25 AS `Z`,
     NULL AS `AA`,
@@ -62,7 +62,7 @@ select
     else null end AS `AF`,
 #    `FSI`.`amt` AS `AF`,
     case when `Ms`.member_status <> 'O' then /* show if not out of state */
- 	   (0.25 * `FSH`.`amt`)
+ 	   (0.35 * `FSH`.`amt`)
     else null end AS `AG`,
 #    (0.25 * `FSH`.`amt`) AS `AG`,
     NULL AS `AH`,

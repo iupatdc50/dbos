@@ -16,7 +16,7 @@ select
             using utf8mb3)
         else concat((right(`ILI`.`acct_month`, 2) - 1), '/', left(`ILI`.`acct_month`, 4))
     end) AS `E`,
-    ((coalesce(`FSL`.`amt`, 0) + coalesce(`FSI`.`amt`, 0)) + coalesce((`FSH`.`amt` * 0.25), 0)) AS `F`,
+    ((coalesce(`FSL`.`amt`, 0) + coalesce(`FSI`.`amt`, 0)) + coalesce((`FSH`.`amt` * 0.35), 0)) AS `F`,
     coalesce(`FSH`.`amt`, 0) AS `G`,
     NULL AS `H`,
     'M' AS `I`,
